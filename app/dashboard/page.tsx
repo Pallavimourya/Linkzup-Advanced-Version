@@ -109,67 +109,34 @@ export default function DashboardPage() {
     setIsGenerating(true)
 
     try {
-      // TODO: Replace with actual AI API call
-      await new Promise((resolve) => setTimeout(resolve, 3000)) // Simulate API call
+      // Call the new AI API with all form parameters
+      const response = await fetch("/api/ai/generate-linkedin-posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
 
+      if (!response.ok) {
+        throw new Error("Failed to generate posts")
+      }
+
+      const data = await response.json()
+      const generatedPosts: GeneratedPost[] = data.posts
+
+      // Deduct credits after successful generation
       await fetch("/api/billing/credits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "deduct", amount: 0.5 }),
       })
 
-      // Mock generated posts
-      const mockPosts: GeneratedPost[] = [
-        {
-          id: "1",
-          content: `🚀 Just discovered an incredible insight about ${formData.prompt}!\n\nAfter years in the industry, I've learned that success isn't just about having the right strategy—it's about executing with precision and adapting quickly to change.\n\nHere are 3 key takeaways that transformed my approach:\n\n✅ Focus on value creation over feature accumulation\n✅ Build genuine relationships, not just networks\n✅ Embrace failure as your greatest teacher\n\nWhat's been your biggest game-changer this year? Drop your thoughts below! 👇\n\n#Leadership #Growth #Success`,
-          tone: formData.tone,
-          wordCount: Number.parseInt(formData.wordCount),
-          createdAt: new Date(),
-        },
-        {
-          id: "2",
-          content: `💡 Here's something that completely shifted my perspective on ${formData.prompt}...\n\nLast week, I had a conversation that reminded me why we do what we do. It's not just about the metrics or the bottom line—it's about the impact we create.\n\nThree principles that guide my daily decisions:\n\n1️⃣ Always ask "How does this serve others?"\n2️⃣ Choose progress over perfection\n3️⃣ Stay curious, even when you think you know\n\nThe best leaders I know aren't the ones with all the answers—they're the ones asking the right questions.\n\nWhat question changed your perspective recently? 🤔\n\n#Mindset #Leadership #Innovation`,
-          tone: formData.tone,
-          wordCount: Number.parseInt(formData.wordCount),
-          createdAt: new Date(),
-        },
-        {
-          id: "3",
-          content: `🎯 Quick story about ${formData.prompt} that might resonate with you...\n\nTwo years ago, I was stuck in analysis paralysis. Every decision felt monumental, every move had to be perfect.\n\nThen a mentor told me: "Done is better than perfect, but strategic is better than done."\n\nGame changer. 🔥\n\nNow I follow the 70% rule:\n• If I'm 70% confident, I move forward\n• I gather feedback quickly\n• I iterate based on real data, not assumptions\n\nResult? Faster growth, better outcomes, less stress.\n\nSometimes the best strategy is simply starting.\n\nWhat's one decision you've been overthinking? Let's discuss! 💬\n\n#Strategy #Productivity #Entrepreneurship`,
-          tone: formData.tone,
-          wordCount: Number.parseInt(formData.wordCount),
-          createdAt: new Date(),
-        },
-        {
-          id: "4",
-          content: `🌟 Unpopular opinion about ${formData.prompt}:\n\nEveryone talks about "work-life balance," but I think we're approaching it wrong.\n\nIt's not about perfect balance—it's about intentional integration.\n\nSome days, work demands more. Some days, life takes priority. The key is being present wherever you are.\n\nMy framework:\n🔹 Set clear boundaries, but stay flexible\n🔹 Communicate expectations early and often\n🔹 Protect your energy, not just your time\n🔹 Remember: saying no to good things means saying yes to great things\n\nBalance isn't a destination—it's a daily practice.\n\nHow do you manage competing priorities? Share your approach! 👇\n\n#WorkLifeBalance #Productivity #Wellness`,
-          tone: formData.tone,
-          wordCount: Number.parseInt(formData.wordCount),
-          createdAt: new Date(),
-        },
-        {
-          id: "5",
-          content: `📈 Data point that surprised me about ${formData.prompt}:\n\n87% of professionals say they learn more from failure than success, yet we still celebrate wins and hide losses.\n\nTime to flip the script.\n\nHere's what I learned from my biggest "failure" last quarter:\n\n❌ What went wrong: Assumed I knew what customers wanted\n✅ What I learned: Always validate assumptions with real users\n🚀 What changed: Now I prototype fast and test faster\n\nResult: 40% improvement in product-market fit scores.\n\nFailure isn't the opposite of success—it's a stepping stone to it.\n\nWhat's one failure that became your biggest teacher? Let's normalize learning from setbacks! 💪\n\n#Growth #Learning #Resilience`,
-          tone: formData.tone,
-          wordCount: Number.parseInt(formData.wordCount),
-          createdAt: new Date(),
-        },
-        {
-          id: "6",
-          content: `🔥 Controversial take on ${formData.prompt}:\n\nNetworking events are overrated. Real relationships are built in the trenches, not at cocktail parties.\n\nThe best connections I've made happened when:\n• Helping someone solve a real problem\n• Collaborating on meaningful projects\n• Sharing honest struggles and victories\n• Following up with genuine value, not just "checking in"\n\nAuthentic relationships > Transactional networking\n\nStop collecting business cards. Start creating value.\n\nThe network effect happens naturally when you focus on being genuinely helpful.\n\nWhat's the most valuable professional relationship you've built? How did it start? 🤝\n\n#Networking #Relationships #Value`,
-          tone: formData.tone,
-          wordCount: Number.parseInt(formData.wordCount),
-          createdAt: new Date(),
-        },
-      ]
-
-      setGeneratedPosts(mockPosts)
+      setGeneratedPosts(generatedPosts)
       toast({
         title: "Success!",
-        description: `Generated ${mockPosts.length} LinkedIn posts for you`,
+        description: `Generated ${generatedPosts.length} unique LinkedIn posts for you`,
       })
     } catch (error) {
+      console.error("Error generating posts:", error)
       toast({
         title: "Error",
         description: "Failed to generate content. Please try again.",
@@ -360,8 +327,20 @@ export default function DashboardPage() {
                     <SelectItem value="thought-leadership">Establish Thought Leadership</SelectItem>
                     <SelectItem value="networking">Expand Network</SelectItem>
                     <SelectItem value="education">Educate Audience</SelectItem>
+                    <SelectItem value="brand-building">Build Brand</SelectItem>
+                    <SelectItem value="community">Build Community</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            {/* Additional Configuration */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-muted-foreground">AI Configuration</Label>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>• Your customization settings will be used to generate unique, tailored content</p>
+                <p>• Each post will be optimized for your target audience and goals</p>
+                <p>• Content will be formatted specifically for LinkedIn with proper hashtags and emojis</p>
               </div>
             </div>
 

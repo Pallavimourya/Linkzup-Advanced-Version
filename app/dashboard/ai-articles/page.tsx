@@ -56,22 +56,55 @@ export default function AIArticlesPage() {
       return
     }
 
+    if (selectedNiche === "Custom Niche" && !customNiche.trim()) {
+      toast({
+        title: "Please enter a custom niche",
+        description: "Enter your custom niche to generate topics.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsGenerating(true)
 
     try {
       const niche = selectedNiche === "Custom Niche" ? customNiche : selectedNiche
+      
+      // Check credits before generating
+      const creditResponse = await fetch("/api/billing/credits")
+      if (creditResponse.ok) {
+        const creditData = await creditResponse.json()
+        if (!creditData.isTrialActive && creditData.credits < 0.3) {
+          toast({
+            title: "Insufficient Credits",
+            description: "You need at least 0.3 credits to generate topics. Please purchase more credits.",
+            variant: "destructive",
+          })
+          window.location.href = "/dashboard/billing"
+          return
+        }
+      }
+
       const response = await fetch("/api/ai/generate-topics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ niche, count: topicCount }),
       })
 
-      if (!response.ok) throw new Error("Failed to generate topics")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to generate topics")
+      }
 
       const data = await response.json()
+      
+      if (!data.topics || !Array.isArray(data.topics)) {
+        throw new Error("Invalid response format from API")
+      }
+
       const newTopics: Topic[] = data.topics.map((title: string, index: number) => ({
         id: `topic-${Date.now()}-${index}`,
-        title,
+        title: title.trim(),
         viralChance: Math.floor(Math.random() * 40) + 60, // 60-99%
         niche,
         status: "generated" as const,
@@ -81,14 +114,22 @@ export default function AIArticlesPage() {
       newTopics.sort((a, b) => b.viralChance - a.viralChance)
       setTopics(newTopics)
 
+      // Deduct credits after successful generation
+      await fetch("/api/billing/credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "deduct", amount: 0.3 }),
+      })
+
       toast({
         title: "Topics generated successfully!",
-        description: `Generated ${topicCount} topics for ${niche}`,
+        description: `Generated ${newTopics.length} topics for ${niche}`,
       })
     } catch (error) {
+      console.error("Error generating topics:", error)
       toast({
         title: "Error generating topics",
-        description: "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive",
       })
     } finally {
@@ -107,9 +148,26 @@ export default function AIArticlesPage() {
     const topic = topics.find((t) => t.id === topicId)
     if (!topic) return
 
+    // Update topic status to show loading
     setTopics(topics.map((t) => (t.id === topicId ? { ...t, format, status: "content-ready" } : t)))
 
     try {
+      // Check credits before generating content
+      const creditResponse = await fetch("/api/billing/credits")
+      if (creditResponse.ok) {
+        const creditData = await creditResponse.json()
+        if (!creditData.isTrialActive && creditData.credits < 0.4) {
+          toast({
+            title: "Insufficient Credits",
+            description: "You need at least 0.4 credits to generate content. Please purchase more credits.",
+            variant: "destructive",
+          })
+          // Reset topic status
+          setTopics(topics.map((t) => (t.id === topicId ? { ...t, status: "generated" } : t)))
+          return
+        }
+      }
+
       const response = await fetch("/api/ai/generate-content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -120,22 +178,40 @@ export default function AIArticlesPage() {
         }),
       })
 
-      if (!response.ok) throw new Error("Failed to generate content")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to generate content")
+      }
 
       const data = await response.json()
 
+      if (!data.content) {
+        throw new Error("No content received from API")
+      }
+
+      // Update topic with generated content
       setTopics(topics.map((t) => (t.id === topicId ? { ...t, content: data.content, status: "expanded" } : t)))
+
+      // Deduct credits after successful generation
+      await fetch("/api/billing/credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "deduct", amount: 0.4 }),
+      })
 
       toast({
         title: "Content generated!",
         description: `Created ${format.toLowerCase()} content for "${topic.title}"`,
       })
     } catch (error) {
+      console.error("Error generating content:", error)
       toast({
         title: "Error generating content",
-        description: "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive",
       })
+      // Reset topic status on error
+      setTopics(topics.map((t) => (t.id === topicId ? { ...t, status: "generated" } : t)))
     }
   }
 
