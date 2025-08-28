@@ -1,97 +1,125 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, Sparkles, Target, Zap, Users, BarChart3, Calendar } from "lucide-react"
+import { ArrowRight, Sparkles, Target, Zap, Users, BarChart3, Calendar, CheckCircle, TrendingUp, Award, Clock, X } from "lucide-react"
 import Link from "next/link"
+import { MainNavbar } from "@/components/main-navbar"
+import { Logo } from "@/components/logo"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted">
       {/* Navigation */}
-      <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold text-foreground">LinkzUp</span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
-                Features
-              </Link>
-              <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                Pricing
-              </Link>
-              <Link href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Link>
-              <Link href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
-                Contact
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/signin">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button>
-                  Get Started <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MainNavbar />
 
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Transform Your LinkedIn Presence with <span className="text-primary">AI-Powered</span> Content
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Create engaging LinkedIn posts, schedule content, and grow your professional network with our intelligent
-              content management platform powered by advanced AI.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/auth/signup">
-                <Button size="lg" className="text-lg px-8 py-6">
-                  Start Creating for Free <Sparkles className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
-                Watch Demo <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+                Grow on LinkedIn.<br />
+                <span className="text-primary">Without the hassle.</span>
+              </h1>
+              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+                Your profile, content, engagement — managed end-to-end so you can focus on business.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Link href="/auth/signup">
+                  <Button size="lg" className="text-lg px-8 py-6">
+                    👉 Get Started Now <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden shadow-2xl">
+                <video 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                  className="w-full h-auto"
+                  poster="/placeholder.jpg"
+                >
+                  <source src="/video.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-card/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Everything You Need to Succeed on LinkedIn
+      {/* Problem Statement */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-card/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              Most professionals are invisible on LinkedIn.
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              From AI content generation to automated scheduling, LinkzUp provides all the tools you need to build a
-              powerful LinkedIn presence.
+            <p className="text-xl text-muted-foreground mb-8">
+              1 Billion users, but less than 3% post content.
             </p>
           </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-foreground">Founders & CXOs don't have the time to:</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start space-x-3">
+                  <Clock className="w-5 h-5 text-muted-foreground mt-0.5" />
+                  <span className="text-muted-foreground">Write content consistently</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <Users className="w-5 h-5 text-muted-foreground mt-0.5" />
+                  <span className="text-muted-foreground">Engage with prospects daily</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <Target className="w-5 h-5 text-muted-foreground mt-0.5" />
+                  <span className="text-muted-foreground">Optimize their profile for visibility</span>
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-destructive">Result:</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start space-x-3">
+                  <X className="w-5 h-5 text-destructive mt-0.5" />
+                  <span className="text-muted-foreground">Missed leads</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <X className="w-5 h-5 text-destructive mt-0.5" />
+                  <span className="text-muted-foreground">Poor visibility</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <X className="w-5 h-5 text-destructive mt-0.5" />
+                  <span className="text-muted-foreground">Weak personal brand</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-foreground mb-4">
+              We make you a thought leader, while you focus on business.
+            </h3>
+          </div>
+        </div>
+      </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Services Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="border-border hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Sparkles className="w-6 h-6 text-primary" />
+                  <Award className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>AI Content Generation</CardTitle>
+                <CardTitle>Profile Revamp</CardTitle>
                 <CardDescription>
-                  Generate engaging, professional LinkedIn posts with advanced AI that understands your voice and
-                  audience.
+                  Authority-driven design & copy.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -101,45 +129,9 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Calendar className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Smart Scheduling</CardTitle>
+                <CardTitle>Content Calendar</CardTitle>
                 <CardDescription>
-                  Schedule posts at optimal times for maximum engagement with our intelligent scheduling system.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Target className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle>Personal Stories</CardTitle>
-                <CardDescription>
-                  Transform your experiences into compelling narratives that resonate with your professional network.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle>AI Carousel Creator</CardTitle>
-                <CardDescription>
-                  Design stunning carousel posts with AI-powered layouts, backgrounds, and content suggestions.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <BarChart3 className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle>Viral Content Insights</CardTitle>
-                <CardDescription>
-                  Stay ahead of trends with AI-curated viral content and news relevant to your industry.
+                  Weekly posts crafted for visibility.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -149,9 +141,21 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Users className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>LinkedIn Integration</CardTitle>
+                <CardTitle>Engagement & DMs</CardTitle>
                 <CardDescription>
-                  Seamlessly connect your LinkedIn account and publish content directly from our platform.
+                  Daily interactions that build trust.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-border hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <BarChart3 className="w-6 h-6 text-primary" />
+                </div>
+                <CardTitle>Growth Insights</CardTitle>
+                <CardDescription>
+                  Monthly analytics & strategy tweaks.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -159,27 +163,91 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* Why LinkedIn Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+            Try LinkZup Today
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-foreground">LinkedIn is the #1 platform for professionals.</h3>
+              <ul className="space-y-3 text-left">
+                <li className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <span className="text-muted-foreground">Organic reach on LinkedIn is 10x higher than other platforms</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <span className="text-muted-foreground">CXOs & founders are shifting to personal brand-led growth</span>
+                </li>
+                <li className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <span className="text-muted-foreground">Early movers in LinkedIn management will dominate</span>
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-foreground">From invisible to industry leader.</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">120+</div>
+                  <div className="text-sm text-muted-foreground">entrepreneurs on our waitlist</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">3x</div>
+                  <div className="text-sm text-muted-foreground">engagement in 30 days for early clients</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">₹3.5L</div>
+                  <div className="text-sm text-muted-foreground">client closed via LinkedIn in 2 months</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Founder Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <Card className="border-border bg-gradient-to-r from-primary/5 to-secondary/5 p-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+            Built by entrepreneurs, for entrepreneurs.
+          </h2>
+          <p className="text-xl text-muted-foreground mb-8">
+            Founded by Prashant Kulkarni, LinkZup was born out of a simple belief:
+          </p>
+          <blockquote className="text-2xl font-semibold text-primary mb-8 italic">
+            "Every entrepreneur deserves a powerful LinkedIn presence."
+          </blockquote>
+          <p className="text-lg text-muted-foreground">
+            Backed by LinkedIn growth strategists, content experts, and a scalable ops team, we help professionals turn profiles into profit.
+          </p>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary/5 to-secondary/5">
+        <div className="max-w-4xl mx-auto text-center">
+          <Card className="border-border bg-background/80 backdrop-blur-sm p-8">
             <CardContent className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                 Ready to Transform Your LinkedIn Strategy?
               </h2>
               <p className="text-xl text-muted-foreground">
-                Join thousands of professionals who are already using LinkzUp to grow their LinkedIn presence and build
-                meaningful connections.
+                Join the waitlist and be among the first to experience the future of LinkedIn management.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/auth/signup">
                   <Button size="lg" className="text-lg px-8 py-6">
-                    Start Your Free Trial <ArrowRight className="ml-2 w-5 h-5" />
+                    Join Waitlist <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
-                  Schedule a Demo
-                </Button>
+                <Link href="/contact">
+                  <Button size="lg" variant="outline" className="text-lg px-8 py-6 bg-transparent">
+                    Schedule a Call
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -191,70 +259,72 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <span className="text-xl font-bold text-foreground">LinkzUp</span>
-              </div>
+              <Link href="/" className="flex items-center space-x-2">
+                <Logo size="md" />
+              </Link>
               <p className="text-muted-foreground">
-                Empowering professionals to build meaningful connections through AI-powered LinkedIn content.
+                Transform your professional identity with AI-powered personal branding.
               </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-foreground mb-4">Product</h3>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>
-                  <Link href="#features" className="hover:text-foreground transition-colors">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#pricing" className="hover:text-foreground transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/auth/signup" className="hover:text-foreground transition-colors">
-                    Get Started
-                  </Link>
-                </li>
-              </ul>
             </div>
 
             <div>
               <h3 className="font-semibold text-foreground mb-4">Company</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
-                  <Link href="#about" className="hover:text-foreground transition-colors">
-                    About
+                  <Link href="/about" className="hover:text-foreground transition-colors">
+                    About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="#contact" className="hover:text-foreground transition-colors">
+                  <Link href="/features" className="hover:text-foreground transition-colors">
+                    Services
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-foreground transition-colors">
                     Contact
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/help" className="hover:text-foreground transition-colors">
-                    Help
                   </Link>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Legal</h3>
+              <h3 className="font-semibold text-foreground mb-4">Services</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
-                  <Link href="/privacy" className="hover:text-foreground transition-colors">
-                    Privacy Policy
+                  <Link href="/features" className="hover:text-foreground transition-colors">
+                    LinkedIn Branding
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:text-foreground transition-colors">
-                    Terms of Service
+                  <Link href="/features" className="hover:text-foreground transition-colors">
+                    Content Creation
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/features" className="hover:text-foreground transition-colors">
+                    Profile Optimization
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/features" className="hover:text-foreground transition-colors">
+                    Engagement Management
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Resources</h3>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>
+                  <Link href="/features" className="hover:text-foreground transition-colors">
+                    Case Studies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-foreground transition-colors">
+                    FAQs
                   </Link>
                 </li>
               </ul>
@@ -262,7 +332,7 @@ export default function HomePage() {
           </div>
 
           <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 LinkzUp. All rights reserved.</p>
+            <p>&copy; 2024 LinkZup. All rights reserved.</p>
           </div>
         </div>
       </footer>
