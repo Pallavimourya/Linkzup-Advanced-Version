@@ -63,14 +63,41 @@ export default function ProfilePage() {
   })
 
   useEffect(() => {
-    if (session?.user) {
-      setProfile({
-        name: session.user.name || "",
-        email: session.user.email || "",
-        bio: "", // TODO: Get from user profile
-        profilePicture: session.user.image || "",
-      })
+    const fetchProfile = async () => {
+      if (session?.user) {
+        try {
+          const response = await fetch("/api/user/profile")
+          if (response.ok) {
+            const userData = await response.json()
+            setProfile({
+              name: userData.name || session.user.name || "",
+              email: userData.email || session.user.email || "",
+              bio: userData.bio || "",
+              profilePicture: userData.profilePicture || session.user.image || "",
+            })
+          } else {
+            // Fallback to session data
+            setProfile({
+              name: session.user.name || "",
+              email: session.user.email || "",
+              bio: "",
+              profilePicture: session.user.image || "",
+            })
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error)
+          // Fallback to session data
+          setProfile({
+            name: session.user.name || "",
+            email: session.user.email || "",
+            bio: "",
+            profilePicture: session.user.image || "",
+          })
+        }
+      }
     }
+
+    fetchProfile()
   }, [session])
 
   const handleProfileUpdate = async () => {

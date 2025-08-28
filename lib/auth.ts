@@ -15,11 +15,11 @@ export const authOptions: NextAuthOptions = {
     LinkedInProvider({
       clientId: process.env.LINKEDIN_CLIENT_ID!,
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: "openid profile email w_member_social",
-        },
-      },
+             authorization: {
+         params: {
+           scope: "openid profile email w_member_social r_events",
+         },
+       },
       issuer: "https://www.linkedin.com",
       jwks_endpoint: "https://www.linkedin.com/oauth/openid_jwks",
       profile(profile) {
@@ -84,29 +84,46 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         const client = await clientPromise
         const users = client.db().collection("users")
-        const userData = await users.findOne({ _id: user.id })
+        const { ObjectId } = await import("mongodb")
+        const userData = await users.findOne({ _id: new ObjectId(user.id) })
 
         if (userData) {
           token.credits = userData.credits || 0
           token.isTrialActive = userData.isTrialActive || false
           token.trialStartDate = userData.trialStartDate
           token.darkMode = userData.darkMode || false
+          token.profilePicture = userData.profilePicture || userData.image || null
+          
+          // Check for LinkedIn connection from database
+          if (userData.linkedinId && userData.linkedinAccessToken) {
+            token.linkedinId = userData.linkedinId
+            token.accessToken = userData.linkedinAccessToken
+            token.linkedinConnected = true
+          } else {
+            // Clear LinkedIn data if not connected
+            token.linkedinId = undefined
+            token.accessToken = undefined
+            token.linkedinConnected = false
+          }
         }
       }
       if (account?.provider === "linkedin") {
         token.linkedinId = account.providerAccountId
         token.accessToken = account.access_token
+        token.linkedinConnected = true
         
         // Update user's LinkedIn connection in database
         const client = await clientPromise
         const users = client.db().collection("users")
+        const { ObjectId } = await import("mongodb")
         await users.updateOne(
-          { _id: token.id },
+          { _id: new ObjectId(token.id) },
           {
             $set: {
               linkedinId: account.providerAccountId,
               linkedinConnected: true,
               linkedinConnectedAt: new Date(),
+              linkedinAccessToken: account.access_token,
               updatedAt: new Date(),
             },
           }
@@ -123,6 +140,7 @@ export const authOptions: NextAuthOptions = {
         session.user.isTrialActive = token.isTrialActive as boolean
         session.user.trialStartDate = token.trialStartDate as string
         session.user.darkMode = token.darkMode as boolean
+        session.user.profilePicture = token.profilePicture as string
         
         // Check if LinkedIn is connected
         if (token.linkedinId && token.accessToken) {

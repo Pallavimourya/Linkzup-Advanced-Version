@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { MongoClient, ObjectId } from "mongodb"
 import { uploadToCloudinary, deleteFromCloudinary, extractPublicIdFromUrl } from "@/lib/cloudinary"
 
+export const dynamic = 'force-dynamic'
+
 const client = new MongoClient(process.env.MONGODB_URI!)
 
 export async function POST(request: NextRequest) {

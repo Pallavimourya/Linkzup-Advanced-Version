@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -37,6 +38,7 @@ import {
 import { useSession } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
 import { CreditDisplay } from "@/components/credit-display"
+import { LinkedInPostButton } from "@/components/linkedin-post-button"
 
 interface GeneratedPost {
   id: string
@@ -57,6 +59,7 @@ interface ContentGeneratorForm {
 
 export default function DashboardPage() {
   const { data: session } = useSession()
+  const searchParams = useSearchParams()
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedPosts, setGeneratedPosts] = useState<GeneratedPost[]>([])
   const [selectedPost, setSelectedPost] = useState<GeneratedPost | null>(null)
@@ -74,6 +77,34 @@ export default function DashboardPage() {
   const handleInputChange = (field: keyof ContentGeneratorForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
+
+  // Handle LinkedIn connection feedback
+  useEffect(() => {
+    const success = searchParams.get('success')
+    const error = searchParams.get('error')
+
+    if (success === 'linkedin_connected') {
+      toast({
+        title: "Success",
+        description: "LinkedIn account connected successfully!",
+      })
+    } else if (error) {
+      const errorMessages: Record<string, string> = {
+        linkedin_oauth_failed: "LinkedIn connection failed. Please try again.",
+        missing_params: "Missing required parameters for LinkedIn connection.",
+        invalid_state: "Invalid state parameter. Please try again.",
+        token_exchange_failed: "Failed to exchange authorization code. Please try again.",
+        profile_fetch_failed: "Failed to fetch LinkedIn profile. Please try again.",
+        callback_failed: "LinkedIn connection callback failed. Please try again.",
+      }
+      
+      toast({
+        title: "Error",
+        description: errorMessages[error] || "LinkedIn connection failed. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }, [searchParams])
 
   const handleGenerate = async () => {
     if (!formData.prompt.trim()) {
@@ -152,33 +183,7 @@ export default function DashboardPage() {
     setShowPreviewModal(true)
   }
 
-  const handlePostNow = async () => {
-    try {
-      await fetch("/api/billing/credits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "deduct", amount: 0.5 }),
-      })
-    } catch (error) {
-      console.error("Failed to deduct posting credits:", error)
-    }
 
-    // TODO: Implement LinkedIn API posting
-    toast({
-      title: "Posted!",
-      description: "Your post has been published to LinkedIn",
-    })
-    setShowPreviewModal(false)
-  }
-
-  const handleSchedulePost = () => {
-    // TODO: Implement scheduling logic
-    toast({
-      title: "Scheduled!",
-      description: "Your post has been scheduled for later",
-    })
-    setShowPreviewModal(false)
-  }
 
   const handleSaveDraft = () => {
     // TODO: Implement draft saving
@@ -497,21 +502,34 @@ export default function DashboardPage() {
                 </Tabs>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button onClick={handlePostNow} className="flex-1">
-                  <Send className="w-4 h-4 mr-2" />
-                  Post Now
-                </Button>
-                <Button onClick={handleSchedulePost} variant="outline" className="flex-1 bg-transparent">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Schedule Post
-                </Button>
-                <Button onClick={handleSaveDraft} variant="outline" className="flex-1 bg-transparent">
-                  <Save className="w-4 h-4 mr-2" />
-                  Save as Draft
-                </Button>
-              </div>
+                             {/* Action Buttons */}
+               <div className="flex flex-col sm:flex-row gap-3">
+                 <LinkedInPostButton
+                   content={selectedPost.content}
+                   variant="post"
+                   className="flex-1"
+                   onSuccess={() => setShowPreviewModal(false)}
+                 />
+                 <LinkedInPostButton
+                   content={selectedPost.content}
+                   variant="schedule"
+                   className="flex-1"
+                   scheduledFor={new Date(Date.now() + 60 * 60 * 1000)} // 1 hour from now
+                   onSuccess={() => setShowPreviewModal(false)}
+                 />
+                 <Button onClick={handleSaveDraft} variant="outline" className="flex-1 bg-transparent">
+                   <Save className="w-4 h-4 mr-2" />
+                   Save as Draft
+                 </Button>
+               </div>
+               
+               {!session?.user?.linkedinConnected && (
+                 <div className="text-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                   <p className="text-sm text-yellow-800">
+                     💡 Connect your LinkedIn account to post content directly to LinkedIn
+                   </p>
+                 </div>
+               )}
             </div>
           )}
         </DialogContent>

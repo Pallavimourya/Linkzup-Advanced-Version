@@ -3,7 +3,42 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { MongoClient, ObjectId } from "mongodb"
 
+export const dynamic = 'force-dynamic'
+
 const client = new MongoClient(process.env.MONGODB_URI!)
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    await client.connect()
+    const users = client.db().collection("users")
+
+    const user = await users.findOne(
+      { _id: new ObjectId(session.user.id) },
+      { projection: { name: 1, email: 1, bio: 1, image: 1, profilePicture: 1 } }
+    )
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      name: user.name,
+      email: user.email,
+      bio: user.bio || "",
+      profilePicture: user.profilePicture || user.image || "",
+    })
+  } catch (error) {
+    console.error("Profile fetch error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  } finally {
+    await client.close()
+  }
+}
 
 export async function PUT(request: NextRequest) {
   try {

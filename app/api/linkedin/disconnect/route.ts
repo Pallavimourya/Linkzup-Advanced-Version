@@ -3,9 +3,13 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { MongoClient } from "mongodb"
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
+    console.log("Disconnect API - Session user:", session?.user?.email, session?.user?.id)
+    
     if (!session?.user?.email || !session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -18,14 +22,16 @@ export async function POST(request: NextRequest) {
       const db = client.db()
       const users = db.collection("users")
 
-      await users.updateOne(
-        { _id: session.user.id },
+      const { ObjectId } = await import("mongodb")
+      
+      const updateResult = await users.updateOne(
+        { _id: new ObjectId(session.user.id) },
         {
           $unset: {
             linkedinId: "",
             linkedinConnected: "",
             linkedinConnectedAt: "",
-            accessToken: "",
+            linkedinAccessToken: "",
           },
           $set: {
             updatedAt: new Date(),
@@ -33,9 +39,24 @@ export async function POST(request: NextRequest) {
         }
       )
 
+      console.log("Database update result:", updateResult)
+
+      // Verify the update by checking the user data
+      const updatedUser = await users.findOne({ _id: new ObjectId(session.user.id) })
+      console.log("Updated user LinkedIn data:", {
+        linkedinId: updatedUser?.linkedinId,
+        linkedinConnected: updatedUser?.linkedinConnected,
+        linkedinAccessToken: updatedUser?.linkedinAccessToken ? "exists" : "missing"
+      })
+
       return NextResponse.json({
         success: true,
         message: "LinkedIn account disconnected successfully",
+        updatedUser: {
+          linkedinId: updatedUser?.linkedinId,
+          linkedinConnected: updatedUser?.linkedinConnected,
+          linkedinAccessToken: updatedUser?.linkedinAccessToken ? "exists" : "missing"
+        }
       })
     } finally {
       await client.close()
