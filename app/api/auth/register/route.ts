@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { MongoClient } from "mongodb"
 import bcrypt from "bcryptjs"
+import { validatePasswordStrength } from "@/lib/password-utils"
 
 const client = new MongoClient(process.env.MONGODB_URI!)
 
@@ -10,6 +11,15 @@ export async function POST(request: NextRequest) {
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    // Validate password strength
+    const passwordStrength = validatePasswordStrength(password)
+    if (!passwordStrength.isValid) {
+      return NextResponse.json({ 
+        error: "Password does not meet strength requirements",
+        details: passwordStrength.feedback 
+      }, { status: 400 })
     }
 
     await client.connect()

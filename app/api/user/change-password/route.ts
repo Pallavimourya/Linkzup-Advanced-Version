@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { MongoClient, ObjectId } from "mongodb"
 import bcrypt from "bcryptjs"
+import { validatePasswordStrength } from "@/lib/password-utils"
 
 const client = new MongoClient(process.env.MONGODB_URI!)
 
@@ -19,8 +20,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Current and new passwords are required" }, { status: 400 })
     }
 
-    if (newPassword.length < 8) {
-      return NextResponse.json({ error: "New password must be at least 8 characters long" }, { status: 400 })
+    // Validate new password strength
+    const passwordStrength = validatePasswordStrength(newPassword)
+    if (!passwordStrength.isValid) {
+      return NextResponse.json({ 
+        error: "New password does not meet strength requirements",
+        details: passwordStrength.feedback 
+      }, { status: 400 })
     }
 
     await client.connect()

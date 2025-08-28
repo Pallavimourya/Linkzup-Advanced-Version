@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { postToLinkedIn, LinkedInPostData } from "@/lib/linkedin-posting"
+import { scheduleLinkedInPost, LinkedInPostData } from "@/lib/linkedin-posting"
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,22 +10,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { content, images } = await request.json()
+    const { content, images, scheduledFor } = await request.json()
 
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 })
+    }
+
+    if (!scheduledFor) {
+      return NextResponse.json({ error: "Scheduled date is required" }, { status: 400 })
+    }
+
+    // Validate scheduled date
+    const scheduledDate = new Date(scheduledFor)
+    const now = new Date()
+    
+    if (scheduledDate <= now) {
+      return NextResponse.json({ error: "Scheduled date must be in the future" }, { status: 400 })
     }
 
     // Prepare post data
     const postData: LinkedInPostData = {
       content,
       images: images || [],
+      scheduledFor: scheduledDate,
       userId: session.user.id,
       userEmail: session.user.email,
     }
 
-    // Use unified posting function
-    const result = await postToLinkedIn(postData)
+    // Use unified scheduling function
+    const result = await scheduleLinkedInPost(postData)
 
     if (result.success) {
       return NextResponse.json({
@@ -40,7 +53,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
   } catch (error) {
-    console.error("Error posting to LinkedIn:", error)
-    return NextResponse.json({ error: "Failed to post to LinkedIn" }, { status: 500 })
+    console.error("Error scheduling LinkedIn post:", error)
+    return NextResponse.json({ error: "Failed to schedule post" }, { status: 500 })
   }
 }

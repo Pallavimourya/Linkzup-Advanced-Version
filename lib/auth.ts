@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
+          linkedinId: profile.sub,
         }
       },
     }),
@@ -95,6 +96,21 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "linkedin") {
         token.linkedinId = account.providerAccountId
         token.accessToken = account.access_token
+        
+        // Update user's LinkedIn connection in database
+        const client = await clientPromise
+        const users = client.db().collection("users")
+        await users.updateOne(
+          { _id: token.id },
+          {
+            $set: {
+              linkedinId: account.providerAccountId,
+              linkedinConnected: true,
+              linkedinConnectedAt: new Date(),
+              updatedAt: new Date(),
+            },
+          }
+        )
       }
       return token
     },
@@ -107,6 +123,13 @@ export const authOptions: NextAuthOptions = {
         session.user.isTrialActive = token.isTrialActive as boolean
         session.user.trialStartDate = token.trialStartDate as string
         session.user.darkMode = token.darkMode as boolean
+        
+        // Check if LinkedIn is connected
+        if (token.linkedinId && token.accessToken) {
+          session.user.linkedinConnected = true
+        } else {
+          session.user.linkedinConnected = false
+        }
       }
       return session
     },

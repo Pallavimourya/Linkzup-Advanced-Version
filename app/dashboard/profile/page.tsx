@@ -21,8 +21,11 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Settings, User, Lock, Camera, Save, Upload } from "lucide-react"
+import { PasswordStrength } from "@/components/ui/password-strength"
+import { ProgressBar } from "@/components/ui/progress-bar"
+import { Settings, User, Lock, Camera, Save, Upload, Eye, EyeOff } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { validatePasswordStrength } from "@/lib/password-utils"
 
 interface UserProfile {
   name: string
@@ -53,6 +56,11 @@ export default function ProfilePage() {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  })
 
   useEffect(() => {
     if (session?.user) {
@@ -104,10 +112,11 @@ export default function ProfilePage() {
       return
     }
 
-    if (passwordForm.newPassword.length < 8) {
+    const passwordStrength = validatePasswordStrength(passwordForm.newPassword)
+    if (!passwordStrength.isValid) {
       toast({
-        title: "Password Too Short",
-        description: "Password must be at least 8 characters long.",
+        title: "Password Too Weak",
+        description: "Password does not meet strength requirements.",
         variant: "destructive",
       })
       return
@@ -194,237 +203,296 @@ export default function ProfilePage() {
     }
   }
 
+  const passwordStrength = validatePasswordStrength(passwordForm.newPassword)
+  const isPasswordFormValid = passwordForm.currentPassword && 
+    passwordStrength.isValid && 
+    passwordForm.newPassword === passwordForm.confirmPassword
+
   return (
-    <div className="flex flex-col gap-4">
-      {/* Header */}
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Account Settings</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+    <>
+      <ProgressBar 
+        isLoading={isUpdatingProfile || isChangingPassword || isUploadingImage}
+        title={isUpdatingProfile ? "Updating profile..." : 
+               isChangingPassword ? "Changing password..." : 
+               isUploadingImage ? "Uploading image..." : ""}
+      />
+      
+      <div className="flex flex-col gap-4">
+        {/* Header */}
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Account Settings</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
+
+        {/* Welcome Section */}
+        <div className="px-4">
+          <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
+            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <Settings className="w-6 h-6 text-primary" />
+              Account Settings
+            </h1>
+            <p className="text-muted-foreground">Manage your profile information, security settings, and preferences.</p>
+          </div>
         </div>
-      </header>
 
-      {/* Welcome Section */}
-      <div className="px-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <Settings className="w-6 h-6 text-primary" />
-            Account Settings
-          </h1>
-          <p className="text-muted-foreground">Manage your profile information, security settings, and preferences.</p>
-        </div>
-      </div>
+        {/* Settings Tabs */}
+        <div className="px-4">
+          <Tabs defaultValue="profile" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Profile
+              </TabsTrigger>
+              <TabsTrigger value="password" className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                Password
+              </TabsTrigger>
+              <TabsTrigger value="picture" className="flex items-center gap-2">
+                <Camera className="w-4 h-4" />
+                Picture
+              </TabsTrigger>
+            </TabsList>
 
-      {/* Settings Tabs */}
-      <div className="px-4">
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="password" className="flex items-center gap-2">
-              <Lock className="w-4 h-4" />
-              Password
-            </TabsTrigger>
-            <TabsTrigger value="picture" className="flex items-center gap-2">
-              <Camera className="w-4 h-4" />
-              Picture
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Profile Tab */}
-          <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your personal information and bio.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      id="name"
-                      value={profile.name}
-                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                      placeholder="Enter your full name"
-                    />
+            {/* Profile Tab */}
+            <TabsContent value="profile">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Profile Information</CardTitle>
+                  <CardDescription>Update your personal information and bio.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input
+                        id="name"
+                        value={profile.name}
+                        onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profile.email}
+                        onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                        placeholder="Enter your email"
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={profile.email}
-                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                      placeholder="Enter your email"
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                      id="bio"
+                      value={profile.bio}
+                      onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                      placeholder="Tell us about yourself..."
+                      className="min-h-[100px]"
                     />
+                    <p className="text-sm text-muted-foreground">
+                      Brief description for your profile. Maximum 500 characters.
+                    </p>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    id="bio"
-                    value={profile.bio}
-                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                    placeholder="Tell us about yourself..."
-                    className="min-h-[100px]"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Brief description for your profile. Maximum 500 characters.
-                  </p>
-                </div>
-                <Button onClick={handleProfileUpdate} disabled={isUpdatingProfile} className="w-full md:w-auto">
-                  {isUpdatingProfile ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4 mr-2" />
-                      Update Profile
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  <Button onClick={handleProfileUpdate} disabled={isUpdatingProfile} className="w-full md:w-auto">
+                    {isUpdatingProfile ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        Update Profile
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          {/* Password Tab */}
-          <TabsContent value="password">
-            <Card>
-              <CardHeader>
-                <CardTitle>Change Password</CardTitle>
-                <CardDescription>Update your password to keep your account secure.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="current-password">Current Password</Label>
-                  <Input
-                    id="current-password"
-                    type="password"
-                    value={passwordForm.currentPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                    placeholder="Enter your current password"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">New Password</Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    placeholder="Enter your new password"
-                  />
-                  <p className="text-sm text-muted-foreground">Password must be at least 8 characters long.</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    placeholder="Confirm your new password"
-                  />
-                </div>
-                <Button
-                  onClick={handlePasswordChange}
-                  disabled={
-                    isChangingPassword ||
-                    !passwordForm.currentPassword ||
-                    !passwordForm.newPassword ||
-                    !passwordForm.confirmPassword
-                  }
-                  className="w-full md:w-auto"
-                >
-                  {isChangingPassword ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Changing...
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-4 h-4 mr-2" />
-                      Change Password
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Profile Picture Tab */}
-          <TabsContent value="picture">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Picture</CardTitle>
-                <CardDescription>Upload a new profile picture. Recommended size: 400x400px.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <Avatar className="w-24 h-24">
-                    <AvatarImage src={profile.profilePicture || "/placeholder.svg"} alt={profile.name} />
-                    <AvatarFallback className="text-2xl">{profile.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
+            {/* Password Tab */}
+            <TabsContent value="password">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Change Password</CardTitle>
+                  <CardDescription>Update your password to keep your account secure.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">JPG, PNG or GIF. Maximum file size: 5MB.</p>
-                    <div className="flex gap-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="current-password"
+                        type={showPasswords.current ? "text" : "password"}
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                        placeholder="Enter your current password"
+                      />
                       <Button
-                        variant="outline"
-                        onClick={() => document.getElementById("avatar-upload")?.click()}
-                        disabled={isUploadingImage}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
                       >
-                        {isUploadingImage ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                            Uploading...
-                          </>
+                        {showPasswords.current ? (
+                          <EyeOff className="h-4 w-4" />
                         ) : (
-                          <>
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload New Picture
-                          </>
+                          <Eye className="h-4 w-4" />
                         )}
                       </Button>
-                      {profile.profilePicture && (
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="new-password"
+                        type={showPasswords.new ? "text" : "password"}
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                        placeholder="Enter your new password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
+                      >
+                        {showPasswords.new ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {passwordForm.newPassword && (
+                      <PasswordStrength password={passwordForm.newPassword} />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="confirm-password"
+                        type={showPasswords.confirm ? "text" : "password"}
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                        placeholder="Confirm your new password"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
+                      >
+                        {showPasswords.confirm ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
+                      <p className="text-sm text-red-500">Passwords do not match</p>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handlePasswordChange}
+                    disabled={isChangingPassword || !isPasswordFormValid}
+                    className="w-full md:w-auto"
+                  >
+                    {isChangingPassword ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Changing...
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4 mr-2" />
+                        Change Password
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Profile Picture Tab */}
+            <TabsContent value="picture">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Profile Picture</CardTitle>
+                  <CardDescription>Upload a new profile picture. Recommended size: 400x400px.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center gap-6">
+                    <Avatar className="w-24 h-24">
+                      <AvatarImage src={profile.profilePicture || "/placeholder.svg"} alt={profile.name} />
+                      <AvatarFallback className="text-2xl">{profile.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">JPG, PNG or GIF. Maximum file size: 5MB.</p>
+                      <div className="flex gap-2">
                         <Button
                           variant="outline"
-                          onClick={() => setProfile({ ...profile, profilePicture: "" })}
+                          onClick={() => document.getElementById("avatar-upload")?.click()}
                           disabled={isUploadingImage}
                         >
-                          Remove
+                          {isUploadingImage ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload New Picture
+                            </>
+                          )}
                         </Button>
-                      )}
+                        {profile.profilePicture && (
+                          <Button
+                            variant="outline"
+                            onClick={() => setProfile({ ...profile, profilePicture: "" })}
+                            disabled={isUploadingImage}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
                     </div>
-                    <input
-                      id="avatar-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

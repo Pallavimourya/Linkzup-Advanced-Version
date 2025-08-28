@@ -7,6 +7,7 @@ declare module "next-auth" {
       image?: string | null
       linkedinId?: string
       accessToken?: string
+      linkedinConnected?: boolean
       credits?: number
       isTrialActive?: boolean
       trialStartDate?: string
@@ -27,6 +28,7 @@ declare module "next-auth/jwt" {
     id: string
     linkedinId?: string
     accessToken?: string
+    linkedinConnected?: boolean
     credits?: number
     isTrialActive?: boolean
     trialStartDate?: string
