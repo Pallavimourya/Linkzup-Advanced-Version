@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { MongoClient } from "mongodb"
+import { signIn } from "next-auth/react"
 
 export const dynamic = 'force-dynamic'
 
@@ -15,12 +16,12 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error("LinkedIn OAuth error:", error)
-      return NextResponse.redirect(new URL('/dashboard?error=linkedin_oauth_failed', process.env.NEXTAUTH_URL!))
+      return NextResponse.redirect(new URL('/auth/signin?error=linkedin_oauth_failed', process.env.NEXTAUTH_URL!))
     }
 
     if (!code || !state) {
       console.error("Missing required parameters - code:", !!code, "state:", !!state)
-      return NextResponse.redirect(new URL('/dashboard?error=missing_params', process.env.NEXTAUTH_URL!))
+      return NextResponse.redirect(new URL('/auth/signin?error=missing_params', process.env.NEXTAUTH_URL!))
     }
 
     let stateData
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
       stateData = JSON.parse(decodeURIComponent(state))
     } catch (e) {
       console.error("Invalid state parameter:", e)
-      return NextResponse.redirect(new URL('/dashboard?error=invalid_state', process.env.NEXTAUTH_URL!))
+      return NextResponse.redirect(new URL('/auth/signin?error=invalid_state', process.env.NEXTAUTH_URL!))
     }
 
     // Exchange code for access token
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
 
     if (!tokenResponse.ok) {
       console.error("Failed to get LinkedIn access token:", await tokenResponse.text())
-      return NextResponse.redirect(new URL('/dashboard?error=token_exchange_failed', process.env.NEXTAUTH_URL!))
+      return NextResponse.redirect(new URL('/auth/signin?error=token_exchange_failed', process.env.NEXTAUTH_URL!))
     }
 
     const tokenData = await tokenResponse.json()
@@ -73,12 +74,12 @@ export async function GET(request: NextRequest) {
 
     if (!profileResponse.ok) {
       console.error("Failed to get LinkedIn profile:", await profileResponse.text())
-      return NextResponse.redirect(new URL('/dashboard?error=profile_fetch_failed', process.env.NEXTAUTH_URL!))
+      return NextResponse.redirect(new URL('/auth/signin?error=profile_fetch_failed', process.env.NEXTAUTH_URL!))
     }
 
     const profile = await profileResponse.json()
 
-    // Update user's LinkedIn connection in database
+    // Connect to MongoDB
     const client = new MongoClient(process.env.MONGODB_URI!)
     
     try {
@@ -87,26 +88,74 @@ export async function GET(request: NextRequest) {
       const users = db.collection("users")
       const { ObjectId } = await import("mongodb")
 
-             await users.updateOne(
-         { _id: new ObjectId(stateData.userId) },
-         {
-           $set: {
-             linkedinId: profile.sub,
-             linkedinConnected: true,
-             linkedinConnectedAt: new Date(),
-             linkedinAccessToken: accessToken,
-             updatedAt: new Date(),
-           },
-         }
-       )
+      // Check if user exists
+      let user = await users.findOne({ email: profile.email })
+      
+      if (!user) {
+        // Create new user for sign-in
+        const newUser = {
+          email: profile.email,
+          name: profile.name,
+          image: profile.picture,
+          linkedinId: profile.sub,
+          linkedinConnected: true,
+          linkedinConnectedAt: new Date(),
+          linkedinAccessToken: accessToken,
+          credits: 0,
+          trialStartDate: new Date(),
+          trialPeriodDays: 2,
+          isTrialActive: true,
+          totalCreditsEver: 0,
+          bio: null,
+          profilePicture: null,
+          darkMode: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+        
+        const result = await users.insertOne(newUser)
+        user = { ...newUser, _id: result.insertedId }
+        console.log("Created new user for LinkedIn sign-in:", user.email)
+      } else {
+        // Update existing user's LinkedIn connection
+        await users.updateOne(
+          { _id: user._id },
+          {
+            $set: {
+              linkedinId: profile.sub,
+              linkedinConnected: true,
+              linkedinConnectedAt: new Date(),
+              linkedinAccessToken: accessToken,
+              updatedAt: new Date(),
+            },
+          }
+        )
+        console.log("Updated existing user's LinkedIn connection:", user.email)
+      }
 
-               // Redirect to dashboard with success message
+      // Redirect based on action
+      if (stateData.action === 'connect') {
+        // For connection flow, redirect to dashboard
         return NextResponse.redirect(new URL(`/dashboard?success=linkedin_connected`, process.env.NEXTAUTH_URL!))
+      } else {
+        // For sign-in flow, redirect to a special page that will create the session
+        const sessionToken = Buffer.from(JSON.stringify({
+          userId: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          linkedinId: profile.sub,
+          accessToken: accessToken,
+          timestamp: Date.now()
+        })).toString('base64')
+        
+        return NextResponse.redirect(new URL(`/auth/linkedin-signin?token=${sessionToken}`, process.env.NEXTAUTH_URL!))
+      }
     } finally {
       await client.close()
     }
   } catch (error) {
     console.error("Error in LinkedIn callback:", error)
-    return NextResponse.redirect(new URL('/dashboard?error=callback_failed', process.env.NEXTAUTH_URL!))
+    return NextResponse.redirect(new URL('/auth/signin?error=callback_failed', process.env.NEXTAUTH_URL!))
   }
 }

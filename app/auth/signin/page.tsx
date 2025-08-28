@@ -59,7 +59,19 @@ export default function SignInPage() {
   const handleSocialSignIn = async (provider: "linkedin" | "google") => {
     setIsLoading(true)
     try {
-      await signIn(provider, { callbackUrl: "/dashboard" })
+      if (provider === "linkedin") {
+        // Use custom LinkedIn connection flow for sign-in
+        const response = await fetch('/api/linkedin/connect?signin=true')
+        const data = await response.json()
+        
+        if (data.success && data.authUrl) {
+          window.location.href = data.authUrl
+        } else {
+          throw new Error('Failed to generate LinkedIn auth URL')
+        }
+      } else {
+        await signIn(provider, { callbackUrl: "/dashboard" })
+      }
     } catch (error) {
       toast({
         title: "Error",

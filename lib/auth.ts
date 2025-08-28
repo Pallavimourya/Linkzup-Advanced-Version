@@ -15,11 +15,11 @@ export const authOptions: NextAuthOptions = {
     LinkedInProvider({
       clientId: process.env.LINKEDIN_CLIENT_ID!,
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
-             authorization: {
-         params: {
-           scope: "openid profile email w_member_social r_events",
-         },
-       },
+      authorization: {
+        params: {
+          scope: "openid profile email w_member_social r_events",
+        },
+      },
       issuer: "https://www.linkedin.com",
       jwks_endpoint: "https://www.linkedin.com/oauth/openid_jwks",
       profile(profile) {
@@ -43,7 +43,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email) {
           return null
         }
 
@@ -52,22 +52,34 @@ export const authOptions: NextAuthOptions = {
 
         const user = await users.findOne({ email: credentials.email })
 
-        if (!user || !user.password) {
+        if (!user) {
           return null
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-
-        if (!isPasswordValid) {
-          return null
+        // If user has a LinkedIn connection and no password is provided, allow sign-in
+        if (user.linkedinConnected && (!credentials.password || credentials.password === "")) {
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          }
         }
 
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          image: user.image,
+        // If user has a password, verify it
+        if (user.password && credentials.password) {
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          if (isPasswordValid) {
+            return {
+              id: user._id.toString(),
+              email: user.email,
+              name: user.name,
+              image: user.image,
+            }
+          }
         }
+
+        return null
       },
     }),
   ],
