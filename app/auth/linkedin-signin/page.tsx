@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
 import { ProgressBar } from "@/components/ui/progress-bar"
 
-export default function LinkedInSignInPage() {
+function LinkedInSignInContent() {
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -81,5 +81,20 @@ export default function LinkedInSignInPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function LinkedInSignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p className="text-muted-foreground">Please wait...</p>
+        </div>
+      </div>
+    }>
+      <LinkedInSignInContent />
+    </Suspense>
   )
 }
