@@ -159,7 +159,7 @@ export default function SignUpPage() {
               </div>
               <div>
                 <CardTitle className="text-2xl">Create your account</CardTitle>
-                <CardDescription>Join LinkzUp and start creating amazing LinkedIn content with AI</CardDescription>
+                <CardDescription>Join LinkzUp and start creating amazing LinkedIn content </CardDescription>
               </div>
             </CardHeader>
 
