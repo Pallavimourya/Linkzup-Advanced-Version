@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { LinkedInPreview } from "@/components/linkedin-preview"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
 
+
 const predefinedNiches = [
   "Marketing",
   "Advertising",
@@ -50,6 +51,7 @@ export default function AIArticlesPage() {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [contentType, setContentType] = useState<string>("article")
   const [provider, setProvider] = useState<"openai" | "perplexity">("openai")
+
   const [customization, setCustomization] = useState<CustomizationOptions>({
     tone: "professional",
     language: "english",
@@ -262,6 +264,8 @@ export default function AIArticlesPage() {
     setExpandedTopic(null)
   }
 
+
+
   const saveToDraft = async (content: string, title: string, format: string = "article") => {
     try {
       const response = await fetch("/api/drafts", {
@@ -271,7 +275,8 @@ export default function AIArticlesPage() {
           title,
           content,
           format,
-          niche: "AI Generated"
+          niche: "AI Generated",
+  
         })
       })
 
@@ -370,6 +375,8 @@ export default function AIArticlesPage() {
                   </SelectContent>
                 </Select>
               </div>
+
+
 
               {/* AI Customization Panel - Collapsible */}
               <div className="border rounded-lg">
@@ -597,6 +604,8 @@ export default function AIArticlesPage() {
             onClose={() => setPreviewContent(null)}
           />
         )}
+
+
       </div>
     </div>
   )

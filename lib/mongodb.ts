@@ -9,8 +9,8 @@ const options = {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 10000,
   socketTimeoutMS: 45000,
-  // Enable SSL for MongoDB Atlas
-  ssl: true,
+  // Only enable SSL for MongoDB Atlas connections
+  ssl: uri.includes('mongodb+srv://') || uri.includes('mongodb://localhost') ? false : true,
 }
 
 let client: MongoClient

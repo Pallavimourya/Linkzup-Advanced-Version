@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, content, format, niche, images } = await request.json()
+    const { title, content, format, niche } = await request.json()
 
     const db = await connectDB()
     const draft = {
@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
       content,
       format,
       niche,
-      images: images || [],
       userEmail: session.user.email,
       createdAt: new Date(),
       updatedAt: new Date(),

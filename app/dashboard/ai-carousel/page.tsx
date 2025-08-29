@@ -37,12 +37,13 @@ import {
   Send,
   Download,
   Eye,
-  Move,
+  Move
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
+
 
 interface CarouselSlide {
   id: string
@@ -52,8 +53,7 @@ interface CarouselSlide {
   textColor: string
   textPosition: { x: number; y: number }
   backgroundColor: string
-  backgroundImage?: string
-  backgroundType: "color" | "image" | "gradient"
+  backgroundType: "color" | "gradient"
 }
 
 interface CarouselProject {
@@ -88,11 +88,23 @@ const fontFamilies = [
   { name: "Lato", value: "Lato, sans-serif" },
 ]
 
+const templates = [
+  { name: "Professional Blue", backgroundColor: "#0077B5", textColor: "#FFFFFF" },
+  { name: "Modern Dark", backgroundColor: "#1F2937", textColor: "#FFFFFF" },
+  { name: "Elegant Purple", backgroundColor: "#8B5CF6", textColor: "#FFFFFF" },
+  { name: "Fresh Green", backgroundColor: "#10B981", textColor: "#FFFFFF" },
+  { name: "Warm Orange", backgroundColor: "#F59E0B", textColor: "#FFFFFF" },
+  { name: "Bold Red", backgroundColor: "#EF4444", textColor: "#FFFFFF" },
+  { name: "Clean White", backgroundColor: "#FFFFFF", textColor: "#1F2937" },
+  { name: "Minimal Gray", backgroundColor: "#F3F4F6", textColor: "#374151" },
+]
+
 export default function AICarouselPage() {
   const { data: session } = useSession()
   const [currentProject, setCurrentProject] = useState<CarouselProject | null>(null)
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
+
   const [isGenerating, setIsGenerating] = useState(false)
   const [savedProjects, setSavedProjects] = useState<CarouselProject[]>([])
   const [isDragging, setIsDragging] = useState(false)
@@ -104,6 +116,7 @@ export default function AICarouselPage() {
     tone: "professional",
     slideCount: "5",
     style: "modern",
+    carouselType: "guide",
   })
 
   const createNewProject = () => {
@@ -202,6 +215,8 @@ export default function AICarouselPage() {
     setIsDragging(false)
   }
 
+
+
   const generateAICarousel = async () => {
     if (!aiForm.topic.trim()) {
       toast({
@@ -221,17 +236,105 @@ export default function AICarouselPage() {
       const slideCount = Number.parseInt(aiForm.slideCount)
       const slides: CarouselSlide[] = []
 
-      // Generate slides based on topic
-      const sampleContent = [
-        `${aiForm.topic}\nA Complete Guide`,
-        "Why This Matters\n\nUnderstanding this topic is crucial for professional growth and success in today's market.",
-        "Key Benefits\n\n• Improved efficiency\n• Better results\n• Enhanced skills\n• Greater opportunities",
-        "Common Mistakes\n\n❌ Rushing the process\n❌ Ignoring best practices\n❌ Not measuring results",
-        "Best Practices\n\n✅ Start with research\n✅ Plan your approach\n✅ Execute systematically\n✅ Measure and optimize",
-        "Getting Started\n\n1. Define your goals\n2. Gather resources\n3. Create a timeline\n4. Take action",
+      // Generate content based on carousel type
+      let sampleContent: string[] = []
+      
+      switch (aiForm.carouselType) {
+        case "guide":
+          sampleContent = [
+            `${aiForm.topic}\nComplete Guide`,
+            "What is it?\n\nUnderstanding the fundamentals and importance of this topic.",
+            "Why it matters\n\n• Professional growth\n• Industry relevance\n• Career advancement\n• Skill development",
+            "Step 1: Research\n\nStart by gathering information and understanding the basics.",
+            "Step 2: Plan\n\nCreate a structured approach and set clear objectives.",
+            "Step 3: Execute\n\nTake action and implement your strategy systematically.",
+            "Step 4: Measure\n\nTrack progress and analyze results for continuous improvement.",
         "Key Takeaways\n\n• Focus on fundamentals\n• Be consistent\n• Learn from others\n• Stay updated",
-        "Thank You!\n\nFollow for more insights on professional growth and industry trends.",
-      ]
+          ]
+          break
+        case "tips":
+          sampleContent = [
+            `${aiForm.topic}\nPro Tips`,
+            "Tip #1\n\nStart with the basics and build a strong foundation.",
+            "Tip #2\n\nConsistency is key - practice regularly and stay committed.",
+            "Tip #3\n\nLearn from experts and industry leaders in your field.",
+            "Tip #4\n\nTrack your progress and celebrate small wins along the way.",
+            "Tip #5\n\nStay updated with the latest trends and best practices.",
+            "Bonus Tip\n\nNetwork with like-minded professionals and share knowledge.",
+            "Ready to implement?\n\nStart with one tip and gradually incorporate others.",
+          ]
+          break
+        case "story":
+          sampleContent = [
+            `${aiForm.topic}\nMy Journey`,
+            "The Beginning\n\nHow I first discovered this topic and why it caught my attention.",
+            "The Challenge\n\nFacing obstacles and learning from initial failures and setbacks.",
+            "The Breakthrough\n\nKey moments that changed everything and led to success.",
+            "Lessons Learned\n\n• Patience is crucial\n• Consistency pays off\n• Community matters\n• Never give up",
+            "The Results\n\nTangible outcomes and measurable improvements achieved.",
+            "What I'd Do Differently\n\nReflections and advice for others on the same path.",
+            "Your Turn\n\nReady to start your own journey? Take the first step today!",
+          ]
+          break
+        case "comparison":
+          sampleContent = [
+            `${aiForm.topic}\nComparison Guide`,
+            "Option A vs Option B\n\nUnderstanding the key differences between approaches.",
+            "Option A: Pros\n\n• Advantage 1\n• Advantage 2\n• Advantage 3\n• Advantage 4",
+            "Option A: Cons\n\n• Limitation 1\n• Limitation 2\n• Limitation 3",
+            "Option B: Pros\n\n• Advantage 1\n• Advantage 2\n• Advantage 3\n• Advantage 4",
+            "Option B: Cons\n\n• Limitation 1\n• Limitation 2\n• Limitation 3",
+            "My Recommendation\n\nBased on experience, here's what I suggest and why.",
+            "Final Verdict\n\nChoose what works best for your specific situation and goals.",
+          ]
+          break
+        case "checklist":
+          sampleContent = [
+            `${aiForm.topic}\nAction Checklist`,
+            "Pre-Planning Checklist\n\n□ Define your goals\n□ Research the topic\n□ Set a timeline\n□ Gather resources",
+            "Implementation Checklist\n\n□ Start with basics\n□ Follow best practices\n□ Track progress\n□ Stay consistent",
+            "Quality Assurance\n\n□ Review your work\n□ Get feedback\n□ Make improvements\n□ Document learnings",
+            "Optimization Checklist\n\n□ Analyze results\n□ Identify areas for improvement\n□ Implement changes\n□ Measure impact",
+            "Maintenance Checklist\n\n□ Regular reviews\n□ Stay updated\n□ Continuous learning\n□ Share knowledge",
+            "Success Metrics\n\n□ Define KPIs\n□ Track performance\n□ Celebrate wins\n□ Plan next steps",
+            "Ready to get started?\n\nPick one checklist and begin your journey today!",
+          ]
+          break
+        case "stats":
+          sampleContent = [
+            `${aiForm.topic}\nBy The Numbers`,
+            "Key Statistics\n\nUnderstanding the data and trends in this field.",
+            "Growth Trends\n\n• 85% increase in adoption\n• 3x faster results\n• 92% satisfaction rate\n• 40% cost reduction",
+            "Market Analysis\n\n• Market size: $50B\n• Annual growth: 15%\n• Top players: 5 major companies\n• Emerging trends: 3 key areas",
+            "Performance Metrics\n\n• 95% success rate\n• 60% time savings\n• 75% quality improvement\n• 80% user satisfaction",
+            "Industry Insights\n\n• Top challenges faced\n• Most effective strategies\n• Common pitfalls to avoid\n• Future predictions",
+            "Success Stories\n\n• Case study 1: 200% improvement\n• Case study 2: 50% cost savings\n• Case study 3: 90% efficiency gain",
+            "Take Action\n\nUse these insights to inform your strategy and make data-driven decisions.",
+          ]
+          break
+        case "quotes":
+          sampleContent = [
+            `${aiForm.topic}\nInspiration`,
+            "Quote #1\n\nThe only way to do great work is to love what you do.\n- Steve Jobs",
+            "Quote #2\n\nSuccess is not final, failure is not fatal: it is the courage to continue that counts.\n- Winston Churchill",
+            "Quote #3\n\nThe future belongs to those who believe in the beauty of their dreams.\n- Eleanor Roosevelt",
+            "Quote #4\n\nDon't watch the clock; do what it does. Keep going.\n- Sam Levenson",
+            "Quote #5\n\nThe only limit to our realization of tomorrow is our doubts of today.\n- Franklin D. Roosevelt",
+            "Quote #6\n\nBelieve you can and you're halfway there.\n- Theodore Roosevelt",
+            "Your Turn\n\nWhat quote inspires you? Share it in the comments below!",
+          ]
+          break
+        default: // custom
+          sampleContent = [
+            `${aiForm.topic}\nCustom Carousel`,
+            "Slide 2\n\nAdd your custom content here.",
+            "Slide 3\n\nCustomize this slide with your own text and ideas.",
+            "Slide 4\n\nMake it personal and relevant to your audience.",
+            "Slide 5\n\nShare your unique perspective and insights.",
+            "Slide 6\n\nEnd with a strong call to action or key message.",
+            "Slide 7\n\nThank your audience and encourage engagement.",
+          ]
+      }
 
       for (let i = 0; i < slideCount; i++) {
         slides.push({
@@ -352,12 +455,6 @@ export default function AICarouselPage() {
         tempDiv.style.padding = "40px"
         tempDiv.style.boxSizing = "border-box"
 
-        if (slide.backgroundImage) {
-          tempDiv.style.backgroundImage = `url(${slide.backgroundImage})`
-          tempDiv.style.backgroundSize = "cover"
-          tempDiv.style.backgroundPosition = "center"
-        }
-
         const textDiv = document.createElement("div")
         textDiv.style.color = slide.textColor
         textDiv.style.fontSize = `${slide.fontSize}px`
@@ -425,12 +522,6 @@ export default function AICarouselPage() {
         tempDiv.style.justifyContent = "center"
         tempDiv.style.padding = "60px"
         tempDiv.style.boxSizing = "border-box"
-
-        if (slide.backgroundImage) {
-          tempDiv.style.backgroundImage = `url(${slide.backgroundImage})`
-          tempDiv.style.backgroundSize = "cover"
-          tempDiv.style.backgroundPosition = "center"
-        }
 
         const textDiv = document.createElement("div")
         textDiv.style.color = slide.textColor
@@ -535,6 +626,25 @@ export default function AICarouselPage() {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Carousel Type</Label>
+                  <Select value={aiForm.carouselType} onValueChange={(value) => setAiForm({ ...aiForm, carouselType: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="guide">Complete Guide</SelectItem>
+                      <SelectItem value="tips">Tips & Tricks</SelectItem>
+                      <SelectItem value="story">Story/Experience</SelectItem>
+                      <SelectItem value="comparison">Comparison</SelectItem>
+                      <SelectItem value="checklist">Checklist</SelectItem>
+                      <SelectItem value="stats">Statistics</SelectItem>
+                      <SelectItem value="quotes">Quotes/Inspiration</SelectItem>
+                      <SelectItem value="custom">Custom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label>Tone</Label>
@@ -614,6 +724,8 @@ export default function AICarouselPage() {
                 </Button>
               </CardContent>
             </Card>
+
+
 
             {/* Saved Projects */}
             {savedProjects.length > 0 && (
@@ -717,23 +829,18 @@ export default function AICarouselPage() {
                       </Button>
                     </div>
 
-                    {/* Slide Canvas - Updated to 75vw width with drag and drop */}
+                    {/* Slide Canvas - Centered below slide numbers */}
                     {currentSlide && (
-                      <div className="relative">
+                      <div className="relative flex justify-center">
                         <div
                           ref={slideCanvasRef}
                           className="rounded-lg flex items-center justify-center text-center p-8 relative overflow-hidden cursor-crosshair"
                           style={{
-                            width: "75vw",
-                            maxWidth: "800px",
-                            height: "75vw",
-                            maxHeight: "800px",
+                            width: "45vw",
+                            maxWidth: "500px",
+                            height: "45vw",
+                            maxHeight: "500px",
                             backgroundColor: currentSlide.backgroundColor,
-                            backgroundImage: currentSlide.backgroundImage
-                              ? `url(${currentSlide.backgroundImage})`
-                              : undefined,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
                           }}
                           onMouseDown={handleMouseDown}
                           onMouseMove={handleMouseMove}
@@ -941,7 +1048,7 @@ export default function AICarouselPage() {
                       <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="color">Color</TabsTrigger>
                         <TabsTrigger value="image">Image</TabsTrigger>
-                        <TabsTrigger value="gradient">Gradient</TabsTrigger>
+                        <TabsTrigger value="templates">Templates</TabsTrigger>
                       </TabsList>
 
                       <TabsContent value="color" className="mt-4">
@@ -972,26 +1079,36 @@ export default function AICarouselPage() {
                         </div>
                       </TabsContent>
 
-                      <TabsContent value="image" className="mt-4">
-                        <div className="space-y-3">
-                          <Button variant="outline" className="w-full bg-transparent">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload Image
-                          </Button>
-                          <Button variant="outline" className="w-full bg-transparent">
-                            <Search className="w-4 h-4 mr-2" />
-                            Search Stock Photos
-                          </Button>
-                          <Button variant="outline" className="w-full bg-transparent">
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Generate with AI
-                          </Button>
-                        </div>
-                      </TabsContent>
 
-                      <TabsContent value="gradient" className="mt-4">
-                        <div className="text-center py-4">
-                          <p className="text-sm text-muted-foreground">Gradient backgrounds coming soon!</p>
+
+                      <TabsContent value="templates" className="mt-4">
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-2">
+                            {templates.map((template) => (
+                              <button
+                                key={template.name}
+                                onClick={() => updateSlide({ 
+                                  backgroundColor: template.backgroundColor, 
+                                  textColor: template.textColor,
+                                  backgroundType: "color" 
+                                })}
+                                className={`p-3 rounded-lg border-2 text-left transition-colors ${
+                                  currentSlide?.backgroundColor === template.backgroundColor ? "border-primary" : "border-muted hover:border-muted-foreground"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div 
+                                    className="w-4 h-4 rounded border"
+                                    style={{ backgroundColor: template.backgroundColor }}
+                                  />
+                                  <span className="text-sm font-medium">{template.name}</span>
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {template.backgroundColor} / {template.textColor}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </TabsContent>
                     </Tabs>
@@ -1020,9 +1137,6 @@ export default function AICarouselPage() {
                       className="aspect-square rounded-lg flex items-center justify-center text-center p-4 text-xs"
                       style={{
                         backgroundColor: slide.backgroundColor,
-                        backgroundImage: slide.backgroundImage ? `url(${slide.backgroundImage})` : undefined,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
                       }}
                     >
                       <div
@@ -1057,6 +1171,8 @@ export default function AICarouselPage() {
           )}
         </DialogContent>
       </Dialog>
+
+
     </div>
   )
 }

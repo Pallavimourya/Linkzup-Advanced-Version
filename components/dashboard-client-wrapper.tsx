@@ -10,10 +10,10 @@ interface DashboardClientWrapperProps {
 
 export function DashboardClientWrapper({ children }: DashboardClientWrapperProps) {
   const { data: session, status } = useSession()
-  const [isClient, setIsClient] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setIsClient(true)
+    setMounted(true)
   }, [])
 
   useEffect(() => {
@@ -21,8 +21,17 @@ export function DashboardClientWrapper({ children }: DashboardClientWrapperProps
     if (!session) redirect("/auth/signin")
   }, [session, status])
 
-  // Show loading state during initial client-side hydration
-  if (!isClient || status === "loading") {
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  // Show loading state during session loading
+  if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

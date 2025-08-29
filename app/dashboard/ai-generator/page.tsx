@@ -16,11 +16,13 @@ import {
   Save,
   Loader2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+
 } from "lucide-react"
 import { useAIGeneration } from "@/hooks/use-ai-generation"
 import { AIQueueStatus } from "@/components/ai-queue-status"
 import { useToast } from "@/hooks/use-toast"
+
 import type { ContentType, AIProvider, CustomizationOptions, AIResponse } from "@/lib/ai-service"
 
 export default function AIGeneratorPage() {
@@ -40,6 +42,7 @@ export default function AIGeneratorPage() {
     maxTokens: 1000,
   })
   const [generatedContent, setGeneratedContent] = useState<AIResponse | null>(null)
+
   const { toast } = useToast()
 
   const {
@@ -93,6 +96,8 @@ export default function AIGeneratorPage() {
     URL.revokeObjectURL(url)
   }
 
+
+
   const saveToDraft = async (content: string, title: string, format: string = "content") => {
     try {
       const response = await fetch("/api/drafts", {
@@ -102,7 +107,8 @@ export default function AIGeneratorPage() {
           title,
           content,
           format,
-          niche: "AI Generated"
+          niche: "AI Generated",
+  
         })
       })
 
@@ -234,6 +240,8 @@ export default function AIGeneratorPage() {
                   className="min-h-[120px]"
                 />
               </div>
+
+
               
               <div className="flex items-center gap-4">
                 <Button
@@ -378,6 +386,8 @@ export default function AIGeneratorPage() {
           </div>
         </CardContent>
       </Card>
+
+
     </div>
   )
 }
