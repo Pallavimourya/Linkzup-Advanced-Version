@@ -50,7 +50,7 @@ import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 
 export default function DraftsPage() {
   const router = useRouter()
-  const { postToLinkedIn, isPosting, isLinkedInConnected } = useLinkedInPosting()
+  const { postToLinkedIn, isLinkedInConnected } = useLinkedInPosting()
   const [drafts, setDrafts] = useState<Draft[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
@@ -58,6 +58,7 @@ export default function DraftsPage() {
   const [editingDraft, setEditingDraft] = useState<Draft | null>(null)
   const [deletingDraft, setDeletingDraft] = useState<Draft | null>(null)
   const [loading, setLoading] = useState(true)
+  const [postingDrafts, setPostingDrafts] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     loadDrafts()
@@ -193,6 +194,9 @@ export default function DraftsPage() {
   }
 
   const handlePostToLinkedIn = async (draft: Draft) => {
+    // Set this specific draft as posting
+    setPostingDrafts(prev => new Set(prev).add(draft.id))
+    
     try {
       const result = await postToLinkedIn({
         content: draft.content,
@@ -213,6 +217,13 @@ export default function DraftsPage() {
         title: "Posting Failed",
         description: "There was an error posting to LinkedIn. Please try again.",
         variant: "destructive",
+      })
+    } finally {
+      // Remove this draft from posting state
+      setPostingDrafts(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(draft.id)
+        return newSet
       })
     }
   }
@@ -412,10 +423,10 @@ export default function DraftsPage() {
                   size="sm" 
                   className="flex-1 gap-2"
                   onClick={() => handlePostToLinkedIn(draft)}
-                  disabled={isPosting}
+                  disabled={postingDrafts.has(draft.id)}
                 >
                   <Send className="h-4 w-4" />
-                  {isPosting ? "Posting..." : "Post Now"}
+                  {postingDrafts.has(draft.id) ? "Posting..." : "Post Now"}
                 </Button>
                 <Button 
                   size="sm" 
