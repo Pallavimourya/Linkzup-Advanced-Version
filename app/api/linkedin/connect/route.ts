@@ -37,10 +37,10 @@ export async function GET(request: NextRequest) {
       console.log("Fixed NEXTAUTH_URL from https to http:", baseUrl)
     }
     
-    // Ensure no double slashes
-    const redirectUri = baseUrl?.endsWith('/') 
+    // Use LINKEDIN_REDIRECT_URI if set, otherwise construct from NEXTAUTH_URL
+    const redirectUri = process.env.LINKEDIN_REDIRECT_URI || (baseUrl?.endsWith('/') 
       ? baseUrl + 'api/linkedin/callback'
-      : baseUrl + '/api/linkedin/callback'
+      : baseUrl + '/api/linkedin/callback')
     console.log("Redirect URI being used:", redirectUri)
     console.log("LinkedIn Client ID value:", process.env.LINKEDIN_CLIENT_ID)
 
