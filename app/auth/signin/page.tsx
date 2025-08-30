@@ -43,7 +43,7 @@ export default function SignInPage() {
           title: "Success",
           description: "Signed in successfully",
         })
-        
+
         // Check if user is admin and redirect accordingly
         // For admin credentials, redirect to admin dashboard
         if (email.toLowerCase() === "admin@linkzup.com") {
@@ -68,40 +68,43 @@ export default function SignInPage() {
     setIsLoading(true)
     try {
       if (provider === "linkedin") {
-        // Use custom LinkedIn connection flow for sign-in
-        const response = await fetch('/api/linkedin/connect?signin=true')
+        console.log("[v0] Starting LinkedIn OAuth flow")
+        const response = await fetch("/api/linkedin/connect?signin=true")
         const data = await response.json()
-        
+
         if (data.success && data.authUrl) {
+          console.log("[v0] Redirecting to LinkedIn OAuth URL")
           window.location.href = data.authUrl
+          return // Don't set loading to false since we're redirecting
         } else {
-          throw new Error('Failed to generate LinkedIn auth URL')
+          throw new Error("Failed to generate LinkedIn auth URL")
         }
       } else {
         // For Google sign-in, use NextAuth's built-in flow
-        console.log('Initiating Google sign-in...')
-        const result = await signIn(provider, { 
+        console.log("Initiating Google sign-in...")
+        const result = await signIn(provider, {
           callbackUrl: "/dashboard",
-          redirect: false 
+          redirect: false,
         })
-        
-        console.log('Google sign-in result:', result)
-        
+
+        console.log("Google sign-in result:", result)
+
         if (result?.error) {
           console.error("Google sign-in error:", result.error)
           toast({
             title: "Google Sign-In Error",
-            description: result.error === "OAuthSignin" 
-              ? "Failed to initiate Google sign-in. Please check your Google OAuth configuration."
-              : `Failed to sign in with Google: ${result.error}`,
+            description:
+              result.error === "OAuthSignin"
+                ? "Failed to initiate Google sign-in. Please check your Google OAuth configuration."
+                : `Failed to sign in with Google: ${result.error}`,
             variant: "destructive",
           })
         } else if (result?.url) {
-          console.log('Redirecting to Google OAuth URL:', result.url)
+          console.log("Redirecting to Google OAuth URL:", result.url)
           // Redirect to the callback URL
           window.location.href = result.url
         } else {
-          console.log('No error or URL returned from Google sign-in')
+          console.log("No error or URL returned from Google sign-in")
           toast({
             title: "Google Sign-In",
             description: "Sign-in process initiated. Please check your browser for the Google OAuth popup.",
@@ -112,22 +115,17 @@ export default function SignInPage() {
       console.error("Social sign-in error:", error)
       toast({
         title: "Error",
-        description: `Something went wrong with ${provider} sign-in: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: `Something went wrong with ${provider} sign-in: ${error instanceof Error ? error.message : "Unknown error"}`,
         variant: "destructive",
       })
-    } finally {
-      setIsLoading(false)
+      setIsLoading(false) // Only set loading to false on error
     }
   }
 
   return (
     <>
-      <ProgressBar 
-        isLoading={isLoading}
-        title="Signing you in..."
-        description="Welcome back to LinkzUp"
-      />
-      
+      <ProgressBar isLoading={isLoading} title="Signing you in..." description="Welcome back to LinkzUp" />
+
       <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           {/* Back to Home */}
