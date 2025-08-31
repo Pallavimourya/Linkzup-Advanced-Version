@@ -609,11 +609,11 @@ export default function AICarouselPage() {
 
         const slide = currentProject.slides[i]
 
-        // Create a temporary canvas element for each slide
+        // Create a temporary canvas element that matches the exact canvas design
         const tempDiv = document.createElement("div")
-        tempDiv.style.width = "600px"
-        tempDiv.style.height = "600px"
-        tempDiv.style.backgroundColor = slide.backgroundColor
+        tempDiv.style.width = "500px"
+        tempDiv.style.height = "500px"
+        tempDiv.style.backgroundColor = convertToHex(slide.backgroundColor)
         tempDiv.style.position = "absolute"
         tempDiv.style.left = "-9999px"
         tempDiv.style.display = "flex"
@@ -621,42 +621,77 @@ export default function AICarouselPage() {
         tempDiv.style.justifyContent = "center"
         tempDiv.style.padding = "40px"
         tempDiv.style.boxSizing = "border-box"
+        tempDiv.style.borderRadius = "8px"
+        tempDiv.style.overflow = "hidden"
+
+        // Add background image if present
+        if (slide.backgroundType === "image" && slide.backgroundImage) {
+          tempDiv.style.backgroundImage = `url(${slide.backgroundImage})`
+          tempDiv.style.backgroundSize = "cover"
+          tempDiv.style.backgroundPosition = "center"
+          tempDiv.style.backgroundRepeat = "no-repeat"
+        }
+
+        // Create text container with exact positioning
+        const textContainer = document.createElement("div")
+        textContainer.style.position = "absolute"
+        textContainer.style.left = `${slide.textPosition.x}%`
+        textContainer.style.top = `${slide.textPosition.y}%`
+        textContainer.style.transform = "translate(-50%, -50%)"
+        textContainer.style.minWidth = "200px"
+        textContainer.style.textAlign = "center"
+        textContainer.style.display = "flex"
+        textContainer.style.alignItems = "center"
+        textContainer.style.justifyContent = "center"
+        textContainer.style.padding = "16px"
 
         const textDiv = document.createElement("div")
-        textDiv.style.color = slide.textColor
+        textDiv.style.color = convertToHex(slide.textColor)
         textDiv.style.fontSize = `${slide.fontSize}px`
-        textDiv.style.fontFamily = slide.fontFamily
+        textDiv.style.fontFamily = slide.fontFamily || "Inter, sans-serif"
         textDiv.style.fontWeight = "bold"
-        textDiv.style.textAlign = "center"
         textDiv.style.lineHeight = "1.2"
         textDiv.style.whiteSpace = "pre-wrap"
+        textDiv.style.textAlign = "center"
+        textDiv.style.userSelect = "none"
         textDiv.textContent = slide.text
 
-        tempDiv.appendChild(textDiv)
+        textContainer.appendChild(textDiv)
+        tempDiv.appendChild(textContainer)
         document.body.appendChild(tempDiv)
 
         const canvas = await html2canvas(tempDiv, {
-          width: 600,
-          height: 600,
-          backgroundColor: slide.backgroundColor,
+          width: 500,
+          height: 500,
+          backgroundColor: convertToHex(slide.backgroundColor),
+          scale: 2, // Higher quality
+          useCORS: true,
+          allowTaint: true,
         })
 
         document.body.removeChild(tempDiv)
 
-        const imgData = canvas.toDataURL("image/png")
+        const imgData = canvas.toDataURL("image/png", 1.0)
         pdf.addImage(imgData, "PNG", margin, margin, slideWidth, slideHeight)
 
-        // Add slide number
+        // Add slide number and title
         pdf.setFontSize(10)
         pdf.setTextColor(100)
         pdf.text(`Slide ${i + 1} of ${currentProject.slides.length}`, margin, margin + slideHeight + 10)
+        
+        // Add project title on first slide
+        if (i === 0) {
+          pdf.setFontSize(14)
+          pdf.setTextColor(50)
+          pdf.text(currentProject.title, margin, margin - 10)
+        }
       }
 
       pdf.save(`${currentProject.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}_carousel.pdf`)
 
       toast({
         title: "PDF Exported!",
-        description: "Your carousel has been exported as a PDF file.",
+        description: "Your carousel has been exported as a PDF file with exact canvas design.",
       })
     } catch (error) {
       console.error("PDF export error:", error)
@@ -668,54 +703,86 @@ export default function AICarouselPage() {
     }
   }
 
+  const [showLinkedInModal, setShowLinkedInModal] = useState(false)
+  const [linkedInCaption, setLinkedInCaption] = useState("")
+
   const handlePostToLinkedIn = async () => {
     if (!currentProject) return
 
     try {
-      // First, export slides as images
+      // First, export slides as images with exact canvas design
       const slideImages = []
 
       for (let i = 0; i < currentProject.slides.length; i++) {
         const slide = currentProject.slides[i]
 
+        // Create a temporary canvas element that matches the exact canvas design
         const tempDiv = document.createElement("div")
         tempDiv.style.width = "1080px"
         tempDiv.style.height = "1080px"
-        tempDiv.style.backgroundColor = slide.backgroundColor
+        tempDiv.style.backgroundColor = convertToHex(slide.backgroundColor)
         tempDiv.style.position = "absolute"
         tempDiv.style.left = "-9999px"
         tempDiv.style.display = "flex"
         tempDiv.style.alignItems = "center"
         tempDiv.style.justifyContent = "center"
-        tempDiv.style.padding = "60px"
+        tempDiv.style.padding = "80px"
         tempDiv.style.boxSizing = "border-box"
+        tempDiv.style.borderRadius = "12px"
+        tempDiv.style.overflow = "hidden"
+
+        // Add background image if present
+        if (slide.backgroundType === "image" && slide.backgroundImage) {
+          tempDiv.style.backgroundImage = `url(${slide.backgroundImage})`
+          tempDiv.style.backgroundSize = "cover"
+          tempDiv.style.backgroundPosition = "center"
+          tempDiv.style.backgroundRepeat = "no-repeat"
+        }
+
+        // Create text container with exact positioning
+        const textContainer = document.createElement("div")
+        textContainer.style.position = "absolute"
+        textContainer.style.left = `${slide.textPosition.x}%`
+        textContainer.style.top = `${slide.textPosition.y}%`
+        textContainer.style.transform = "translate(-50%, -50%)"
+        textContainer.style.minWidth = "400px"
+        textContainer.style.textAlign = "center"
+        textContainer.style.display = "flex"
+        textContainer.style.alignItems = "center"
+        textContainer.style.justifyContent = "center"
+        textContainer.style.padding = "32px"
 
         const textDiv = document.createElement("div")
-        textDiv.style.color = slide.textColor
+        textDiv.style.color = convertToHex(slide.textColor)
         textDiv.style.fontSize = `${slide.fontSize * 1.5}px`
-        textDiv.style.fontFamily = slide.fontFamily
+        textDiv.style.fontFamily = slide.fontFamily || "Inter, sans-serif"
         textDiv.style.fontWeight = "bold"
-        textDiv.style.textAlign = "center"
         textDiv.style.lineHeight = "1.2"
         textDiv.style.whiteSpace = "pre-wrap"
+        textDiv.style.textAlign = "center"
+        textDiv.style.userSelect = "none"
         textDiv.textContent = slide.text
 
-        tempDiv.appendChild(textDiv)
+        textContainer.appendChild(textDiv)
+        tempDiv.appendChild(textContainer)
         document.body.appendChild(tempDiv)
 
         const canvas = await html2canvas(tempDiv, {
           width: 1080,
           height: 1080,
-          backgroundColor: slide.backgroundColor,
+          backgroundColor: convertToHex(slide.backgroundColor),
+          scale: 2, // Higher quality for LinkedIn
+          useCORS: true,
+          allowTaint: true,
         })
 
         document.body.removeChild(tempDiv)
-        slideImages.push(canvas.toDataURL("image/png"))
+        slideImages.push(canvas.toDataURL("image/png", 1.0))
       }
 
       // Post to LinkedIn with the generated images
       const result = await postToLinkedIn({
-        content: `🎨 ${currentProject.title}\n\n${currentProject.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`,
+        content: linkedInCaption || `🎨 ${currentProject.title}\n\n${currentProject.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`,
         images: slideImages,
       })
 
@@ -724,13 +791,114 @@ export default function AICarouselPage() {
           title: "Posted to LinkedIn!",
           description: "Your carousel has been published successfully.",
         })
+        setShowLinkedInModal(false)
         setShowPreviewModal(false)
+        setLinkedInCaption("")
       }
     } catch (error) {
       console.error("LinkedIn posting error:", error)
       toast({
         title: "Posting Failed",
         description: "There was an error posting to LinkedIn. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const openLinkedInModal = () => {
+    setLinkedInCaption(`🎨 ${currentProject?.title || "Carousel"}\n\n${currentProject?.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`)
+    setShowLinkedInModal(true)
+  }
+
+  // Function to convert any color to hex format
+  const convertToHex = (color: string): string => {
+    if (!color) return "#FFFFFF"
+    
+    // If it's already a hex color, return it
+    if (color.startsWith("#")) return color
+    
+    // If it's an oklch or other modern color function, convert to a safe fallback
+    if (color.includes("oklch") || color.includes("hsl") || color.includes("rgb")) {
+      // Extract the color and convert to a safe hex
+      if (color.includes("primary")) return "#0077B5"
+      if (color.includes("secondary")) return "#6366F1"
+      if (color.includes("muted")) return "#64748B"
+      if (color.includes("accent")) return "#8B5CF6"
+      if (color.includes("destructive")) return "#EF4444"
+      if (color.includes("success")) return "#10B981"
+      if (color.includes("warning")) return "#F59E0B"
+      if (color.includes("info")) return "#06B6D4"
+      
+      // Default fallback
+      return "#FFFFFF"
+    }
+    
+    return color
+  }
+
+  // Function to capture current canvas exactly as it appears
+  const captureCurrentCanvas = async () => {
+    if (!slideCanvasRef.current || !currentSlide) return null
+
+    try {
+      const canvas = await html2canvas(slideCanvasRef.current, {
+        backgroundColor: convertToHex(currentSlide.backgroundColor),
+        scale: 2, // Higher quality
+        useCORS: true,
+        allowTaint: true,
+        width: slideCanvasRef.current.offsetWidth,
+        height: slideCanvasRef.current.offsetHeight,
+      })
+
+      return canvas.toDataURL("image/png", 1.0)
+    } catch (error) {
+      console.error("Canvas capture error:", error)
+      return null
+    }
+  }
+
+  // Function to export current slide as PDF
+  const exportCurrentSlideToPDF = async () => {
+    if (!currentSlide) return
+
+    try {
+      const canvasData = await captureCurrentCanvas()
+      if (!canvasData) {
+        toast({
+          title: "Export Failed",
+          description: "Could not capture the current slide.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const pdf = new jsPDF("p", "mm", "a4")
+      const imgWidth = 180
+      const imgHeight = 180
+      const margin = 15
+
+      pdf.addImage(canvasData, "PNG", margin, margin, imgWidth, imgHeight)
+      
+      // Add slide info
+      pdf.setFontSize(14)
+      pdf.setTextColor(50)
+      pdf.text(currentProject?.title || "Carousel Slide", margin, margin - 10)
+      
+      pdf.setFontSize(10)
+      pdf.setTextColor(100)
+      pdf.text(`Slide ${currentSlideIndex + 1} of ${currentProject?.slides.length || 1}`, margin, margin + imgHeight + 10)
+
+      pdf.save(`${currentProject?.title || "slide"}_slide_${currentSlideIndex + 1}.pdf`)
+
+      toast({
+        title: "Slide Exported!",
+        description: "Current slide has been exported as a PDF file.",
+      })
+    } catch (error) {
+      console.error("Slide export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "There was an error exporting the current slide.",
         variant: "destructive",
       })
     }
@@ -768,14 +936,42 @@ export default function AICarouselPage() {
           </h1>
           <p className="text-muted-foreground">
             Create stunning LinkedIn carousel posts with AI assistance. Design professional slides with custom
-            backgrounds, fonts, and drag-and-drop text positioning.
+            backgrounds, fonts, and drag-and-drop text positioning. Export your designs as PDFs for LinkedIn posting.
           </p>
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">📄 PDF Export Features:</h3>
+            <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+              <li>• <strong>Export Slide:</strong> Save current slide as PDF with exact canvas design</li>
+              <li>• <strong>Export All:</strong> Save entire carousel as multi-page PDF</li>
+              <li>• <strong>High Quality:</strong> Perfect for LinkedIn carousel posts</li>
+              <li>• <strong>Exact Design:</strong> Captures text positioning, colors, and backgrounds exactly as designed</li>
+            </ul>
+          </div>
         </div>
       </div>
 
       <div className="grid gap-6 px-4">
         {!currentProject ? (
           <>
+            {/* Create from Scratch */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-primary" />
+                  Create from Scratch
+                </CardTitle>
+                <CardDescription>
+                  Start with a blank canvas and design your carousel slides manually with full control over design, text, and positioning.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={createNewProject} className="w-full" size="lg">
+                  <Palette className="w-5 h-5 mr-2" />
+                  Start Creating
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* AI Generation */}
             <Card>
               <CardHeader>
@@ -1007,19 +1203,19 @@ export default function AICarouselPage() {
                         <div
                           ref={slideCanvasRef}
                           className="rounded-lg flex items-center justify-center text-center p-8 relative overflow-hidden cursor-crosshair"
-                          style={{
-                            width: "45vw",
-                            maxWidth: "500px",
-                            height: "45vw",
-                            maxHeight: "500px",
-                            backgroundColor: currentSlide.backgroundColor,
-                            backgroundImage: currentSlide.backgroundType === "image" && currentSlide.backgroundImage 
-                              ? `url(${currentSlide.backgroundImage})` 
-                              : undefined,
-                            backgroundSize: currentSlide.backgroundType === "image" ? "cover" : undefined,
-                            backgroundPosition: currentSlide.backgroundType === "image" ? "center" : undefined,
-                            backgroundRepeat: currentSlide.backgroundType === "image" ? "no-repeat" : undefined,
-                          }}
+                                                     style={{
+                             width: "45vw",
+                             maxWidth: "500px",
+                             height: "45vw",
+                             maxHeight: "500px",
+                             backgroundColor: convertToHex(currentSlide.backgroundColor),
+                             backgroundImage: currentSlide.backgroundType === "image" && currentSlide.backgroundImage 
+                               ? `url(${currentSlide.backgroundImage})` 
+                               : undefined,
+                             backgroundSize: currentSlide.backgroundType === "image" ? "cover" : undefined,
+                             backgroundPosition: currentSlide.backgroundType === "image" ? "center" : undefined,
+                             backgroundRepeat: currentSlide.backgroundType === "image" ? "no-repeat" : undefined,
+                           }}
                           onMouseDown={handleMouseDown}
                           onMouseMove={handleMouseMove}
                           onMouseUp={handleMouseUp}
@@ -1037,11 +1233,11 @@ export default function AICarouselPage() {
                           >
                             <div
                               className="whitespace-pre-wrap font-bold leading-tight select-none"
-                              style={{
-                                fontSize: `${currentSlide.fontSize}px`,
-                                fontFamily: currentSlide.fontFamily,
-                                color: currentSlide.textColor,
-                              }}
+                                                             style={{
+                                 fontSize: `${currentSlide.fontSize}px`,
+                                 fontFamily: currentSlide.fontFamily,
+                                 color: convertToHex(currentSlide.textColor),
+                               }}
                             >
                               {currentSlide.text}
                             </div>
@@ -1085,11 +1281,15 @@ export default function AICarouselPage() {
                           <Save className="w-4 h-4 mr-2" />
                           Save
                         </Button>
+                        <Button onClick={exportCurrentSlideToPDF} variant="outline" size="sm">
+                          <Download className="w-4 h-4 mr-2" />
+                          Export Slide
+                        </Button>
                         <Button onClick={exportToPDF} variant="outline" size="sm">
                           <Download className="w-4 h-4 mr-2" />
-                          Export PDF
+                          Export All
                         </Button>
-                        <Button onClick={handlePostToLinkedIn} size="sm">
+                        <Button onClick={openLinkedInModal} size="sm">
                           <Send className="w-4 h-4 mr-2" />
                           Post
                         </Button>
@@ -1505,67 +1705,151 @@ export default function AICarouselPage() {
         )}
       </div>
 
-      {/* Preview Modal */}
-      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Carousel Preview</DialogTitle>
-            <DialogDescription>Preview all slides in your carousel before publishing.</DialogDescription>
-          </DialogHeader>
+             {/* Preview Modal */}
+       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+         <DialogContent className="max-w-2xl">
+           <DialogHeader>
+             <DialogTitle>Carousel Preview</DialogTitle>
+             <DialogDescription>Preview all slides in your carousel before publishing.</DialogDescription>
+           </DialogHeader>
 
-          {currentProject && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-                {currentProject.slides.map((slide, index) => (
-                  <div key={slide.id} className="relative">
-                    <div
-                      className="aspect-square rounded-lg flex items-center justify-center text-center p-4 text-xs"
-                      style={{
-                        backgroundColor: slide.backgroundColor,
-                        backgroundImage: slide.backgroundType === "image" && slide.backgroundImage 
-                          ? `url(${slide.backgroundImage})` 
-                          : undefined,
-                        backgroundSize: slide.backgroundType === "image" ? "cover" : undefined,
-                        backgroundPosition: slide.backgroundType === "image" ? "center" : undefined,
-                        backgroundRepeat: slide.backgroundType === "image" ? "no-repeat" : undefined,
-                      }}
-                    >
-                      <div
-                        className="whitespace-pre-wrap font-bold leading-tight"
-                        style={{
-                          fontSize: `${Math.max(8, slide.fontSize / 4)}px`,
-                          fontFamily: slide.fontFamily,
-                          color: slide.textColor,
+           {currentProject && (
+             <div className="space-y-4">
+               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
+                 {currentProject.slides.map((slide, index) => (
+                   <div key={slide.id} className="relative">
+                     <div
+                       className="aspect-square rounded-lg flex items-center justify-center text-center p-4 text-xs"
+                                               style={{
+                          backgroundColor: convertToHex(slide.backgroundColor),
+                          backgroundImage: slide.backgroundType === "image" && slide.backgroundImage 
+                            ? `url(${slide.backgroundImage})` 
+                            : undefined,
+                          backgroundSize: slide.backgroundType === "image" ? "cover" : undefined,
+                          backgroundPosition: slide.backgroundType === "image" ? "center" : undefined,
+                          backgroundRepeat: slide.backgroundType === "image" ? "no-repeat" : undefined,
                         }}
-                      >
-                        {slide.text}
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="absolute top-1 right-1 text-xs">
-                      {index + 1}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+                     >
+                       <div
+                         className="whitespace-pre-wrap font-bold leading-tight"
+                                                   style={{
+                            fontSize: `${Math.max(8, slide.fontSize / 4)}px`,
+                            fontFamily: slide.fontFamily,
+                            color: convertToHex(slide.textColor),
+                          }}
+                       >
+                         {slide.text}
+                       </div>
+                     </div>
+                     <Badge variant="secondary" className="absolute top-1 right-1 text-xs">
+                       {index + 1}
+                     </Badge>
+                   </div>
+                 ))}
+               </div>
 
-              <div className="flex gap-3">
-                <Button onClick={exportToPDF} variant="outline" className="flex-1 bg-transparent">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export PDF
-                </Button>
-                <Button 
-                  onClick={handlePostToLinkedIn} 
-                  className="flex-1"
-                  disabled={isPosting}
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  {isPosting ? "Posting..." : "Post to LinkedIn"}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+               <div className="flex gap-3">
+                 <Button onClick={exportToPDF} variant="outline" className="flex-1 bg-transparent">
+                   <Download className="w-4 h-4 mr-2" />
+                   Export All as PDF
+                 </Button>
+                 <Button 
+                   onClick={openLinkedInModal} 
+                   className="flex-1"
+                   disabled={isPosting}
+                 >
+                   <Send className="w-4 h-4 mr-2" />
+                   {isPosting ? "Posting..." : "Post to LinkedIn"}
+                 </Button>
+               </div>
+               <div className="text-xs text-muted-foreground text-center mt-2">
+                 💡 Tip: Use "Export All as PDF" to save your carousel as a multi-page PDF file perfect for LinkedIn posting
+               </div>
+             </div>
+           )}
+         </DialogContent>
+       </Dialog>
+
+       {/* LinkedIn Post Modal */}
+       <Dialog open={showLinkedInModal} onOpenChange={setShowLinkedInModal}>
+         <DialogContent className="max-w-2xl">
+           <DialogHeader>
+             <DialogTitle className="flex items-center gap-2">
+               <Send className="w-5 h-5 text-primary" />
+               Post to LinkedIn
+             </DialogTitle>
+             <DialogDescription>
+               Add a caption for your carousel post and publish it to LinkedIn.
+             </DialogDescription>
+           </DialogHeader>
+
+           {currentProject && (
+             <div className="space-y-4">
+               {/* Caption Input */}
+               <div className="space-y-2">
+                 <Label htmlFor="linkedin-caption">Post Caption (Optional)</Label>
+                 <Textarea
+                   id="linkedin-caption"
+                   placeholder="Write your LinkedIn post caption here..."
+                   value={linkedInCaption}
+                   onChange={(e) => setLinkedInCaption(e.target.value)}
+                   rows={4}
+                   className="resize-none"
+                 />
+                 <div className="text-xs text-muted-foreground">
+                   {linkedInCaption.length} characters • Leave empty to use auto-generated caption
+                 </div>
+               </div>
+
+               {/* Preview of what will be posted */}
+               <div className="space-y-2">
+                 <Label>Preview</Label>
+                 <div className="p-3 bg-muted rounded-lg text-sm">
+                   <div className="font-medium mb-2">Caption:</div>
+                   <div className="whitespace-pre-wrap text-muted-foreground">
+                     {linkedInCaption || `🎨 ${currentProject.title}\n\n${currentProject.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`}
+                   </div>
+                   <div className="mt-2 text-xs text-muted-foreground">
+                     + {currentProject.slides.length} carousel images
+                   </div>
+                 </div>
+               </div>
+
+               {/* Action Buttons */}
+               <div className="flex gap-3">
+                 <Button 
+                   onClick={() => setShowLinkedInModal(false)} 
+                   variant="outline" 
+                   className="flex-1"
+                 >
+                   Cancel
+                 </Button>
+                 <Button 
+                   onClick={handlePostToLinkedIn} 
+                   className="flex-1"
+                   disabled={isPosting}
+                 >
+                   {isPosting ? (
+                     <>
+                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                       Posting...
+                     </>
+                   ) : (
+                     <>
+                       <Send className="w-4 h-4 mr-2" />
+                       Post to LinkedIn
+                     </>
+                   )}
+                 </Button>
+               </div>
+
+               <div className="text-xs text-muted-foreground text-center">
+                 💡 Your carousel will be converted to high-quality images and posted as a LinkedIn carousel
+               </div>
+             </div>
+           )}
+         </DialogContent>
+       </Dialog>
 
 
     </div>

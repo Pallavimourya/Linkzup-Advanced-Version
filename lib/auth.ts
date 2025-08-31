@@ -291,8 +291,33 @@ export const authOptions: NextAuthOptions = {
         ;(session.user as any).role = token.role as string
         ;(session.user as any).isAdmin = token.isAdmin as boolean
 
-        session.user.linkedinConnected = !!(token.linkedinId && token.accessToken)
-        session.user.googleConnected = !!(token.googleId)
+        // Check LinkedIn connection status from database for accurate state
+        try {
+          const client = await clientPromise
+          const users = client.db("Linkzup-Advanced").collection("users")
+          const { ObjectId } = await import("mongodb")
+          
+          if (ObjectId.isValid(token.id)) {
+            const user = await users.findOne({ _id: new ObjectId(token.id) })
+            if (user) {
+              session.user.linkedinConnected = !!user.linkedinConnected
+              session.user.googleConnected = !!user.googleConnected
+            } else {
+              // Fallback to token-based check
+              session.user.linkedinConnected = !!(token.linkedinId && token.accessToken)
+              session.user.googleConnected = !!(token.googleId)
+            }
+          } else {
+            // Fallback to token-based check
+            session.user.linkedinConnected = !!(token.linkedinId && token.accessToken)
+            session.user.googleConnected = !!(token.googleId)
+          }
+        } catch (error) {
+          console.error("Session callback database error:", error)
+          // Fallback to token-based check
+          session.user.linkedinConnected = !!(token.linkedinId && token.accessToken)
+          session.user.googleConnected = !!(token.googleId)
+        }
       }
       return session
     },

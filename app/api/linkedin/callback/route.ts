@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         if (result.modifiedCount > 0) {
           console.log("LinkedIn connected successfully for user:", stateData.userId)
           return NextResponse.redirect(
-            new URL("/dashboard?success=linkedin_connected&refresh=true", process.env.NEXTAUTH_URL!),
+            new URL("/dashboard?success=linkedin_connected", process.env.NEXTAUTH_URL!),
           )
         } else {
           console.error("Failed to update user with LinkedIn connection")

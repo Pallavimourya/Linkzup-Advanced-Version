@@ -65,7 +65,17 @@ export default function DashboardPage() {
     
     if (success === 'linkedin_connected') {
       // Refresh session to get updated LinkedIn connection status
-      updateSession()
+      updateSession().then(() => {
+        // Clear the success parameter from URL after successful update
+        const url = new URL(window.location.href)
+        url.searchParams.delete('success')
+        window.history.replaceState({}, '', url.toString())
+      }).catch((error) => {
+        console.error('Failed to update session:', error)
+        // Force page reload as fallback
+        window.location.reload()
+      })
+      
       toast({
         title: "LinkedIn Connected!",
         description: "Your LinkedIn account has been successfully connected. You can now post content directly to LinkedIn.",

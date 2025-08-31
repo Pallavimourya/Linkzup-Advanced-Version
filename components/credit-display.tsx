@@ -27,13 +27,6 @@ export function CreditDisplay() {
     setIsClient(true)
   }, [])
 
-  useEffect(() => {
-    if (session?.user && isClient) {
-      setLoading(true)
-      fetchCreditData()
-    }
-  }, [session, isClient])
-
   const fetchCreditData = async () => {
     try {
       const response = await fetch("/api/billing/credits")
@@ -47,6 +40,18 @@ export function CreditDisplay() {
       setLoading(false)
     }
   }
+
+  // Debounced fetch to prevent excessive API calls
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (session?.user && isClient) {
+        setLoading(true)
+        fetchCreditData()
+      }
+    }, 500) // 500ms delay
+
+    return () => clearTimeout(timeoutId)
+  }, [session?.user?.id, isClient])
 
   // Function to refresh credits (can be called from other components)
   const refreshCredits = () => {
