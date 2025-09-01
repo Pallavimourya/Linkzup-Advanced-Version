@@ -1367,28 +1367,7 @@ export default function AICarouselPage() {
         </div>
       </header>
 
-      {/* Welcome Section */}
-      <div className="px-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <Palette className="w-6 h-6 text-primary" />
-            AI Carousel Creator
-          </h1>
-          <p className="text-muted-foreground">
-            Create stunning LinkedIn carousel posts with AI assistance. Design professional slides with custom
-            backgrounds, fonts, and drag-and-drop text positioning. Export your designs as PDFs for LinkedIn posting.
-          </p>
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">📄 PDF Export Features:</h3>
-            <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-              <li>• <strong>Export Slide:</strong> Save current slide as PDF with exact canvas design</li>
-              <li>• <strong>Export All:</strong> Save entire carousel as multi-page PDF</li>
-              <li>• <strong>High Quality:</strong> Perfect for LinkedIn carousel posts</li>
-              <li>• <strong>Exact Design:</strong> Captures text positioning, colors, and backgrounds exactly as designed</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      
 
       <div className="grid gap-6 px-4">
         {!currentProject ? (
@@ -1519,20 +1498,7 @@ export default function AICarouselPage() {
               </CardContent>
             </Card>
 
-            {/* Manual Creation */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Create from Scratch</CardTitle>
-                <CardDescription>Start with a blank carousel and design it yourself.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={createNewProject} variant="outline" className="w-full bg-transparent">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Blank Carousel
-                </Button>
-              </CardContent>
-            </Card>
-
+           
 
 
             {/* Saved Projects */}
