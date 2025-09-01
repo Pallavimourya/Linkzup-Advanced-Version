@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -111,6 +111,12 @@ export default function AICarouselPage() {
   const [currentProject, setCurrentProject] = useState<CarouselProject | null>(null)
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [savedProjects, setSavedProjects] = useState<CarouselProject[]>([])
@@ -613,23 +619,44 @@ export default function AICarouselPage() {
         const tempDiv = document.createElement("div")
         tempDiv.style.width = "500px"
         tempDiv.style.height = "500px"
-        tempDiv.style.backgroundColor = convertToHex(slide.backgroundColor)
         tempDiv.style.position = "absolute"
         tempDiv.style.left = "-9999px"
-        tempDiv.style.display = "flex"
-        tempDiv.style.alignItems = "center"
-        tempDiv.style.justifyContent = "center"
-        tempDiv.style.padding = "40px"
-        tempDiv.style.boxSizing = "border-box"
-        tempDiv.style.borderRadius = "8px"
         tempDiv.style.overflow = "hidden"
+        tempDiv.style.borderRadius = "8px"
+        
+        // Ensure we have a valid hex color
+        const bgColor = convertToHex(slide.backgroundColor)
+        tempDiv.style.backgroundColor = bgColor || "#FFFFFF"
 
-        // Add background image if present
+        // Add background image as an actual IMG element if present
         if (slide.backgroundType === "image" && slide.backgroundImage) {
-          tempDiv.style.backgroundImage = `url(${slide.backgroundImage})`
-          tempDiv.style.backgroundSize = "cover"
-          tempDiv.style.backgroundPosition = "center"
-          tempDiv.style.backgroundRepeat = "no-repeat"
+          const bgImg = document.createElement("img")
+          const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
+          bgImg.src = resolved || slide.backgroundImage
+          bgImg.style.position = "absolute"
+          bgImg.style.top = "0"
+          bgImg.style.left = "0"
+          bgImg.style.width = "100%"
+          bgImg.style.height = "100%"
+          bgImg.style.objectFit = "cover"
+          bgImg.style.objectPosition = "center"
+          bgImg.style.zIndex = "1"
+          
+          // Wait for image to load
+          await new Promise((resolve, reject) => {
+            bgImg.onload = resolve
+            bgImg.onerror = () => {
+              console.warn("Background image failed to load:", slide.backgroundImage)
+              resolve(null) // Continue without image
+            }
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              console.warn("Background image load timeout:", slide.backgroundImage)
+              resolve(null)
+            }, 5000)
+          })
+          
+          tempDiv.appendChild(bgImg)
         }
 
         // Create text container with exact positioning
@@ -644,9 +671,14 @@ export default function AICarouselPage() {
         textContainer.style.alignItems = "center"
         textContainer.style.justifyContent = "center"
         textContainer.style.padding = "16px"
+        textContainer.style.zIndex = "2" // Above background image
 
         const textDiv = document.createElement("div")
-        textDiv.style.color = convertToHex(slide.textColor)
+        
+        // Ensure we have a valid hex color for text
+        const textColor = convertToHex(slide.textColor)
+        textDiv.style.color = textColor || "#000000"
+        
         textDiv.style.fontSize = `${slide.fontSize}px`
         textDiv.style.fontFamily = slide.fontFamily || "Inter, sans-serif"
         textDiv.style.fontWeight = "bold"
@@ -660,18 +692,89 @@ export default function AICarouselPage() {
         tempDiv.appendChild(textContainer)
         document.body.appendChild(tempDiv)
 
-        const canvas = await html2canvas(tempDiv, {
-          width: 500,
-          height: 500,
-          backgroundColor: convertToHex(slide.backgroundColor),
-          scale: 2, // Higher quality
-          useCORS: true,
-          allowTaint: true,
-        })
+        let imgData: string
+        
+        // If there's a background image, use Canvas 2D API for more reliable rendering
+        if (slide.backgroundType === "image" && slide.backgroundImage) {
+          const canvas = document.createElement('canvas')
+          canvas.width = 500
+          canvas.height = 500
+          const ctx = canvas.getContext('2d')
+          
+          if (ctx) {
+            // Fill background color first
+            const bgColor = convertToHex(slide.backgroundColor) || "#FFFFFF"
+            ctx.fillStyle = bgColor
+            ctx.fillRect(0, 0, 500, 500)
+            
+            // Load and draw background image
+            const img = new Image()
+            img.crossOrigin = 'anonymous'
+            
+            // Set the source (try data URL first, then original)
+            const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
+            
+            await new Promise((resolve, reject) => {
+              img.onload = () => {
+                // Draw image to cover the entire canvas
+                ctx.drawImage(img, 0, 0, 500, 500)
+                resolve(null)
+              }
+              img.onerror = () => {
+                console.warn("Failed to load background image for PDF, using color only")
+                resolve(null)
+              }
+              
+              img.src = (resolved || slide.backgroundImage) ?? ""
+              
+              // Timeout after 5 seconds
+              setTimeout(() => {
+                console.warn("Background image load timeout for PDF")
+                resolve(null)
+              }, 5000)
+            })
+            
+            // Draw text on top
+            const textColor = convertToHex(slide.textColor) || "#000000"
+            ctx.fillStyle = textColor
+            ctx.font = `bold ${slide.fontSize}px ${slide.fontFamily || 'Inter, sans-serif'}`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            
+            // Calculate text position
+            const textX = (slide.textPosition.x / 100) * 500
+            const textY = (slide.textPosition.y / 100) * 500
+            
+            // Handle multi-line text
+            const lines = slide.text.split('\n')
+            const lineHeight = slide.fontSize * 1.2 // 1.2 is line height multiplier
+            const totalHeight = lines.length * lineHeight
+            const startY = textY - (totalHeight / 2) + (lineHeight / 2)
+            
+            lines.forEach((line, index) => {
+              const y = startY + (index * lineHeight)
+              ctx.fillText(line, textX, y)
+            })
+            
+            imgData = canvas.toDataURL("image/png", 1.0)
+          } else {
+            throw new Error("Could not get 2D context for PDF")
+          }
+        } else {
+          // No background image, use html2canvas
+          const canvas = await html2canvas(tempDiv, {
+            width: 500,
+            height: 500,
+            backgroundColor: convertToHex(slide.backgroundColor),
+            scale: 2, // Higher quality
+            useCORS: true,
+            allowTaint: false,
+          })
+          
+          imgData = canvas.toDataURL("image/png", 1.0)
+        }
 
         document.body.removeChild(tempDiv)
-
-        const imgData = canvas.toDataURL("image/png", 1.0)
         pdf.addImage(imgData, "PNG", margin, margin, slideWidth, slideHeight)
 
         // Add slide number and title
@@ -708,35 +811,97 @@ export default function AICarouselPage() {
 
   const handlePostToLinkedIn = async () => {
     if (!currentProject) return
+    
+    // Check if LinkedIn posting is available
+    if (!postToLinkedIn) {
+      toast({
+        title: "LinkedIn Not Available",
+        description: "LinkedIn posting functionality is not available. Please check your connection.",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    // Check if user is connected to LinkedIn
+    if (!isLinkedInConnected) {
+      toast({
+        title: "LinkedIn Not Connected",
+        description: "Please connect your LinkedIn account before posting.",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    // Check if already posting
+    if (isPosting) {
+      toast({
+        title: "Already Posting",
+        description: "Please wait for the current post to complete.",
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
       // First, export slides as images with exact canvas design
       const slideImages = []
+      
+      // Validate project data
+      if (!currentProject.slides || currentProject.slides.length === 0) {
+        throw new Error("No slides found in the project")
+      }
 
       for (let i = 0; i < currentProject.slides.length; i++) {
         const slide = currentProject.slides[i]
+        
+        // Validate slide data
+        if (!slide || !slide.text) {
+          console.warn(`Skipping invalid slide ${i + 1}`)
+          continue
+        }
 
         // Create a temporary canvas element that matches the exact canvas design
         const tempDiv = document.createElement("div")
         tempDiv.style.width = "1080px"
         tempDiv.style.height = "1080px"
-        tempDiv.style.backgroundColor = convertToHex(slide.backgroundColor)
         tempDiv.style.position = "absolute"
         tempDiv.style.left = "-9999px"
-        tempDiv.style.display = "flex"
-        tempDiv.style.alignItems = "center"
-        tempDiv.style.justifyContent = "center"
-        tempDiv.style.padding = "80px"
-        tempDiv.style.boxSizing = "border-box"
-        tempDiv.style.borderRadius = "12px"
         tempDiv.style.overflow = "hidden"
+        tempDiv.style.borderRadius = "12px"
+        
+        // Ensure we have a valid hex color
+        const bgColor = convertToHex(slide.backgroundColor)
+        tempDiv.style.backgroundColor = bgColor || "#FFFFFF"
 
-        // Add background image if present
+        // Add background image as an actual IMG element if present
         if (slide.backgroundType === "image" && slide.backgroundImage) {
-          tempDiv.style.backgroundImage = `url(${slide.backgroundImage})`
-          tempDiv.style.backgroundSize = "cover"
-          tempDiv.style.backgroundPosition = "center"
-          tempDiv.style.backgroundRepeat = "no-repeat"
+          const bgImg = document.createElement("img")
+          const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
+          bgImg.src = resolved || slide.backgroundImage
+          bgImg.style.position = "absolute"
+          bgImg.style.top = "0"
+          bgImg.style.left = "0"
+          bgImg.style.width = "100%"
+          bgImg.style.height = "100%"
+          bgImg.style.objectFit = "cover"
+          bgImg.style.objectPosition = "center"
+          bgImg.style.zIndex = "1"
+          
+          // Wait for image to load
+          await new Promise((resolve, reject) => {
+            bgImg.onload = resolve
+            bgImg.onerror = () => {
+              console.warn("Background image failed to load:", slide.backgroundImage)
+              resolve(null) // Continue without image
+            }
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              console.warn("Background image load timeout:", slide.backgroundImage)
+              resolve(null)
+            }, 5000)
+          })
+          
+          tempDiv.appendChild(bgImg)
         }
 
         // Create text container with exact positioning
@@ -751,9 +916,14 @@ export default function AICarouselPage() {
         textContainer.style.alignItems = "center"
         textContainer.style.justifyContent = "center"
         textContainer.style.padding = "32px"
+        textContainer.style.zIndex = "2" // Above background image
 
         const textDiv = document.createElement("div")
-        textDiv.style.color = convertToHex(slide.textColor)
+        
+        // Ensure we have a valid hex color for text
+        const textColor = convertToHex(slide.textColor)
+        textDiv.style.color = textColor || "#000000"
+        
         textDiv.style.fontSize = `${slide.fontSize * 1.5}px`
         textDiv.style.fontFamily = slide.fontFamily || "Inter, sans-serif"
         textDiv.style.fontWeight = "bold"
@@ -767,19 +937,144 @@ export default function AICarouselPage() {
         tempDiv.appendChild(textContainer)
         document.body.appendChild(tempDiv)
 
-        const canvas = await html2canvas(tempDiv, {
-          width: 1080,
-          height: 1080,
-          backgroundColor: convertToHex(slide.backgroundColor),
-          scale: 2, // Higher quality for LinkedIn
-          useCORS: true,
-          allowTaint: true,
-        })
+        try {
+          // If there's a background image, use Canvas 2D API for more reliable rendering
+          if (slide.backgroundType === "image" && slide.backgroundImage) {
+            const canvas = document.createElement('canvas')
+            canvas.width = 1080
+            canvas.height = 1080
+            const ctx = canvas.getContext('2d')
+            
+            if (ctx) {
+              // Fill background color first
+              const bgColor = convertToHex(slide.backgroundColor) || "#FFFFFF"
+              ctx.fillStyle = bgColor
+              ctx.fillRect(0, 0, 1080, 1080)
+              
+              // Load and draw background image
+              const img = new Image()
+              img.crossOrigin = 'anonymous'
+              
+              // Set the source (try data URL first, then original)
+              const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
+              
+              await new Promise((resolve, reject) => {
+                img.onload = () => {
+                  // Draw image to cover the entire canvas
+                  ctx.drawImage(img, 0, 0, 1080, 1080)
+                  resolve(null)
+                }
+                img.onerror = () => {
+                  console.warn("Failed to load background image, using color only")
+                  resolve(null)
+                }
+                
+                img.src = (resolved || slide.backgroundImage) ?? ""
+                
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                  console.warn("Background image load timeout")
+                  resolve(null)
+                }, 5000)
+              })
+              
+              // Draw text on top
+              const textColor = convertToHex(slide.textColor) || "#000000"
+              ctx.fillStyle = textColor
+              ctx.font = `bold ${slide.fontSize * 1.5}px ${slide.fontFamily || 'Inter, sans-serif'}`
+              ctx.textAlign = 'center'
+              ctx.textBaseline = 'middle'
+              
+              // Calculate text position
+              const textX = (slide.textPosition.x / 100) * 1080
+              const textY = (slide.textPosition.y / 100) * 1080
+              
+              // Handle multi-line text
+              const lines = slide.text.split('\n')
+              const lineHeight = slide.fontSize * 1.5 * 1.2 // 1.2 is line height multiplier
+              const totalHeight = lines.length * lineHeight
+              const startY = textY - (totalHeight / 2) + (lineHeight / 2)
+              
+              lines.forEach((line, index) => {
+                const y = startY + (index * lineHeight)
+                ctx.fillText(line, textX, y)
+              })
+              
+              slideImages.push(canvas.toDataURL("image/png", 1.0))
+            } else {
+              throw new Error("Could not get 2D context")
+            }
+          } else {
+            // No background image, use html2canvas
+            const canvas = await html2canvas(tempDiv, {
+              width: 1080,
+              height: 1080,
+              backgroundColor: convertToHex(slide.backgroundColor),
+              scale: 2, // Higher quality for LinkedIn
+              useCORS: true,
+              allowTaint: false,
+              logging: false, // Disable logging to reduce console noise
+              removeContainer: true, // Automatically remove temporary elements
+              foreignObjectRendering: false, // Disable for better compatibility
+              onclone: (clonedDoc) => {
+                const elements = clonedDoc.body.querySelectorAll('*')
+                elements.forEach((el) => {
+                  const attrs = el.getAttributeNames()
+                  attrs.forEach((attr) => {
+                    if (attr.startsWith('bis_') || (attr.startsWith('data-') && attr.includes('bis'))) {
+                      el.removeAttribute(attr)
+                    }
+                  })
+                })
+              }
+            })
 
-        document.body.removeChild(tempDiv)
-        slideImages.push(canvas.toDataURL("image/png", 1.0))
+            slideImages.push(canvas.toDataURL("image/png", 1.0))
+          }
+        } catch (canvasError) {
+          console.error(`Error rendering slide ${i + 1}:`, canvasError)
+          // Create a fallback canvas with basic colors
+          try {
+            const fallbackCanvas = document.createElement('canvas')
+            fallbackCanvas.width = 1080
+            fallbackCanvas.height = 1080
+            const ctx = fallbackCanvas.getContext('2d')
+            if (ctx) {
+              // Ensure we have safe colors
+              const bgColor = convertToHex(slide.backgroundColor) || "#FFFFFF"
+              const txtColor = convertToHex(slide.textColor) || "#000000"
+              
+              ctx.fillStyle = bgColor
+              ctx.fillRect(0, 0, 1080, 1080)
+              ctx.fillStyle = txtColor
+              ctx.font = `${slide.fontSize * 1.5}px ${slide.fontFamily || 'Inter, sans-serif'}`
+              ctx.textAlign = 'center'
+              ctx.textBaseline = 'middle'
+              ctx.fillText(slide.text, 540, 540)
+              slideImages.push(fallbackCanvas.toDataURL("image/png", 1.0))
+            } else {
+              // If we can't get a 2D context, create a simple colored div
+              console.warn("Could not get 2D context for fallback canvas")
+              slideImages.push("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjEwODAiIGZpbGw9IiNGRkZGRkYiLz48dGV4dCB4PSI1NDAiIHk9IjU0MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjMDAwMDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RmFsbGJhY2sgU2xpZGU8L3RleHQ+PC9zdmc+")
+            }
+          } catch (fallbackError) {
+            console.error("Fallback canvas creation failed:", fallbackError)
+            // Last resort: add a placeholder image
+            slideImages.push("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjEwODAiIGZpbGw9IiNGRkZGRkYiLz48dGV4dCB4PSI1NDAiIHk9IjU0MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjMDAwMDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RXJyb3IgU2xpZGU8L3RleHQ+PC9zdmc+")
+          }
+        } finally {
+          // Always clean up the temporary element
+          if (document.body.contains(tempDiv)) {
+            document.body.removeChild(tempDiv)
+          }
+        }
       }
 
+      // Ensure we have images to post
+      if (slideImages.length === 0) {
+        throw new Error("No images were generated for posting")
+      }
+      
       // Post to LinkedIn with the generated images
       const result = await postToLinkedIn({
         content: linkedInCaption || `🎨 ${currentProject.title}\n\n${currentProject.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`,
@@ -794,12 +1089,28 @@ export default function AICarouselPage() {
         setShowLinkedInModal(false)
         setShowPreviewModal(false)
         setLinkedInCaption("")
+      } else {
+        throw new Error(result.error || "LinkedIn posting failed")
       }
     } catch (error) {
       console.error("LinkedIn posting error:", error)
+      
+      // Provide more specific error messages
+      let errorMessage = "There was an error posting to LinkedIn. Please try again."
+      
+      if (error instanceof Error) {
+        if (error.message.includes("oklch")) {
+          errorMessage = "Color conversion error. Please check your slide colors and try again."
+        } else if (error.message.includes("html2canvas")) {
+          errorMessage = "Image generation error. Please try refreshing the page and try again."
+        } else if (error.message.includes("LinkedIn")) {
+          errorMessage = "LinkedIn connection error. Please check your LinkedIn connection and try again."
+        }
+      }
+      
       toast({
         title: "Posting Failed",
-        description: "There was an error posting to LinkedIn. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       })
     }
@@ -812,28 +1123,144 @@ export default function AICarouselPage() {
 
   // Function to convert any color to hex format
   const convertToHex = (color: string): string => {
-    if (!color) return "#FFFFFF"
-    
-    // If it's already a hex color, return it
-    if (color.startsWith("#")) return color
-    
-    // If it's an oklch or other modern color function, convert to a safe fallback
-    if (color.includes("oklch") || color.includes("hsl") || color.includes("rgb")) {
-      // Extract the color and convert to a safe hex
-      if (color.includes("primary")) return "#0077B5"
-      if (color.includes("secondary")) return "#6366F1"
-      if (color.includes("muted")) return "#64748B"
-      if (color.includes("accent")) return "#8B5CF6"
-      if (color.includes("destructive")) return "#EF4444"
-      if (color.includes("success")) return "#10B981"
-      if (color.includes("warning")) return "#F59E0B"
-      if (color.includes("info")) return "#06B6D4"
+    try {
+      if (!color) return "#FFFFFF"
       
-      // Default fallback
-      return "#FFFFFF"
+      // If it's already a hex color, return it
+      if (color.startsWith("#")) return color
+      
+      // Handle CSS custom properties (CSS variables)
+      if (color.startsWith("var(--")) {
+        // Extract the variable name
+        const varName = color.match(/var\(--([^)]+)\)/)?.[1]
+        if (varName) {
+          // Get computed value from CSS
+          const computedValue = getComputedStyle(document.documentElement).getPropertyValue(`--${varName}`).trim()
+          if (computedValue) {
+            return convertToHex(computedValue)
+          }
+        }
+        // Fallback for CSS variables
+        return "#FFFFFF"
+      }
+      
+      // If it's an oklch or other modern color function, convert to a safe fallback
+      if (color.includes("oklch") || color.includes("hsl") || color.includes("rgb")) {
+        // Extract the color and convert to a safe hex
+        if (color.includes("primary")) return "#0077B5"
+        if (color.includes("secondary")) return "#6366F1"
+        if (color.includes("muted")) return "#64748B"
+        if (color.includes("accent")) return "#8B5CF6"
+        if (color.includes("destructive")) return "#EF4444"
+        if (color.includes("success")) return "#10B981"
+        if (color.includes("warning")) return "#F59E0B"
+        if (color.includes("info")) return "#06B6D4"
+        
+        // Handle oklch colors specifically
+        if (color.includes("oklch")) {
+          // Parse oklch values (allow comma or space separated) and convert to hex
+          const oklchMatch = color.match(/oklch\(([^)]+)\)/)
+          if (oklchMatch) {
+            const raw = oklchMatch[1].trim()
+            const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/)
+            const values = parts.map(v => v.trim().replace(/deg$/, ''))
+            if (values.length >= 3) {
+              const l = parseFloat(values[0]) // lightness
+              const c = parseFloat(values[1]) // chroma
+              const h = parseFloat(values[2]) // hue
+              
+              // Convert oklch to approximate hex based on lightness and hue
+              if (l > 0.8) return "#FFFFFF" // Very light colors
+              if (l > 0.6) return "#E5E7EB" // Light colors
+              if (l > 0.4) return "#9CA3AF" // Medium colors
+              if (l > 0.2) return "#4B5563" // Dark colors
+              return "#111827" // Very dark colors
+            }
+          }
+        }
+        
+        // Handle hsl colors
+        if (color.includes("hsl")) {
+          const hslMatch = color.match(/hsl\(([^)]+)\)/)
+          if (hslMatch) {
+            const raw = hslMatch[1].trim()
+            const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/)
+            const values = parts.map(v => v.trim().replace(/%$/, ''))
+            if (values.length >= 3) {
+              const h = parseFloat(values[0])
+              const s = parseFloat(values[1])
+              const l = parseFloat(values[2])
+              
+              // Simple HSL to hex conversion
+              if (l > 0.8) return "#FFFFFF"
+              if (l > 0.6) return "#E5E7EB"
+              if (l > 0.4) return "#9CA3AF"
+              if (l > 0.2) return "#4B5563"
+              return "#111827"
+            }
+          }
+        }
+        
+        // Handle rgb colors
+        if (color.includes("rgb")) {
+          const rgbMatch = color.match(/rgb\(([^)]+)\)/)
+          if (rgbMatch) {
+            const raw = rgbMatch[1].trim()
+            const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/)
+            const values = parts.map(v => Number.parseInt(v.trim()))
+            if (values.length >= 3) {
+              const [r, g, b] = values
+              // Convert RGB to hex
+              return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+            }
+          }
+        }
+        
+        // Default fallback
+        return "#FFFFFF"
+      }
+      
+      return color
+    } catch (error) {
+      console.error("Color conversion error:", error, "for color:", color)
+      return "#FFFFFF" // Safe fallback
     }
-    
-    return color
+  }
+
+  // Load an image URL as a data URL to avoid CORS tainting in html2canvas
+  const fetchImageAsDataURL = async (url: string): Promise<string | null> => {
+    try {
+      if (!url) return null
+      // Already a data URL
+      if (url.startsWith("data:")) return url
+      // Same-origin URLs are safe to use directly
+      try {
+        const origin = typeof window !== 'undefined' ? window.location.origin : ''
+        if (origin && url.startsWith(origin)) return url
+      } catch {}
+
+      // Try fetch -> blob -> dataURL
+      const resp = await fetch(url, { mode: 'cors', credentials: 'omit' })
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+      const blob = await resp.blob()
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+      })
+      return dataUrl
+    } catch (err) {
+      console.warn('fetchImageAsDataURL failed, using original URL:', err)
+      return null
+    }
+  }
+
+  // Resolve a background image URL to a data URL when possible (for html2canvas)
+  const resolveBackgroundImageUrl = async (imageUrl?: string): Promise<string | undefined> => {
+    if (!imageUrl) return undefined
+    const dataUrl = await fetchImageAsDataURL(imageUrl)
+    return dataUrl || imageUrl
   }
 
   // Function to capture current canvas exactly as it appears
@@ -905,6 +1332,19 @@ export default function AICarouselPage() {
   }
 
   const currentSlide = currentProject?.slides[currentSlideIndex]
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="px-4 py-8">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4">
