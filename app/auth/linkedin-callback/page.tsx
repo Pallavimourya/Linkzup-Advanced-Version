@@ -17,9 +17,9 @@ export default function LinkedInCallbackPage() {
     const handleLinkedInCallback = async () => {
       try {
         const email = searchParams.get("email")
-        const linkedinId = searchParams.get("linkedinId")
+        const userId = searchParams.get("userId")
 
-        if (!email || !linkedinId) {
+        if (!email || !userId) {
           setStatus("error")
           setMessage("Missing required parameters")
           return
@@ -27,7 +27,6 @@ export default function LinkedInCallbackPage() {
 
         setMessage("Signing you in...")
 
-        // Sign in using credentials with special LinkedIn OAuth password
         const result = await signIn("credentials", {
           email: email,
           password: "linkedin_oauth",
@@ -45,7 +44,7 @@ export default function LinkedInCallbackPage() {
           setStatus("success")
           setMessage("LinkedIn sign-in successful!")
           setTimeout(() => {
-            router.push("/dashboard?success=linkedin_connected")
+            router.push("/dashboard?success=linkedin_signin")
           }, 1500)
         }
       } catch (error) {

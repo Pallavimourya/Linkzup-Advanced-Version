@@ -25,12 +25,12 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error("LinkedIn OAuth error:", error)
-      return NextResponse.redirect(new URL("/dashboard?error=linkedin_oauth_failed", baseUrl))
+      return NextResponse.redirect(new URL("/auth/signin?error=linkedin_oauth_failed", baseUrl))
     }
 
     if (!code || !state) {
       console.error("Missing required parameters - code:", !!code, "state:", !!state)
-      return NextResponse.redirect(new URL("/dashboard?error=missing_params", baseUrl))
+      return NextResponse.redirect(new URL("/auth/signin?error=missing_params", baseUrl))
     }
 
     let stateData
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       stateData = JSON.parse(decodeURIComponent(state))
     } catch (e) {
       console.error("Invalid state parameter:", e)
-      return NextResponse.redirect(new URL("/dashboard?error=invalid_state", baseUrl))
+      return NextResponse.redirect(new URL("/auth/signin?error=invalid_state", baseUrl))
     }
 
     const redirectUri = `${baseUrl}/api/linkedin/callback`
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     if (!tokenResponse.ok) {
       console.error("Failed to get LinkedIn access token:", await tokenResponse.text())
-      return NextResponse.redirect(new URL("/dashboard?error=token_exchange_failed", baseUrl))
+      return NextResponse.redirect(new URL("/auth/signin?error=token_exchange_failed", baseUrl))
     }
 
     const tokenData = await tokenResponse.json()
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     if (!profileResponse.ok) {
       console.error("Failed to get LinkedIn profile:", await profileResponse.text())
-      return NextResponse.redirect(new URL("/dashboard?error=profile_fetch_failed", baseUrl))
+      return NextResponse.redirect(new URL("/auth/signin?error=profile_fetch_failed", baseUrl))
     }
 
     const profile = await profileResponse.json()
@@ -89,7 +89,6 @@ export async function GET(request: NextRequest) {
       const users = db.collection("users")
 
       if (stateData.action === "connect" && stateData.userId) {
-        // Update existing user's LinkedIn connection
         const result = await users.updateOne(
           { _id: new ObjectId(stateData.userId) },
           {
@@ -111,11 +110,10 @@ export async function GET(request: NextRequest) {
           return NextResponse.redirect(new URL("/dashboard?error=update_failed", baseUrl))
         }
       } else {
-        // Handle sign-in flow (create new user or sign in existing)
         let user = await users.findOne({ email: profile.email })
 
         if (!user) {
-          // Create new user
+          // Create new user with proper NextAuth structure
           const newUser = {
             email: profile.email,
             name: profile.name,
@@ -129,6 +127,9 @@ export async function GET(request: NextRequest) {
             trialPeriodDays: 2,
             isTrialActive: true,
             totalCreditsEver: 0,
+            bio: null,
+            profilePicture: null,
+            darkMode: false,
             createdAt: new Date(),
             updatedAt: new Date(),
           }
@@ -146,6 +147,8 @@ export async function GET(request: NextRequest) {
                 linkedinConnected: true,
                 linkedinConnectedAt: new Date(),
                 linkedinAccessToken: accessToken,
+                name: profile.name, // Update name from LinkedIn
+                image: profile.picture, // Update image from LinkedIn
                 updatedAt: new Date(),
               },
             },
@@ -153,18 +156,22 @@ export async function GET(request: NextRequest) {
           console.log("Existing user LinkedIn connection updated:", profile.email)
         }
 
-        return NextResponse.redirect(new URL("/dashboard?success=linkedin_signin", baseUrl))
+        const callbackUrl = new URL("/auth/linkedin-callback", baseUrl)
+        callbackUrl.searchParams.set("email", profile.email)
+        callbackUrl.searchParams.set("userId", user._id.toString())
+
+        return NextResponse.redirect(callbackUrl.toString())
       }
     } catch (dbError) {
       console.error("Database error:", dbError)
-      return NextResponse.redirect(new URL("/dashboard?error=database_error", baseUrl))
+      return NextResponse.redirect(new URL("/auth/signin?error=database_error", baseUrl))
     } finally {
       await client.close()
     }
   } catch (error) {
     console.error("LinkedIn callback error:", error)
     return NextResponse.redirect(
-      new URL("/dashboard?error=callback_failed", process.env.NEXTAUTH_URL || "https://www.linkzup.in"),
+      new URL("/auth/signin?error=callback_failed", process.env.NEXTAUTH_URL || "https://www.linkzup.in"),
     )
   }
 }

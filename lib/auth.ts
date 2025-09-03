@@ -101,9 +101,9 @@ export const authOptions: NextAuthOptions = {
               return null
             }
 
-            // If user has a LinkedIn connection and no password is provided, allow sign-in
-            if (user.linkedinConnected && (!credentials.password || credentials.password === "")) {
-              console.log("LinkedIn user login successful:", credentials.email)
+            // Special case for LinkedIn OAuth callback - allow sign-in without password
+            if (credentials.password === "linkedin_oauth" && user.linkedinConnected) {
+              console.log("LinkedIn OAuth callback login successful:", credentials.email)
               return {
                 id: user._id.toString(),
                 email: user.email,
@@ -112,9 +112,9 @@ export const authOptions: NextAuthOptions = {
               }
             }
 
-            // Special case for LinkedIn OAuth callback
-            if (credentials.password === "linkedin_oauth" && user.linkedinConnected) {
-              console.log("LinkedIn OAuth callback login successful:", credentials.email)
+            // If user has a LinkedIn connection and no password is provided, allow sign-in
+            if (user.linkedinConnected && (!credentials.password || credentials.password === "")) {
+              console.log("LinkedIn user login successful:", credentials.email)
               return {
                 id: user._id.toString(),
                 email: user.email,
