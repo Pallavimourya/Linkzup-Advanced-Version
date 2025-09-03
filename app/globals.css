@@ -17,6 +17,46 @@ iframe[src*="razorpay"] {
   z-index: 10001 !important;
 }
 
+/* Custom Toast Styling - Green Notifications at Top-Center */
+.toast-notification {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+  border: 2px solid #bbf7d0 !important;
+  color: #166534 !important;
+  box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.1), 0 10px 10px -5px rgba(34, 197, 94, 0.04) !important;
+  border-radius: 12px !important;
+  font-weight: 500 !important;
+}
+
+.toast-notification .toast-title {
+  color: #15803d !important;
+  font-weight: 600 !important;
+}
+
+.toast-notification .toast-description {
+  color: #166534 !important;
+  opacity: 0.9 !important;
+}
+
+/* Toast Viewport Positioning */
+[data-radix-toast-viewport] {
+  position: fixed !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+  max-width: 420px !important;
+  width: 100% !important;
+}
+
+/* Sonner Toast Styling */
+.sonner-toaster {
+  position: fixed !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+}
+
 /* Fix for modal focus issues */
 .razorpay-checkout-frame iframe {
   z-index: 10002 !important;

@@ -5,6 +5,8 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { AuthProvider } from "@/components/auth-provider"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
   title: "LinkzUp - AI-Powered LinkedIn Content Management",
@@ -23,6 +25,8 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
+        <Toaster />
+        <SonnerToaster />
         <script
           src="https://checkout.razorpay.com/v1/checkout.js"
           async

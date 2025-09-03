@@ -1,7 +1,8 @@
 // @ts-ignore
 import type { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-import LinkedInProvider from "next-auth/providers/linkedin"
+// LinkedIn OAuth is handled by custom implementation
+// import LinkedInProvider from "next-auth/providers/linkedin"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import { MongoClient } from "mongodb"
@@ -44,24 +45,25 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    LinkedInProvider({
-      clientId: process.env.LINKEDIN_CLIENT_ID!,
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: "openid profile email w_member_social",
-        },
-      },
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          linkedinId: profile.sub,
-        }
-      },
-    }),
+    // LinkedIn OAuth is handled by custom implementation in /api/linkedin/connect
+    // LinkedInProvider({
+    //   clientId: process.env.LINKEDIN_CLIENT_ID!,
+    //   clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+    //   authorization: {
+    //     params: {
+    //       scope: "openid profile email w_member_social",
+    //     },
+    //   },
+    //   profile(profile) {
+    //     return {
+    //       id: profile.sub,
+    //       name: profile.name,
+    //       email: profile.email,
+    //       image: profile.picture,
+    //       linkedinId: profile.sub,
+    //     }
+    //   },
+    // }),
     CredentialsProvider({
       name: "credentials",
       credentials: {

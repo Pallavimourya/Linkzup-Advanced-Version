@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
+import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { scheduleLinkedInPost, LinkedInPostData } from "@/lib/linkedin-posting"
 import { connectToDatabase } from "@/lib/mongodb"
@@ -7,7 +7,7 @@ import { ObjectId } from "mongodb"
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as any
     if (!session?.user?.email || !session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

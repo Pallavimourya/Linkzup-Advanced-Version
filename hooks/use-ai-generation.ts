@@ -47,7 +47,24 @@ export function useAIGeneration() {
         
         if (response.ok) {
           const data = await response.json()
-          setQueueStatus(data.queue)
+          const newQueueStatus = data.queue
+          
+          // Show queue status notifications
+          if (newQueueStatus && newQueueStatus !== queueStatus) {
+            if (newQueueStatus.queueLength > 0 && newQueueStatus.queueLength <= 3) {
+              toast({
+                title: "Queue Update",
+                description: `You are ${newQueueStatus.queueLength === 1 ? 'next' : `#${newQueueStatus.queueLength} in queue`}`,
+              })
+            } else if (newQueueStatus.queueLength > 3) {
+              toast({
+                title: "Queue Busy",
+                description: `High demand! You are #${newQueueStatus.queueLength} in queue. Estimated wait: ${Math.ceil(newQueueStatus.queueLength / newQueueStatus.maxConcurrentRequests) * 30}s`,
+              })
+            }
+          }
+          
+          setQueueStatus(newQueueStatus)
         }
       } catch (error) {
         console.warn("Failed to poll queue status:", error)
@@ -61,19 +78,44 @@ export function useAIGeneration() {
     const interval = setInterval(pollQueueStatus, 2000) // Poll every 2 seconds
 
     return () => clearInterval(interval)
-  }, [])
+  }, [queueStatus, toast])
 
   // Start progress simulation
   const startProgressSimulation = useCallback(() => {
     setState(prev => ({ ...prev, isGenerating: true, progress: 0 }))
     
+    // Show generation started notification
+    toast({
+      title: "AI Generation Started",
+      description: "Your content is being generated. This may take a few moments...",
+    })
+    
     progressIntervalRef.current = setInterval(() => {
       setState(prev => {
         const newProgress = Math.min(prev.progress + Math.random() * 10, 90)
+        
+        // Show progress milestones
+        if (newProgress >= 25 && prev.progress < 25) {
+          toast({
+            title: "Analyzing Content",
+            description: "AI is analyzing your prompt and generating ideas...",
+          })
+        } else if (newProgress >= 50 && prev.progress < 50) {
+          toast({
+            title: "Creating Content",
+            description: "AI is crafting your content with the specified tone and style...",
+          })
+        } else if (newProgress >= 75 && prev.progress < 75) {
+          toast({
+            title: "Finalizing",
+            description: "AI is polishing and optimizing your content...",
+          })
+        }
+        
         return { ...prev, progress: newProgress }
       })
     }, 500)
-  }, [])
+  }, [toast])
 
   // Stop progress simulation
   const stopProgressSimulation = useCallback(() => {
@@ -95,9 +137,21 @@ export function useAIGeneration() {
       return null
     }
 
+    // Check queue status before starting
+    if (queueStatus && queueStatus.queueLength > 5) {
+      toast({
+        title: "High Queue Volume",
+        description: `Queue is busy with ${queueStatus.queueLength} requests. Your request will be processed in order.`,
+      })
+    }
+
     // Abort any existing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
+      toast({
+        title: "Previous Request Cancelled",
+        description: "Starting new generation request...",
+      })
     }
 
     // Create new abort controller
@@ -122,6 +176,12 @@ export function useAIGeneration() {
             description: errorData.suggestion || "Please purchase more credits to continue",
             variant: "destructive"
           })
+        } else if (response.status === 429) {
+          toast({
+            title: "Rate Limit Exceeded",
+            description: "Too many requests. Please wait a moment before trying again.",
+            variant: "destructive"
+          })
         } else {
           throw new Error(errorData.error || `HTTP ${response.status}`)
         }
@@ -134,16 +194,21 @@ export function useAIGeneration() {
       // Complete progress
       setState(prev => ({ ...prev, progress: 100 }))
       
-      // Show success message
+      // Show success message with content details
+      const contentType = request.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
       toast({
-        title: "Content Generated!",
-        description: data.message || "Your content has been generated successfully",
+        title: "Content Generated Successfully! 🎉",
+        description: `Your ${contentType} is ready! ${data.message || "Content has been generated with your specifications."}`,
       })
 
       return data.data
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         console.log("Request was aborted")
+        toast({
+          title: "Generation Cancelled",
+          description: "Content generation was cancelled by user.",
+        })
         return null
       }
 
@@ -151,7 +216,7 @@ export function useAIGeneration() {
       
       toast({
         title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate content",
+        description: error instanceof Error ? error.message : "Failed to generate content. Please try again.",
         variant: "destructive"
       })
 
@@ -160,15 +225,19 @@ export function useAIGeneration() {
       stopProgressSimulation()
       abortControllerRef.current = null
     }
-  }, [session?.user?.email, toast, startProgressSimulation, stopProgressSimulation])
+  }, [session?.user?.email, toast, startProgressSimulation, stopProgressSimulation, queueStatus])
 
   // Abort current generation
   const abortGeneration = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
+      toast({
+        title: "Generation Cancelled",
+        description: "Content generation has been cancelled.",
+      })
     }
     stopProgressSimulation()
-  }, [stopProgressSimulation])
+  }, [stopProgressSimulation, toast])
 
   // Generate LinkedIn posts
   const generateLinkedInPosts = useCallback(async (

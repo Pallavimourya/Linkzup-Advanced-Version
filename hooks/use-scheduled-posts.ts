@@ -154,12 +154,38 @@ export function useScheduledPosts() {
   }) => {
     if (!typedSession?.user?.id) {
       toast({
-        title: "Error",
+        title: "Authentication Required",
         description: "Please sign in to schedule posts",
         variant: "destructive",
       })
       return { success: false }
     }
+
+    // Validate post data before scheduling
+    if (!postData.content.trim()) {
+      toast({
+        title: "Empty Content",
+        description: "Please add content to your post before scheduling",
+        variant: "destructive",
+      })
+      return { success: false }
+    }
+
+    // Check if scheduled time is in the future
+    if (new Date(postData.scheduledFor) <= new Date()) {
+      toast({
+        title: "Invalid Schedule Time",
+        description: "Please schedule your post for a future time",
+        variant: "destructive",
+      })
+      return { success: false }
+    }
+
+    // Show scheduling started notification
+    toast({
+      title: "Scheduling Post",
+      description: "Your post is being scheduled. This may take a moment...",
+    })
 
     try {
       const response = await fetch("/api/scheduled-posts", {
@@ -171,9 +197,23 @@ export function useScheduledPosts() {
       const result = await response.json()
 
       if (result.success) {
+        const scheduledTime = new Date(postData.scheduledFor)
+        const timeUntilPost = scheduledTime.getTime() - Date.now()
+        const hoursUntilPost = Math.ceil(timeUntilPost / (1000 * 60 * 60))
+        
+        let timeDescription = ""
+        if (hoursUntilPost < 1) {
+          timeDescription = "in less than an hour"
+        } else if (hoursUntilPost < 24) {
+          timeDescription = `in ${hoursUntilPost} hour${hoursUntilPost > 1 ? 's' : ''}`
+        } else {
+          const daysUntilPost = Math.ceil(hoursUntilPost / 24)
+          timeDescription = `in ${daysUntilPost} day${daysUntilPost > 1 ? 's' : ''}`
+        }
+
         toast({
-          title: "Scheduled!",
-          description: `Post scheduled for ${new Date(postData.scheduledFor).toLocaleString()}`,
+          title: "Post Scheduled Successfully! 📅",
+          description: `Your ${postData.type} post will be published to ${postData.platform} ${timeDescription}`,
         })
         
         // Refresh posts and stats
@@ -182,23 +222,55 @@ export function useScheduledPosts() {
         
         return { success: true, postId: result.postId }
       } else {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to schedule post",
-          variant: "destructive",
-        })
+        // Handle specific scheduling errors
+        if (result.errorCode === "INSUFFICIENT_CREDITS") {
+          toast({
+            title: "Insufficient Credits",
+            description: "You need credits to schedule posts. Please purchase more credits.",
+            variant: "destructive",
+          })
+        } else if (result.errorCode === "PLATFORM_NOT_CONNECTED") {
+          toast({
+            title: "Platform Not Connected",
+            description: `Please connect your ${postData.platform} account before scheduling posts.`,
+            variant: "destructive",
+          })
+        } else if (result.errorCode === "SCHEDULE_CONFLICT") {
+          toast({
+            title: "Schedule Conflict",
+            description: "You have another post scheduled at the same time. Please choose a different time.",
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Scheduling Failed",
+            description: result.error || "Failed to schedule post. Please try again.",
+            variant: "destructive",
+          })
+        }
         return { success: false, error: result.error }
       }
     } catch (error) {
       console.error("Error scheduling post:", error)
-      toast({
-        title: "Error",
-        description: "Failed to schedule post",
-        variant: "destructive",
-      })
+      
+      // Show network-specific error notifications
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        toast({
+          title: "Network Error",
+          description: "Unable to connect to our servers. Please check your internet connection and try again.",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Scheduling Failed",
+          description: "Failed to schedule post. Please try again.",
+          variant: "destructive",
+        })
+      }
+      
       return { success: false, error: "Network error" }
     }
-  }, [typedSession?.user?.id, fetchPosts, fetchStats])
+  }, [typedSession?.user?.id, fetchPosts, fetchStats, toast])
 
   /**
    * Update a scheduled post
@@ -210,6 +282,12 @@ export function useScheduledPosts() {
     status?: "pending" | "posted" | "failed" | "paused" | "cancelled"
     tags?: string[]
   }) => {
+    // Show update started notification
+    toast({
+      title: "Updating Post",
+      description: "Your post is being updated. This may take a moment...",
+    })
+
     try {
       const response = await fetch("/api/scheduled-posts", {
         method: "PUT",
@@ -220,10 +298,48 @@ export function useScheduledPosts() {
       const result = await response.json()
 
       if (result.success) {
-        toast({
-          title: "Updated!",
-          description: "Post updated successfully",
-        })
+        // Show specific update notifications
+        if (updates.scheduledFor) {
+          const newTime = new Date(updates.scheduledFor)
+          const timeUntilPost = newTime.getTime() - Date.now()
+          const hoursUntilPost = Math.ceil(timeUntilPost / (1000 * 60 * 60))
+          
+          let timeDescription = ""
+          if (hoursUntilPost < 1) {
+            timeDescription = "in less than an hour"
+          } else if (hoursUntilPost < 24) {
+            timeDescription = `in ${hoursUntilPost} hour${hoursUntilPost > 1 ? 's' : ''}`
+          } else {
+            const daysUntilPost = Math.ceil(hoursUntilPost / 24)
+            timeDescription = `in ${daysUntilPost} day${daysUntilPost > 1 ? 's' : ''}`
+          }
+          
+          toast({
+            title: "Schedule Updated! ⏰",
+            description: `Post rescheduled to publish ${timeDescription}`,
+          })
+        } else if (updates.content) {
+          toast({
+            title: "Content Updated! ✏️",
+            description: "Post content has been updated successfully",
+          })
+        } else if (updates.status) {
+          const statusMessages = {
+            paused: "Post has been paused and will not be published",
+            cancelled: "Post has been cancelled and will not be published",
+            pending: "Post has been resumed and will be published as scheduled"
+          }
+          
+          toast({
+            title: "Status Updated! 🔄",
+            description: statusMessages[updates.status] || "Post status has been updated",
+          })
+        } else {
+          toast({
+            title: "Post Updated! ✅",
+            description: "Post has been updated successfully",
+          })
+        }
         
         // Refresh posts and stats
         await fetchPosts()
@@ -232,8 +348,8 @@ export function useScheduledPosts() {
         return { success: true }
       } else {
         toast({
-          title: "Error",
-          description: result.error || "Failed to update post",
+          title: "Update Failed",
+          description: result.error || "Failed to update post. Please try again.",
           variant: "destructive",
         })
         return { success: false, error: result.error }
@@ -241,18 +357,24 @@ export function useScheduledPosts() {
     } catch (error) {
       console.error("Error updating post:", error)
       toast({
-        title: "Error",
-        description: "Failed to update post",
+        title: "Update Failed",
+        description: "Failed to update post. Please try again.",
         variant: "destructive",
       })
       return { success: false, error: "Network error" }
     }
-  }, [fetchPosts, fetchStats])
+  }, [fetchPosts, fetchStats, toast])
 
   /**
    * Delete a scheduled post
    */
   const deletePost = useCallback(async (postId: string) => {
+    // Show deletion confirmation
+    toast({
+      title: "Deleting Post",
+      description: "Your scheduled post is being deleted...",
+    })
+
     try {
       const response = await fetch(`/api/scheduled-posts?postId=${postId}`, {
         method: "DELETE",
@@ -262,8 +384,8 @@ export function useScheduledPosts() {
 
       if (result.success) {
         toast({
-          title: "Deleted!",
-          description: "Post deleted successfully",
+          title: "Post Deleted! 🗑️",
+          description: "Scheduled post has been removed successfully",
         })
         
         // Refresh posts and stats
@@ -273,8 +395,8 @@ export function useScheduledPosts() {
         return { success: true }
       } else {
         toast({
-          title: "Error",
-          description: result.error || "Failed to delete post",
+          title: "Deletion Failed",
+          description: result.error || "Failed to delete post. Please try again.",
           variant: "destructive",
         })
         return { success: false, error: result.error }
@@ -282,18 +404,26 @@ export function useScheduledPosts() {
     } catch (error) {
       console.error("Error deleting post:", error)
       toast({
-        title: "Error",
-        description: "Failed to delete post",
+        title: "Deletion Failed",
+        description: "Failed to delete post. Please try again.",
         variant: "destructive",
       })
       return { success: false, error: "Network error" }
     }
-  }, [fetchPosts, fetchStats])
+  }, [fetchPosts, fetchStats, toast])
 
   /**
    * Toggle post status (pause/resume)
    */
   const togglePostStatus = useCallback(async (postId: string, status: "paused" | "pending") => {
+    const action = status === "paused" ? "pausing" : "resuming"
+    
+    // Show status change notification
+    toast({
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Post`,
+      description: `Your post is being ${action}...`,
+    })
+
     try {
       const response = await fetch("/api/scheduled-posts", {
         method: "PUT",
@@ -308,10 +438,12 @@ export function useScheduledPosts() {
       const result = await response.json()
 
       if (result.success) {
-        const action = status === "paused" ? "paused" : "resumed"
+        const actionText = status === "paused" ? "paused" : "resumed"
+        const emoji = status === "paused" ? "⏸️" : "▶️"
+        
         toast({
-          title: "Updated!",
-          description: `Post ${action} successfully`,
+          title: `Post ${actionText.charAt(0).toUpperCase() + actionText.slice(1)}! ${emoji}`,
+          description: `Post has been ${actionText} successfully`,
         })
         
         // Refresh posts and stats
@@ -321,8 +453,8 @@ export function useScheduledPosts() {
         return { success: true }
       } else {
         toast({
-          title: "Error",
-          description: result.error || "Failed to update post status",
+          title: "Status Update Failed",
+          description: result.error || "Failed to update post status. Please try again.",
           variant: "destructive",
         })
         return { success: false, error: result.error }
@@ -330,18 +462,24 @@ export function useScheduledPosts() {
     } catch (error) {
       console.error("Error toggling post status:", error)
       toast({
-        title: "Error",
-        description: "Failed to update post status",
+        title: "Status Update Failed",
+        description: "Failed to update post status. Please try again.",
         variant: "destructive",
       })
       return { success: false, error: "Network error" }
     }
-  }, [fetchPosts, fetchStats])
+  }, [fetchPosts, fetchStats, toast])
 
   /**
    * Retry a failed post
    */
   const retryPost = useCallback(async (postId: string) => {
+    // Show retry notification
+    toast({
+      title: "Retrying Post",
+      description: "Your failed post is being retried...",
+    })
+
     try {
       const response = await fetch("/api/scheduled-posts", {
         method: "PUT",
@@ -356,8 +494,8 @@ export function useScheduledPosts() {
 
       if (result.success) {
         toast({
-          title: "Retrying!",
-          description: "Post will be retried",
+          title: "Post Retry Initiated! 🔄",
+          description: "Failed post will be retried and published as soon as possible",
         })
         
         // Refresh posts and stats
@@ -367,8 +505,8 @@ export function useScheduledPosts() {
         return { success: true }
       } else {
         toast({
-          title: "Error",
-          description: result.error || "Failed to retry post",
+          title: "Retry Failed",
+          description: result.error || "Failed to retry post. Please try again.",
           variant: "destructive",
         })
         return { success: false, error: result.error }
@@ -376,13 +514,13 @@ export function useScheduledPosts() {
     } catch (error) {
       console.error("Error retrying post:", error)
       toast({
-        title: "Error",
-        description: "Failed to retry post",
+        title: "Retry Failed",
+        description: "Failed to retry post. Please try again.",
         variant: "destructive",
       })
       return { success: false, error: "Network error" }
     }
-  }, [fetchPosts, fetchStats])
+  }, [fetchPosts, fetchStats, toast])
 
   /**
    * Load more posts (pagination)
