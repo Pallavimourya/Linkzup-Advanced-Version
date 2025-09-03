@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,63 +10,16 @@ import { Separator } from "@/components/ui/separator"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { Sparkles, Mail, Lock, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
 
-export default function SignInPage() {
+function SignInPageContent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
-
-  // Handle OAuth errors from URL parameters
-  useEffect(() => {
-    const error = searchParams.get("error")
-    if (error) {
-      let errorMessage = "An error occurred during sign-in"
-      
-      switch (error) {
-        case "linkedin_oauth_failed":
-          errorMessage = "LinkedIn sign-in failed. Please try again."
-          break
-        case "missing_params":
-          errorMessage = "Missing required parameters for LinkedIn sign-in."
-          break
-        case "invalid_state":
-          errorMessage = "Invalid sign-in state. Please try again."
-          break
-        case "token_exchange_failed":
-          errorMessage = "Failed to authenticate with LinkedIn. Please try again."
-          break
-        case "profile_fetch_failed":
-          errorMessage = "Failed to fetch your LinkedIn profile. Please try again."
-          break
-        case "database_error":
-          errorMessage = "Database error occurred. Please try again."
-          break
-        case "callback_failed":
-          errorMessage = "LinkedIn callback failed. Please try again."
-          break
-        case "linkedin_signin_failed":
-          errorMessage = "LinkedIn sign-in failed. Please try again."
-          break
-        case "linkedin_callback_failed":
-          errorMessage = "LinkedIn callback failed. Please try again."
-          break
-        default:
-          errorMessage = `Sign-in error: ${error}`
-      }
-
-      toast({
-        title: "Sign-in Error",
-        description: errorMessage,
-        variant: "destructive",
-      })
-    }
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -291,5 +244,32 @@ export default function SignInPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <div className="animate-pulse">
+              <div className="h-8 bg-muted rounded mb-8"></div>
+              <div className="bg-card border rounded-lg p-6">
+                <div className="h-12 w-12 bg-muted rounded-lg mx-auto mb-4"></div>
+                <div className="h-6 bg-muted rounded mb-2"></div>
+                <div className="h-4 bg-muted rounded mb-6"></div>
+                <div className="space-y-3">
+                  <div className="h-12 bg-muted rounded"></div>
+                  <div className="h-12 bg-muted rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <SignInPageContent />
+    </Suspense>
   )
 }
