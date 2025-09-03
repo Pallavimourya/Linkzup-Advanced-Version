@@ -130,7 +130,7 @@ export default function DashboardPage() {
     { value: "unsplash", label: "Unsplash" },
     { value: "pexels", label: "Pexels" },
     { value: "pixabay", label: "Pixabay" },
-    { value: "serp", label: "Google Images" },
+    { value: "google", label: "Google Images" },
   ]
 
   // Handle LinkedIn connection feedback
@@ -359,9 +359,23 @@ export default function DashboardPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setSearchResults(data.results || [])
+        if (data.success && data.images && data.images.length > 0) {
+          setSearchResults(data.images)
+          toast({
+            title: "Search Complete",
+            description: `Found ${data.images.length} images for "${searchQuery}" from ${data.source}`,
+          })
+        } else {
+          setSearchResults([])
+          toast({
+            title: "No Images Found",
+            description: `No images found for "${searchQuery}". Try a different search term.`,
+            variant: "destructive"
+          })
+        }
       } else {
-        throw new Error('Search failed')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Search failed")
       }
     } catch (error) {
       toast({

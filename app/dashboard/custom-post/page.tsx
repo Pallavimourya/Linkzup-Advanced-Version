@@ -680,15 +680,7 @@ export default function CustomPostPage() {
                   AI Assist
                 </Button>
               </div>
-
-              {/* Toolbar Help */}
-              <div className="text-xs text-muted-foreground flex items-center gap-4">
-                <span>💡 <strong>Bold</strong>: Select text + click Bold or Ctrl+B</span>
-                <span>💡 <em>Italic</em>: Select text + click Italic or Ctrl+I</span>
-                <span>💡 <u>Underline</u>: Select text + click Underline or Ctrl+U</span>
-                <span>💡 Emoji: Click Smile to open emoji picker</span>
-              </div>
-
+              
               {/* Emoji Picker */}
               {showEmojiPicker && (
                 <div className="absolute z-50 bg-card border border-border rounded-lg p-3 shadow-lg max-w-xs">

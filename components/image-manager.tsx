@@ -26,7 +26,7 @@ interface SearchResult {
   thumbnail: string
   title?: string
   author?: string
-  source: 'unsplash' | 'pexels' | 'pixabay' | 'serp'
+  source: 'unsplash' | 'pexels' | 'pixabay' | 'google'
 }
 
 interface AIGenerationResult {
@@ -52,7 +52,7 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
     { value: "unsplash", label: "Unsplash", apiKey: process.env.NEXT_PUBLIC_UNSPLASH_API_KEY },
     { value: "pexels", label: "Pexels", apiKey: process.env.NEXT_PUBLIC_PEXELS_API_KEY },
     { value: "pixabay", label: "Pixabay", apiKey: process.env.NEXT_PUBLIC_PIXABAY_API_KEY },
-    { value: "serp", label: "Google Images", apiKey: process.env.NEXT_PUBLIC_SERP_API },
+    { value: "google", label: "Google Images", apiKey: process.env.NEXT_PUBLIC_SERP_API },
   ]
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,9 +120,23 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
 
       if (response.ok) {
         const data = await response.json()
-        setSearchResults(data.results || [])
+        if (data.success && data.images && data.images.length > 0) {
+          setSearchResults(data.images)
+          toast({
+            title: "Search Complete",
+            description: `Found ${data.images.length} images for "${searchQuery}" from ${data.source}`,
+          })
+        } else {
+          setSearchResults([])
+          toast({
+            title: "No Images Found",
+            description: `No images found for "${searchQuery}". Try a different search term.`,
+            variant: "destructive"
+          })
+        }
       } else {
-        throw new Error('Search failed')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Search failed")
       }
     } catch (error) {
       toast({

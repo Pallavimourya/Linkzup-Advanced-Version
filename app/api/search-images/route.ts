@@ -18,9 +18,23 @@ export async function POST(request: NextRequest) {
     query = body.query || ""
     source = body.source || ""
 
+    // Debug logging
+    console.log("Search API called with:", { query, source, body })
+
     if (!query || !source) {
+      console.log("Validation failed: missing query or source")
       return NextResponse.json(
         { error: "Query and source are required" },
+        { status: 400 }
+      )
+    }
+
+    // Validate source parameter
+    const validSources = ["unsplash", "pexels", "pixabay", "google"]
+    if (!validSources.includes(source)) {
+      console.log("Validation failed: invalid source:", source)
+      return NextResponse.json(
+        { error: `Invalid source. Must be one of: ${validSources.join(", ")}` },
         { status: 400 }
       )
     }
