@@ -1,7 +1,4 @@
 "use client"
-
-import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +7,6 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
   Breadcrumb,
@@ -21,7 +17,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ScheduleButton } from "@/components/schedule-button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Slider } from "@/components/ui/slider"
 import {
@@ -31,18 +26,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Type,
-  Upload,
-  Search,
   Sparkles,
-  Save,
-  Send,
-  Download,
   Eye,
-  Move,
-  Image as ImageIcon,
-  X,
   Loader2,
-  Clock
+  Edit3,
+  Linkedin,
+  FileImage,
+  FileText,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
@@ -50,18 +40,99 @@ import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
 
+// Import web fonts for carousel templates
+import { Inter, Open_Sans, Montserrat, Lato, Poppins, Roboto, Dancing_Script, Bebas_Neue, Righteous } from 'next/font/google'
 
+// Configure fonts
+const openSans = Open_Sans({ 
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-open-sans'
+})
+
+const montserrat = Montserrat({ 
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-montserrat'
+})
+
+const lato = Lato({ 
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-lato'
+})
+
+const poppins = Poppins({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins'
+})
+
+const roboto = Roboto({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-roboto'
+})
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-inter'
+})
+
+const dancingScript = Dancing_Script({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-dancing-script'
+})
+
+const bebasNeue = Bebas_Neue({ 
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-bebas-neue'
+})
+
+const righteous = Righteous({ 
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-righteous'
+})
 
 interface CarouselSlide {
   id: string
-  text: string
-  fontSize: number
-  fontFamily: string
-  textColor: string
-  textPosition: { x: number; y: number }
-  backgroundColor: string
-  backgroundType: "color" | "gradient" | "image"
-  backgroundImage?: string
+  type: "first" | "middle" | "last"
+  content: {
+    top_line?: string
+    main_heading?: string
+    bullet?: string
+    heading?: string
+    bullets?: string[]
+    tagline?: string
+    final_heading?: string
+    last_bullet?: string
+  }
+  design: {
+    fontSize: number
+    fontFamily: string
+    textColor: string
+    backgroundColor: string
+    backgroundType: "color" | "gradient" | "image"
+    backgroundImage?: string
+    template: string
+    aspectRatio: "1:1" | "9:16"
+    borderWidth: number
+    borderColor: string
+    branding: "none" | "name" | "email" | "both"
+  }
+  position: { x: number; y: number }
+}
+
+interface CarouselElement {
+  id: string
+  type: "swipe-right" | "swipe-left" | "swipe-up" | "swipe-down" | "tap" | "click" | "arrow-right" | "arrow-left" | "arrow-up" | "arrow-down"
+  text?: string
+  position: "right-bottom"
+  size: number
 }
 
 interface CarouselProject {
@@ -69,42 +140,124 @@ interface CarouselProject {
   title: string
   slides: CarouselSlide[]
   tone: string
+  topic: string
   createdAt: Date
+  aspectRatio: "1:1" | "9:16"
+  branding: "none" | "name" | "email" | "both"
+  elements: CarouselElement[]
 }
 
+const designTemplates = [
+  {
+    id: "open-sans",
+    name: "Open Sans",
+    fontFamily: "var(--font-open-sans), Open Sans, sans-serif",
+    backgroundColor: "#0077B5",
+    textColor: "#FFFFFF",
+    style: "clean",
+  },
+  {
+    id: "bebas-neue",
+    name: "Bebas Neue",
+    fontFamily: "var(--font-bebas-neue), Bebas Neue, sans-serif",
+    backgroundColor: "#1F2937",
+    textColor: "#FFFFFF",
+    style: "bold",
+  },
+  {
+    id: "dancing-script",
+    name: "Dancing Script",
+    fontFamily: "var(--font-dancing-script), Dancing Script, cursive",
+    backgroundColor: "#8B5CF6",
+    textColor: "#FFFFFF",
+    style: "elegant",
+  },
+  {
+    id: "righteous",
+    name: "Righteous",
+    fontFamily: "var(--font-righteous), Righteous, cursive",
+    backgroundColor: "#0077B5",
+    textColor: "#FFFFFF",
+    style: "funky",
+  },
+  {
+    id: "poppins",
+    name: "Poppins",
+    fontFamily: "var(--font-poppins), Poppins, sans-serif",
+    backgroundColor: "#1F2937",
+    textColor: "#FFFFFF",
+    style: "modern",
+  },
+]
+
 const backgroundColors = [
-  "#0077B5", // LinkedIn Blue
-  "#00A3E0", // Light Blue
-  "#1E3A8A", // Dark Blue
-  "#3B82F6", // Blue
-  "#6366F1", // Indigo
-  "#8B5CF6", // Purple
-  "#EC4899", // Pink
-  "#EF4444", // Red
-  "#F59E0B", // Amber
-  "#10B981", // Emerald
-  "#06B6D4", // Cyan
-  "#64748B", // Slate
+  "#0077B5",
+  "#00A3E0",
+  "#1E3A8A",
+  "#3B82F6",
+  "#6366F1",
+  "#8B5CF6",
+  "#EC4899",
+  "#EF4444",
+  "#F59E0B",
+  "#10B981",
+  "#06B6D4",
+  "#64748B",
 ]
 
-const fontFamilies = [
-  { name: "Inter", value: "Inter, sans-serif" },
-  { name: "Roboto", value: "Roboto, sans-serif" },
-  { name: "Open Sans", value: "Open Sans, sans-serif" },
-  { name: "Montserrat", value: "Montserrat, sans-serif" },
-  { name: "Poppins", value: "Poppins, sans-serif" },
-  { name: "Lato", value: "Lato, sans-serif" },
+const backgroundImages = [
+  "/Backgrounds/bg1.jpg",
+  "/Backgrounds/bg2.jpg",
+  "/Backgrounds/bg3.jpg",
+  "/Backgrounds/bg4.jpg",
+  "/Backgrounds/bg5.jpg",
+  "/Backgrounds/bg6.jpg",
+  "/Backgrounds/bg7.jpg",
+  "/Backgrounds/bg8.png",
+  "/Backgrounds/bg9.png",
+  "/Backgrounds/bg10.jpg",
+  "/Backgrounds/bg11.jpg",
+  "/Backgrounds/bg12.png",
+  "/Backgrounds/bg13.png",
+  "/Backgrounds/bg14.jpg",
+  "/Backgrounds/bg15.jpg",
+  "/Backgrounds/bg16.jpg",
+  "/Backgrounds/bg17.jpg",
+  "/Backgrounds/bg18.jpg",
+  "/Backgrounds/bg19.jpg",
+  "/Backgrounds/bg20.jpg",
+  "/Backgrounds/bg21.jpg",
+  "/Backgrounds/bg22.jpg",
+  "/Backgrounds/bg23.jpg",
+  "/Backgrounds/bg24.jpg",
 ]
 
-const templates = [
-  { name: "Professional Blue", backgroundColor: "#0077B5", textColor: "#FFFFFF" },
-  { name: "Modern Dark", backgroundColor: "#1F2937", textColor: "#FFFFFF" },
-  { name: "Elegant Purple", backgroundColor: "#8B5CF6", textColor: "#FFFFFF" },
-  { name: "Fresh Green", backgroundColor: "#10B981", textColor: "#FFFFFF" },
-  { name: "Warm Orange", backgroundColor: "#F59E0B", textColor: "#FFFFFF" },
-  { name: "Bold Red", backgroundColor: "#EF4444", textColor: "#FFFFFF" },
-  { name: "Clean White", backgroundColor: "#FFFFFF", textColor: "#1F2937" },
-  { name: "Minimal Gray", backgroundColor: "#F3F4F6", textColor: "#374151" },
+// Function to get a random background image
+const getRandomBackgroundImage = () => {
+  const randomIndex = Math.floor(Math.random() * backgroundImages.length)
+  return backgroundImages[randomIndex]
+}
+
+const availableElements: Array<{ type: CarouselElement["type"]; label: string; icon: string }> = [
+  { type: "swipe-right", label: "Swipe Right", icon: "→" },
+  { type: "swipe-left", label: "Swipe Left", icon: "←" },
+  { type: "swipe-up", label: "Swipe Up", icon: "↑" },
+  { type: "swipe-down", label: "Swipe Down", icon: "↓" },
+  { type: "tap", label: "Tap", icon: "👆" },
+  { type: "click", label: "Click", icon: "🖱️" },
+  { type: "arrow-right", label: "Arrow Right", icon: "➡️" },
+  { type: "arrow-left", label: "Arrow Left", icon: "⬅️" },
+  { type: "arrow-up", label: "Arrow Up", icon: "⬆️" },
+  { type: "arrow-down", label: "Arrow Down", icon: "⬇️" },
+]
+
+const toneOptions = [
+  { value: "informative", label: "Informative" },
+  { value: "friendly", label: "Friendly" },
+  { value: "professional", label: "Professional" },
+  { value: "casual", label: "Casual" },
+  { value: "authoritative", label: "Authoritative" },
+  { value: "inspirational", label: "Inspirational" },
 ]
 
 export default function AICarouselPage() {
@@ -113,59 +266,187 @@ export default function AICarouselPage() {
   const [currentProject, setCurrentProject] = useState<CarouselProject | null>(null)
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [showLinkedInModal, setShowLinkedInModal] = useState(false)
+  const [linkedInCaption, setLinkedInCaption] = useState("")
   const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState<"generate" | "scratch">("generate")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [savedProjects, setSavedProjects] = useState<CarouselProject[]>([])
+  const [editingText, setEditingText] = useState<string | null>(null)
+  const [overlayOpacity, setOverlayOpacity] = useState(0.4)
+  const slideCanvasRef = useRef<HTMLDivElement>(null)
 
-  // Prevent hydration mismatch by only rendering after mount
+  const [aiForm, setAiForm] = useState({
+    topic: "",
+    tone: "professional",
+    slideCount: 5,
+    style: "modern",
+  })
+
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [savedProjects, setSavedProjects] = useState<CarouselProject[]>([])
-  const [isDragging, setIsDragging] = useState(false)
-  const slideCanvasRef = useRef<HTMLDivElement>(null)
+  const currentSlide = currentProject?.slides[currentSlideIndex]
 
-  // Image Management State
-  const [isLoading, setIsLoading] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<any[]>([])
-  const [selectedSource, setSelectedSource] = useState("unsplash")
-  const [aiPrompt, setAiPrompt] = useState("")
-  const [aiResults, setAiResults] = useState<any[]>([])
-  const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const generateAICarousel = async () => {
+    if (!aiForm.topic.trim()) {
+      toast({
+        title: "Topic Required",
+        description: "Please enter a topic for your carousel.",
+        variant: "destructive",
+      })
+      return
+    }
 
-  const imageSources = [
-    { value: "unsplash", label: "Unsplash" },
-    { value: "pexels", label: "Pexels" },
-    { value: "pixabay", label: "Pixabay" },
-    { value: "google", label: "Google Images" },
-  ]
+    setIsGenerating(true)
 
-  // AI Generation Form
-  const [aiForm, setAiForm] = useState({
-    topic: "",
-    tone: "professional",
-    slideCount: "5",
-    style: "modern",
-    carouselType: "guide",
-  })
+    try {
+      const prompt = `Generate a carousel for the topic "${aiForm.topic}" in a "${aiForm.tone}" tone with ${aiForm.slideCount} slides. The JSON structure should be:
+
+1. First slide:
+   - top_line: Short punchline or topic-related phrase (max 10 words)
+   - main_heading: Large, bold heading (max 8 words)
+   - bullet: Concise bullet point (max 12 words)
+2. Slides 2 to N-1:
+   - heading: Short, clear heading (max 8 words)
+   - bullets: Three bullet points for each slide, relevant and concise (each max 12 words)
+3. Final slide:
+   - tagline: Short tagline (max 8 words)
+   - final_heading: Large heading (max 8 words)
+   - last_bullet: Final summary bullet (max 12 words)
+
+Content must be short, clear, and suitable for displaying on a card, as per design guidelines.`
+
+      // TODO: Replace with actual OpenAI API call
+      // const response = await fetch('/api/openai/generate-carousel', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ prompt, topic: aiForm.topic, tone: aiForm.tone, slideCount: aiForm.slideCount })
+      // })
+
+      // Mock response for now - will be replaced with actual API
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      const mockResponse = {
+        slides: [
+          {
+            top_line: `Master ${aiForm.topic}`,
+            main_heading: "Complete Guide",
+            bullet: "Everything you need to know",
+          },
+          {
+            heading: "Why It Matters",
+            bullets: ["Increases productivity by 40%", "Saves time and resources", "Improves team collaboration"],
+          },
+          {
+            heading: "Getting Started",
+            bullets: ["Set clear objectives first", "Gather necessary resources", "Create a timeline"],
+          },
+          {
+            heading: "Best Practices",
+            bullets: ["Follow industry standards", "Regular progress reviews", "Continuous improvement mindset"],
+          },
+          {
+            tagline: "Ready to Excel?",
+            final_heading: "Take Action Today",
+            last_bullet: "Start your journey now",
+          },
+        ],
+      }
+
+      const slides: CarouselSlide[] = mockResponse.slides.map((slideData, index) => {
+        const isFirst = index === 0
+        const isLast = index === mockResponse.slides.length - 1
+        const template = designTemplates[0] // Default template (Open Sans)
+        const randomBackground = getRandomBackgroundImage()
+
+        return {
+          id: (index + 1).toString(),
+          type: isFirst ? "first" : isLast ? "last" : "middle",
+          content: slideData,
+          design: {
+            fontSize: isFirst ? 36 : 24,
+            fontFamily: template.fontFamily,
+            textColor: "#FFFFFF", // White text for better contrast on backgrounds
+            backgroundColor: "#ffffff",
+            backgroundType: "image",
+            backgroundImage: randomBackground,
+            template: template.id,
+            aspectRatio: "1:1",
+            borderWidth: 2,
+            borderColor: "#E5E7EB",
+            branding: "both",
+          },
+          position: { x: 50, y: 50 },
+        }
+      })
+
+      const newProject: CarouselProject = {
+        id: Date.now().toString(),
+        title: `${aiForm.topic} Carousel`,
+        topic: aiForm.topic,
+        tone: aiForm.tone,
+        createdAt: new Date(),
+        slides,
+        aspectRatio: "1:1",
+        branding: "both",
+        elements: [],
+      }
+
+      setCurrentProject(newProject)
+      setCurrentSlideIndex(0)
+
+      toast({
+        title: "Carousel Generated!",
+        description: `Created a ${aiForm.slideCount}-slide carousel about ${aiForm.topic} with a random background.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate carousel. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   const createNewProject = () => {
+    const template = designTemplates[0] // Default template (Open Sans)
+    const randomBackground = getRandomBackgroundImage()
     const newProject: CarouselProject = {
       id: Date.now().toString(),
       title: "Untitled Carousel",
+      topic: "",
       tone: "professional",
       createdAt: new Date(),
+      aspectRatio: "1:1",
+      branding: "both",
+      elements: [],
       slides: [
         {
           id: "1",
-          text: "Your Title Here",
-          fontSize: 32,
-          fontFamily: "Inter, sans-serif",
-          textColor: "#FFFFFF",
-          textPosition: { x: 50, y: 50 },
-          backgroundColor: "#0077B5",
-          backgroundType: "color",
+          type: "first",
+          content: {
+            top_line: "Your Topic Here",
+            main_heading: "Main Title",
+            bullet: "Engaging subtitle",
+          },
+          design: {
+            fontSize: 32,
+            fontFamily: template.fontFamily,
+            textColor: "#FFFFFF", // White text for better contrast on backgrounds
+            backgroundColor: "#ffffff",
+            backgroundType: "image",
+            backgroundImage: randomBackground,
+            template: template.id,
+            aspectRatio: "1:1",
+            borderWidth: 2,
+            borderColor: "#E5E7EB",
+            branding: "both",
+          },
+          position: { x: 50, y: 50 },
         },
       ],
     }
@@ -173,40 +454,49 @@ export default function AICarouselPage() {
     setCurrentSlideIndex(0)
   }
 
-  const handleImageSelect = (imageUrl: string, imageData?: any) => {
-    if (!currentProject) return
-    
+  const handleTextEdit = (field: string, value: string) => {
+    if (!currentProject || !currentSlide) return
+
     const updatedSlides = [...currentProject.slides]
     updatedSlides[currentSlideIndex] = {
       ...updatedSlides[currentSlideIndex],
-      backgroundType: "image",
-      backgroundImage: imageUrl,
-      backgroundColor: "#000000", // Fallback color
+      content: {
+        ...updatedSlides[currentSlideIndex].content,
+        [field]: value,
+      },
     }
-    
+
     setCurrentProject({
       ...currentProject,
       slides: updatedSlides,
-    })
-    
-    toast({
-      title: "Image applied",
-      description: "Background image has been applied to the current slide",
     })
   }
 
   const addSlide = () => {
     if (!currentProject) return
 
+    const template = designTemplates.find((t) => t.id === currentSlide?.design.template) || designTemplates[0]
     const newSlide: CarouselSlide = {
       id: Date.now().toString(),
-      text: "New Slide",
-      fontSize: 24,
-      fontFamily: "Inter, sans-serif",
-      textColor: "#FFFFFF",
-      textPosition: { x: 50, y: 50 },
-      backgroundColor: "#0077B5",
-      backgroundType: "color",
+      type: "middle",
+      content: {
+        heading: "New Slide",
+        bullets: ["Point 1", "Point 2", "Point 3"],
+      },
+      design: {
+        fontSize: 24,
+        fontFamily: template.fontFamily,
+        textColor: "#FFFFFF", // White text for better contrast on backgrounds
+        backgroundColor: "#ffffff",
+        backgroundType: currentSlide?.design.backgroundType || "color",
+        backgroundImage: currentSlide?.design.backgroundImage,
+        template: template.id,
+        aspectRatio: currentProject.aspectRatio,
+        borderWidth: 2,
+        borderColor: "#E5E7EB",
+        branding: "both",
+      },
+      position: { x: 50, y: 50 },
     }
 
     setCurrentProject({
@@ -230,12 +520,17 @@ export default function AICarouselPage() {
     }
   }
 
-  const updateSlide = (updates: Partial<CarouselSlide>) => {
-    if (!currentProject) return
+  const updateSlideDesign = (updates: Partial<CarouselSlide["design"]>) => {
+    if (!currentProject || !currentSlide) return
 
-    const updatedSlides = currentProject.slides.map((slide, index) =>
-      index === currentSlideIndex ? { ...slide, ...updates } : slide,
-    )
+    const updatedSlides = [...currentProject.slides]
+    updatedSlides[currentSlideIndex] = {
+      ...updatedSlides[currentSlideIndex],
+      design: {
+        ...updatedSlides[currentSlideIndex].design,
+        ...updates,
+      },
+    }
 
     setCurrentProject({
       ...currentProject,
@@ -243,1585 +538,978 @@ export default function AICarouselPage() {
     })
   }
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    handleMouseMove(e)
-  }
+  const updateProjectBranding = (branding: "none" | "name" | "email" | "both") => {
+    if (!currentProject) return
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging && e.type !== "click") return
-    if (!slideCanvasRef.current) return
+    setCurrentProject({
+      ...currentProject,
+      branding,
+    })
 
-    const rect = slideCanvasRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-
-    updateSlide({
-      textPosition: {
-        x: Math.max(0, Math.min(100, x)),
-        y: Math.max(0, Math.min(100, y)),
-      },
+    toast({
+      title: "Branding Updated",
+      description: `Branding set to ${branding === "none" ? "none" : branding === "name" ? "LinkedIn name only" : branding === "email" ? "LinkedIn email only" : "both name and email"}.`,
     })
   }
 
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  // Image Management Functions
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files || files.length === 0) return
-
-    setIsLoading(true)
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        if (!file.type.startsWith('image/')) {
-          toast({
-            title: "Invalid file type",
-            description: "Please select only image files",
-            variant: "destructive",
-          })
-          continue
-        }
-
-        const formData = new FormData()
-        formData.append('file', file)
-
-        const response = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: formData,
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setUploadedImages(prev => [...prev, data.url])
-          toast({
-            title: "Upload successful",
-            description: "Image uploaded to Cloudinary",
-          })
-        } else {
-          throw new Error('Upload failed')
-        }
-      }
-    } catch (error) {
-      toast({
-        title: "Upload failed",
-        description: "Failed to upload image. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const searchImages = async () => {
-    if (!searchQuery.trim()) return
-
-    setIsLoading(true)
-    try {
-      const response = await fetch('/api/search-images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: searchQuery,
-          source: selectedSource,
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.images && data.images.length > 0) {
-          setSearchResults(data.images)
-          toast({
-            title: "Search Complete",
-            description: `Found ${data.images.length} images for "${searchQuery}" from ${data.source}`,
-          })
-        } else {
-          setSearchResults([])
-          toast({
-            title: "No Images Found",
-            description: `No images found for "${searchQuery}". Try a different search term.`,
-            variant: "destructive"
-          })
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || "Search failed")
-      }
-    } catch (error) {
-      toast({
-        title: "Search failed",
-        description: "Failed to search images. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const generateAIImage = async () => {
-    if (!aiPrompt.trim()) return
-
-    setIsLoading(true)
-    try {
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: aiPrompt,
-        }),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const newResult = {
-          id: Date.now().toString(),
-          url: data.url,
-          prompt: aiPrompt,
-          timestamp: new Date(),
-        }
-        setAiResults(prev => [newResult, ...prev])
-        setAiPrompt("")
-        toast({
-          title: "Image generated",
-          description: "AI image generated successfully",
-        })
-      } else {
-        throw new Error('Generation failed')
-      }
-    } catch (error) {
-      toast({
-        title: "Generation failed",
-        description: "Failed to generate image. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const generateAICarousel = async () => {
-    if (!aiForm.topic.trim()) {
-      toast({
-        title: "Topic Required",
-        description: "Please enter a topic for your carousel.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsGenerating(true)
-
-    try {
-      // TODO: Replace with actual AI API call
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-
-      const slideCount = Number.parseInt(aiForm.slideCount)
-      const slides: CarouselSlide[] = []
-
-      // Generate content based on carousel type
-      let sampleContent: string[] = []
-      
-      switch (aiForm.carouselType) {
-        case "guide":
-          sampleContent = [
-            `${aiForm.topic}\nComplete Guide`,
-            "What is it?\n\nUnderstanding the fundamentals and importance of this topic.",
-            "Why it matters\n\n• Professional growth\n• Industry relevance\n• Career advancement\n• Skill development",
-            "Step 1: Research\n\nStart by gathering information and understanding the basics.",
-            "Step 2: Plan\n\nCreate a structured approach and set clear objectives.",
-            "Step 3: Execute\n\nTake action and implement your strategy systematically.",
-            "Step 4: Measure\n\nTrack progress and analyze results for continuous improvement.",
-        "Key Takeaways\n\n• Focus on fundamentals\n• Be consistent\n• Learn from others\n• Stay updated",
-          ]
-          break
-        case "tips":
-          sampleContent = [
-            `${aiForm.topic}\nPro Tips`,
-            "Tip #1\n\nStart with the basics and build a strong foundation.",
-            "Tip #2\n\nConsistency is key - practice regularly and stay committed.",
-            "Tip #3\n\nLearn from experts and industry leaders in your field.",
-            "Tip #4\n\nTrack your progress and celebrate small wins along the way.",
-            "Tip #5\n\nStay updated with the latest trends and best practices.",
-            "Bonus Tip\n\nNetwork with like-minded professionals and share knowledge.",
-            "Ready to implement?\n\nStart with one tip and gradually incorporate others.",
-          ]
-          break
-        case "story":
-          sampleContent = [
-            `${aiForm.topic}\nMy Journey`,
-            "The Beginning\n\nHow I first discovered this topic and why it caught my attention.",
-            "The Challenge\n\nFacing obstacles and learning from initial failures and setbacks.",
-            "The Breakthrough\n\nKey moments that changed everything and led to success.",
-            "Lessons Learned\n\n• Patience is crucial\n• Consistency pays off\n• Community matters\n• Never give up",
-            "The Results\n\nTangible outcomes and measurable improvements achieved.",
-            "What I'd Do Differently\n\nReflections and advice for others on the same path.",
-            "Your Turn\n\nReady to start your own journey? Take the first step today!",
-          ]
-          break
-        case "comparison":
-          sampleContent = [
-            `${aiForm.topic}\nComparison Guide`,
-            "Option A vs Option B\n\nUnderstanding the key differences between approaches.",
-            "Option A: Pros\n\n• Advantage 1\n• Advantage 2\n• Advantage 3\n• Advantage 4",
-            "Option A: Cons\n\n• Limitation 1\n• Limitation 2\n• Limitation 3",
-            "Option B: Pros\n\n• Advantage 1\n• Advantage 2\n• Advantage 3\n• Advantage 4",
-            "Option B: Cons\n\n• Limitation 1\n• Limitation 2\n• Limitation 3",
-            "My Recommendation\n\nBased on experience, here's what I suggest and why.",
-            "Final Verdict\n\nChoose what works best for your specific situation and goals.",
-          ]
-          break
-        case "checklist":
-          sampleContent = [
-            `${aiForm.topic}\nAction Checklist`,
-            "Pre-Planning Checklist\n\n□ Define your goals\n□ Research the topic\n□ Set a timeline\n□ Gather resources",
-            "Implementation Checklist\n\n□ Start with basics\n□ Follow best practices\n□ Track progress\n□ Stay consistent",
-            "Quality Assurance\n\n□ Review your work\n□ Get feedback\n□ Make improvements\n□ Document learnings",
-            "Optimization Checklist\n\n□ Analyze results\n□ Identify areas for improvement\n□ Implement changes\n□ Measure impact",
-            "Maintenance Checklist\n\n□ Regular reviews\n□ Stay updated\n□ Continuous learning\n□ Share knowledge",
-            "Success Metrics\n\n□ Define KPIs\n□ Track performance\n□ Celebrate wins\n□ Plan next steps",
-            "Ready to get started?\n\nPick one checklist and begin your journey today!",
-          ]
-          break
-        case "stats":
-          sampleContent = [
-            `${aiForm.topic}\nBy The Numbers`,
-            "Key Statistics\n\nUnderstanding the data and trends in this field.",
-            "Growth Trends\n\n• 85% increase in adoption\n• 3x faster results\n• 92% satisfaction rate\n• 40% cost reduction",
-            "Market Analysis\n\n• Market size: $50B\n• Annual growth: 15%\n• Top players: 5 major companies\n• Emerging trends: 3 key areas",
-            "Performance Metrics\n\n• 95% success rate\n• 60% time savings\n• 75% quality improvement\n• 80% user satisfaction",
-            "Industry Insights\n\n• Top challenges faced\n• Most effective strategies\n• Common pitfalls to avoid\n• Future predictions",
-            "Success Stories\n\n• Case study 1: 200% improvement\n• Case study 2: 50% cost savings\n• Case study 3: 90% efficiency gain",
-            "Take Action\n\nUse these insights to inform your strategy and make data-driven decisions.",
-          ]
-          break
-        case "quotes":
-          sampleContent = [
-            `${aiForm.topic}\nInspiration`,
-            "Quote #1\n\nThe only way to do great work is to love what you do.\n- Steve Jobs",
-            "Quote #2\n\nSuccess is not final, failure is not fatal: it is the courage to continue that counts.\n- Winston Churchill",
-            "Quote #3\n\nThe future belongs to those who believe in the beauty of their dreams.\n- Eleanor Roosevelt",
-            "Quote #4\n\nDon't watch the clock; do what it does. Keep going.\n- Sam Levenson",
-            "Quote #5\n\nThe only limit to our realization of tomorrow is our doubts of today.\n- Franklin D. Roosevelt",
-            "Quote #6\n\nBelieve you can and you're halfway there.\n- Theodore Roosevelt",
-            "Your Turn\n\nWhat quote inspires you? Share it in the comments below!",
-          ]
-          break
-        default: // custom
-          sampleContent = [
-            `${aiForm.topic}\nCustom Carousel`,
-            "Slide 2\n\nAdd your custom content here.",
-            "Slide 3\n\nCustomize this slide with your own text and ideas.",
-            "Slide 4\n\nMake it personal and relevant to your audience.",
-            "Slide 5\n\nShare your unique perspective and insights.",
-            "Slide 6\n\nEnd with a strong call to action or key message.",
-            "Slide 7\n\nThank your audience and encourage engagement.",
-          ]
-      }
-
-      for (let i = 0; i < slideCount; i++) {
-        slides.push({
-          id: (i + 1).toString(),
-          text: sampleContent[i] || `Slide ${i + 1}\n\nContent about ${aiForm.topic}`,
-          fontSize: i === 0 ? 36 : 24,
-          fontFamily: "Inter, sans-serif",
-          textColor: "#FFFFFF",
-          textPosition: { x: 50, y: 50 },
-          backgroundColor: backgroundColors[i % backgroundColors.length],
-          backgroundType: "color",
-        })
-      }
-
-      const newProject: CarouselProject = {
-        id: Date.now().toString(),
-        title: `${aiForm.topic} Carousel`,
-        tone: aiForm.tone,
-        createdAt: new Date(),
-        slides,
-      }
-
-      setCurrentProject(newProject)
-      setCurrentSlideIndex(0)
-
-      toast({
-        title: "Carousel Generated!",
-        description: `Created a ${slideCount}-slide carousel about ${aiForm.topic}.`,
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate carousel. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsGenerating(false)
-    }
-  }
-
-  const saveProject = async () => {
+  const addElement = (elementType: CarouselElement["type"]) => {
     if (!currentProject) return
 
-    try {
-      // Save to local state
-      setSavedProjects((prev) => {
-        const existingIndex = prev.findIndex((p) => p.id === currentProject.id)
-        if (existingIndex >= 0) {
-          const updated = [...prev]
-          updated[existingIndex] = currentProject
-          return updated
-        }
-        return [...prev, currentProject]
-      })
-
-      // Save to drafts API
-      const carouselContent = currentProject.slides.map((slide, index) => 
-        `Slide ${index + 1}: ${slide.text}`
-      ).join('\n\n')
-
-      const response = await fetch("/api/drafts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: currentProject.title,
-          content: carouselContent,
-          format: "carousel",
-          niche: "AI Carousel"
-        })
-      })
-
-      if (response.ok) {
-        toast({
-          title: "Carousel Saved!",
-          description: "Your carousel has been saved to drafts successfully.",
-        })
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to save carousel to drafts. Please try again.",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error("Error saving carousel:", error)
-      toast({
-        title: "Error",
-        description: "Failed to save carousel to drafts. Please try again.",
-        variant: "destructive",
-      })
+    const newElement: CarouselElement = {
+      id: Date.now().toString(),
+      type: elementType,
+      position: "right-bottom",
+      size: 25,
     }
+
+    setCurrentProject({
+      ...currentProject,
+      elements: [...currentProject.elements, newElement],
+    })
+
+    toast({
+      title: "Element Added",
+      description: `${availableElements.find(e => e.type === elementType)?.label} element added to all slides.`,
+    })
   }
 
-  const exportToPDF = async () => {
+  const removeElement = (elementId: string) => {
     if (!currentProject) return
 
-    try {
-      const pdf = new jsPDF("p", "mm", "a4")
-      const slideWidth = 180
-      const slideHeight = 180
-      const margin = 15
+    const element = currentProject.elements.find(e => e.id === elementId)
+    setCurrentProject({
+      ...currentProject,
+      elements: currentProject.elements.filter(e => e.id !== elementId),
+    })
 
-      for (let i = 0; i < currentProject.slides.length; i++) {
+    toast({
+      title: "Element Removed",
+      description: `${element ? availableElements.find(e => e.type === element.type)?.label : "Element"} removed from all slides.`,
+    })
+  }
+
+  const applyTemplate = (template: (typeof designTemplates)[0]) => {
+    if (!currentProject) return
+
+    const updatedSlides = currentProject.slides.map((slide) => ({
+      ...slide,
+      design: {
+        ...slide.design,
+        fontFamily: template.fontFamily,
+        template: template.id,
+      },
+    }))
+
+    setCurrentProject({
+      ...currentProject,
+      slides: updatedSlides,
+    })
+
+    toast({
+      title: "Font Applied",
+      description: `Applied ${template.name} font to all slides.`,
+    })
+  }
+
+  const applyBackgroundColor = (color: string) => {
+    if (!currentProject) return
+
+    const updatedSlides: CarouselSlide[] = currentProject.slides.map((slide) => ({
+      ...slide,
+      design: {
+        ...slide.design,
+        backgroundColor: color,
+        backgroundType: "color",
+        backgroundImage: undefined,
+      },
+    }))
+
+    setCurrentProject({
+      ...currentProject,
+      slides: updatedSlides,
+    })
+
+    toast({
+      title: "Background Applied",
+      description: `Applied background color to all slides.`,
+    })
+  }
+
+  const applyBackgroundImage = (imagePath: string) => {
+    if (!currentProject) return
+
+    const updatedSlides: CarouselSlide[] = currentProject.slides.map((slide) => ({
+      ...slide,
+      design: {
+        ...slide.design,
+        backgroundType: "image",
+        backgroundImage: imagePath,
+        backgroundColor: "#ffffff", // Reset color when using image
+      },
+    }))
+
+    setCurrentProject({
+      ...currentProject,
+      slides: updatedSlides,
+    })
+
+    toast({
+      title: "Background Applied",
+      description: `Applied background image to all slides.`,
+    })
+  }
+
+  const refreshRandomBackground = () => {
+    if (!currentProject) return
+
+    const newRandomBackground = getRandomBackgroundImage()
+    
+    const updatedSlides: CarouselSlide[] = currentProject.slides.map((slide) => ({
+      ...slide,
+      design: {
+        ...slide.design,
+        backgroundType: "image",
+        backgroundImage: newRandomBackground,
+        backgroundColor: "#ffffff",
+      },
+    }))
+
+    setCurrentProject({
+      ...currentProject,
+      slides: updatedSlides,
+    })
+
+    toast({
+      title: "Background Refreshed",
+      description: `Applied new random background to all slides.`,
+    })
+  }
+
+  const exportAllAsJPEG = async () => {
+    if (!currentProject) return
+
+    const images: string[] = []
+
+    for (let i = 0; i < currentProject.slides.length; i++) {
+      setCurrentSlideIndex(i)
+      await new Promise((resolve) => setTimeout(resolve, 100)) // Allow render
+
+      if (slideCanvasRef.current) {
+        const canvas = await html2canvas(slideCanvasRef.current, {
+          backgroundColor: null,
+          scale: 2,
+        })
+        images.push(canvas.toDataURL("image/jpeg", 0.9))
+      }
+    }
+
+    // Create zip file (simplified - in real implementation use JSZip)
+    const link = document.createElement("a")
+    images.forEach((image, index) => {
+      link.href = image
+      link.download = `${currentProject.title}-slide-${index + 1}.jpg`
+      link.click()
+    })
+
+    toast({
+      title: "Export Complete",
+      description: `Exported ${images.length} slides as JPEG files.`,
+    })
+  }
+
+  const exportAsPDF = async () => {
+    if (!currentProject) return
+
+    const pdf = new jsPDF()
+
+    for (let i = 0; i < currentProject.slides.length; i++) {
+      setCurrentSlideIndex(i)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      if (slideCanvasRef.current) {
+        const canvas = await html2canvas(slideCanvasRef.current, {
+          backgroundColor: null,
+          scale: 2,
+        })
+
         if (i > 0) pdf.addPage()
 
-        const slide = currentProject.slides[i]
+        const imgData = canvas.toDataURL("image/png")
+        const imgWidth = 190
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-        // Create a temporary canvas element that matches the exact canvas design
-        const tempDiv = document.createElement("div")
-        tempDiv.style.width = "500px"
-        tempDiv.style.height = "500px"
-        tempDiv.style.position = "absolute"
-        tempDiv.style.left = "-9999px"
-        tempDiv.style.overflow = "hidden"
-        tempDiv.style.borderRadius = "8px"
-        
-        // Ensure we have a valid hex color
-        const bgColor = convertToHex(slide.backgroundColor)
-        tempDiv.style.backgroundColor = bgColor || "#FFFFFF"
-
-        // Add background image as an actual IMG element if present
-        if (slide.backgroundType === "image" && slide.backgroundImage) {
-          const bgImg = document.createElement("img")
-          const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
-          bgImg.src = resolved || slide.backgroundImage
-          bgImg.style.position = "absolute"
-          bgImg.style.top = "0"
-          bgImg.style.left = "0"
-          bgImg.style.width = "100%"
-          bgImg.style.height = "100%"
-          bgImg.style.objectFit = "cover"
-          bgImg.style.objectPosition = "center"
-          bgImg.style.zIndex = "1"
-          
-          // Wait for image to load
-          await new Promise((resolve, reject) => {
-            bgImg.onload = resolve
-            bgImg.onerror = () => {
-              console.warn("Background image failed to load:", slide.backgroundImage)
-              resolve(null) // Continue without image
-            }
-            // Timeout after 5 seconds
-            setTimeout(() => {
-              console.warn("Background image load timeout:", slide.backgroundImage)
-              resolve(null)
-            }, 5000)
-          })
-          
-          tempDiv.appendChild(bgImg)
-        }
-
-        // Create text container with exact positioning
-        const textContainer = document.createElement("div")
-        textContainer.style.position = "absolute"
-        textContainer.style.left = `${slide.textPosition.x}%`
-        textContainer.style.top = `${slide.textPosition.y}%`
-        textContainer.style.transform = "translate(-50%, -50%)"
-        textContainer.style.minWidth = "200px"
-        textContainer.style.textAlign = "center"
-        textContainer.style.display = "flex"
-        textContainer.style.alignItems = "center"
-        textContainer.style.justifyContent = "center"
-        textContainer.style.padding = "16px"
-        textContainer.style.zIndex = "2" // Above background image
-
-        const textDiv = document.createElement("div")
-        
-        // Ensure we have a valid hex color for text
-        const textColor = convertToHex(slide.textColor)
-        textDiv.style.color = textColor || "#000000"
-        
-        textDiv.style.fontSize = `${slide.fontSize}px`
-        textDiv.style.fontFamily = slide.fontFamily || "Inter, sans-serif"
-        textDiv.style.fontWeight = "bold"
-        textDiv.style.lineHeight = "1.2"
-        textDiv.style.whiteSpace = "pre-wrap"
-        textDiv.style.textAlign = "center"
-        textDiv.style.userSelect = "none"
-        textDiv.textContent = slide.text
-
-        textContainer.appendChild(textDiv)
-        tempDiv.appendChild(textContainer)
-        document.body.appendChild(tempDiv)
-
-        let imgData: string
-        
-        // If there's a background image, use Canvas 2D API for more reliable rendering
-        if (slide.backgroundType === "image" && slide.backgroundImage) {
-          const canvas = document.createElement('canvas')
-          canvas.width = 500
-          canvas.height = 500
-          const ctx = canvas.getContext('2d')
-          
-          if (ctx) {
-            // Fill background color first
-            const bgColor = convertToHex(slide.backgroundColor) || "#FFFFFF"
-            ctx.fillStyle = bgColor
-            ctx.fillRect(0, 0, 500, 500)
-            
-            // Load and draw background image
-            const img = new Image()
-            img.crossOrigin = 'anonymous'
-            
-            // Set the source (try data URL first, then original)
-            const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
-            
-            await new Promise((resolve, reject) => {
-              img.onload = () => {
-                // Draw image to cover the entire canvas
-                ctx.drawImage(img, 0, 0, 500, 500)
-                resolve(null)
-              }
-              img.onerror = () => {
-                console.warn("Failed to load background image for PDF, using color only")
-                resolve(null)
-              }
-              
-              img.src = (resolved || slide.backgroundImage) ?? ""
-              
-              // Timeout after 5 seconds
-              setTimeout(() => {
-                console.warn("Background image load timeout for PDF")
-                resolve(null)
-              }, 5000)
-            })
-            
-            // Draw text on top
-            const textColor = convertToHex(slide.textColor) || "#000000"
-            ctx.fillStyle = textColor
-            ctx.font = `bold ${slide.fontSize}px ${slide.fontFamily || 'Inter, sans-serif'}`
-            ctx.textAlign = 'center'
-            ctx.textBaseline = 'middle'
-            
-            // Calculate text position
-            const textX = (slide.textPosition.x / 100) * 500
-            const textY = (slide.textPosition.y / 100) * 500
-            
-            // Handle multi-line text
-            const lines = slide.text.split('\n')
-            const lineHeight = slide.fontSize * 1.2 // 1.2 is line height multiplier
-            const totalHeight = lines.length * lineHeight
-            const startY = textY - (totalHeight / 2) + (lineHeight / 2)
-            
-            lines.forEach((line, index) => {
-              const y = startY + (index * lineHeight)
-              ctx.fillText(line, textX, y)
-            })
-            
-            imgData = canvas.toDataURL("image/png", 1.0)
-          } else {
-            throw new Error("Could not get 2D context for PDF")
-          }
-        } else {
-          // No background image, use html2canvas
-          const canvas = await html2canvas(tempDiv, {
-            width: 500,
-            height: 500,
-            backgroundColor: convertToHex(slide.backgroundColor),
-            scale: 2, // Higher quality
-            useCORS: true,
-            allowTaint: false,
-          })
-          
-          imgData = canvas.toDataURL("image/png", 1.0)
-        }
-
-        document.body.removeChild(tempDiv)
-        pdf.addImage(imgData, "PNG", margin, margin, slideWidth, slideHeight)
-
-        // Add slide number and title
-        pdf.setFontSize(10)
-        pdf.setTextColor(100)
-        pdf.text(`Slide ${i + 1} of ${currentProject.slides.length}`, margin, margin + slideHeight + 10)
-        
-        // Add project title on first slide
-        if (i === 0) {
-          pdf.setFontSize(14)
-          pdf.setTextColor(50)
-          pdf.text(currentProject.title, margin, margin - 10)
-        }
+        pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight)
       }
-
-      pdf.save(`${currentProject.title.replace(/[^a-z0-9]/gi, "_").toLowerCase()}_carousel.pdf`)
-
-      toast({
-        title: "PDF Exported!",
-        description: "Your carousel has been exported as a PDF file with exact canvas design.",
-      })
-    } catch (error) {
-      console.error("PDF export error:", error)
-      toast({
-        title: "Export Failed",
-        description: "There was an error exporting your carousel to PDF.",
-        variant: "destructive",
-      })
     }
+
+    pdf.save(`${currentProject.title}.pdf`)
+
+    toast({
+      title: "PDF Export Complete",
+      description: "All slides exported as PDF.",
+    })
   }
 
-  const [showLinkedInModal, setShowLinkedInModal] = useState(false)
-  const [linkedInCaption, setLinkedInCaption] = useState("")
-
-  const handlePostToLinkedIn = async () => {
-    if (!currentProject) return
-    
-    // Check if LinkedIn posting is available
-    if (!postToLinkedIn) {
-      toast({
-        title: "LinkedIn Not Available",
-        description: "LinkedIn posting functionality is not available. Please check your connection.",
-        variant: "destructive",
-      })
-      return
-    }
-    
-    // Check if user is connected to LinkedIn
+  const openLinkedInModal = async () => {
     if (!isLinkedInConnected) {
       toast({
         title: "LinkedIn Not Connected",
-        description: "Please connect your LinkedIn account before posting.",
-        variant: "destructive",
-      })
-      return
-    }
-    
-    // Check if already posting
-    if (isPosting) {
-      toast({
-        title: "Already Posting",
-        description: "Please wait for the current post to complete.",
+        description: "Please connect your LinkedIn account first.",
         variant: "destructive",
       })
       return
     }
 
-    try {
-      // First, export slides as images with exact canvas design
-      const slideImages = []
-      
-      // Validate project data
-      if (!currentProject.slides || currentProject.slides.length === 0) {
-        throw new Error("No slides found in the project")
-      }
+    setLinkedInCaption(`Check out my latest carousel about ${currentProject?.topic || "this topic"}! 
 
-      for (let i = 0; i < currentProject.slides.length; i++) {
-        const slide = currentProject.slides[i]
-        
-        // Validate slide data
-        if (!slide || !slide.text) {
-          console.warn(`Skipping invalid slide ${i + 1}`)
-          continue
-        }
+What do you think? Share your thoughts in the comments below.
 
-        // Create a temporary canvas element that matches the exact canvas design
-        const tempDiv = document.createElement("div")
-        tempDiv.style.width = "1080px"
-        tempDiv.style.height = "1080px"
-        tempDiv.style.position = "absolute"
-        tempDiv.style.left = "-9999px"
-        tempDiv.style.overflow = "hidden"
-        tempDiv.style.borderRadius = "12px"
-        
-        // Ensure we have a valid hex color
-        const bgColor = convertToHex(slide.backgroundColor)
-        tempDiv.style.backgroundColor = bgColor || "#FFFFFF"
-
-        // Add background image as an actual IMG element if present
-        if (slide.backgroundType === "image" && slide.backgroundImage) {
-          const bgImg = document.createElement("img")
-          const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
-          bgImg.src = resolved || slide.backgroundImage
-          bgImg.style.position = "absolute"
-          bgImg.style.top = "0"
-          bgImg.style.left = "0"
-          bgImg.style.width = "100%"
-          bgImg.style.height = "100%"
-          bgImg.style.objectFit = "cover"
-          bgImg.style.objectPosition = "center"
-          bgImg.style.zIndex = "1"
-          
-          // Wait for image to load
-          await new Promise((resolve, reject) => {
-            bgImg.onload = resolve
-            bgImg.onerror = () => {
-              console.warn("Background image failed to load:", slide.backgroundImage)
-              resolve(null) // Continue without image
-            }
-            // Timeout after 5 seconds
-            setTimeout(() => {
-              console.warn("Background image load timeout:", slide.backgroundImage)
-              resolve(null)
-            }, 5000)
-          })
-          
-          tempDiv.appendChild(bgImg)
-        }
-
-        // Create text container with exact positioning
-        const textContainer = document.createElement("div")
-        textContainer.style.position = "absolute"
-        textContainer.style.left = `${slide.textPosition.x}%`
-        textContainer.style.top = `${slide.textPosition.y}%`
-        textContainer.style.transform = "translate(-50%, -50%)"
-        textContainer.style.minWidth = "400px"
-        textContainer.style.textAlign = "center"
-        textContainer.style.display = "flex"
-        textContainer.style.alignItems = "center"
-        textContainer.style.justifyContent = "center"
-        textContainer.style.padding = "32px"
-        textContainer.style.zIndex = "2" // Above background image
-
-        const textDiv = document.createElement("div")
-        
-        // Ensure we have a valid hex color for text
-        const textColor = convertToHex(slide.textColor)
-        textDiv.style.color = textColor || "#000000"
-        
-        textDiv.style.fontSize = `${slide.fontSize * 1.5}px`
-        textDiv.style.fontFamily = slide.fontFamily || "Inter, sans-serif"
-        textDiv.style.fontWeight = "bold"
-        textDiv.style.lineHeight = "1.2"
-        textDiv.style.whiteSpace = "pre-wrap"
-        textDiv.style.textAlign = "center"
-        textDiv.style.userSelect = "none"
-        textDiv.textContent = slide.text
-
-        textContainer.appendChild(textDiv)
-        tempDiv.appendChild(textContainer)
-        document.body.appendChild(tempDiv)
-
-        try {
-          // If there's a background image, use Canvas 2D API for more reliable rendering
-          if (slide.backgroundType === "image" && slide.backgroundImage) {
-            const canvas = document.createElement('canvas')
-            canvas.width = 1080
-            canvas.height = 1080
-            const ctx = canvas.getContext('2d')
-            
-            if (ctx) {
-              // Fill background color first
-              const bgColor = convertToHex(slide.backgroundColor) || "#FFFFFF"
-              ctx.fillStyle = bgColor
-              ctx.fillRect(0, 0, 1080, 1080)
-              
-              // Load and draw background image
-              const img = new Image()
-              img.crossOrigin = 'anonymous'
-              
-              // Set the source (try data URL first, then original)
-              const resolved = await resolveBackgroundImageUrl(slide.backgroundImage)
-              
-              await new Promise((resolve, reject) => {
-                img.onload = () => {
-                  // Draw image to cover the entire canvas
-                  ctx.drawImage(img, 0, 0, 1080, 1080)
-                  resolve(null)
-                }
-                img.onerror = () => {
-                  console.warn("Failed to load background image, using color only")
-                  resolve(null)
-                }
-                
-                img.src = (resolved || slide.backgroundImage) ?? ""
-                
-                // Timeout after 5 seconds
-                setTimeout(() => {
-                  console.warn("Background image load timeout")
-                  resolve(null)
-                }, 5000)
-              })
-              
-              // Draw text on top
-              const textColor = convertToHex(slide.textColor) || "#000000"
-              ctx.fillStyle = textColor
-              ctx.font = `bold ${slide.fontSize * 1.5}px ${slide.fontFamily || 'Inter, sans-serif'}`
-              ctx.textAlign = 'center'
-              ctx.textBaseline = 'middle'
-              
-              // Calculate text position
-              const textX = (slide.textPosition.x / 100) * 1080
-              const textY = (slide.textPosition.y / 100) * 1080
-              
-              // Handle multi-line text
-              const lines = slide.text.split('\n')
-              const lineHeight = slide.fontSize * 1.5 * 1.2 // 1.2 is line height multiplier
-              const totalHeight = lines.length * lineHeight
-              const startY = textY - (totalHeight / 2) + (lineHeight / 2)
-              
-              lines.forEach((line, index) => {
-                const y = startY + (index * lineHeight)
-                ctx.fillText(line, textX, y)
-              })
-              
-              slideImages.push(canvas.toDataURL("image/png", 1.0))
-            } else {
-              throw new Error("Could not get 2D context")
-            }
-          } else {
-            // No background image, use html2canvas
-            const canvas = await html2canvas(tempDiv, {
-              width: 1080,
-              height: 1080,
-              backgroundColor: convertToHex(slide.backgroundColor),
-              scale: 2, // Higher quality for LinkedIn
-              useCORS: true,
-              allowTaint: false,
-              logging: false, // Disable logging to reduce console noise
-              removeContainer: true, // Automatically remove temporary elements
-              foreignObjectRendering: false, // Disable for better compatibility
-              onclone: (clonedDoc) => {
-                const elements = clonedDoc.body.querySelectorAll('*')
-                elements.forEach((el) => {
-                  const attrs = el.getAttributeNames()
-                  attrs.forEach((attr) => {
-                    if (attr.startsWith('bis_') || (attr.startsWith('data-') && attr.includes('bis'))) {
-                      el.removeAttribute(attr)
-                    }
-                  })
-                })
-              }
-            })
-
-            slideImages.push(canvas.toDataURL("image/png", 1.0))
-          }
-        } catch (canvasError) {
-          console.error(`Error rendering slide ${i + 1}:`, canvasError)
-          // Create a fallback canvas with basic colors
-          try {
-            const fallbackCanvas = document.createElement('canvas')
-            fallbackCanvas.width = 1080
-            fallbackCanvas.height = 1080
-            const ctx = fallbackCanvas.getContext('2d')
-            if (ctx) {
-              // Ensure we have safe colors
-              const bgColor = convertToHex(slide.backgroundColor) || "#FFFFFF"
-              const txtColor = convertToHex(slide.textColor) || "#000000"
-              
-              ctx.fillStyle = bgColor
-              ctx.fillRect(0, 0, 1080, 1080)
-              ctx.fillStyle = txtColor
-              ctx.font = `${slide.fontSize * 1.5}px ${slide.fontFamily || 'Inter, sans-serif'}`
-              ctx.textAlign = 'center'
-              ctx.textBaseline = 'middle'
-              ctx.fillText(slide.text, 540, 540)
-              slideImages.push(fallbackCanvas.toDataURL("image/png", 1.0))
-            } else {
-              // If we can't get a 2D context, create a simple colored div
-              console.warn("Could not get 2D context for fallback canvas")
-              slideImages.push("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjEwODAiIGZpbGw9IiNGRkZGRkYiLz48dGV4dCB4PSI1NDAiIHk9IjU0MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjMDAwMDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RmFsbGJhY2sgU2xpZGU8L3RleHQ+PC9zdmc+")
-            }
-          } catch (fallbackError) {
-            console.error("Fallback canvas creation failed:", fallbackError)
-            // Last resort: add a placeholder image
-            slideImages.push("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjEwODAiIGZpbGw9IiNGRkZGRkYiLz48dGV4dCB4PSI1NDAiIHk9IjU0MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjQ4IiBmaWxsPSIjMDAwMDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+RXJyb3IgU2xpZGU8L3RleHQ+PC9zdmc+")
-          }
-        } finally {
-          // Always clean up the temporary element
-          if (document.body.contains(tempDiv)) {
-            document.body.removeChild(tempDiv)
-          }
-        }
-      }
-
-      // Ensure we have images to post
-      if (slideImages.length === 0) {
-        throw new Error("No images were generated for posting")
-      }
-      
-      // Post to LinkedIn with the generated images
-      const result = await postToLinkedIn({
-        content: linkedInCaption || `🎨 ${currentProject.title}\n\n${currentProject.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`,
-        images: slideImages,
-      })
-
-      if (result.success) {
-        toast({
-          title: "Posted to LinkedIn!",
-          description: "Your carousel has been published successfully.",
-        })
-        setShowLinkedInModal(false)
-        setShowPreviewModal(false)
-        setLinkedInCaption("")
-      } else {
-        throw new Error(result.error || "LinkedIn posting failed")
-      }
-    } catch (error) {
-      console.error("LinkedIn posting error:", error)
-      
-      // Provide more specific error messages
-      let errorMessage = "There was an error posting to LinkedIn. Please try again."
-      
-      if (error instanceof Error) {
-        if (error.message.includes("oklch")) {
-          errorMessage = "Color conversion error. Please check your slide colors and try again."
-        } else if (error.message.includes("html2canvas")) {
-          errorMessage = "Image generation error. Please try refreshing the page and try again."
-        } else if (error.message.includes("LinkedIn")) {
-          errorMessage = "LinkedIn connection error. Please check your LinkedIn connection and try again."
-        }
-      }
-      
-      toast({
-        title: "Posting Failed",
-        description: errorMessage,
-        variant: "destructive",
-      })
-    }
-  }
-
-  const openLinkedInModal = () => {
-    setLinkedInCaption(`🎨 ${currentProject?.title || "Carousel"}\n\n${currentProject?.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`)
+#LinkedIn #Content #${currentProject?.topic?.replace(/\s+/g, "") || "Learning"}`)
     setShowLinkedInModal(true)
   }
 
-  // Function to convert any color to hex format
-  const convertToHex = (color: string): string => {
-    try {
-      if (!color) return "#FFFFFF"
-      
-      // If it's already a hex color, return it
-      if (color.startsWith("#")) return color
-      
-      // Handle CSS custom properties (CSS variables)
-      if (color.startsWith("var(--")) {
-        // Extract the variable name
-        const varName = color.match(/var\(--([^)]+)\)/)?.[1]
-        if (varName) {
-          // Get computed value from CSS
-          const computedValue = getComputedStyle(document.documentElement).getPropertyValue(`--${varName}`).trim()
-          if (computedValue) {
-            return convertToHex(computedValue)
-          }
-        }
-        // Fallback for CSS variables
-        return "#FFFFFF"
-      }
-      
-      // If it's an oklch or other modern color function, convert to a safe fallback
-      if (color.includes("oklch") || color.includes("hsl") || color.includes("rgb")) {
-        // Extract the color and convert to a safe hex
-        if (color.includes("primary")) return "#0077B5"
-        if (color.includes("secondary")) return "#6366F1"
-        if (color.includes("muted")) return "#64748B"
-        if (color.includes("accent")) return "#8B5CF6"
-        if (color.includes("destructive")) return "#EF4444"
-        if (color.includes("success")) return "#10B981"
-        if (color.includes("warning")) return "#F59E0B"
-        if (color.includes("info")) return "#06B6D4"
-        
-        // Handle oklch colors specifically
-        if (color.includes("oklch")) {
-          // Parse oklch values (allow comma or space separated) and convert to hex
-          const oklchMatch = color.match(/oklch\(([^)]+)\)/)
-          if (oklchMatch) {
-            const raw = oklchMatch[1].trim()
-            const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/)
-            const values = parts.map(v => v.trim().replace(/deg$/, ''))
-            if (values.length >= 3) {
-              const l = parseFloat(values[0]) // lightness
-              const c = parseFloat(values[1]) // chroma
-              const h = parseFloat(values[2]) // hue
-              
-              // Convert oklch to approximate hex based on lightness and hue
-              if (l > 0.8) return "#FFFFFF" // Very light colors
-              if (l > 0.6) return "#E5E7EB" // Light colors
-              if (l > 0.4) return "#9CA3AF" // Medium colors
-              if (l > 0.2) return "#4B5563" // Dark colors
-              return "#111827" // Very dark colors
-            }
-          }
-        }
-        
-        // Handle hsl colors
-        if (color.includes("hsl")) {
-          const hslMatch = color.match(/hsl\(([^)]+)\)/)
-          if (hslMatch) {
-            const raw = hslMatch[1].trim()
-            const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/)
-            const values = parts.map(v => v.trim().replace(/%$/, ''))
-            if (values.length >= 3) {
-              const h = parseFloat(values[0])
-              const s = parseFloat(values[1])
-              const l = parseFloat(values[2])
-              
-              // Simple HSL to hex conversion
-              if (l > 0.8) return "#FFFFFF"
-              if (l > 0.6) return "#E5E7EB"
-              if (l > 0.4) return "#9CA3AF"
-              if (l > 0.2) return "#4B5563"
-              return "#111827"
-            }
-          }
-        }
-        
-        // Handle rgb colors
-        if (color.includes("rgb")) {
-          const rgbMatch = color.match(/rgb\(([^)]+)\)/)
-          if (rgbMatch) {
-            const raw = rgbMatch[1].trim()
-            const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/)
-            const values = parts.map(v => Number.parseInt(v.trim()))
-            if (values.length >= 3) {
-              const [r, g, b] = values
-              // Convert RGB to hex
-              return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-            }
-          }
-        }
-        
-        // Default fallback
-        return "#FFFFFF"
-      }
-      
-      return color
-    } catch (error) {
-      console.error("Color conversion error:", error, "for color:", color)
-      return "#FFFFFF" // Safe fallback
-    }
-  }
-
-  // Load an image URL as a data URL to avoid CORS tainting in html2canvas
-  const fetchImageAsDataURL = async (url: string): Promise<string | null> => {
-    try {
-      if (!url) return null
-      // Already a data URL
-      if (url.startsWith("data:")) return url
-      // Same-origin URLs are safe to use directly
-      try {
-        const origin = typeof window !== 'undefined' ? window.location.origin : ''
-        if (origin && url.startsWith(origin)) return url
-      } catch {}
-
-      // Try fetch -> blob -> dataURL
-      const resp = await fetch(url, { mode: 'cors', credentials: 'omit' })
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-      const blob = await resp.blob()
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onloadend = () => resolve(reader.result as string)
-        reader.onerror = reject
-        reader.readAsDataURL(blob)
-      })
-      return dataUrl
-    } catch (err) {
-      console.warn('fetchImageAsDataURL failed, using original URL:', err)
-      return null
-    }
-  }
-
-  // Resolve a background image URL to a data URL when possible (for html2canvas)
-  const resolveBackgroundImageUrl = async (imageUrl?: string): Promise<string | undefined> => {
-    if (!imageUrl) return undefined
-    const dataUrl = await fetchImageAsDataURL(imageUrl)
-    return dataUrl || imageUrl
-  }
-
-  // Function to capture current canvas exactly as it appears
-  const captureCurrentCanvas = async () => {
-    if (!slideCanvasRef.current || !currentSlide) return null
+  const postToLinkedInWithImages = async () => {
+    if (!currentProject) return
 
     try {
-      const canvas = await html2canvas(slideCanvasRef.current, {
-        backgroundColor: convertToHex(currentSlide.backgroundColor),
-        scale: 2, // Higher quality
-        useCORS: true,
-        allowTaint: true,
-        width: slideCanvasRef.current.offsetWidth,
-        height: slideCanvasRef.current.offsetHeight,
-      })
+      // Convert all slides to images
+      const images: string[] = []
 
-      return canvas.toDataURL("image/png", 1.0)
-    } catch (error) {
-      console.error("Canvas capture error:", error)
-      return null
-    }
-  }
+      for (let i = 0; i < currentProject.slides.length; i++) {
+        setCurrentSlideIndex(i)
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
-  // Function to export current slide as PDF
-  const exportCurrentSlideToPDF = async () => {
-    if (!currentSlide) return
-
-    try {
-      const canvasData = await captureCurrentCanvas()
-      if (!canvasData) {
-        toast({
-          title: "Export Failed",
-          description: "Could not capture the current slide.",
-          variant: "destructive",
-        })
-        return
+        if (slideCanvasRef.current) {
+          const canvas = await html2canvas(slideCanvasRef.current, {
+            backgroundColor: null,
+            scale: 2,
+          })
+          images.push(canvas.toDataURL("image/jpeg", 0.9))
+        }
       }
 
-      const pdf = new jsPDF("p", "mm", "a4")
-      const imgWidth = 180
-      const imgHeight = 180
-      const margin = 15
-
-      pdf.addImage(canvasData, "PNG", margin, margin, imgWidth, imgHeight)
-      
-      // Add slide info
-      pdf.setFontSize(14)
-      pdf.setTextColor(50)
-      pdf.text(currentProject?.title || "Carousel Slide", margin, margin - 10)
-      
-      pdf.setFontSize(10)
-      pdf.setTextColor(100)
-      pdf.text(`Slide ${currentSlideIndex + 1} of ${currentProject?.slides.length || 1}`, margin, margin + imgHeight + 10)
-
-      pdf.save(`${currentProject?.title || "slide"}_slide_${currentSlideIndex + 1}.pdf`)
+      // TODO: Implement actual LinkedIn API posting
+      // await postToLinkedIn(linkedInCaption, images)
 
       toast({
-        title: "Slide Exported!",
-        description: "Current slide has been exported as a PDF file.",
+        title: "Posted to LinkedIn!",
+        description: `Successfully posted carousel with ${images.length} slides.`,
       })
+
+      setShowLinkedInModal(false)
     } catch (error) {
-      console.error("Slide export error:", error)
       toast({
-        title: "Export Failed",
-        description: "There was an error exporting the current slide.",
+        title: "Posting Failed",
+        description: "Failed to post to LinkedIn. Please try again.",
         variant: "destructive",
       })
     }
   }
 
-  const currentSlide = currentProject?.slides[currentSlideIndex]
+  const renderSlideContent = (slide: CarouselSlide) => {
+    const { content, design } = slide
 
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
     return (
-      <div className="flex flex-col gap-4">
-        <div className="px-4 py-8">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
+      <div
+        className="w-full h-full flex flex-col justify-start items-start p-8 relative"
+        style={{
+          fontFamily: design.fontFamily,
+          color: design.textColor,
+          paddingTop: slide.type === "first" ? "60px" : "32px",
+          textShadow: design.backgroundType === "image" && overlayOpacity > 0 ? "0 2px 4px rgba(0,0,0,0.8)" : "none"
+        }}
+        data-font-family={design.fontFamily}
+      >
+        {slide.type === "first" && (
+          <>
+            {content.top_line && (
+              <div
+                className="text-sm opacity-80 mb-2 self-start text-left w-full"
+                onClick={() => setEditingText("top_line")}
+                style={{ 
+                  fontSize: "20px",
+                  marginTop: "-10px",
+                  paddingLeft: "20px",
+                  fontFamily: design.fontFamily
+                }}
+              >
+                {editingText === "top_line" ? (
+                  <textarea
+                    value={content.top_line}
+                    onChange={(e) => handleTextEdit("top_line", e.target.value)}
+                    onBlur={() => setEditingText(null)}
+                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                    style={{ minHeight: "20px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    autoFocus
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">{content.top_line}</div>
+                )}
+              </div>
+            )}
+            {content.main_heading && (
+              <h1
+                className="font-bold mb-4 leading-tight self-start text-left w-full"
+                onClick={() => setEditingText("main_heading")}
+                style={{ 
+                  fontSize: "35px",
+                  paddingLeft: "20px",
+                  fontFamily: design.fontFamily
+                }}
+              >
+                {editingText === "main_heading" ? (
+                  <textarea
+                    value={content.main_heading}
+                    onChange={(e) => handleTextEdit("main_heading", e.target.value)}
+                    onBlur={() => setEditingText(null)}
+                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                    style={{ minHeight: "35px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    autoFocus
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">{content.main_heading}</div>
+                )}
+              </h1>
+            )}
+            {content.bullet && (
+              <p className="text-lg self-start text-left w-full break-words" onClick={() => setEditingText("bullet")} style={{ fontSize: "18px", paddingLeft: "20px", fontFamily: design.fontFamily }}>
+                {editingText === "bullet" ? (
+                  <textarea
+                    value={content.bullet}
+                    onChange={(e) => handleTextEdit("bullet", e.target.value)}
+                    onBlur={() => setEditingText(null)}
+                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                    style={{ minHeight: "18px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    autoFocus
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">{content.bullet}</div>
+                )}
+              </p>
+            )}
+          </>
+        )}
+
+        {slide.type === "middle" && (
+          <>
+            {content.heading && (
+              <h2
+                className="font-bold mb-6 leading-tight self-start text-left w-full break-words"
+                onClick={() => setEditingText("heading")}
+                style={{ fontSize: `${design.fontSize}px`, paddingLeft: "20px", fontFamily: design.fontFamily }}
+              >
+                {editingText === "heading" ? (
+                  <textarea
+                    value={content.heading}
+                    onChange={(e) => handleTextEdit("heading", e.target.value)}
+                    onBlur={() => setEditingText(null)}
+                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                    style={{ minHeight: "24px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    autoFocus
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">{content.heading}</div>
+                )}
+              </h2>
+            )}
+            {content.bullets && (
+              <ul className="space-y-3 text-left w-full px-5">
+                {content.bullets.map((bullet, index) => (
+                  <li
+                    key={index}
+                    className="flex items-start gap-2"
+                    onClick={() => setEditingText(`bullet_${index}`)}
+                    style={{ fontSize: "16px", fontFamily: design.fontFamily }}
+                  >
+                    <span className="w-2 h-2 bg-current rounded-full mt-2 flex-shrink-0"></span>
+                    {editingText === `bullet_${index}` ? (
+                      <textarea
+                        value={bullet}
+                        onChange={(e) => {
+                          const newBullets = [...content.bullets!]
+                          newBullets[index] = e.target.value
+                          handleTextEdit("bullets", newBullets as any)
+                        }}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none flex-1 resize-none overflow-hidden"
+                        style={{ minHeight: "16px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="whitespace-pre-wrap break-words">{bullet}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+
+        {slide.type === "last" && (
+          <>
+            {content.tagline && (
+              <div
+                className="text-sm opacity-80 mb-2 self-start text-left w-full break-words"
+                onClick={() => setEditingText("tagline")}
+                style={{ fontSize: "14px", paddingLeft: "20px", fontFamily: design.fontFamily }}
+              >
+                {editingText === "tagline" ? (
+                  <textarea
+                    value={content.tagline}
+                    onChange={(e) => handleTextEdit("tagline", e.target.value)}
+                    onBlur={() => setEditingText(null)}
+                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                    style={{ minHeight: "14px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    autoFocus
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">{content.tagline}</div>
+                )}
+              </div>
+            )}
+            {content.final_heading && (
+              <h1
+                className="font-bold mb-4 leading-tight self-start text-left w-full break-words"
+                onClick={() => setEditingText("final_heading")}
+                style={{ fontSize: `${design.fontSize}px`, paddingLeft: "20px", fontFamily: design.fontFamily }}
+              >
+                {editingText === "final_heading" ? (
+                  <textarea
+                    value={content.final_heading}
+                    onChange={(e) => handleTextEdit("final_heading", e.target.value)}
+                    onBlur={() => setEditingText(null)}
+                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                    style={{ minHeight: "24px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    autoFocus
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">{content.final_heading}</div>
+                )}
+              </h1>
+            )}
+            {content.last_bullet && (
+              <p className="text-lg self-start text-left w-full break-words" onClick={() => setEditingText("last_bullet")} style={{ fontSize: "18px", paddingLeft: "20px", fontFamily: design.fontFamily }}>
+                {editingText === "last_bullet" ? (
+                  <textarea
+                    value={content.last_bullet}
+                    onChange={(e) => handleTextEdit("last_bullet", e.target.value)}
+                    onBlur={() => setEditingText(null)}
+                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                    style={{ minHeight: "18px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    autoFocus
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap break-words">{content.last_bullet}</div>
+                )}
+              </p>
+            )}
+          </>
+        )}
+
+        {/* Interactive Elements - Display on all slides except last */}
+        {currentProject?.elements && currentProject.elements.length > 0 && slide.type !== "last" && (
+          <div className="absolute bottom-16 right-8">
+            <div className="flex flex-col gap-1">
+              {currentProject.elements.map((element) => (
+                <div
+                  key={element.id}
+                  className="flex items-center justify-center bg-white/20 backdrop-blur-sm rounded-full p-1"
+                  style={{
+                    width: `${element.size}px`,
+                    height: `${element.size}px`,
+                    fontFamily: design.fontFamily,
+                    color: design.textColor,
+                    fontSize: `${element.size * 0.6}px`
+                  }}
+                >
+                  {element.type === "swipe-right" && "→"}
+                  {element.type === "swipe-left" && "←"}
+                  {element.type === "swipe-up" && "↑"}
+                  {element.type === "swipe-down" && "↓"}
+                  {element.type === "tap" && "👆"}
+                  {element.type === "click" && "🖱️"}
+                  {element.type === "arrow-right" && "➡️"}
+                  {element.type === "arrow-left" && "⬅️"}
+                  {element.type === "arrow-up" && "⬆️"}
+                  {element.type === "arrow-down" && "⬇️"}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Branding Section - Display at bottom of each slide */}
+        {currentProject?.branding && currentProject.branding !== "none" && (
+          <div className="absolute bottom-4 left-8 right-8">
+            <div 
+              className="text-xs opacity-70 text-center"
+              style={{ 
+                fontFamily: design.fontFamily,
+                color: design.textColor
+              }}
+            >
+              {currentProject.branding === "name" && session?.user?.name && (
+                <span>{session.user.name}</span>
+              )}
+              {currentProject.branding === "email" && session?.user?.email && (
+                <span>{session.user.email}</span>
+              )}
+              {currentProject.branding === "both" && session?.user?.name && session?.user?.email && (
+                <span>{session.user.name} • {session.user.email}</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     )
   }
 
+  if (!mounted) return null
+
   return (
-    <div className="flex flex-col gap-4">
-      {/* Header */}
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>AI Carousel Creator</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
-      
-
-      <div className="grid gap-6 px-4">
-        {/* Coming Soon Overlay */}
-        <Card className="border-2 border-dashed border-primary/50 bg-primary/5">
-          <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2 text-primary">
-              <Sparkles className="w-6 h-6" />
-              Coming Soon
-            </CardTitle>
-            <CardDescription className="text-lg">
-              The AI Carousel feature is currently under development. We're working hard to bring you an amazing carousel creation experience powered by AI.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <div className="space-y-4">
-              <p className="text-muted-foreground">
-                🚀 Get ready for:
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full"></span>
-                  AI-powered carousel generation
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full"></span>
-                  Professional slide templates
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full"></span>
-                  Custom branding options
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-primary rounded-full"></span>
-                  One-click LinkedIn posting
-                </div>
-              </div>
-              <div className="pt-4">
-                <Button variant="outline" disabled className="cursor-not-allowed">
-                  <Clock className="w-4 h-4 mr-2" />
-                  Stay Tuned
-                </Button>
-              </div>
+    <>
+      <style jsx>{`
+        .carousel-slide [data-font-family*="open-sans"] * {
+          font-family: var(--font-open-sans), Open Sans, sans-serif !important;
+        }
+        .carousel-slide [data-font-family*="bebas-neue"] * {
+          font-family: var(--font-bebas-neue), Bebas Neue, sans-serif !important;
+        }
+        .carousel-slide [data-font-family*="dancing-script"] * {
+          font-family: var(--font-dancing-script), Dancing Script, cursive !important;
+        }
+        .carousel-slide [data-font-family*="righteous"] * {
+          font-family: var(--font-righteous), Righteous, cursive !important;
+        }
+        .carousel-slide [data-font-family*="poppins"] * {
+          font-family: var(--font-poppins), Poppins, sans-serif !important;
+        }
+      `}</style>
+      <div className={`flex-1 space-y-4 p-4 pt-6 ${openSans.variable} ${montserrat.variable} ${lato.variable} ${poppins.variable} ${roboto.variable} ${inter.variable} ${dancingScript.variable} ${bebasNeue.variable} ${righteous.variable}`}>
+        {/* Header */}
+        <div className="flex items-center justify-between space-y-2">
+          <div>
+            <div className="flex items-center space-x-2">
+              <SidebarTrigger />
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>AI Carousel</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </div>
-          </CardContent>
-        </Card>
+            <h2 className="text-3xl font-bold tracking-tight">AI Carousel Generator</h2>
+            <p className="text-muted-foreground">Create engaging LinkedIn carousels with AI or design from scratch</p>
+          </div>
+        </div>
 
-        {!currentProject ? (
-          <>
-            {/* Create from Scratch */}
+      {!currentProject ? (
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                Generate using AI
+              </CardTitle>
+              <CardDescription>
+                Let AI create a professional carousel based on your topic, tone, and slide count preferences.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="topic">Topic *</Label>
+                <Input
+                  id="topic"
+                  placeholder="e.g., LinkedIn Marketing Tips, Remote Work Best Practices..."
+                  value={aiForm.topic}
+                  onChange={(e) => setAiForm({ ...aiForm, topic: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tone of Content</Label>
+                <Select value={aiForm.tone} onValueChange={(value) => setAiForm({ ...aiForm, tone: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {toneOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Number of Slides</Label>
+                <div className="px-3">
+                  <Slider
+                    value={[aiForm.slideCount]}
+                    onValueChange={([value]) => setAiForm({ ...aiForm, slideCount: value })}
+                    max={10}
+                    min={3}
+                    step={1}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>3</span>
+                    <span>{aiForm.slideCount} slides</span>
+                    <span>10</span>
+                  </div>
+                </div>
+              </div>
+
+              <Button onClick={generateAICarousel} disabled={isGenerating} className="w-full" size="lg">
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating Carousel...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate AI Carousel
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-primary" />
+                Create from Scratch
+              </CardTitle>
+              <CardDescription>
+                Start with a blank canvas and design your carousel slides manually with full control.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={createNewProject} className="w-full" size="lg">
+                <Edit3 className="w-5 h-5 mr-2" />
+                Start Creating
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Slide Preview */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="w-5 h-5 text-primary" />
+                    {currentProject.title}
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Button onClick={() => setCurrentProject(null)} variant="outline" size="sm">
+                      <ChevronLeft className="w-4 h-4 mr-2" />
+                      Back
+                    </Button>
+                    <Button onClick={() => setShowPreviewModal(true)} variant="outline" size="sm">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Preview All
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Slide Navigation */}
+                <div className="flex items-center justify-between mb-4">
+                  <Button
+                    onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
+                    disabled={currentSlideIndex === 0}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    {currentProject.slides.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentSlideIndex(index)}
+                        className={`w-8 h-8 rounded-full text-xs font-medium transition-colors ${
+                          index === currentSlideIndex
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    ))}
+                  </div>
+
+                  <Button
+                    onClick={() =>
+                      setCurrentSlideIndex(Math.min(currentProject.slides.length - 1, currentSlideIndex + 1))
+                    }
+                    disabled={currentSlideIndex === currentProject.slides.length - 1}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {currentSlide && (
+                  <div className="relative flex justify-center">
+                    <div
+                      ref={slideCanvasRef}
+                      className="rounded-lg relative overflow-hidden cursor-pointer carousel-slide"
+                      style={{
+                        width: currentProject.aspectRatio === "1:1" ? "400px" : "300px",
+                        height: currentProject.aspectRatio === "1:1" ? "400px" : "533px",
+                        backgroundColor: currentSlide.design.backgroundType === "color" ? currentSlide.design.backgroundColor : "transparent",
+                        backgroundImage:
+                          currentSlide.design.backgroundType === "image" && currentSlide.design.backgroundImage
+                            ? `url(${currentSlide.design.backgroundImage})`
+                            : undefined,
+                        backgroundSize: currentSlide.design.backgroundType === "image" 
+                          ? (currentProject.aspectRatio === "1:1" ? "cover" : "contain") 
+                          : undefined,
+                        backgroundPosition: currentSlide.design.backgroundType === "image" ? "center" : undefined,
+                        backgroundRepeat: currentSlide.design.backgroundType === "image" ? "no-repeat" : undefined,
+                        border: `${currentSlide.design.borderWidth}px solid ${currentSlide.design.borderColor}`,
+                      }}
+                    >
+                      {/* Dark matte overlay for background images */}
+                      {currentSlide.design.backgroundType === "image" && currentSlide.design.backgroundImage && overlayOpacity > 0 && (
+                        <div 
+                          className="absolute inset-0 pointer-events-none"
+                          style={{
+                            background: `linear-gradient(135deg, rgba(0,0,0,${overlayOpacity}) 0%, rgba(0,0,0,${overlayOpacity * 0.5}) 50%, rgba(0,0,0,${overlayOpacity * 0.75}) 100%)`,
+                            zIndex: 1
+                          }}
+                        />
+                      )}
+                      
+                      <div className="relative z-10 w-full h-full">
+                        {renderSlideContent(currentSlide)}
+                      </div>
+
+                      {/* Click to edit indicator */}
+                      <div className="absolute top-2 left-2 flex items-center gap-1 text-white/70 text-xs bg-black/20 px-2 py-1 rounded">
+                        <Type className="w-3 h-3" />
+                        <span>Click text to edit</span>
+                      </div>
+                    </div>
+
+                    <div className="absolute top-2 right-2 flex gap-1">
+                      <Badge variant="secondary">
+                        {currentSlideIndex + 1}/{currentProject.slides.length}
+                      </Badge>
+                      <Badge variant="outline">{currentProject.aspectRatio}</Badge>
+                    </div>
+                  </div>
+                )}
+
+                {/* Slide Actions */}
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex gap-2">
+                    <Button onClick={addSlide} variant="outline" size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Slide
+                    </Button>
+                    <Button
+                      onClick={() => removeSlide(currentSlideIndex)}
+                      disabled={currentProject.slides.length <= 1}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Minus className="w-4 h-4 mr-2" />
+                      Remove
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={exportAllAsJPEG} variant="outline" size="sm">
+                      <FileImage className="w-4 h-4 mr-2" />
+                      Export JPEG
+                    </Button>
+                    <Button onClick={exportAsPDF} variant="outline" size="sm">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Export PDF
+                    </Button>
+                    <Button onClick={openLinkedInModal} size="sm">
+                      <Linkedin className="w-4 h-4 mr-2" />
+                      Post to LinkedIn
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Editing Panel */}
+          <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Palette className="w-5 h-5 text-primary" />
-                  Create from Scratch
+                  Design & Layout
                 </CardTitle>
-                <CardDescription>
-                  Start with a blank canvas and design your carousel slides manually with full control over design, text, and positioning.
-                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button onClick={createNewProject} className="w-full" size="lg">
-                  <Palette className="w-5 h-5 mr-2" />
-                  Start Creating
-                </Button>
-              </CardContent>
-            </Card>
+                        <Tabs defaultValue="background" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="background">Background</TabsTrigger>
+            <TabsTrigger value="layout">Layout</TabsTrigger>
+            <TabsTrigger value="fonts">Fonts</TabsTrigger>
+            <TabsTrigger value="elements">Elements</TabsTrigger>
+          </TabsList>
 
-            {/* AI Generation */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  Generate AI Carousel
-                </CardTitle>
-                <CardDescription>
-                  Let AI create a professional carousel for you based on your topic and preferences.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="topic">Carousel Topic</Label>
-                  <Input
-                    id="topic"
-                    placeholder="e.g., LinkedIn Marketing Tips, Remote Work Best Practices, Career Growth..."
-                    value={aiForm.topic}
-                    onChange={(e) => setAiForm({ ...aiForm, topic: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Carousel Type</Label>
-                  <Select value={aiForm.carouselType} onValueChange={(value) => setAiForm({ ...aiForm, carouselType: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="guide">Complete Guide</SelectItem>
-                      <SelectItem value="tips">Tips & Tricks</SelectItem>
-                      <SelectItem value="story">Story/Experience</SelectItem>
-                      <SelectItem value="comparison">Comparison</SelectItem>
-                      <SelectItem value="checklist">Checklist</SelectItem>
-                      <SelectItem value="stats">Statistics</SelectItem>
-                      <SelectItem value="quotes">Quotes/Inspiration</SelectItem>
-                      <SelectItem value="custom">Custom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label>Tone</Label>
-                    <Select value={aiForm.tone} onValueChange={(value) => setAiForm({ ...aiForm, tone: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="professional">Professional</SelectItem>
-                        <SelectItem value="casual">Casual</SelectItem>
-                        <SelectItem value="educational">Educational</SelectItem>
-                        <SelectItem value="inspirational">Inspirational</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Number of Slides</Label>
-                    <Select
-                      value={aiForm.slideCount}
-                      onValueChange={(value) => setAiForm({ ...aiForm, slideCount: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3">3 slides</SelectItem>
-                        <SelectItem value="5">5 slides</SelectItem>
-                        <SelectItem value="7">7 slides</SelectItem>
-                        <SelectItem value="10">10 slides</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Style</Label>
-                    <Select value={aiForm.style} onValueChange={(value) => setAiForm({ ...aiForm, style: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="modern">Modern</SelectItem>
-                        <SelectItem value="minimal">Minimal</SelectItem>
-                        <SelectItem value="bold">Bold</SelectItem>
-                        <SelectItem value="elegant">Elegant</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <Button onClick={generateAICarousel} disabled={isGenerating} className="w-full" size="lg">
-                  {isGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Generating Carousel...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Generate AI Carousel
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-
-           
-
-
-            {/* Saved Projects */}
-            {savedProjects.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Saved Carousels ({savedProjects.length})</CardTitle>
-                  <CardDescription>Continue working on your saved carousel projects.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-3">
-                    {savedProjects.map((project) => (
+          <TabsContent value="fonts" className="mt-4 space-y-3">
+            {designTemplates.map((template) => (
                       <div
-                        key={project.id}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:shadow-sm transition-shadow"
+                        key={template.id}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                          currentSlide?.design.template === template.id
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                        onClick={() => applyTemplate(template)}
                       >
-                        <div>
-                          <h4 className="font-medium">{project.title}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {project.slides.length} slides • {project.tone} tone
-                          </p>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-medium text-sm">{template.name}</h4>
+                            <p className="text-xs text-muted-foreground">{template.style}</p>
+                          </div>
+                          <div
+                            className="w-8 h-8 rounded border"
+                            style={{
+                              backgroundColor: template.backgroundColor,
+                              color: template.textColor,
+                              fontSize: "8px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontFamily: template.fontFamily,
+                            }}
+                          >
+                            Aa
+                          </div>
                         </div>
-                        <Button
-                          onClick={() => {
-                            setCurrentProject(project)
-                            setCurrentSlideIndex(0)
-                          }}
-                          variant="outline"
-                          size="sm"
-                        >
-                          Edit
-                        </Button>
                       </div>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Carousel Editor */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Slide Preview - Updated to 75% viewport width */}
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Eye className="w-5 h-5 text-primary" />
-                        {currentProject.title}
-                      </CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Button onClick={() => setCurrentProject(null)} variant="outline" size="sm">
-                          <ChevronLeft className="w-4 h-4 mr-2" />
-                          Back
-                        </Button>
-                        <Button onClick={() => setShowPreviewModal(true)} variant="outline" size="sm">
-                          <Eye className="w-4 h-4 mr-2" />
-                          Preview
-                        </Button>
+                  </TabsContent>
+
+                  <TabsContent value="background" className="mt-4 space-y-3">
+                    <div className="space-y-2">
+                      <Label>Background Color</Label>
+                      <div className="grid grid-cols-6 gap-2">
+                        {backgroundColors.map((color) => (
+                          <button
+                            key={color}
+                            onClick={() => applyBackgroundColor(color)}
+                            className={`w-8 h-8 rounded border-2 ${
+                              currentSlide?.design.backgroundColor === color
+                                ? "border-foreground"
+                                : "border-transparent"
+                            }`}
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                      <div className="mt-2 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+                        Background color will be applied to all slides
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Slide Navigation */}
-                    <div className="flex items-center justify-between mb-4">
-                      <Button
-                        onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
-                        disabled={currentSlideIndex === 0}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </Button>
 
-                      <div className="flex items-center gap-2">
-                        {currentProject.slides.map((_, index) => (
+                    <div className="space-y-2">
+                      <Label>Background Images</Label>
+                      <div className="grid grid-cols-6 gap-2">
+                        {backgroundImages.map((imagePath) => (
                           <button
-                            key={index}
-                            onClick={() => setCurrentSlideIndex(index)}
-                            className={`w-8 h-8 rounded-full text-xs font-medium transition-colors ${
-                              index === currentSlideIndex
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                            key={imagePath}
+                            onClick={() => applyBackgroundImage(imagePath)}
+                            className={`relative w-full h-20 rounded border-2 overflow-hidden ${
+                              currentSlide?.design.backgroundImage === imagePath
+                                ? "border-foreground"
+                                : "border-transparent"
                             }`}
                           >
-                            {index + 1}
+                            <img
+                              src={imagePath}
+                              alt="Background"
+                              className="w-full h-full object-cover"
+                            />
                           </button>
                         ))}
                       </div>
-
-                      <Button
-                        onClick={() =>
-                          setCurrentSlideIndex(Math.min(currentProject.slides.length - 1, currentSlideIndex + 1))
-                        }
-                        disabled={currentSlideIndex === currentProject.slides.length - 1}
-                        variant="outline"
-                        size="sm"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    {/* Slide Canvas - Centered below slide numbers */}
-                    {currentSlide && (
-                      <div className="relative flex justify-center">
-                        <div
-                          ref={slideCanvasRef}
-                          className="rounded-lg flex items-center justify-center text-center p-8 relative overflow-hidden cursor-crosshair"
-                                                     style={{
-                             width: "45vw",
-                             maxWidth: "500px",
-                             height: "45vw",
-                             maxHeight: "500px",
-                             backgroundColor: convertToHex(currentSlide.backgroundColor),
-                             backgroundImage: currentSlide.backgroundType === "image" && currentSlide.backgroundImage 
-                               ? `url(${currentSlide.backgroundImage})` 
-                               : undefined,
-                             backgroundSize: currentSlide.backgroundType === "image" ? "cover" : undefined,
-                             backgroundPosition: currentSlide.backgroundType === "image" ? "center" : undefined,
-                             backgroundRepeat: currentSlide.backgroundType === "image" ? "no-repeat" : undefined,
-                           }}
-                          onMouseDown={handleMouseDown}
-                          onMouseMove={handleMouseMove}
-                          onMouseUp={handleMouseUp}
-                          onMouseLeave={handleMouseUp}
-                        >
-                          <div
-                            className="absolute flex items-center justify-center p-4 cursor-move"
-                            style={{
-                              left: `${currentSlide.textPosition.x}%`,
-                              top: `${currentSlide.textPosition.y}%`,
-                              transform: "translate(-50%, -50%)",
-                              minWidth: "200px",
-                              textAlign: "center",
-                            }}
-                          >
-                            <div
-                              className="whitespace-pre-wrap font-bold leading-tight select-none"
-                                                             style={{
-                                 fontSize: `${currentSlide.fontSize}px`,
-                                 fontFamily: currentSlide.fontFamily,
-                                 color: convertToHex(currentSlide.textColor),
-                               }}
-                            >
-                              {currentSlide.text}
-                            </div>
-                          </div>
-
-                          {/* Drag indicator */}
-                          <div className="absolute top-2 left-2 flex items-center gap-1 text-white/70 text-xs">
-                            <Move className="w-3 h-3" />
-                            <span>Click to position text</span>
-                          </div>
-                        </div>
-
-                        <div className="absolute top-2 right-2 flex gap-1">
-                          <Badge variant="secondary">
-                            {currentSlideIndex + 1}/{currentProject.slides.length}
-                          </Badge>
-                        </div>
+                      <div className="mt-2 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+                        Background images will be applied to all slides. 1:1 crops to fit, 9:16 shows full image.
                       </div>
-                    )}
-
-                    {/* Slide Actions */}
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex gap-2">
-                        <Button onClick={addSlide} variant="outline" size="sm">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Slide
-                        </Button>
-                        <Button
-                          onClick={() => removeSlide(currentSlideIndex)}
-                          disabled={currentProject.slides.length <= 1}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Minus className="w-4 h-4 mr-2" />
-                          Remove
-                        </Button>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Button onClick={saveProject} variant="outline" size="sm">
-                          <Save className="w-4 h-4 mr-2" />
-                          Save
-                        </Button>
-                        <Button onClick={exportCurrentSlideToPDF} variant="outline" size="sm">
-                          <Download className="w-4 h-4 mr-2" />
-                          Export Slide
-                        </Button>
-                        <Button onClick={exportToPDF} variant="outline" size="sm">
-                          <Download className="w-4 h-4 mr-2" />
-                          Export All
-                        </Button>
-                        <Button onClick={openLinkedInModal} size="sm">
-                          <Send className="w-4 h-4 mr-2" />
-                          Post
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Editing Panel */}
-              <div className="space-y-4">
-                {/* Text Editor */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Type className="w-5 h-5 text-primary" />
-                      Text Editor
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Text Content</Label>
-                      <Textarea
-                        value={currentSlide?.text || ""}
-                        onChange={(e) => updateSlide({ text: e.target.value })}
-                        placeholder="Enter your slide text..."
-                        className="min-h-[100px]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
+                      
                       <div className="space-y-2">
-                        <Label>Font Size</Label>
+                        <Label className="text-sm">Overlay Opacity</Label>
                         <div className="px-3">
                           <Slider
-                            value={[currentSlide?.fontSize || 24]}
-                            onValueChange={([value]) => updateSlide({ fontSize: value })}
-                            max={72}
-                            min={12}
-                            step={2}
+                            value={[overlayOpacity]}
+                            onValueChange={([value]) => setOverlayOpacity(value)}
+                            max={0.8}
+                            min={0.1}
+                            step={0.05}
                           />
                           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                            <span>12px</span>
-                            <span>{currentSlide?.fontSize}px</span>
-                            <span>72px</span>
+                            <span>Subtle</span>
+                            <span>{Math.round(overlayOpacity * 100)}%</span>
+                            <span>Strong</span>
                           </div>
                         </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant={overlayOpacity > 0 ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => setOverlayOpacity(0)}
+                            className="flex-1"
+                          >
+                            No Overlay
+                          </Button>
+                          <Button
+                            variant={overlayOpacity > 0 ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setOverlayOpacity(0.4)}
+                            className="flex-1"
+                          >
+                            Default
+                          </Button>
+                        </div>
                       </div>
-
-                      <div className="space-y-2">
-                        <Label>Font Family</Label>
-                        <Select
-                          value={currentSlide?.fontFamily}
-                          onValueChange={(value) => updateSlide({ fontFamily: value })}
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={refreshRandomBackground}
+                          className="flex-1"
                         >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {fontFamilies.map((font) => (
-                              <SelectItem key={font.value} value={font.value}>
-                                {font.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          🎲 New Random
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => applyBackgroundColor("#ffffff")}
+                          className="flex-1"
+                        >
+                          Remove Background
+                        </Button>
                       </div>
                     </div>
 
@@ -1830,13 +1518,13 @@ export default function AICarouselPage() {
                       <div className="flex gap-2">
                         <Input
                           type="color"
-                          value={currentSlide?.textColor}
-                          onChange={(e) => updateSlide({ textColor: e.target.value })}
+                          value={currentSlide?.design.textColor}
+                          onChange={(e) => updateSlideDesign({ textColor: e.target.value })}
                           className="w-12 h-10 p-1 border rounded"
                         />
                         <Input
-                          value={currentSlide?.textColor}
-                          onChange={(e) => updateSlide({ textColor: e.target.value })}
+                          value={currentSlide?.design.textColor}
+                          onChange={(e) => updateSlideDesign({ textColor: e.target.value })}
                           placeholder="#FFFFFF"
                           className="flex-1"
                         />
@@ -1844,486 +1532,209 @@ export default function AICarouselPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Text Position</Label>
-                      <div className="grid grid-cols-2 gap-3">
+                      <Label>Border</Label>
+                      <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <Label className="text-xs">Horizontal (%)</Label>
+                          <Label className="text-xs">Width (px)</Label>
                           <Slider
-                            value={[currentSlide?.textPosition.x || 50]}
-                            onValueChange={([value]) =>
-                              updateSlide({
-                                textPosition: { ...currentSlide!.textPosition, x: value },
-                              })
-                            }
-                            max={100}
+                            value={[currentSlide?.design.borderWidth || 2]}
+                            onValueChange={([value]) => updateSlideDesign({ borderWidth: value })}
+                            max={8}
                             min={0}
                             step={1}
                           />
                         </div>
                         <div className="space-y-1">
-                          <Label className="text-xs">Vertical (%)</Label>
-                          <Slider
-                            value={[currentSlide?.textPosition.y || 50]}
-                            onValueChange={([value]) =>
-                              updateSlide({
-                                textPosition: { ...currentSlide!.textPosition, y: value },
-                              })
-                            }
-                            max={100}
-                            min={0}
-                            step={1}
+                          <Label className="text-xs">Color</Label>
+                          <Input
+                            type="color"
+                            value={currentSlide?.design.borderColor}
+                            onChange={(e) => updateSlideDesign({ borderColor: e.target.value })}
+                            className="w-full h-8 p-1 border rounded"
                           />
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </TabsContent>
 
-                {/* Background Editor */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Palette className="w-5 h-5 text-primary" />
-                      Background
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs defaultValue="color" className="w-full">
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="color">Color</TabsTrigger>
-                        <TabsTrigger value="image">Image</TabsTrigger>
-                        <TabsTrigger value="templates">Templates</TabsTrigger>
-                      </TabsList>
+                  <TabsContent value="layout" className="mt-4 space-y-3">
+                    <div className="space-y-2">
+                      <Label>Aspect Ratio</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant={currentProject.aspectRatio === "1:1" ? "default" : "outline"}
+                          onClick={() => setCurrentProject({ ...currentProject, aspectRatio: "1:1" })}
+                          className="h-16"
+                        >
+                          <div className="text-center">
+                            <div className="w-8 h-8 bg-current/20 rounded mb-1 mx-auto"></div>
+                            <div className="text-xs">1:1 Square</div>
+                          </div>
+                        </Button>
+                        <Button
+                          variant={currentProject.aspectRatio === "9:16" ? "default" : "outline"}
+                          onClick={() => setCurrentProject({ ...currentProject, aspectRatio: "9:16" })}
+                          className="h-16"
+                        >
+                          <div className="text-center">
+                            <div className="w-6 h-10 bg-current/20 rounded mb-1 mx-auto"></div>
+                            <div className="text-xs">9:16 Vertical</div>
+                          </div>
+                        </Button>
+                      </div>
+                    </div>
 
-                      <TabsContent value="color" className="mt-4">
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-6 gap-2">
-                            {backgroundColors.map((color) => (
-                              <button
-                                key={color}
-                                onClick={() => updateSlide({ backgroundColor: color, backgroundType: "color" })}
-                                className={`w-8 h-8 rounded border-2 ${
-                                  currentSlide?.backgroundColor === color ? "border-foreground" : "border-transparent"
-                                }`}
-                                style={{ backgroundColor: color }}
-                              />
-                            ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Input
-                              type="color"
-                              value={currentSlide?.backgroundColor}
-                              onChange={(e) =>
-                                updateSlide({ backgroundColor: e.target.value, backgroundType: "color" })
-                              }
-                              placeholder="#0077B5"
-                              className="flex-1"
-                            />
-                          </div>
+                    <div className="space-y-2">
+                      <Label>Font Size</Label>
+                      <div className="px-3">
+                        <Slider
+                          value={[currentSlide?.design.fontSize || 24]}
+                          onValueChange={([value]) => updateSlideDesign({ fontSize: value })}
+                          max={72}
+                          min={12}
+                          step={2}
+                        />
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>12px</span>
+                          <span>{currentSlide?.design.fontSize}px</span>
+                          <span>72px</span>
                         </div>
-                      </TabsContent>
+                      </div>
+                    </div>
 
-                      <TabsContent value="image" className="mt-4">
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <Label>Background Image</Label>
-                          </div>
-                          
-                          {currentSlide?.backgroundType === "image" && currentSlide?.backgroundImage && (
-                            <div className="relative">
-                              <img
-                                src={currentSlide.backgroundImage}
-                                alt="Background"
-                                className="w-full h-32 object-cover rounded-lg"
-                              />
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="absolute top-2 right-2"
-                                onClick={() => updateSlide({ 
-                                  backgroundType: "color", 
-                                  backgroundImage: undefined 
-                                })}
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          )}
-                          
-                          <p className="text-sm text-muted-foreground">
-                            Upload your own image, search from stock photo libraries, or generate AI images for your carousel background.
-                          </p>
-
-                          {/* Inline Image Manager */}
-                          <Tabs defaultValue="upload" className="w-full">
-                            <TabsList className="grid w-full grid-cols-3">
-                              <TabsTrigger value="upload">
-                                <Upload className="w-4 h-4 mr-2" />
-                                Upload
-                              </TabsTrigger>
-                              <TabsTrigger value="search">
-                                <Search className="w-4 h-4 mr-2" />
-                                Search
-                              </TabsTrigger>
-                              <TabsTrigger value="ai-generate">
-                                <Sparkles className="w-4 h-4 mr-2" />
-                                AI Generate
-                              </TabsTrigger>
-                            </TabsList>
-
-                            {/* Upload Tab */}
-                            <TabsContent value="upload" className="mt-4">
-                              <Card>
-                                <CardContent className="pt-6">
-                                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                                    <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                      Drag and drop images here or click to browse
-                                    </p>
-                                    <Button
-                                      onClick={() => document.getElementById('file-upload')?.click()}
-                                      disabled={isLoading}
-                                    >
-                                      {isLoading ? (
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                      ) : (
-                                        <Upload className="w-4 h-4 mr-2" />
-                                      )}
-                                      Choose Files
-                                    </Button>
-                                    <input
-                                      id="file-upload"
-                                      type="file"
-                                      multiple
-                                      accept="image/*"
-                                      onChange={handleFileUpload}
-                                      className="hidden"
-                                    />
-                                  </div>
-
-                                  {uploadedImages.length > 0 && (
-                                    <div className="space-y-2 mt-4">
-                                      <Label>Uploaded Images</Label>
-                                      <div className="grid grid-cols-3 gap-2">
-                                        {uploadedImages.map((url, index) => (
-                                          <div key={index} className="relative group">
-                                            <img
-                                              src={url}
-                                              alt={`Uploaded ${index + 1}`}
-                                              className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                              onClick={() => handleImageSelect(url)}
-                                            />
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </CardContent>
-                              </Card>
-                            </TabsContent>
-
-                            {/* Search Tab */}
-                            <TabsContent value="search" className="mt-4">
-                              <Card>
-                                <CardContent className="pt-6">
-                                  <div className="flex gap-2 mb-4">
-                                    <Input
-                                      placeholder="Search for images..."
-                                      value={searchQuery}
-                                      onChange={(e) => setSearchQuery(e.target.value)}
-                                      onKeyPress={(e) => e.key === 'Enter' && searchImages()}
-                                      className="flex-1"
-                                    />
-                                    <Select value={selectedSource} onValueChange={setSelectedSource}>
-                                      <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {imageSources.map((source) => (
-                                          <SelectItem key={source.value} value={source.value}>
-                                            {source.label}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    <Button onClick={searchImages} disabled={isLoading || !searchQuery.trim()}>
-                                      {isLoading ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                      ) : (
-                                        <Search className="w-4 h-4" />
-                                      )}
-                                    </Button>
-                                  </div>
-
-                                  {searchResults.length > 0 && (
-                                    <div className="space-y-2">
-                                      <Label>Search Results</Label>
-                                      <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                                        {searchResults.map((result) => (
-                                          <div key={result.id} className="relative group">
-                                            <img
-                                              src={result.thumbnail}
-                                              alt={result.title || 'Search result'}
-                                              className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                              onClick={() => handleImageSelect(result.url, result)}
-                                            />
-                                            <Badge className="absolute top-1 left-1 text-xs">
-                                              {result.source}
-                                            </Badge>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </CardContent>
-                              </Card>
-                            </TabsContent>
-
-                            {/* AI Generate Tab */}
-                            <TabsContent value="ai-generate" className="mt-4">
-                              <Card>
-                                <CardContent className="pt-6">
-                                  <div className="space-y-2">
-                                    <Label>Describe the image you want to generate</Label>
-                                    <Textarea
-                                      placeholder="A professional business meeting with modern office background..."
-                                      value={aiPrompt}
-                                      onChange={(e) => setAiPrompt(e.target.value)}
-                                      rows={3}
-                                    />
-                                    <Button 
-                                      onClick={generateAIImage} 
-                                      disabled={isLoading || !aiPrompt.trim()}
-                                      className="w-full"
-                                    >
-                                      {isLoading ? (
-                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                      ) : (
-                                        <Sparkles className="w-4 h-4 mr-2" />
-                                      )}
-                                      Generate Image
-                                    </Button>
-                                  </div>
-
-                                  {aiResults.length > 0 && (
-                                    <div className="space-y-2 mt-4">
-                                      <Label>Generated Images</Label>
-                                      <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                                        {aiResults.map((result) => (
-                                          <div key={result.id} className="relative group">
-                                            <img
-                                              src={result.url}
-                                              alt={result.prompt}
-                                              className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                              onClick={() => handleImageSelect(result.url, result)}
-                                            />
-                                            <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded">
-                                              {result.prompt.substring(0, 50)}...
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </CardContent>
-                              </Card>
-                            </TabsContent>
-                          </Tabs>
+                    <div className="space-y-2">
+                      <Label>Branding</Label>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="branding-none"
+                            name="branding"
+                            value="none"
+                            checked={currentProject?.branding === "none"}
+                            onChange={(e) => updateProjectBranding(e.target.value as "none" | "name" | "email" | "both")}
+                            className="w-4 h-4"
+                          />
+                          <Label htmlFor="branding-none" className="text-sm">No Branding</Label>
                         </div>
-                      </TabsContent>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="branding-name"
+                            name="branding"
+                            value="name"
+                            checked={currentProject?.branding === "name"}
+                            onChange={(e) => updateProjectBranding(e.target.value as "none" | "name" | "email" | "both")}
+                            className="w-4 h-4"
+                          />
+                          <Label htmlFor="branding-name" className="text-sm">LinkedIn Name Only</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="branding-email"
+                            name="branding"
+                            value="email"
+                            checked={currentProject?.branding === "email"}
+                            onChange={(e) => updateProjectBranding(e.target.value as "none" | "name" | "email" | "both")}
+                            className="w-4 h-4"
+                          />
+                          <Label htmlFor="branding-email" className="text-sm">LinkedIn Email Only</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id="branding-both"
+                            name="branding"
+                            value="both"
+                            checked={currentProject?.branding === "both"}
+                            onChange={(e) => updateProjectBranding(e.target.value as "none" | "name" | "email" | "both")}
+                            className="w-4 h-4"
+                          />
+                          <Label htmlFor="branding-both" className="text-sm">Both Name & Email</Label>
+                        </div>
+                      </div>
+                      {currentProject?.branding !== "none" && (
+                        <div className="mt-2 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+                          Branding will appear at the bottom of all slides
+                        </div>
+                      )}
+                      {currentProject?.branding === "none" && (
+                        <div className="mt-2 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+                          No branding will be displayed
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
 
-                      <TabsContent value="templates" className="mt-4">
-                        <div className="space-y-3">
+                  <TabsContent value="elements" className="mt-4 space-y-3">
+                      <div className="space-y-2">
+                        <Label>Interactive Elements</Label>
+                        <p className="text-xs text-muted-foreground">Add interactive elements to guide users through your carousel</p>
+                        
+                        <div className="space-y-2">
+                          <Label>Available Elements</Label>
                           <div className="grid grid-cols-2 gap-2">
-                            {templates.map((template) => (
-                              <button
-                                key={template.name}
-                                onClick={() => updateSlide({ 
-                                  backgroundColor: template.backgroundColor, 
-                                  textColor: template.textColor,
-                                  backgroundType: "color" 
-                                })}
-                                className={`p-3 rounded-lg border-2 text-left transition-colors ${
-                                  currentSlide?.backgroundColor === template.backgroundColor ? "border-primary" : "border-muted hover:border-muted-foreground"
-                                }`}
+                            {availableElements.map((element) => (
+                              <Button
+                                key={element.type}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => addElement(element.type)}
+                                className="h-12 flex flex-col items-center justify-center gap-1"
                               >
-                                <div className="flex items-center gap-2 mb-2">
-                                  <div 
-                                    className="w-4 h-4 rounded border"
-                                    style={{ backgroundColor: template.backgroundColor }}
-                                  />
-                                  <span className="text-sm font-medium">{template.name}</span>
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {template.backgroundColor} / {template.textColor}
-                                </div>
-                              </button>
+                                <span className="text-lg">{element.icon}</span>
+                                <span className="text-xs">{element.label}</span>
+                              </Button>
                             ))}
                           </div>
                         </div>
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              </div>
+
+                        {currentProject?.elements && currentProject.elements.length > 0 && (
+                          <div className="space-y-2">
+                            <Label>Current Elements</Label>
+                            <div className="space-y-2">
+                              {currentProject.elements.map((element) => (
+                                <div key={element.id} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">
+                                      {element.type === "swipe-right" && "→"}
+                                      {element.type === "swipe-left" && "←"}
+                                      {element.type === "swipe-up" && "↑"}
+                                      {element.type === "swipe-down" && "↓"}
+                                      {element.type === "tap" && "👆"}
+                                      {element.type === "click" && "🖱️"}
+                                      {element.type === "arrow-right" && "➡️"}
+                                      {element.type === "arrow-left" && "⬅️"}
+                                      {element.type === "arrow-up" && "⬆️"}
+                                      {element.type === "arrow-down" && "⬇️"}
+                                    </span>
+                                    <span className="text-sm">
+                                      {availableElements.find(e => e.type === element.type)?.label}
+                                    </span>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeElement(element.id)}
+                                    className="h-6 w-6 p-0 text-destructive"
+                                  >
+                                    ×
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
             </div>
-          </>
+          </div>
         )}
       </div>
-
-             {/* Preview Modal */}
-       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
-         <DialogContent className="max-w-2xl">
-           <DialogHeader>
-             <DialogTitle>Carousel Preview</DialogTitle>
-             <DialogDescription>Preview all slides in your carousel before publishing.</DialogDescription>
-           </DialogHeader>
-
-           {currentProject && (
-             <div className="space-y-4">
-               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-                 {currentProject.slides.map((slide, index) => (
-                   <div key={slide.id} className="relative">
-                     <div
-                       className="aspect-square rounded-lg flex items-center justify-center text-center p-4 text-xs"
-                                               style={{
-                          backgroundColor: convertToHex(slide.backgroundColor),
-                          backgroundImage: slide.backgroundType === "image" && slide.backgroundImage 
-                            ? `url(${slide.backgroundImage})` 
-                            : undefined,
-                          backgroundSize: slide.backgroundType === "image" ? "cover" : undefined,
-                          backgroundPosition: slide.backgroundType === "image" ? "center" : undefined,
-                          backgroundRepeat: slide.backgroundType === "image" ? "no-repeat" : undefined,
-                        }}
-                     >
-                       <div
-                         className="whitespace-pre-wrap font-bold leading-tight"
-                                                   style={{
-                            fontSize: `${Math.max(8, slide.fontSize / 4)}px`,
-                            fontFamily: slide.fontFamily,
-                            color: convertToHex(slide.textColor),
-                          }}
-                       >
-                         {slide.text}
-                       </div>
-                     </div>
-                     <Badge variant="secondary" className="absolute top-1 right-1 text-xs">
-                       {index + 1}
-                     </Badge>
-                   </div>
-                 ))}
-               </div>
-
-               <div className="flex gap-3">
-                 <Button onClick={exportToPDF} variant="outline" className="flex-1 bg-transparent">
-                   <Download className="w-4 h-4 mr-2" />
-                   Export All as PDF
-                 </Button>
-                 <Button 
-                   onClick={openLinkedInModal} 
-                   className="flex-1"
-                   disabled={isPosting}
-                 >
-                   <Send className="w-4 h-4 mr-2" />
-                   {isPosting ? "Posting..." : "Post to LinkedIn"}
-                 </Button>
-               </div>
-               <div className="text-xs text-muted-foreground text-center mt-2">
-                 💡 Tip: Use "Export All as PDF" to save your carousel as a multi-page PDF file perfect for LinkedIn posting
-               </div>
-             </div>
-           )}
-         </DialogContent>
-       </Dialog>
-
-       {/* LinkedIn Post Modal */}
-       <Dialog open={showLinkedInModal} onOpenChange={setShowLinkedInModal}>
-         <DialogContent className="max-w-2xl">
-           <DialogHeader>
-             <DialogTitle className="flex items-center gap-2">
-               <Send className="w-5 h-5 text-primary" />
-               Post to LinkedIn
-             </DialogTitle>
-             <DialogDescription>
-               Add a caption for your carousel post and publish it to LinkedIn.
-             </DialogDescription>
-           </DialogHeader>
-
-           {currentProject && (
-             <div className="space-y-4">
-               {/* Caption Input */}
-               <div className="space-y-2">
-                 <Label htmlFor="linkedin-caption">Post Caption (Optional)</Label>
-                 <Textarea
-                   id="linkedin-caption"
-                   placeholder="Write your LinkedIn post caption here..."
-                   value={linkedInCaption}
-                   onChange={(e) => setLinkedInCaption(e.target.value)}
-                   rows={4}
-                   className="resize-none"
-                 />
-                 <div className="text-xs text-muted-foreground">
-                   {linkedInCaption.length} characters • Leave empty to use auto-generated caption
-                 </div>
-               </div>
-
-               {/* Preview of what will be posted */}
-               <div className="space-y-2">
-                 <Label>Preview</Label>
-                 <div className="p-3 bg-muted rounded-lg text-sm">
-                   <div className="font-medium mb-2">Caption:</div>
-                   <div className="whitespace-pre-wrap text-muted-foreground">
-                     {linkedInCaption || `🎨 ${currentProject.title}\n\n${currentProject.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`}
-                   </div>
-                   <div className="mt-2 text-xs text-muted-foreground">
-                     + {currentProject.slides.length} carousel images
-                   </div>
-                 </div>
-               </div>
-
-               {/* Action Buttons */}
-               <div className="flex gap-3">
-                 <Button 
-                   onClick={() => setShowLinkedInModal(false)} 
-                   variant="outline" 
-                   className="flex-1"
-                 >
-                   Cancel
-                 </Button>
-                 <ScheduleButton
-                   content={linkedInCaption || `🎨 ${currentProject.title}\n\n${currentProject.slides.map((slide, index) => `${index + 1}. ${slide.text}`).join('\n')}`}
-                   defaultPlatform="linkedin"
-                   defaultType="carousel"
-                   className="flex-1"
-                 />
-                 <Button 
-                   onClick={handlePostToLinkedIn} 
-                   className="flex-1"
-                   disabled={isPosting}
-                 >
-                   {isPosting ? (
-                     <>
-                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                       Posting...
-                     </>
-                   ) : (
-                     <>
-                       <Send className="w-4 h-4 mr-2" />
-                       Post to LinkedIn
-                     </>
-                   )}
-                 </Button>
-               </div>
-
-               <div className="text-xs text-muted-foreground text-center">
-                 💡 Your carousel will be converted to high-quality images and posted as a LinkedIn carousel
-               </div>
-             </div>
-           )}
-         </DialogContent>
-       </Dialog>
-
-
-    </div>
+    </>
   )
 }
