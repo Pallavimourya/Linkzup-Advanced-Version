@@ -222,7 +222,8 @@ class AIService {
         parsedContent = this.parseMultipleContent(content, "story")
         break
       case "carousel":
-        parsedContent = this.parseMultipleContent(content, "carousel")
+        // For carousel, we want the raw content to parse as JSON, not split into variations
+        parsedContent = [content]
         break
       case "list":
         parsedContent = this.parseMultipleContent(content, "list")
@@ -428,23 +429,58 @@ Format the response as 6 distinct stories, each separated by "---POST_SEPARATOR-
         break
 
       case "carousel":
-        basePrompt = `Generate 6 unique LinkedIn carousels about "${prompt}" with ${wordCount / 50} slides each.
+        basePrompt = `OpenAI Request Prompt
+Generate carousel content for a website based on these inputs:
 
-Requirements:
-- Tone: ${tone}
-- Language: ${language}
-- Target audience: ${targetAudience}
-- Main goal: ${mainGoal}
-- Each slide should be concise and impactful
-${includeHashtags ? "- Include relevant hashtags" : ""}
-${includeEmojis ? "- Use emojis appropriately" : ""}
-${callToAction ? "- Include a call-to-action on the last slide" : ""}
-- Make each carousel unique with different approaches and content structure
-- Vary the slide layouts and information organization
+Topic: "${prompt}"
 
-${humanLikeInstructions}
+Tone: "${tone}"
 
-Format each carousel with clear headings and bullet points where appropriate. Format the response as 6 distinct carousels, each separated by "---POST_SEPARATOR---".`
+Number of slides: ${wordCount / 50}
+
+The content must be concise, clear, and suitable for display on visual cards.
+
+Return ONLY a valid JSON object with this exact structure:
+
+{
+  "slides": [
+    {
+      "top_line": "string - short punchy text for slide 1",
+      "main_heading": "string - main heading for slide 1", 
+      "bullet": "string - one short bullet point"
+    },
+    {
+      "heading": "string - heading for slide 2 and onwards",
+      "bullets": [
+        "string - bullet 1",
+        "string - bullet 2", 
+        "string - bullet 3"
+      ]
+    },
+    // Repeat the above slide structure (heading + bullets) for all middle slides
+    {
+      "tagline": "string - final tagline for last slide",
+      "final_heading": "string - final big heading",
+      "last_bullet": "string - last bullet point"
+    }
+  ]
+}
+
+Additional Instructions:
+
+The first slide must have keys: "top_line", "main_heading", "bullet".
+
+Each middle slide must have keys: "heading" and "bullets" (array of 3 strings).
+
+The last slide must have keys: "tagline", "final_heading", "last_bullet".
+
+All text should be short enough to fit visually on a card (keep sentences brief).
+
+Do not include any explanations, only output the JSON.
+
+Ensure the JSON is valid and parsable.
+
+Generate exactly ${wordCount / 50} slides. Format the response as 6 distinct carousels, each separated by "---POST_SEPARATOR---".`
         break
 
       case "list":

@@ -271,9 +271,12 @@ export default function AICarouselPage() {
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<"generate" | "scratch">("generate")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [generationAttempts, setGenerationAttempts] = useState(0)
   const [savedProjects, setSavedProjects] = useState<CarouselProject[]>([])
   const [editingText, setEditingText] = useState<string | null>(null)
   const [overlayOpacity, setOverlayOpacity] = useState(0.4)
+  const [showRawContent, setShowRawContent] = useState(false)
+  const [lastGeneratedContent, setLastGeneratedContent] = useState<string>("")
   const slideCanvasRef = useRef<HTMLDivElement>(null)
 
   const [aiForm, setAiForm] = useState({
@@ -289,6 +292,414 @@ export default function AICarouselPage() {
 
   const currentSlide = currentProject?.slides[currentSlideIndex]
 
+  // Helper function to clean content from JSON artifacts
+  const cleanContent = (content: string) => {
+    if (typeof content !== 'string') return content
+    
+    // Remove common JSON artifacts
+    let cleaned = content
+      .replace(/^["']|["']$/g, '') // Remove leading/trailing quotes
+      .replace(/\\"/g, '"') // Unescape quotes
+      .replace(/\\n/g, ' ') // Replace newlines with spaces
+      .replace(/\\t/g, ' ') // Replace tabs with spaces
+      .trim()
+    
+    // If content still looks like JSON, try to extract the actual value
+    if (cleaned.includes('":') && cleaned.includes('"')) {
+      const valueMatch = cleaned.match(/"([^"]+)"/)
+      if (valueMatch) {
+        cleaned = valueMatch[1]
+      }
+    }
+    
+    return cleaned
+  }
+
+  // Helper function to validate slide structure
+  const validateSlideStructure = (slides: any[], expectedCount: number) => {
+    const errors: string[] = []
+    
+    if (!Array.isArray(slides)) {
+      errors.push('Slides is not an array')
+      return { isValid: false, errors }
+    }
+    
+    if (slides.length !== expectedCount) {
+      errors.push(`Expected ${expectedCount} slides, got ${slides.length}`)
+    }
+    
+    // Validate first slide
+    if (slides[0]) {
+      const firstSlide = slides[0]
+      if (!firstSlide.top_line) errors.push('First slide missing top_line')
+      if (!firstSlide.main_heading) errors.push('First slide missing main_heading')
+      if (!firstSlide.bullet) errors.push('First slide missing bullet')
+    }
+    
+    // Validate middle slides
+    for (let i = 1; i < slides.length - 1; i++) {
+      const slide = slides[i]
+      if (!slide.heading) errors.push(`Slide ${i + 1} missing heading`)
+      if (!Array.isArray(slide.bullets)) errors.push(`Slide ${i + 1} missing bullets array`)
+      if (slide.bullets && slide.bullets.length < 3) errors.push(`Slide ${i + 1} has less than 3 bullets`)
+    }
+    
+    // Validate last slide
+    if (slides[slides.length - 1]) {
+      const lastSlide = slides[slides.length - 1]
+      if (!lastSlide.tagline) errors.push('Last slide missing tagline')
+      if (!lastSlide.final_heading) errors.push('Last slide missing final_heading')
+      if (!lastSlide.last_bullet) errors.push('Last slide missing last_bullet')
+    }
+    
+    return { isValid: errors.length === 0, errors }
+  }
+
+
+
+    // Helper function to extract content from text using pattern matching
+  const extractContentFromText = (text: string, slideCount: number) => {
+    const slides = []
+    
+    // Look for common patterns in AI responses based on the new JSON structure
+    const patterns = {
+      topLine: /"top_line":\s*"([^"]+)"/,
+      mainHeading: /"main_heading":\s*"([^"]+)"/,
+      bullet: /"bullet":\s*"([^"]+)"/,
+      heading: /"heading":\s*"([^"]+)"/,
+      bullets: /"bullets":\s*\[([^\]]+)\]/,
+      tagline: /"tagline":\s*"([^"]+)"/,
+      finalHeading: /"final_heading":\s*"([^"]+)"/,
+      lastBullet: /"last_bullet":\s*"([^"]+)"/,
+    }
+    
+    console.log('Pattern matching for content extraction...')
+    
+    // Extract first slide content (must have top_line, main_heading, bullet)
+    const topLine = text.match(patterns.topLine)?.[1]
+    const mainHeading = text.match(patterns.mainHeading)?.[1]
+    const bullet = text.match(patterns.bullet)?.[1]
+    
+    console.log('First slide patterns found:', { topLine, mainHeading, bullet })
+    
+    // Also try to extract from alternative patterns that might be used
+    const alternativeHeading = text.match(/"heading":\s*"([^"]+)"/)?.[1]
+    const alternativeTitle = text.match(/"title":\s*"([^"]+)"/)?.[1]
+    const alternativeSubtitle = text.match(/"subtitle":\s*"([^"]+)"/)?.[1]
+    
+    console.log('Alternative patterns found:', { alternativeHeading, alternativeTitle, alternativeSubtitle })
+    
+    if (topLine || mainHeading || bullet || alternativeHeading || alternativeTitle || alternativeSubtitle) {
+      const firstSlide = {
+        top_line: cleanContent(topLine || '') || cleanContent(alternativeHeading || '') || `Master ${aiForm.topic}`,
+        main_heading: cleanContent(mainHeading || '') || cleanContent(alternativeTitle || '') || "Complete Guide",
+        bullet: cleanContent(bullet || '') || cleanContent(alternativeSubtitle || '') || "Everything you need to know",
+      }
+      slides.push(firstSlide)
+      console.log('Added first slide:', firstSlide)
+    }
+    
+    // Extract middle slides content (must have heading and bullets array)
+    const headingMatches = text.match(/"heading":\s*"([^"]+)"/g)
+    const bulletsMatches = text.match(/"bullets":\s*\[([^\]]+)\]/g)
+    
+    console.log('Middle slides patterns found:', { headingMatches, bulletsMatches })
+    
+    if (headingMatches && bulletsMatches) {
+      const middleSlideCount = Math.min(headingMatches.length, bulletsMatches.length, slideCount - 2)
+      
+      for (let i = 0; i < middleSlideCount; i++) {
+        const heading = headingMatches[i]?.match(/"heading":\s*"([^"]+)"/)?.[1]
+        const bulletsText = bulletsMatches[i]?.match(/"bullets":\s*\[([^\]]+)\]/)?.[1]
+        
+        if (heading && bulletsText) {
+          // Parse bullets array - extract text between quotes
+          const bullets = bulletsText.match(/"([^"]+)"/g)?.map(b => cleanContent(b.replace(/"/g, ''))) || []
+          
+          slides.push({
+            heading: cleanContent(heading || ''),
+            bullets: bullets.length > 0 ? bullets : ["Important insight", "Key takeaway", "Valuable information"]
+          })
+          console.log(`Added middle slide ${i + 1}:`, { heading: cleanContent(heading || ''), bullets })
+        }
+      }
+    }
+    
+    // Extract last slide content (must have tagline, final_heading, last_bullet)
+    const tagline = text.match(patterns.tagline)?.[1]
+    const finalHeading = text.match(patterns.finalHeading)?.[1]
+    const lastBullet = text.match(patterns.lastBullet)?.[1]
+    
+    console.log('Last slide patterns found:', { tagline, finalHeading, lastBullet })
+    
+    if (tagline || finalHeading || lastBullet) {
+      slides.push({
+        tagline: cleanContent(tagline || '') || "Ready to Excel?",
+        final_heading: cleanContent(finalHeading || '') || "Take Action Today",
+        last_bullet: cleanContent(lastBullet || '') || "Start your journey now",
+      })
+      console.log('Added last slide:', slides[slides.length - 1])
+    }
+    
+    console.log('Total slides extracted:', slides.length)
+    
+    // Ensure we have the right number of slides
+    while (slides.length < slideCount) {
+      const middleIndex = Math.floor(slides.length / 2)
+      slides.splice(middleIndex, 0, {
+        heading: `Additional Point ${slides.length}`,
+        bullets: ["Important insight", "Key takeaway", "Valuable information"]
+      })
+    }
+    
+    return slides.slice(0, slideCount)
+  }
+
+  // Helper function to parse AI-generated content into slide structure
+  const parseAIContentToSlides = (aiContent: string, slideCount: number) => {
+    console.log('=== Starting content parsing ===')
+    console.log('Input content:', aiContent)
+    console.log('Requested slide count:', slideCount)
+    try {
+      // First, try to parse as JSON
+      const jsonMatch = aiContent.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const jsonContent = jsonMatch[0]
+        console.log('Found JSON content:', jsonContent)
+        
+        try {
+          const parsed = JSON.parse(jsonContent)
+          console.log('Parsed JSON:', parsed)
+          console.log('JSON structure validation:', {
+            hasSlides: 'slides' in parsed,
+            slidesIsArray: Array.isArray(parsed.slides),
+            slidesLength: parsed.slides?.length,
+            firstSlide: parsed.slides?.[0],
+            firstSlideKeys: parsed.slides?.[0] ? Object.keys(parsed.slides[0]) : []
+          })
+        
+                  if (parsed.slides && Array.isArray(parsed.slides)) {
+            console.log('Processing slides from JSON:', parsed.slides)
+            
+            // Validate JSON structure
+            const validation = validateSlideStructure(parsed.slides, slideCount)
+            if (!validation.isValid) {
+              console.warn('JSON structure validation failed:', validation.errors)
+              // Continue with fallback parsing
+            } else {
+              console.log('JSON structure validation passed')
+            }
+            
+            const slides = []
+            
+            // Process each slide based on its structure (no type field in this format)
+            for (let i = 0; i < Math.min(parsed.slides.length, slideCount); i++) {
+              const slide = parsed.slides[i]
+              console.log(`Processing slide ${i}:`, slide)
+              console.log(`Slide ${i} keys:`, Object.keys(slide))
+              console.log(`Slide ${i} raw values:`, {
+                top_line: slide.top_line,
+                main_heading: slide.main_heading,
+                bullet: slide.bullet,
+                heading: slide.heading,
+                title: slide.title,
+                subtitle: slide.subtitle
+              })
+              
+              if (i === 0) {
+                // First slide (title slide) - must have top_line, main_heading, bullet
+                const firstSlide = {
+                  top_line: cleanContent(slide.top_line) || cleanContent(slide.heading) || `Master ${aiForm.topic}`,
+                  main_heading: cleanContent(slide.main_heading) || cleanContent(slide.title) || "Complete Guide",
+                  bullet: cleanContent(slide.bullet) || cleanContent(slide.subtitle) || "Everything you need to know",
+                }
+                console.log('Created first slide:', firstSlide)
+                slides.push(firstSlide)
+              } else if (i === slideCount - 1) {
+                // Last slide (call to action) - must have tagline, final_heading, last_bullet
+                const lastSlide = {
+                  tagline: cleanContent(slide.tagline) || "Ready to Excel?",
+                  final_heading: cleanContent(slide.final_heading) || "Take Action Today",
+                  last_bullet: cleanContent(slide.last_bullet) || "Start your journey now",
+                }
+                console.log('Created last slide:', lastSlide)
+                slides.push(lastSlide)
+              } else {
+                // Middle slides - must have heading and bullets array
+                const middleSlide = {
+                  heading: cleanContent(slide.heading) || `Key Point ${i}`,
+                  bullets: Array.isArray(slide.bullets) ? slide.bullets.map(cleanContent) : ["Important insight", "Key takeaway", "Valuable information"]
+                }
+                console.log('Created middle slide:', middleSlide)
+                slides.push(middleSlide)
+              }
+            }
+            
+            console.log('Generated slides from JSON:', slides)
+            
+            // Ensure we have exactly the requested number of slides
+            while (slides.length < slideCount) {
+              const middleIndex = Math.floor(slides.length / 2)
+              slides.splice(middleIndex, 0, {
+                heading: `Additional Point ${slides.length}`,
+                bullets: ["Important insight", "Key takeaway", "Valuable information"]
+              })
+            }
+            
+            return slides.slice(0, slideCount)
+          } else {
+            console.warn('JSON parsed but no slides array found:', parsed)
+          }
+        } catch (jsonError) {
+          console.error('Error parsing JSON content:', jsonError)
+        }
+      }
+      
+      // Fallback: parse as text if JSON parsing fails
+      console.warn('JSON parsing failed, falling back to text parsing')
+      
+      // Try to extract content from the AI response even if it's not perfect JSON
+      const contentLines = aiContent.split('\n').filter(line => line.trim().length > 0)
+      console.log('Content lines for fallback parsing:', contentLines)
+      
+      // Try to extract content using pattern matching
+      const extractedContent = extractContentFromText(aiContent, slideCount)
+      if (extractedContent.length > 0) {
+        console.log('Successfully extracted content using pattern matching:', extractedContent)
+        return extractedContent
+      }
+      
+      const lines = aiContent.split('\n').filter(line => line.trim().length > 0)
+      const slides = []
+      
+      // Clean and structure the content
+      const cleanLines = lines.map(line => line.trim()).filter(line => line.length > 0)
+      
+      // Validate that we have enough content
+      if (cleanLines.length < 3) {
+        throw new Error('AI generated content is too short. Please try again with a different topic.')
+      }
+      
+      // First slide (title slide) - look for title-like content
+      const titleSlide = {
+        top_line: cleanLines.find(line => line.length < 15) || `Master ${aiForm.topic}`,
+        main_heading: cleanLines.find(line => line.length > 10 && line.length < 25) || "Complete Guide",
+        bullet: cleanLines.find(line => line.length > 15 && line.length < 35) || "Everything you need to know",
+      }
+      slides.push(titleSlide)
+      
+      // Middle slides - look for heading + bullet patterns
+      const middleSlideCount = slideCount - 2
+      let currentIndex = 3
+      
+      for (let i = 0; i < middleSlideCount; i++) {
+        // Find a good heading (short, clear)
+        const heading = cleanLines.find((line, idx) => 
+          idx >= currentIndex && line.length < 20 && 
+          !line.toLowerCase().includes('bullet') && 
+          !line.toLowerCase().includes('point')
+        ) || `Key Point ${i + 1}`
+        
+        // Update current index to after the heading
+        const headingIndex = cleanLines.findIndex((line, idx) => 
+          idx >= currentIndex && line === heading
+        )
+        currentIndex = headingIndex >= 0 ? headingIndex + 1 : currentIndex + 1
+        
+        const bullets = []
+        
+        // Extract up to 3 bullet points (look for longer lines that could be bullets)
+        for (let j = 0; j < 3; j++) {
+          const bulletLine = cleanLines.find((line, idx) => 
+            idx >= currentIndex && line.length > 15 && line.length < 50
+          )
+          
+          if (bulletLine) {
+            bullets.push(bulletLine)
+            currentIndex = cleanLines.findIndex((line, idx) => 
+              idx >= currentIndex && line === bulletLine
+            ) + 1
+          } else {
+            break
+          }
+        }
+        
+        // Fill with default bullets if not enough content
+        while (bullets.length < 3) {
+          bullets.push(`Important point ${bullets.length + 1}`)
+          }
+        
+        slides.push({
+          heading,
+          bullets
+        })
+      }
+      
+      // Last slide (call to action) - look for action-oriented content
+      const actionLines = cleanLines.filter(line => 
+        line.toLowerCase().includes('action') || 
+        line.toLowerCase().includes('start') || 
+        line.toLowerCase().includes('ready') ||
+        line.toLowerCase().includes('today')
+      )
+      
+      const lastSlide = {
+        tagline: actionLines[0] || "Ready to Excel?",
+        final_heading: actionLines[1] || "Take Action Today",
+        last_bullet: actionLines[2] || "Start your journey now",
+      }
+      
+      slides.push(lastSlide)
+      
+      // Validate final structure
+      if (slides.length !== slideCount) {
+        console.warn(`Expected ${slideCount} slides, but got ${slides.length}. Adjusting...`)
+        // Adjust the number of slides if needed
+        while (slides.length < slideCount) {
+          const middleIndex = Math.floor(slides.length / 2)
+          slides.splice(middleIndex, 0, {
+            heading: `Additional Point ${slides.length}`,
+            bullets: ["Important insight", "Key takeaway", "Valuable information"]
+          })
+        }
+        while (slides.length > slideCount) {
+          slides.pop()
+        }
+      }
+      
+      return slides
+      
+    } catch (error) {
+      console.error('Error parsing AI content:', error)
+      // Return default slides if all parsing fails
+      const defaultSlides = []
+      
+      // First slide
+      defaultSlides.push({
+        top_line: `Master ${aiForm.topic}`,
+        main_heading: "Complete Guide",
+        bullet: "Everything you need to know",
+      })
+      
+      // Middle slides
+      for (let i = 0; i < slideCount - 2; i++) {
+        defaultSlides.push({
+          heading: `Key Point ${i + 1}`,
+          bullets: ["Important insight", "Key takeaway", "Valuable information"]
+        })
+      }
+      
+      // Last slide
+      defaultSlides.push({
+        tagline: "Ready to Excel?",
+        final_heading: "Take Action Today",
+        last_bullet: "Start your journey now",
+      })
+      
+      return defaultSlides
+    }
+  }
+
   const generateAICarousel = async () => {
     if (!aiForm.topic.trim()) {
       toast({
@@ -300,66 +711,79 @@ export default function AICarouselPage() {
     }
 
     setIsGenerating(true)
+    setGenerationAttempts(prev => prev + 1)
 
     try {
-      const prompt = `Generate a carousel for the topic "${aiForm.topic}" in a "${aiForm.tone}" tone with ${aiForm.slideCount} slides. The JSON structure should be:
+      // Call the AI API to generate carousel content
+      const response = await fetch('/api/ai/generate-carousel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          topic: aiForm.topic, 
+          tone: aiForm.tone, 
+          slideCount: aiForm.slideCount,
+          style: aiForm.style
+        })
+      })
 
-1. First slide:
-   - top_line: Short punchline or topic-related phrase (max 10 words)
-   - main_heading: Large, bold heading (max 8 words)
-   - bullet: Concise bullet point (max 12 words)
-2. Slides 2 to N-1:
-   - heading: Short, clear heading (max 8 words)
-   - bullets: Three bullet points for each slide, relevant and concise (each max 12 words)
-3. Final slide:
-   - tagline: Short tagline (max 8 words)
-   - final_heading: Large heading (max 8 words)
-   - last_bullet: Final summary bullet (max 12 words)
-
-Content must be short, clear, and suitable for displaying on a card, as per design guidelines.`
-
-      // TODO: Replace with actual OpenAI API call
-      // const response = await fetch('/api/openai/generate-carousel', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ prompt, topic: aiForm.topic, tone: aiForm.tone, slideCount: aiForm.slideCount })
-      // })
-
-      // Mock response for now - will be replaced with actual API
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      const mockResponse = {
-        slides: [
-          {
-            top_line: `Master ${aiForm.topic}`,
-            main_heading: "Complete Guide",
-            bullet: "Everything you need to know",
-          },
-          {
-            heading: "Why It Matters",
-            bullets: ["Increases productivity by 40%", "Saves time and resources", "Improves team collaboration"],
-          },
-          {
-            heading: "Getting Started",
-            bullets: ["Set clear objectives first", "Gather necessary resources", "Create a timeline"],
-          },
-          {
-            heading: "Best Practices",
-            bullets: ["Follow industry standards", "Regular progress reviews", "Continuous improvement mindset"],
-          },
-          {
-            tagline: "Ready to Excel?",
-            final_heading: "Take Action Today",
-            last_bullet: "Start your journey now",
-          },
-        ],
+      if (!response.ok) {
+        throw new Error('Failed to generate carousel content')
       }
 
-      const slides: CarouselSlide[] = mockResponse.slides.map((slideData, index) => {
+      const data = await response.json()
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to generate carousel content')
+      }
+      
+      if (!data.content || !Array.isArray(data.content) || data.content.length === 0) {
+        throw new Error('AI service returned empty or invalid content')
+      }
+
+      // Parse the AI-generated content and structure it for slides
+      const aiContent = data.content[0] // Use the first generated variation
+      
+      // Store the raw content for debugging
+      setLastGeneratedContent(aiContent)
+      
+            // Debug: Log the AI response
+      console.log('AI Generated Content:', aiContent)
+      console.log('Content type:', typeof aiContent)
+      console.log('Content length:', aiContent?.length)
+      
+      // Extract slide content from AI response
+      const parsedSlides = parseAIContentToSlides(aiContent, aiForm.slideCount)
+      
+      // Debug: Log the parsed slides
+      console.log('Parsed Slides:', parsedSlides)
+      
+      // Debug: Check the structure of each slide
+      parsedSlides.forEach((slide, index) => {
+        console.log(`Slide ${index} structure:`, {
+          hasTopLine: 'top_line' in slide,
+          hasMainHeading: 'main_heading' in slide,
+          hasBullet: 'bullet' in slide,
+          hasHeading: 'heading' in slide,
+          hasBullets: 'bullets' in slide,
+          hasTagline: 'tagline' in slide,
+          hasFinalHeading: 'final_heading' in slide,
+          hasLastBullet: 'last_bullet' in slide,
+          slideData: slide
+        })
+      })
+      
+      // Validate that we have slides to work with
+      if (!parsedSlides || parsedSlides.length === 0) {
+        throw new Error('Failed to parse AI content into slides. Please try again.')
+      }
+      
+      // Generate a single background image for all slides
+      const singleBackgroundImage = getRandomBackgroundImage()
+      const template = designTemplates[0] // Default template (Open Sans)
+      
+      const slides: CarouselSlide[] = parsedSlides.map((slideData, index) => {
         const isFirst = index === 0
-        const isLast = index === mockResponse.slides.length - 1
-        const template = designTemplates[0] // Default template (Open Sans)
-        const randomBackground = getRandomBackgroundImage()
+        const isLast = index === parsedSlides.length - 1
 
         return {
           id: (index + 1).toString(),
@@ -371,7 +795,7 @@ Content must be short, clear, and suitable for displaying on a card, as per desi
             textColor: "#FFFFFF", // White text for better contrast on backgrounds
             backgroundColor: "#ffffff",
             backgroundType: "image",
-            backgroundImage: randomBackground,
+            backgroundImage: singleBackgroundImage, // Use the same background for all slides
             template: template.id,
             aspectRatio: "1:1",
             borderWidth: 2,
@@ -399,12 +823,25 @@ Content must be short, clear, and suitable for displaying on a card, as per desi
 
       toast({
         title: "Carousel Generated!",
-        description: `Created a ${aiForm.slideCount}-slide carousel about ${aiForm.topic} with a random background.`,
+        description: `Created a ${parsedSlides.length}-slide carousel about ${aiForm.topic} using AI.`,
       })
     } catch (error) {
+      console.error('Carousel generation error:', error)
+      
+      let errorMessage = "Failed to generate carousel. Please try again."
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to parse AI content')) {
+          errorMessage = "AI generated content couldn't be parsed. Try a different topic or regenerate."
+        } else if (error.message.includes('AI service returned empty')) {
+          errorMessage = "AI service returned empty content. Please try again."
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to generate carousel. Please try again.",
+        title: "Generation Failed",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -414,7 +851,7 @@ Content must be short, clear, and suitable for displaying on a card, as per desi
 
   const createNewProject = () => {
     const template = designTemplates[0] // Default template (Open Sans)
-    const randomBackground = getRandomBackgroundImage()
+    const singleBackground = getRandomBackgroundImage()
     const newProject: CarouselProject = {
       id: Date.now().toString(),
       title: "Untitled Carousel",
@@ -439,7 +876,7 @@ Content must be short, clear, and suitable for displaying on a card, as per desi
             textColor: "#FFFFFF", // White text for better contrast on backgrounds
             backgroundColor: "#ffffff",
             backgroundType: "image",
-            backgroundImage: randomBackground,
+            backgroundImage: singleBackground, // Use single background for consistency
             template: template.id,
             aspectRatio: "1:1",
             borderWidth: 2,
@@ -476,6 +913,9 @@ Content must be short, clear, and suitable for displaying on a card, as per desi
     if (!currentProject) return
 
     const template = designTemplates.find((t) => t.id === currentSlide?.design.template) || designTemplates[0]
+    // Use the same background as existing slides for consistency
+    const existingBackground = currentSlide?.design.backgroundImage || getRandomBackgroundImage()
+    
     const newSlide: CarouselSlide = {
       id: Date.now().toString(),
       type: "middle",
@@ -489,7 +929,7 @@ Content must be short, clear, and suitable for displaying on a card, as per desi
         textColor: "#FFFFFF", // White text for better contrast on backgrounds
         backgroundColor: "#ffffff",
         backgroundType: currentSlide?.design.backgroundType || "color",
-        backgroundImage: currentSlide?.design.backgroundImage,
+        backgroundImage: existingBackground, // Use existing background for consistency
         template: template.id,
         aspectRatio: currentProject.aspectRatio,
         borderWidth: 2,
@@ -1136,7 +1576,12 @@ What do you think? Share your thoughts in the comments below.
                   placeholder="e.g., LinkedIn Marketing Tips, Remote Work Best Practices..."
                   value={aiForm.topic}
                   onChange={(e) => setAiForm({ ...aiForm, topic: e.target.value })}
+                  maxLength={100}
                 />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Keep it concise for better AI generation</span>
+                  <span>{aiForm.topic.length}/100</span>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -1173,6 +1618,9 @@ What do you think? Share your thoughts in the comments below.
                 </div>
               </div>
 
+              {/* Preview of what will be generated */}
+            
+
               <Button onClick={generateAICarousel} disabled={isGenerating} className="w-full" size="lg">
                 {isGenerating ? (
                   <>
@@ -1186,6 +1634,43 @@ What do you think? Share your thoughts in the comments below.
                   </>
                 )}
               </Button>
+              
+              {generationAttempts > 0 && !isGenerating && (
+                <Button 
+                  onClick={generateAICarousel} 
+                  variant="outline" 
+                  className="w-full" 
+                  size="sm"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Try Again
+                </Button>
+              )}
+              
+            
+              
+              {/* Show Raw Content Toggle */}
+              {lastGeneratedContent && (
+                <div className="space-y-2">
+                  <Button 
+                    onClick={() => setShowRawContent(!showRawContent)} 
+                    variant="outline" 
+                    className="w-full" 
+                    size="sm"
+                  >
+                    {showRawContent ? 'Hide' : 'Show'} Raw AI Content
+                  </Button>
+                  
+                  {showRawContent && (
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="text-xs text-muted-foreground mb-2">Raw AI Response:</div>
+                      <pre className="text-xs overflow-auto max-h-32 bg-background p-2 rounded border">
+                        {lastGeneratedContent}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
