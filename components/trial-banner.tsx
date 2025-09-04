@@ -57,33 +57,34 @@ export function TrialBanner() {
   // Show banner if trial is active with credits remaining
   if (trialData.isTrialActive && trialData.credits > 0) {
     return (
-      <div className="mb-4 relative overflow-hidden rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 shadow-sm animate-in slide-in-from-top-2 duration-300">
+      <div className="mb-4 relative overflow-hidden rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 sm:p-4 shadow-sm animate-in slide-in-from-top-2 duration-300">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-indigo-400/10"></div>
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 flex-shrink-0">
               <Sparkles className="h-5 w-5 text-blue-600" />
             </div>
-            <div>
-              <h3 className="font-semibold text-blue-900">Free Trial Active! 🎉</h3>
-              <p className="text-sm text-blue-700">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-blue-900 text-sm sm:text-base">Free Trial Active! 🎉</h3>
+              <p className="text-xs sm:text-sm text-blue-700">
                 You have <span className="font-semibold">{trialData.credits} credits</span> remaining and{" "}
                 <span className="font-semibold">{daysLeft} days</span> left in your trial.
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
+          <div className="flex items-center gap-2 sm:flex-shrink-0">
+            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm text-xs sm:text-sm px-3 sm:px-4 py-2">
               <Link href="/dashboard/billing">
                 <CreditCard className="h-4 w-4 mr-2" />
-                Get More Credits
+                <span className="hidden sm:inline">Get More Credits</span>
+                <span className="sm:hidden">Get Credits</span>
               </Link>
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => setDismissed(true)}
-              className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+              className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 p-2"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -96,33 +97,33 @@ export function TrialBanner() {
   // Show banner if trial is active but no credits
   if (trialData.isTrialActive && trialData.credits === 0) {
     return (
-      <div className="mb-4 relative overflow-hidden rounded-lg border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-4 shadow-sm animate-in slide-in-from-top-2 duration-300">
+      <div className="mb-4 relative overflow-hidden rounded-lg border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-3 sm:p-4 shadow-sm animate-in slide-in-from-top-2 duration-300">
         <div className="absolute inset-0 bg-gradient-to-r from-orange-400/10 to-amber-400/10"></div>
-        <div className="relative flex items-center justify-between">
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 animate-pulse">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 flex-shrink-0">
               <AlertTriangle className="h-5 w-5 text-orange-600" />
             </div>
-            <div>
-              <h3 className="font-semibold text-orange-900">Trial Credits Exhausted!</h3>
-              <p className="text-sm text-orange-700">
-                You still have <span className="font-semibold">{daysLeft} days</span> left in your trial, but you need to{" "}
-                <span className="font-semibold">purchase credits</span> to continue.
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-orange-900 text-sm sm:text-base">Trial Credits Used Up! ⚠️</h3>
+              <p className="text-xs sm:text-sm text-orange-700">
+                Your trial is still active for <span className="font-semibold">{daysLeft} days</span>, but you need more credits to continue.
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button asChild size="sm" className="bg-orange-600 hover:bg-orange-700 text-white shadow-sm">
+          <div className="flex items-center gap-2 sm:flex-shrink-0">
+            <Button asChild size="sm" className="bg-orange-600 hover:bg-orange-700 text-white shadow-sm text-xs sm:text-sm px-3 sm:px-4 py-2">
               <Link href="/dashboard/billing">
                 <CreditCard className="h-4 w-4 mr-2" />
-                Get Credits
+                <span className="hidden sm:inline">Buy Credits Now</span>
+                <span className="sm:hidden">Buy Credits</span>
               </Link>
             </Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => setDismissed(true)}
-              className="text-orange-600 hover:text-orange-800 hover:bg-orange-100"
+              className="text-orange-600 hover:text-orange-800 hover:bg-orange-100 p-2"
             >
               <X className="h-4 w-4" />
             </Button>

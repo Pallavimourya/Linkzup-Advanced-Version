@@ -86,7 +86,7 @@ export function AppSidebar() {
   const pathname = usePathname()
 
   return (
-    <Sidebar variant="inset">
+    <Sidebar variant="inset" className="hidden md:block">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -101,17 +101,23 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
+            Platform
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={pathname === item.url}
+                    className="w-full justify-start px-3 py-2 text-sm"
+                  >
+                    <Link href={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{item.title}</span>
                       {item.comingSoon && (
-                        <span className="ml-auto text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+                        <span className="ml-auto text-xs bg-primary/20 text-primary px-2 py-1 rounded-full flex-shrink-0">
                           Coming Soon
                         </span>
                       )}

@@ -109,15 +109,15 @@ export default function HomePage() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             <Card className="border-border hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Award className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Profile Revamp</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Profile Revamp</CardTitle>
                 <CardDescription>
                   Authority-driven design & copy.
                 </CardDescription>
@@ -129,7 +129,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Calendar className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Content Calendar</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Content Calendar</CardTitle>
                 <CardDescription>
                   Weekly posts crafted for visibility.
                 </CardDescription>
@@ -141,7 +141,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Users className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Engagement & DMs</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Engagement & DMs</CardTitle>
                 <CardDescription>
                   Daily interactions that build trust.
                 </CardDescription>
@@ -153,7 +153,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <BarChart3 className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Growth Insights</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">Growth Insights</CardTitle>
                 <CardDescription>
                   Monthly analytics & strategy tweaks.
                 </CardDescription>
@@ -164,32 +164,32 @@ export default function HomePage() {
       </section>
 
       {/* Why LinkedIn Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-6 sm:mb-8">
             Try LinkZup Today
           </h2>
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">LinkedIn is the #1 platform for professionals.</h3>
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground">LinkedIn is the #1 platform for professionals.</h3>
               <ul className="space-y-3 text-left">
                 <li className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <span className="text-muted-foreground">Organic reach on LinkedIn is 10x higher than other platforms</span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <span className="text-muted-foreground">CXOs & founders are shifting to personal brand-led growth</span>
                 </li>
                 <li className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                   <span className="text-muted-foreground">Early movers in LinkedIn management will dominate</span>
                 </li>
               </ul>
             </div>
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">From invisible to industry leader.</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground">From invisible to industry leader.</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">120+</div>
                   <div className="text-sm text-muted-foreground">entrepreneurs on our waitlist</div>

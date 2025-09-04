@@ -10,6 +10,7 @@ import { User, Settings, LogOut, ChevronDown, Zap, Linkedin, Unlink, RefreshCw }
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { MobileDashboardNav } from "./mobile-dashboard-nav"
 
 export function AccountHeader() {
   const { data: session, update: updateSession } = useSession()
@@ -97,111 +98,107 @@ export function AccountHeader() {
 
   return (
     <div className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center justify-end px-4">
-        <div className="flex items-center gap-4">
+      <div className="flex h-14 items-center justify-between px-4">
+        {/* Left side - Mobile Navigation and LinkedIn connection status */}
+        <div className="flex items-center space-x-2">
+          {/* Mobile Dashboard Navigation */}
+          <MobileDashboardNav />
+          
           {/* LinkedIn Connection Status */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div 
-                  className={`flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity`}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    console.log('LinkedIn icon clicked, isConnected:', isLinkedInConnected, 'isDisconnecting:', isDisconnecting)
-                    if (!isDisconnecting) {
-                      if (!isLinkedInConnected) {
-                        handleLinkedInConnection()
-                      } else {
-                        handleLinkedInDisconnect()
-                      }
-                    }
-                  }}
-                >
-                  <Linkedin className={`h-4 w-4 transition-colors duration-300 ${
-                    isLinkedInLoading || isDisconnecting
-                      ? 'text-yellow-500 animate-pulse' 
-                      : isLinkedInConnected 
-                        ? 'text-green-600' 
-                        : 'text-red-600'
-                  }`} />
-                  <Badge 
-                    variant={isLinkedInConnected ? "default" : "destructive"} 
-                    className={`text-xs transition-all duration-300 ${
-                      isLinkedInLoading || isDisconnecting ? 'animate-pulse' : ''
-                    }`}
+          {isLinkedInConnected ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/20"
+                    disabled={isLinkedInLoading}
                   >
-                    {isLinkedInLoading 
-                      ? "Checking..." 
-                      : isDisconnecting
-                        ? "Disconnecting..."
-                        : isLinkedInConnected 
-                          ? "LinkedIn Connected" 
-                          : "LinkedIn Not Connected"
-                    }
-                  </Badge>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isLinkedInLoading 
-                  ? "Checking LinkedIn connection status..." 
-                  : isDisconnecting
-                    ? "Disconnecting LinkedIn account..."
-                    : isLinkedInConnected 
-                      ? "Click to disconnect your LinkedIn account" 
-                      : "Click to connect your LinkedIn account"
-                }
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+                    <Linkedin className="h-4 w-4 mr-1" />
+                    <span className="hidden sm:inline">Connected</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  LinkedIn Connected
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                    onClick={handleLinkedInConnection}
+                    disabled={isLinkedInLoading}
+                  >
+                    <Linkedin className="h-4 w-4 mr-1" />
+                    <span className="hidden sm:inline">Connect LinkedIn</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Connect LinkedIn Account
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
 
-                     {/* Refresh LinkedIn Status Button */}
-           <TooltipProvider>
-             <Tooltip>
-               <TooltipTrigger asChild>
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={async () => {
-                     await updateSession()
-                     await forceRefresh()
-                   }}
-                   disabled={isLinkedInLoading}
-                   className="h-8 w-8 p-0"
-                 >
-                   <RefreshCw className={`h-4 w-4 ${isLinkedInLoading ? 'animate-spin' : ''}`} />
-                 </Button>
-               </TooltipTrigger>
-               <TooltipContent>
-                 Refresh LinkedIn connection status
-               </TooltipContent>
-             </Tooltip>
-           </TooltipProvider>
+          {/* Refresh button - only show on larger screens */}
+          <div className="hidden sm:block">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={forceRefresh}
+                    disabled={isLinkedInLoading}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isLinkedInLoading ? 'animate-spin' : ''}`} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Refresh LinkedIn Status
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
 
-           {/* Test Disconnect Button (for debugging) */}
-           {isLinkedInConnected && (
-             <TooltipProvider>
-               <Tooltip>
-                 <TooltipTrigger asChild>
-                   <Button
-                     variant="ghost"
-                     size="sm"
-                     onClick={handleLinkedInDisconnect}
-                     disabled={isDisconnecting}
-                     className="h-8 w-8 p-0 text-red-600"
-                   >
-                     <Unlink className={`h-4 w-4 ${isDisconnecting ? 'animate-spin' : ''}`} />
-                   </Button>
-                 </TooltipTrigger>
-                 <TooltipContent>
-                   Test Disconnect LinkedIn
-                 </TooltipContent>
-               </Tooltip>
-             </TooltipProvider>
-           )}
+          {/* Test disconnect button - only in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="hidden lg:block">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-950/20"
+                      onClick={handleLinkedInDisconnect}
+                      disabled={isDisconnecting}
+                    >
+                      <Unlink className={`h-4 w-4 ${isDisconnecting ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Test Disconnect LinkedIn
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+        </div>
 
-          {/* Credit Display */}
-          <CreditDisplay />
+        {/* Right side - Credits, Theme, Account */}
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* Credit Display - Responsive */}
+          <div className="hidden sm:block">
+            <CreditDisplay />
+          </div>
 
           {/* Theme Toggle */}
           <ThemeToggle />
@@ -210,7 +207,7 @@ export function AccountHeader() {
           <div className="relative" ref={dropdownRef}>
             <Button 
               variant="ghost" 
-              className="relative h-10 w-auto px-3 hover:bg-accent focus:bg-accent"
+              className="relative h-10 w-auto px-2 sm:px-3 hover:bg-accent focus:bg-accent"
               onClick={() => {
                 console.log('Dropdown trigger clicked - isOpen:', !isDropdownOpen)
                 setIsDropdownOpen(!isDropdownOpen)
@@ -255,21 +252,21 @@ export function AccountHeader() {
                     <span>Settings</span>
                   </Link>
                   
-                                     {isLinkedInConnected && (
-                     <button
-                       className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent rounded-sm cursor-pointer text-orange-600 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                       onClick={(e) => {
-                         e.preventDefault()
-                         e.stopPropagation()
-                         console.log('Dropdown disconnect clicked')
-                         handleLinkedInDisconnect()
-                       }}
-                       disabled={isDisconnecting}
-                     >
-                       <Unlink className={`h-4 w-4 ${isDisconnecting ? 'animate-spin' : ''}`} />
-                       <span>{isDisconnecting ? 'Disconnecting...' : 'Disconnect LinkedIn'}</span>
-                     </button>
-                   )}
+                  {isLinkedInConnected && (
+                    <button
+                      className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent rounded-sm cursor-pointer text-orange-600 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        console.log('Dropdown disconnect clicked')
+                        handleLinkedInDisconnect()
+                      }}
+                      disabled={isDisconnecting}
+                    >
+                      <Unlink className={`h-4 w-4 ${isDisconnecting ? 'animate-spin' : ''}`} />
+                      <span>{isDisconnecting ? 'Disconnecting...' : 'Disconnect LinkedIn'}</span>
+                    </button>
+                  )}
                   
                   <div className="border-t my-1"></div>
                   

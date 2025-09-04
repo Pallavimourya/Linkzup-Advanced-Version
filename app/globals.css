@@ -3,6 +3,98 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Responsive Utilities */
+@layer utilities {
+  /* Mobile-first responsive text sizes */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+  
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl;
+  }
+  
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl;
+  }
+  
+  .text-responsive-4xl {
+    @apply text-4xl sm:text-5xl;
+  }
+  
+  /* Responsive spacing */
+  .space-responsive {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .space-responsive-lg {
+    @apply space-y-6 sm:space-y-8;
+  }
+  
+  .space-responsive-xl {
+    @apply space-y-8 sm:space-y-12;
+  }
+  
+  /* Responsive padding */
+  .p-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .px-responsive {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .py-responsive {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+  
+  /* Responsive margins */
+  .m-responsive {
+    @apply m-4 sm:m-6 lg:m-8;
+  }
+  
+  .mx-responsive {
+    @apply mx-4 sm:mx-6 lg:mx-8;
+  }
+  
+  .my-responsive {
+    @apply my-8 sm:my-12 lg:my-16;
+  }
+  
+  /* Responsive grid */
+  .grid-responsive {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .grid-responsive-2 {
+    @apply grid-cols-1 md:grid-cols-2;
+  }
+  
+  .grid-responsive-3 {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .grid-responsive-4 {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
+  }
+}
+
 /* Razorpay Modal Fixes */
 .razorpay-container {
   z-index: 9999 !important;
@@ -60,6 +152,72 @@ iframe[src*="razorpay"] {
 /* Fix for modal focus issues */
 .razorpay-checkout-frame iframe {
   z-index: 10002 !important;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Improve touch targets on mobile */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better mobile spacing */
+  .mobile-p-2 {
+    padding: 0.5rem;
+  }
+  
+  .mobile-p-4 {
+    padding: 1rem;
+  }
+  
+  /* Mobile-friendly text sizes */
+  .mobile-text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .mobile-text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  
+  /* Mobile grid adjustments */
+  .mobile-grid-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+/* Tablet-specific improvements */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-p-4 {
+    padding: 1rem;
+  }
+  
+  .tablet-p-6 {
+    padding: 1.5rem;
+  }
+  
+  .tablet-text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Desktop-specific improvements */
+@media (min-width: 1025px) {
+  .desktop-p-8 {
+    padding: 2rem;
+  }
+  
+  .desktop-p-12 {
+    padding: 3rem;
+  }
+  
+  .desktop-text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
 }
 
 :root {
