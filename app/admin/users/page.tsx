@@ -127,24 +127,24 @@ export default function AdminUsersPage() {
   }) || []
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-teal-700">
+          <h1 className="text-2xl sm:text-3xl font-bold text-teal-700">
             User Management
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Manage all registered users and their accounts
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={() => mutate()}>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+          <Button variant="outline" size="sm" onClick={() => mutate()} className="w-full sm:w-auto">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
@@ -152,64 +152,64 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-teal-50 border-teal-200 dark:bg-teal-950/50 dark:border-teal-800">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-teal-700 dark:text-teal-400">Total Users</p>
-                <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">{data?.users?.length || 0}</p>
+                <p className="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-400">Total Users</p>
+                <p className="text-xl sm:text-2xl font-bold text-teal-900 dark:text-teal-100">{data?.users?.length || 0}</p>
               </div>
-              <div className="p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
-                <Users className="h-6 w-6 text-teal-700 dark:text-teal-400" />
+              <div className="p-2 sm:p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-teal-700 dark:text-teal-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-teal-50 border-teal-200 dark:bg-teal-950/50 dark:border-teal-800">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-teal-700 dark:text-teal-400">Active Users</p>
-                <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">
+                <p className="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-400">Active Users</p>
+                <p className="text-xl sm:text-2xl font-bold text-teal-900 dark:text-teal-100">
                   {data?.users?.filter((u: any) => !u.isTrialActive && !u.isAdmin && u.accountStatus !== "suspended").length || 0}
                 </p>
               </div>
-              <div className="p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
-                <CheckCircle className="h-6 w-6 text-teal-700 dark:text-teal-400" />
+              <div className="p-2 sm:p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
+                <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-teal-700 dark:text-teal-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-teal-50 border-teal-200 dark:bg-teal-950/50 dark:border-teal-800">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-teal-700 dark:text-teal-400">Trial Users</p>
-                <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">
+                <p className="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-400">Trial Users</p>
+                <p className="text-xl sm:text-2xl font-bold text-teal-900 dark:text-teal-100">
                   {data?.users?.filter((u: any) => u.isTrialActive).length || 0}
                 </p>
               </div>
-              <div className="p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
-                <Calendar className="h-6 w-6 text-teal-700 dark:text-teal-400" />
+              <div className="p-2 sm:p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
+                <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-teal-700 dark:text-teal-400" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-teal-50 border-teal-200 dark:bg-teal-950/50 dark:border-teal-800">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-teal-700 dark:text-teal-400">Admins</p>
-                <p className="text-2xl font-bold text-teal-900 dark:text-teal-100">
+                <p className="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-400">Admins</p>
+                <p className="text-xl sm:text-2xl font-bold text-teal-900 dark:text-teal-100">
                   {data?.users?.filter((u: any) => u.isAdmin).length || 0}
                 </p>
               </div>
-              <div className="p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
-                <Crown className="h-6 w-6 text-teal-700 dark:text-teal-400" />
+              <div className="p-2 sm:p-3 bg-teal-100 dark:bg-teal-900/30 rounded-full">
+                <Crown className="h-5 w-5 sm:h-6 sm:w-6 text-teal-700 dark:text-teal-400" />
               </div>
             </div>
           </CardContent>
@@ -218,16 +218,16 @@ export default function AdminUsersPage() {
 
       {/* Search and Filters */}
       <Card className="border-0 shadow-lg bg-teal-50/50 dark:bg-teal-950/20">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg text-teal-700">
-            <Filter className="h-5 w-5 text-teal-700" />
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-teal-700">
+            <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-teal-700" />
             Search & Filter Users
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+        <CardContent className="space-y-3 sm:space-y-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="search" className="text-sm font-medium text-teal-700">Search Users</Label>
+              <Label htmlFor="search" className="text-xs sm:text-sm font-medium text-teal-700">Search Users</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-teal-600" />
                 <Input
@@ -235,14 +235,14 @@ export default function AdminUsersPage() {
                   placeholder="Search by name or email..."
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  className="pl-10 border-2 border-teal-200 focus:border-teal-700 transition-colors"
+                  className="pl-10 border-2 border-teal-200 focus:border-teal-700 transition-colors text-sm sm:text-base"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="status-filter" className="text-sm font-medium text-teal-700">Filter by Status</Label>
+              <Label htmlFor="status-filter" className="text-xs sm:text-sm font-medium text-teal-700">Filter by Status</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="border-2 border-teal-200 focus:border-teal-700 transition-colors">
+                <SelectTrigger className="border-2 border-teal-200 focus:border-teal-700 transition-colors text-sm sm:text-base">
                   <SelectValue placeholder="All users" />
                 </SelectTrigger>
                 <SelectContent>
@@ -260,89 +260,89 @@ export default function AdminUsersPage() {
 
       {/* Users List */}
       <Card className="border-0 shadow-lg bg-teal-50/50 dark:bg-teal-950/20">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg text-teal-700">
-            <Users className="h-5 w-5 text-teal-700" />
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg text-teal-700">
+            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-teal-700" />
             Users ({filteredUsers.length})
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
       {isLoading && (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-8 sm:py-12">
               <div className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
-                <span className="text-muted-foreground">Loading users...</span>
+                <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-4 border-primary border-t-transparent"></div>
+                <span className="text-sm sm:text-base text-muted-foreground">Loading users...</span>
               </div>
             </div>
       )}
       
       {!isLoading && filteredUsers.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-muted-foreground" />
+            <div className="text-center py-8 sm:py-12">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold text-muted-foreground mb-2">No users found</h3>
-              <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+              <h3 className="text-base sm:text-lg font-semibold text-muted-foreground mb-2">No users found</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">Try adjusting your search or filters</p>
             </div>
           )}
           
                       {!isLoading && filteredUsers.map((u: any) => (
-            <div key={u._id} className="group border border-teal-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-teal-400 bg-white/80 backdrop-blur-sm">
-                <div className="flex items-start justify-between">
+            <div key={u._id} className="group border border-teal-200 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-all duration-300 hover:border-teal-400 bg-white/80 backdrop-blur-sm">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-teal-700 rounded-full flex items-center justify-center shadow-lg">
-                      <User className="h-6 w-6 text-white" />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-teal-700 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                      <User className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg text-teal-900">{u.name || "Unnamed User"}</h3>
-                      <div className="flex items-center gap-2 text-sm text-teal-600">
-                        <Mail className="h-3 w-3" />
-                        {u.email}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base sm:text-lg text-teal-900 break-words">{u.name || "Unnamed User"}</h3>
+                      <div className="flex items-center gap-2 text-xs sm:text-sm text-teal-600 mt-1">
+                        <Mail className="h-3 w-3 flex-shrink-0" />
+                        <span className="break-all">{u.email}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
                       {getStatusBadge(u)}
                       {u.subscriptionStatus && (
-                        <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300">
+                        <Badge variant="secondary" className="bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300 text-xs">
                           {u.subscriptionStatus}
                         </Badge>
                       )}
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
                     <div className="flex items-center gap-3 p-3 bg-teal-50 rounded-lg">
-                      <div className="p-2 bg-teal-100 rounded-lg">
+                      <div className="p-2 bg-teal-100 rounded-lg flex-shrink-0">
                         <Zap className="h-4 w-4 text-teal-700" />
                           </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs text-teal-600">Credits</p>
-                        <p className="font-semibold text-teal-900">{u.credits ?? 0}</p>
+                        <p className="font-semibold text-teal-900 text-sm sm:text-base">{u.credits ?? 0}</p>
                           </div>
                         </div>
                     <div className="flex items-center gap-3 p-3 bg-teal-50 rounded-lg">
-                      <div className="p-2 bg-teal-100 rounded-lg">
+                      <div className="p-2 bg-teal-100 rounded-lg flex-shrink-0">
                         <CreditCard className="h-4 w-4 text-teal-700" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-xs text-teal-600">Plan</p>
-                        <p className="font-semibold text-teal-900">{u.plan || "No Plan"}</p>
+                        <p className="font-semibold text-teal-900 text-sm sm:text-base break-words">{u.plan || "No Plan"}</p>
                 </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-teal-50 rounded-lg">
-                      <div className="p-2 bg-teal-100 rounded-lg">
+                      <div className="p-2 bg-teal-100 rounded-lg flex-shrink-0">
                         <Shield className="h-4 w-4 text-teal-700" />
                   </div>
-                    <div>
+                    <div className="min-w-0">
                         <p className="text-xs text-teal-600">Role</p>
-                        <p className="font-semibold text-teal-900 capitalize">{u.role || "user"}</p>
+                        <p className="font-semibold text-teal-900 text-sm sm:text-base capitalize">{u.role || "user"}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-1 ml-4">
+                <div className="flex flex-wrap gap-1 lg:ml-4 lg:flex-col lg:items-end">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -379,13 +379,13 @@ export default function AdminUsersPage() {
                             </TooltipContent>
                           </Tooltip>
                         </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="max-w-md sm:max-w-lg">
                         <AlertDialogHeader>
                           <AlertDialogTitle className="text-red-700">Delete User</AlertDialogTitle>
-                          <AlertDialogDescription>
+                          <AlertDialogDescription className="text-sm">
                             Are you sure you want to delete <strong>{deletingUser?.name || deletingUser?.email}</strong>? 
                             This action will permanently remove:
-                            <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                            <ul className="list-disc list-inside mt-2 space-y-1 text-xs sm:text-sm">
                               <li>User account and profile</li>
                               <li>All user posts and drafts</li>
                               <li>Order history and subscriptions</li>
@@ -395,13 +395,13 @@ export default function AdminUsersPage() {
                             <p className="mt-3 font-semibold text-red-600">This action cannot be undone!</p>
                           </AlertDialogDescription>
                         </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel className="border-teal-300 text-teal-700 hover:bg-teal-50">
+                        <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                          <AlertDialogCancel className="border-teal-300 text-teal-700 hover:bg-teal-50 w-full sm:w-auto">
                             Cancel
                           </AlertDialogCancel>
                           <AlertDialogAction 
                             onClick={confirmDeleteUser}
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
                           >
                             Delete User
                           </AlertDialogAction>
@@ -475,55 +475,58 @@ export default function AdminUsersPage() {
 
       {/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-md sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-teal-700">
-              <Edit className="h-5 w-5 text-teal-700" />
+              <Edit className="h-4 w-4 sm:h-5 sm:w-5 text-teal-700" />
               Edit User Details
             </DialogTitle>
           </DialogHeader>
           
           {editingUser && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-name">Name</Label>
+                  <Label htmlFor="edit-name" className="text-sm">Name</Label>
                   <Input
                     id="edit-name"
                     value={editingUser.name || ""}
                     onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
                     placeholder="User name"
+                    className="text-sm sm:text-base"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-email">Email</Label>
+                  <Label htmlFor="edit-email" className="text-sm">Email</Label>
                   <Input
                     id="edit-email"
                     value={editingUser.email || ""}
                     onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                     placeholder="User email"
+                    className="text-sm sm:text-base"
                   />
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-credits">Credits</Label>
+                  <Label htmlFor="edit-credits" className="text-sm">Credits</Label>
                   <Input
                     id="edit-credits"
                     type="number"
                     value={editingUser.credits || 0}
                     onChange={(e) => setEditingUser({ ...editingUser, credits: parseInt(e.target.value) || 0 })}
                     placeholder="Credits"
+                    className="text-sm sm:text-base"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-plan">Plan</Label>
+                  <Label htmlFor="edit-plan" className="text-sm">Plan</Label>
                   <Select 
                     value={editingUser.plan || ""} 
                     onValueChange={(value) => setEditingUser({ ...editingUser, plan: value })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base">
                       <SelectValue placeholder="Select plan" />
                     </SelectTrigger>
                     <SelectContent>
@@ -536,14 +539,14 @@ export default function AdminUsersPage() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-role">Role</Label>
+                  <Label htmlFor="edit-role" className="text-sm">Role</Label>
                   <Select 
                     value={editingUser.role || "user"} 
                     onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base">
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
@@ -554,12 +557,12 @@ export default function AdminUsersPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-status">Account Status</Label>
+                  <Label htmlFor="edit-status" className="text-sm">Account Status</Label>
                   <Select 
                     value={editingUser.accountStatus || "active"} 
                     onValueChange={(value) => setEditingUser({ ...editingUser, accountStatus: value })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -572,13 +575,14 @@ export default function AdminUsersPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="edit-notes">Notes</Label>
+                <Label htmlFor="edit-notes" className="text-sm">Notes</Label>
                 <Textarea
                   id="edit-notes"
                   value={editingUser.notes || ""}
                   onChange={(e) => setEditingUser({ ...editingUser, notes: e.target.value })}
                   placeholder="Add notes about this user..."
                   rows={3}
+                  className="text-sm sm:text-base"
                 />
               </div>
               
@@ -590,7 +594,7 @@ export default function AdminUsersPage() {
                   onChange={(e) => setEditingUser({ ...editingUser, isTrialActive: e.target.checked })}
                   className="rounded border-gray-300"
                 />
-                <Label htmlFor="edit-trial">Trial Active</Label>
+                <Label htmlFor="edit-trial" className="text-sm">Trial Active</Label>
               </div>
               
               <div className="flex items-center gap-2">
@@ -601,22 +605,22 @@ export default function AdminUsersPage() {
                   onChange={(e) => setEditingUser({ ...editingUser, isAdmin: e.target.checked })}
                   className="rounded border-gray-300"
                 />
-                <Label htmlFor="edit-admin">Admin Access</Label>
+                <Label htmlFor="edit-admin" className="text-sm">Admin Access</Label>
               </div>
               
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
                 <Button 
                   variant="outline" 
                   onClick={() => {
                     setIsEditDialogOpen(false)
                     setEditingUser(null)
                   }}
-                  className="border-teal-300 text-teal-700 hover:bg-teal-50"
+                  className="border-teal-300 text-teal-700 hover:bg-teal-50 w-full sm:w-auto"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
-                <Button onClick={handleSaveUser} className="bg-teal-700 hover:bg-teal-800 text-white">
+                <Button onClick={handleSaveUser} className="bg-teal-700 hover:bg-teal-800 text-white w-full sm:w-auto">
                   <Save className="h-4 w-4 mr-2" />
                   Save Changes
                 </Button>

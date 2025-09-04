@@ -159,11 +159,11 @@ export default function AdminPlansPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Subscription Plans</h1>
-          <p className="text-muted-foreground">Manage your subscription plans and credit packages</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Subscription Plans</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your subscription plans and credit packages</p>
         </div>
         <div className="flex gap-3">
           <Button 
@@ -181,6 +181,7 @@ export default function AdminPlansPage() {
                 alert('Error initializing plans')
               }
             }}
+            className="w-full sm:w-auto text-sm sm:text-base"
           >
             Initialize Default Plans
           </Button>
@@ -190,20 +191,20 @@ export default function AdminPlansPage() {
       {/* Predefined Plans Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Package className="h-4 w-4 sm:h-5 sm:w-5" />
             Quick Setup - Predefined Plans
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Click on any plan below to quickly create it. These plans are designed based on your credit usage requirements.
           </p>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {predefinedPlans.map((plan, index) => (
-              <div key={index} className="border border-teal-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white/50">
+              <div key={index} className="border border-teal-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow bg-white/50">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-lg text-teal-900">{plan.name}</h3>
+                  <h3 className="font-semibold text-base sm:text-lg text-teal-900 break-words">{plan.name}</h3>
                   <Badge variant={plan.type === 'subscription' ? 'default' : 'secondary'} className="text-xs">
                     {plan.type === 'subscription' ? 'Subscription' : 'Credit Pack'}
                   </Badge>
@@ -211,16 +212,18 @@ export default function AdminPlansPage() {
                 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-teal-700">₹{plan.price}</span>
-                    <span className="text-sm text-teal-600">{plan.credits} Credits</span>
+                    <span className="text-xl sm:text-2xl font-bold text-teal-700">₹{plan.price}</span>
+                    <span className="text-xs sm:text-sm text-teal-600">{plan.credits} Credits</span>
                   </div>
                   
-                  {plan.popular && (
-                    <Badge className="bg-orange-500 text-white text-xs">Popular</Badge>
-                  )}
-                  {plan.recommended && (
-                    <Badge className="bg-blue-500 text-white text-xs">Recommended</Badge>
-                  )}
+                  <div className="flex flex-wrap gap-1">
+                    {plan.popular && (
+                      <Badge className="bg-orange-500 text-white text-xs">Popular</Badge>
+                    )}
+                    {plan.recommended && (
+                      <Badge className="bg-blue-500 text-white text-xs">Recommended</Badge>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-1 mb-4">
@@ -231,7 +234,7 @@ export default function AdminPlansPage() {
 
                 <Button 
                   onClick={() => createPredefinedPlan(plan)}
-                  className="w-full bg-teal-700 hover:bg-teal-800 text-white"
+                  className="w-full bg-teal-700 hover:bg-teal-800 text-white text-sm sm:text-base"
                   disabled={!canAddPlan}
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -245,30 +248,31 @@ export default function AdminPlansPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             Create New Plan
             <Badge variant="outline" className="ml-2 text-xs">
               {currentPlansCount}/3 Plans
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* Basic Information */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="plan-name">Plan Name</Label>
+              <Label htmlFor="plan-name" className="text-sm">Plan Name</Label>
               <Input 
                 id="plan-name"
                 placeholder="e.g., Pro Plan, Basic Plan" 
                 value={draft.name} 
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })} 
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="plan-type">Plan Type</Label>
+              <Label htmlFor="plan-type" className="text-sm">Plan Type</Label>
               <Select value={draft.type} onValueChange={(v) => setDraft({ ...draft, type: v })}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue placeholder="Select plan type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -290,31 +294,33 @@ export default function AdminPlansPage() {
           </div>
 
           {/* Pricing & Credits */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="plan-price">Price (₹)</Label>
+              <Label htmlFor="plan-price" className="text-sm">Price (₹)</Label>
               <Input
                 id="plan-price"
                 type="number"
                 placeholder="0"
                 value={draft.price}
                 onChange={(e) => setDraft({ ...draft, price: Number(e.target.value) })}
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="plan-credits">Credits</Label>
+              <Label htmlFor="plan-credits" className="text-sm">Credits</Label>
               <Input
                 id="plan-credits"
                 type="number"
                 placeholder="0"
                 value={draft.credits}
                 onChange={(e) => setDraft({ ...draft, credits: Number(e.target.value) })}
+                className="text-sm sm:text-base"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="plan-interval">Billing Interval</Label>
+              <Label htmlFor="plan-interval" className="text-sm">Billing Interval</Label>
               <Select value={draft.interval} onValueChange={(v) => setDraft({ ...draft, interval: v })}>
-                <SelectTrigger>
+                <SelectTrigger className="text-sm sm:text-base">
                   <SelectValue placeholder="Select interval" />
                 </SelectTrigger>
                               <SelectContent>
@@ -343,25 +349,25 @@ export default function AdminPlansPage() {
 
           {/* Features */}
           <div className="space-y-2">
-            <Label htmlFor="plan-features">Features (one per line)</Label>
+            <Label htmlFor="plan-features" className="text-sm">Features (one per line)</Label>
             <Textarea
               id="plan-features"
               placeholder="AI Content Generation&#10;LinkedIn Posting&#10;Priority Support&#10;Advanced Analytics"
-              className="min-h-[100px]"
+              className="min-h-[100px] text-sm sm:text-base"
               value={draft.features}
               onChange={(e) => setDraft({ ...draft, features: e.target.value })}
             />
           </div>
 
           {/* Plan Options */}
-          <div className="flex items-center space-x-6">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
             <div className="flex items-center space-x-2">
               <Switch
                 id="popular"
                 checked={draft.popular}
                 onCheckedChange={(checked) => setDraft({ ...draft, popular: checked })}
               />
-              <Label htmlFor="popular">Mark as Popular</Label>
+              <Label htmlFor="popular" className="text-sm">Mark as Popular</Label>
             </div>
             <div className="flex items-center space-x-2">
               <Switch
@@ -369,7 +375,7 @@ export default function AdminPlansPage() {
                 checked={draft.recommended}
                 onCheckedChange={(checked) => setDraft({ ...draft, recommended: checked })}
               />
-              <Label htmlFor="recommended">Mark as Recommended</Label>
+              <Label htmlFor="recommended" className="text-sm">Mark as Recommended</Label>
             </div>
           </div>
 
@@ -377,7 +383,7 @@ export default function AdminPlansPage() {
 
           <Button 
             onClick={savePlan} 
-            className="w-full md:w-auto"
+            className="w-full sm:w-auto text-sm sm:text-base"
             disabled={!canAddPlan}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -388,38 +394,38 @@ export default function AdminPlansPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Package className="h-4 w-4 sm:h-5 sm:w-5" />
             Existing Plans ({data?.plans?.length || 0})
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
           {data?.plans?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No plans created yet</p>
-              <p className="text-sm">Create your first plan above (at least 1 plan required)</p>
+            <div className="text-center py-6 sm:py-8 text-muted-foreground">
+              <Package className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4 opacity-50" />
+              <p className="text-sm sm:text-base">No plans created yet</p>
+              <p className="text-xs sm:text-sm">Create your first plan above (at least 1 plan required)</p>
             </div>
           ) : (
             data?.plans?.map((p: any) => (
-              <div key={p._id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between">
+              <div key={p._id} className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 sm:gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{p.name}</h3>
-                      <div className="flex gap-2">
-                        <Badge variant={p.type === 'subscription' ? 'default' : 'secondary'}>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                      <h3 className="font-semibold text-base sm:text-lg break-words">{p.name}</h3>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant={p.type === 'subscription' ? 'default' : 'secondary'} className="text-xs">
                           {p.type === 'subscription' ? 'Subscription' : 'Credit Pack'}
                         </Badge>
-                        {p.popular && <Badge variant="outline" className="text-orange-600 border-orange-600">Popular</Badge>}
-                        {p.recommended && <Badge variant="outline" className="text-blue-600 border-blue-600">Recommended</Badge>}
+                        {p.popular && <Badge variant="outline" className="text-orange-600 border-orange-600 text-xs">Popular</Badge>}
+                        {p.recommended && <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">Recommended</Badge>}
                         {p.isActive ? (
-                          <Badge variant="outline" className="text-green-600 border-green-600">
+                          <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
                             <CheckCircle className="h-3 w-3 mr-1" />
                             Active
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="text-red-600 border-red-600">
+                          <Badge variant="outline" className="text-red-600 border-red-600 text-xs">
                             <XCircle className="h-3 w-3 mr-1" />
                             Inactive
                           </Badge>
@@ -427,18 +433,18 @@ export default function AdminPlansPage() {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-3">
                       <div className="flex items-center gap-2">
-                        <CreditCard className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">₹{p.price}</span>
+                        <CreditCard className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium">₹{p.price}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">{p.credits} Credits</span>
+                        <Zap className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium">{p.credits} Credits</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium capitalize">{p.interval}</span>
+                        <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-xs sm:text-sm font-medium capitalize">{p.interval}</span>
                       </div>
                     </div>
                     
@@ -456,12 +462,12 @@ export default function AdminPlansPage() {
                     )}
                   </div>
                   
-                  <div className="flex gap-2 ml-4">
+                  <div className="flex flex-wrap gap-2 lg:ml-4 lg:flex-col lg:items-end">
                     <Button 
                       size="sm" 
                       variant="outline" 
                       onClick={() => toggleActive(p._id, !p.isActive)}
-                      className={p.isActive ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
+                      className={p.isActive ? "text-red-600 hover:text-red-700 text-xs sm:text-sm" : "text-green-600 hover:text-green-700 text-xs sm:text-sm"}
                     >
                       {p.isActive ? "Deactivate" : "Activate"}
                     </Button>
@@ -471,6 +477,7 @@ export default function AdminPlansPage() {
                       onClick={() => removePlan(p._id)}
                       disabled={!canDeletePlan}
                       title={!canDeletePlan ? "At least 1 plan must remain" : "Delete plan"}
+                      className="text-xs sm:text-sm"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

@@ -34,7 +34,7 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json())
 const SimpleChart = ({ data, title, color = "blue" }: { data: any[], title: string, color?: string }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="h-48 flex items-center justify-center text-muted-foreground">
+      <div className="h-32 sm:h-48 flex items-center justify-center text-muted-foreground text-sm">
         No data available
       </div>
     )
@@ -45,8 +45,8 @@ const SimpleChart = ({ data, title, color = "blue" }: { data: any[], title: stri
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
-      <div className="flex items-end space-x-1 h-32">
+      <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</h3>
+      <div className="flex items-end space-x-1 h-24 sm:h-32">
         {data.slice(-7).map((item, index) => {
           const height = maxValue > 0 ? Math.max((item.value / maxValue) * 100, minHeight) : minHeight
           return (
@@ -103,14 +103,14 @@ const MetricCard = ({
     <Card className={`border-${color}-200 bg-${color}-50 dark:bg-${color}-950/20 dark:border-${color}-800`}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className={`text-sm font-medium text-${color}-700 dark:text-${color}-400`}>
+          <CardTitle className={`text-xs sm:text-sm font-medium text-${color}-700 dark:text-${color}-400`}>
             {title}
           </CardTitle>
           <Icon className={`h-4 w-4 text-${color}-600 dark:text-${color}-400`} />
         </div>
       </CardHeader>
       <CardContent>
-        <div className={`text-2xl font-bold text-${color}-900 dark:text-${color}-100`}>
+        <div className={`text-lg sm:text-2xl font-bold text-${color}-900 dark:text-${color}-100`}>
           {formatValue(value)}
         </div>
         {change !== undefined && (
@@ -140,19 +140,19 @@ export default function AdminAnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Analytics</h1>
-          <Badge variant="secondary">Loading...</Badge>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+          <Badge variant="secondary" className="text-xs sm:text-sm">Loading...</Badge>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(8)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="pb-2">
                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
               </CardHeader>
               <CardContent>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-6 sm:h-8 bg-gray-200 rounded w-1/2"></div>
               </CardContent>
             </Card>
           ))}
@@ -164,12 +164,12 @@ export default function AdminAnalyticsPage() {
   if (error) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Analytics</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
         <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center space-x-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
-              <span>Failed to load analytics data</span>
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base">Failed to load analytics data</span>
             </div>
           </CardContent>
         </Card>
@@ -187,15 +187,15 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Analytics</h1>
-          <p className="text-muted-foreground mt-1">Detailed insights and performance metrics</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Detailed insights and performance metrics</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-sm">
+          <Badge variant="outline" className="text-xs sm:text-sm">
             Last updated: {new Date().toLocaleTimeString()}
           </Badge>
           <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
@@ -205,7 +205,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Total Users"
           value={summaryData?.users?.total || 0}
@@ -238,22 +238,22 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+          <TabsTrigger value="trends" className="text-xs sm:text-sm">Trends</TabsTrigger>
+          <TabsTrigger value="performance" className="text-xs sm:text-sm">Performance</TabsTrigger>
+          <TabsTrigger value="insights" className="text-xs sm:text-sm">Insights</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             {/* User Growth Chart */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   User Growth (Last 7 Days)
                 </CardTitle>
               </CardHeader>
@@ -272,8 +272,8 @@ export default function AdminAnalyticsPage() {
             {/* Revenue Chart */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <DollarSign className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Revenue Trends (Last 7 Days)
                 </CardTitle>
               </CardHeader>
@@ -293,33 +293,33 @@ export default function AdminAnalyticsPage() {
           {/* Recent Activity */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Activity className="h-5 w-5 mr-2" />
+              <CardTitle className="flex items-center text-sm sm:text-base">
+                <Activity className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Recent Activity (Last 24 Hours)
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                  <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="text-center p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                  <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mx-auto mb-2" />
+                  <div className="text-lg sm:text-2xl font-bold text-blue-900 dark:text-blue-100">
                     {detailedData?.recentActivity?.newUsers24h || 0}
                   </div>
-                  <div className="text-sm text-blue-600 dark:text-blue-400">New Users</div>
+                  <div className="text-xs sm:text-sm text-blue-600 dark:text-blue-400">New Users</div>
                 </div>
-                <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                  <CreditCard className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                <div className="text-center p-3 sm:p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                  <CreditCard className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mx-auto mb-2" />
+                  <div className="text-lg sm:text-2xl font-bold text-green-900 dark:text-green-100">
                     {detailedData?.recentActivity?.newPayments24h || 0}
                   </div>
-                  <div className="text-sm text-green-600 dark:text-green-400">New Payments</div>
+                  <div className="text-xs sm:text-sm text-green-600 dark:text-green-400">New Payments</div>
                 </div>
-                <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-                  <FileText className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                <div className="text-center p-3 sm:p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                  <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mx-auto mb-2" />
+                  <div className="text-lg sm:text-2xl font-bold text-purple-900 dark:text-purple-100">
                     {detailedData?.recentActivity?.newPosts24h || 0}
                   </div>
-                  <div className="text-sm text-purple-600 dark:text-purple-400">New Posts</div>
+                  <div className="text-xs sm:text-sm text-purple-600 dark:text-purple-400">New Posts</div>
                 </div>
               </div>
             </CardContent>
@@ -327,13 +327,13 @@ export default function AdminAnalyticsPage() {
         </TabsContent>
 
         {/* Trends Tab */}
-        <TabsContent value="trends" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent value="trends" className="space-y-4 sm:space-y-6">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             {/* User Activity by Hour */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Clock className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   User Activity by Hour
                 </CardTitle>
               </CardHeader>
@@ -352,8 +352,8 @@ export default function AdminAnalyticsPage() {
             {/* Top Performing Plans */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Target className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Top Performing Plans
                 </CardTitle>
               </CardHeader>
@@ -363,9 +363,9 @@ export default function AdminAnalyticsPage() {
                     <div key={plan._id} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <span className="text-sm font-medium">{plan._id || 'Unknown'}</span>
+                        <span className="text-xs sm:text-sm font-medium break-words">{plan._id || 'Unknown'}</span>
                       </div>
-                      <Badge variant="outline">{plan.count} users</Badge>
+                      <Badge variant="outline" className="text-xs">{plan.count} users</Badge>
                     </div>
                   ))}
                 </div>
@@ -375,13 +375,13 @@ export default function AdminAnalyticsPage() {
         </TabsContent>
 
         {/* Performance Tab */}
-        <TabsContent value="performance" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent value="performance" className="space-y-4 sm:space-y-6">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             {/* Content Performance */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <FileText className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Content Performance
                 </CardTitle>
               </CardHeader>
@@ -393,9 +393,9 @@ export default function AdminAnalyticsPage() {
                         {stat._id === 'posted' && <CheckCircle className="h-4 w-4 text-green-500" />}
                         {stat._id === 'pending' && <Clock className="h-4 w-4 text-yellow-500" />}
                         {stat._id === 'failed' && <XCircle className="h-4 w-4 text-red-500" />}
-                        <span className="text-sm font-medium capitalize">{stat._id}</span>
+                        <span className="text-xs sm:text-sm font-medium capitalize">{stat._id}</span>
                       </div>
-                      <Badge variant="outline">{stat.count}</Badge>
+                      <Badge variant="outline" className="text-xs">{stat.count}</Badge>
                     </div>
                   ))}
                 </div>
@@ -405,23 +405,23 @@ export default function AdminAnalyticsPage() {
             {/* Key Performance Indicators */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <BarChart3 className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Key Performance Indicators
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Conversion Rate</span>
-                  <Badge variant="default">{detailedData?.metrics?.conversionRate || 0}%</Badge>
+                  <span className="text-xs sm:text-sm text-muted-foreground">Conversion Rate</span>
+                  <Badge variant="default" className="text-xs">{detailedData?.metrics?.conversionRate || 0}%</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">ARPU</span>
-                  <Badge variant="default">{formatCurrency(detailedData?.metrics?.arpu || 0)}</Badge>
+                  <span className="text-xs sm:text-sm text-muted-foreground">ARPU</span>
+                  <Badge variant="default" className="text-xs">{formatCurrency(detailedData?.metrics?.arpu || 0)}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Churn Rate</span>
-                  <Badge variant="destructive">{detailedData?.metrics?.churnRate || 0}%</Badge>
+                  <span className="text-xs sm:text-sm text-muted-foreground">Churn Rate</span>
+                  <Badge variant="destructive" className="text-xs">{detailedData?.metrics?.churnRate || 0}%</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -429,13 +429,13 @@ export default function AdminAnalyticsPage() {
         </TabsContent>
 
         {/* Insights Tab */}
-        <TabsContent value="insights" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <TabsContent value="insights" className="space-y-4 sm:space-y-6">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
             {/* Geographic Distribution */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   User Distribution
                 </CardTitle>
               </CardHeader>
@@ -443,8 +443,8 @@ export default function AdminAnalyticsPage() {
                 <div className="space-y-3">
                   {detailedData?.userLocations?.slice(0, 5).map((location: any) => (
                     <div key={location._id} className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{location._id || 'Unknown'}</span>
-                      <Badge variant="outline">{location.count} users</Badge>
+                      <span className="text-xs sm:text-sm font-medium break-words">{location._id || 'Unknown'}</span>
+                      <Badge variant="outline" className="text-xs">{location.count} users</Badge>
                     </div>
                   ))}
                 </div>
@@ -454,8 +454,8 @@ export default function AdminAnalyticsPage() {
             {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Zap className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-sm sm:text-base">
+                  <Zap className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Quick Actions
                 </CardTitle>
               </CardHeader>
@@ -464,13 +464,13 @@ export default function AdminAnalyticsPage() {
                   <button className="w-full p-3 text-left border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                     <div className="flex items-center gap-2">
                       <Download className="h-4 w-4" />
-                      <span className="text-sm font-medium">Export Report</span>
+                      <span className="text-xs sm:text-sm font-medium">Export Report</span>
                     </div>
                   </button>
                   <button className="w-full p-3 text-left border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                     <div className="flex items-center gap-2">
                       <Eye className="h-4 w-4" />
-                      <span className="text-sm font-medium">View Detailed Report</span>
+                      <span className="text-xs sm:text-sm font-medium">View Detailed Report</span>
                     </div>
                   </button>
                 </div>
