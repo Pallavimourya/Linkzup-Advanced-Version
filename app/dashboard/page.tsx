@@ -40,7 +40,7 @@ import {
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
-import { CreditDisplay } from "@/components/credit-display"
+
 import { LinkedInPostButton } from "@/components/linkedin-post-button"
 import { ScheduleButton } from "@/components/schedule-button"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
@@ -477,65 +477,62 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-h-screen">
       {/* Header */}
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-2 sm:px-4">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <SidebarTrigger className="-ml-1 flex-shrink-0" />
+          <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+          <Breadcrumb className="min-w-0">
+            <BreadcrumbList className="flex-wrap">
+              <BreadcrumbItem className="hidden sm:block">
                 <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbSeparator className="hidden sm:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>AI Content Generator</BreadcrumbPage>
+                <BreadcrumbPage className="text-sm sm:text-base">AI Content Generator</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
-        <div className="ml-auto px-4">
-          <CreditDisplay />
-        </div>
       </header>
 
       {/* Welcome Section */}
-      <div className="px-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+      <div className="px-2 sm:px-4">
+        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             Welcome back, {session?.user?.name?.split(" ")[0] || "there"}! 👋
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Ready to create engaging LinkedIn content with AI? Let's generate some amazing posts for your audience.
           </p>
         </div>
       </div>
 
       {/* Content Generator */}
-      <div className="px-4 space-y-6">
+      <div className="px-2 sm:px-4 space-y-4 sm:space-y-6 pb-6">
         {/* Main Content Area */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wand2 className="w-5 h-5 text-primary" />
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Wand2 className="w-5 h-5 text-primary flex-shrink-0" />
                 AI Content Generator
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm sm:text-base">
                 Describe what you want to post about, and our AI will generate engaging content for you.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               {/* Main Prompt */}
               <div className="space-y-2">
-                <Label htmlFor="prompt">What would you like to post about?</Label>
+                <Label htmlFor="prompt" className="text-sm sm:text-base">What would you like to post about?</Label>
                 <Textarea
                   id="prompt"
                   placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[100px]"
+                  className="min-h-[80px] sm:min-h-[100px] text-sm sm:text-base resize-none"
                 />
               </div>
 
@@ -543,23 +540,23 @@ export default function DashboardPage() {
               <div className="border rounded-lg">
                 <button
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
+                  className="w-full p-3 sm:p-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors min-h-[48px] touch-manipulation"
                 >
-                  <div className="flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
-                    <span className="font-medium">Customization Options</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Settings className="w-4 h-4 flex-shrink-0" />
+                    <span className="font-medium text-sm sm:text-base truncate">Customization Options</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{customization.tone}</Badge>
-                    <Badge variant="outline">{customization.wordCount} words</Badge>
-                    <span className="text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Badge variant="outline" className="text-xs hidden xs:inline-flex">{customization.tone}</Badge>
+                    <Badge variant="outline" className="text-xs hidden xs:inline-flex">{customization.wordCount} words</Badge>
+                    <span className="text-xs sm:text-sm text-muted-foreground">
                       {showAdvanced ? "Hide" : "Show"}
                     </span>
                   </div>
                 </button>
                 
                 {showAdvanced && (
-                  <div className="p-4 border-t">
+                  <div className="p-3 sm:p-4 border-t">
                     <AICustomizationPanel
                       customization={customization}
                       onCustomizationChange={setCustomization}
@@ -576,7 +573,7 @@ export default function DashboardPage() {
               <Button
                 onClick={() => setShowGenerationModal(true)}
                 disabled={!prompt.trim() || isGenerating}
-                className="w-full relative overflow-hidden"
+                className="w-full relative overflow-hidden h-12 sm:h-11 text-sm sm:text-base"
                 size="lg"
               >
                 {isGenerating ? (
@@ -585,13 +582,13 @@ export default function DashboardPage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
                     <div className="relative flex items-center justify-center w-full">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      <span>Generating Content...</span>
+                      <span className="text-sm sm:text-base">Generating Content...</span>
                     </div>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Generate Content
+                    <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Generate Content</span>
                   </>
                 )}
               </Button>
@@ -601,58 +598,56 @@ export default function DashboardPage() {
           {/* Generated Posts */}
           {generatedPosts.length > 0 && (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-primary" />
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Target className="w-5 h-5 text-primary flex-shrink-0" />
                   Generated Content ({generatedPosts.length})
                 </CardTitle>
-                <CardDescription>Select content to preview and customize before publishing to LinkedIn.</CardDescription>
+                <CardDescription className="text-sm sm:text-base">
+                  Select content to preview and customize before publishing to LinkedIn.
+                </CardDescription>
               </CardHeader>
-                             <CardContent>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                   {generatedPosts.map((post, index) => (
-                     <div
-                       key={post.id}
-                       className="aspect-square p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors flex flex-col"
-                       onClick={() => handleSelectPost(post)}
-                     >
-                       <div className="flex items-start justify-between mb-3">
-                         <div className="flex flex-wrap gap-1">
-                           <Badge variant="secondary" className="text-xs">{post.tone}</Badge>
-                           <Badge variant="outline" className="text-xs">{post.wordCount} words</Badge>
-                         </div>
-                         <Eye className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                       </div>
-                       <div className="flex-1 overflow-hidden">
-                         <p className="text-sm text-muted-foreground line-clamp-6 leading-relaxed">
-                           {post.content}
-                         </p>
-                       </div>
-                       <div className="mt-3 pt-2 border-t border-muted/30">
-                         <div className="flex items-center justify-between text-xs text-muted-foreground">
-                           <span>Click to preview</span>
-                           <span>#{index + 1}</span>
-                         </div>
-                       </div>
-                     </div>
-                   ))}
-                 </div>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {generatedPosts.map((post, index) => (
+                    <div
+                      key={post.id}
+                      className="aspect-[4/3] sm:aspect-square p-3 sm:p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors flex flex-col touch-manipulation"
+                      onClick={() => handleSelectPost(post)}
+                    >
+                      <div className="flex items-start justify-between mb-2 sm:mb-3">
+                        <div className="flex flex-wrap gap-1 min-w-0">
+                          <Badge variant="secondary" className="text-xs">{post.tone}</Badge>
+                          <Badge variant="outline" className="text-xs">{post.wordCount} words</Badge>
+                        </div>
+                        <Eye className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-4 sm:line-clamp-6 leading-relaxed">
+                          {post.content}
+                        </p>
+                      </div>
+                      <div className="mt-2 sm:mt-3 pt-2 border-t border-muted/30">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="truncate">Click to preview</span>
+                          <span>#{index + 1}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
-
-
         </div>
-
-
       </div>
 
       {/* Preview Modal */}
       <Dialog open={showPreviewModal} onOpenChange={handleClosePreview}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto">
           <DialogHeader>
-            <DialogTitle>Preview Content</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">Preview Content</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base">
               Review your generated content and add images before publishing to LinkedIn.
             </DialogDescription>
           </DialogHeader>
@@ -660,25 +655,25 @@ export default function DashboardPage() {
           {selectedPost && (
             <div className="space-y-4">
               {/* Content Preview */}
-              <div className="p-4 border rounded-lg bg-muted/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary">{selectedPost.tone}</Badge>
-                  <Badge variant="outline">{selectedPost.wordCount} words</Badge>
+              <div className="p-3 sm:p-4 border rounded-lg bg-muted/30">
+                <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
+                  <Badge variant="secondary" className="text-xs">{selectedPost.tone}</Badge>
+                  <Badge variant="outline" className="text-xs">{selectedPost.wordCount} words</Badge>
                 </div>
                 {isEditing ? (
                   <div className="space-y-2">
                     <Textarea
                       value={editableContent}
                       onChange={(e) => setEditableContent(e.target.value)}
-                      className="min-h-[120px] resize-none"
+                      className="min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base"
                       placeholder="Edit your post content..."
                     />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={handleSaveEdit}>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button size="sm" onClick={handleSaveEdit} className="flex-1 sm:flex-none">
                         <Save className="w-4 h-4 mr-2" />
                         Save Changes
                       </Button>
-                      <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                      <Button size="sm" variant="outline" onClick={handleCancelEdit} className="flex-1 sm:flex-none">
                         <X className="w-4 h-4 mr-2" />
                         Cancel
                       </Button>
@@ -686,7 +681,7 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="whitespace-pre-wrap text-sm">{selectedPost.content}</div>
+                    <div className="whitespace-pre-wrap text-sm sm:text-base">{selectedPost.content}</div>
                     <Button 
                       size="sm" 
                       variant="outline" 
@@ -702,13 +697,14 @@ export default function DashboardPage() {
 
               {/* Image Management Section */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <Label className="text-base font-medium">Add Image to Your Content</Label>
                   {selectedImage && (
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => setSelectedImage(null)}
+                      className="w-full sm:w-auto"
                     >
                       <X className="w-4 h-4 mr-2" />
                       Remove Image
@@ -721,9 +717,9 @@ export default function DashboardPage() {
                     <img
                       src={selectedImage}
                       alt="Selected for content"
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-32 sm:h-48 object-cover rounded-lg"
                     />
-                    <Badge className="absolute top-2 left-2">
+                    <Badge className="absolute top-2 left-2 text-xs">
                       Selected Image
                     </Badge>
                   </div>
@@ -731,33 +727,35 @@ export default function DashboardPage() {
 
                 {/* Image Manager Tabs */}
                 <Tabs defaultValue="upload" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="upload">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload
+                  <TabsList className="grid w-full grid-cols-3 h-10 sm:h-9">
+                    <TabsTrigger value="upload" className="text-xs sm:text-sm">
+                      <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">Upload</span>
                     </TabsTrigger>
-                    <TabsTrigger value="search">
-                      <Search className="w-4 h-4 mr-2" />
-                      Search
+                    <TabsTrigger value="search" className="text-xs sm:text-sm">
+                      <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">Search</span>
                     </TabsTrigger>
-                    <TabsTrigger value="ai-generate">
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      AI Generate
+                    <TabsTrigger value="ai-generate" className="text-xs sm:text-sm">
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">AI Generate</span>
                     </TabsTrigger>
                   </TabsList>
 
                   {/* Upload Tab */}
-                  <TabsContent value="upload" className="mt-4">
+                  <TabsContent value="upload" className="mt-3 sm:mt-4">
                     <Card>
-                      <CardContent className="pt-6">
-                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                          <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground mb-4">
+                      <CardContent className="pt-4 sm:pt-6">
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 sm:p-6 text-center">
+                          <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                             Drag and drop images here or click to browse
                           </p>
                           <Button
                             onClick={() => document.getElementById('content-file-upload')?.click()}
                             disabled={isLoading}
+                            size="sm"
+                            className="w-full sm:w-auto"
                           >
                             {isLoading ? (
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -777,15 +775,15 @@ export default function DashboardPage() {
                         </div>
 
                         {uploadedImages.length > 0 && (
-                          <div className="space-y-2 mt-4">
-                            <Label>Uploaded Images</Label>
-                            <div className="grid grid-cols-3 gap-2">
+                          <div className="space-y-2 mt-3 sm:mt-4">
+                            <Label className="text-sm">Uploaded Images</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                               {uploadedImages.map((url, index) => (
                                 <div key={index} className="relative group">
                                   <img
                                     src={url}
                                     alt={`Uploaded ${index + 1}`}
-                                    className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                    className="w-full h-20 sm:h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
                                     onClick={() => handleImageSelect(url)}
                                   />
                                 </div>
@@ -798,19 +796,19 @@ export default function DashboardPage() {
                   </TabsContent>
 
                   {/* Search Tab */}
-                  <TabsContent value="search" className="mt-4">
+                  <TabsContent value="search" className="mt-3 sm:mt-4">
                     <Card>
-                      <CardContent className="pt-6">
-                        <div className="flex gap-2 mb-4">
+                      <CardContent className="pt-4 sm:pt-6">
+                        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
                           <Input
                             placeholder="Search for images..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && searchImages()}
-                            className="flex-1"
+                            className="flex-1 text-sm sm:text-base"
                           />
                           <Select value={selectedSource} onValueChange={setSelectedSource}>
-                            <SelectTrigger className="w-32">
+                            <SelectTrigger className="w-full sm:w-32 text-sm">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -821,7 +819,7 @@ export default function DashboardPage() {
                               ))}
                             </SelectContent>
                           </Select>
-                          <Button onClick={searchImages} disabled={isLoading || !searchQuery.trim()}>
+                          <Button onClick={searchImages} disabled={isLoading || !searchQuery.trim()} size="sm" className="w-full sm:w-auto min-h-[40px]">
                             {isLoading ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
@@ -832,16 +830,16 @@ export default function DashboardPage() {
 
                         {searchResults.length > 0 && (
                           <div className="space-y-2">
-                            <Label>Search Results</Label>
-                            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                            <Label className="text-sm">Search Results</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 sm:max-h-64 overflow-y-auto">
                               {searchResults.map((result) => (
                                 <div key={result.id} className="relative group">
-                                                                     <img
-                                     src={result.thumbnail}
-                                     alt={result.title || 'Search result'}
-                                     className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                     onClick={() => handleImageSelect(result.url)}
-                                   />
+                                  <img
+                                    src={result.thumbnail}
+                                    alt={result.title || 'Search result'}
+                                    className="w-full h-20 sm:h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleImageSelect(result.url)}
+                                  />
                                   <Badge className="absolute top-1 left-1 text-xs">
                                     {result.source}
                                   </Badge>
@@ -855,21 +853,23 @@ export default function DashboardPage() {
                   </TabsContent>
 
                   {/* AI Generate Tab */}
-                  <TabsContent value="ai-generate" className="mt-4">
+                  <TabsContent value="ai-generate" className="mt-3 sm:mt-4">
                     <Card>
-                      <CardContent className="pt-6">
+                      <CardContent className="pt-4 sm:pt-6">
                         <div className="space-y-2">
-                          <Label>Describe the image you want to generate</Label>
+                          <Label className="text-sm">Describe the image you want to generate</Label>
                           <Textarea
                             placeholder="A professional business meeting with modern office background..."
                             value={aiPrompt}
                             onChange={(e) => setAiPrompt(e.target.value)}
                             rows={3}
+                            className="text-sm sm:text-base resize-none"
                           />
                           <Button 
                             onClick={generateAIImage} 
                             disabled={isLoading || !aiPrompt.trim()}
                             className="w-full"
+                            size="sm"
                           >
                             {isLoading ? (
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -881,17 +881,17 @@ export default function DashboardPage() {
                         </div>
 
                         {aiResults.length > 0 && (
-                          <div className="space-y-2 mt-4">
-                            <Label>Generated Images</Label>
-                            <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                          <div className="space-y-2 mt-3 sm:mt-4">
+                            <Label className="text-sm">Generated Images</Label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 sm:max-h-64 overflow-y-auto">
                               {aiResults.map((result) => (
                                 <div key={result.id} className="relative group">
-                                                                     <img
-                                     src={result.url}
-                                     alt={result.prompt}
-                                     className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                     onClick={() => handleImageSelect(result.url)}
-                                   />
+                                  <img
+                                    src={result.url}
+                                    alt={result.prompt}
+                                    className="w-full h-24 sm:h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleImageSelect(result.url)}
+                                  />
                                   <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded">
                                     {result.prompt.substring(0, 50)}...
                                   </div>
@@ -906,20 +906,24 @@ export default function DashboardPage() {
                 </Tabs>
               </div>
               
-                                           <div className="flex gap-2">
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <LinkedInPostButton 
                   content={isEditing ? editableContent : selectedPost.content} 
                   images={selectedImage ? [selectedImage] : undefined}
+                  className="flex-1 sm:flex-none min-h-[40px]"
                 />
                 <ScheduleButton
                   content={isEditing ? editableContent : selectedPost.content}
                   images={selectedImage ? [selectedImage] : undefined}
                   defaultPlatform="linkedin"
                   defaultType="text"
+                  className="flex-1 sm:flex-none min-h-[40px]"
                 />
-                <Button variant="outline" onClick={handleSaveDraft}>
+                <Button variant="outline" onClick={handleSaveDraft} className="flex-1 sm:flex-none min-h-[40px]">
                   <Save className="w-4 h-4 mr-2" />
-                  Save to Drafts
+                  <span className="hidden xs:inline">Save to Drafts</span>
+                  <span className="xs:hidden">Save Draft</span>
                 </Button>
               </div>
             </div>
@@ -929,49 +933,49 @@ export default function DashboardPage() {
 
       {/* Generation Modal */}
       <Dialog open={showGenerationModal} onOpenChange={setShowGenerationModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto">
           <DialogHeader>
-            <DialogTitle>Generate Content</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">Generate Content</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base">
               Review your settings and generate content with AI.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Prompt Preview */}
             <div className="space-y-2">
-              <Label>Your Topic</Label>
+              <Label className="text-sm sm:text-base">Your Topic</Label>
               <div className="p-3 border rounded-lg bg-muted/30">
-                <p className="text-sm">{prompt}</p>
+                <p className="text-sm sm:text-base">{prompt}</p>
               </div>
             </div>
 
             {/* Current Settings Summary */}
             <div className="space-y-2">
-              <Label>Current Settings</Label>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <Label className="text-sm sm:text-base">Current Settings</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Content Type:</span>
-                  <Badge variant="outline">{contentType}</Badge>
+                  <Badge variant="outline" className="text-xs">{contentType}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Tone:</span>
-                  <Badge variant="outline">{customization.tone}</Badge>
+                  <Badge variant="outline" className="text-xs">{customization.tone}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Word Count:</span>
-                  <Badge variant="outline">{customization.wordCount} words</Badge>
+                  <Badge variant="outline" className="text-xs">{customization.wordCount} words</Badge>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">Language:</span>
-                  <Badge variant="outline">{customization.language}</Badge>
+                  <Badge variant="outline" className="text-xs">{customization.language}</Badge>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setShowGenerationModal(false)}>
+            <div className="flex flex-col sm:flex-row gap-2 justify-end pt-2">
+              <Button variant="outline" onClick={() => setShowGenerationModal(false)} className="w-full sm:w-auto min-h-[40px]">
                 Cancel
               </Button>
               <Button 
@@ -980,7 +984,7 @@ export default function DashboardPage() {
                   setShowGenerationModal(false)
                 }}
                 disabled={isGenerating}
-                className="relative overflow-hidden"
+                className="relative overflow-hidden w-full sm:w-auto min-h-[40px]"
               >
                 {isGenerating ? (
                   <>

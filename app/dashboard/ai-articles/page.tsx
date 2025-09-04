@@ -63,8 +63,6 @@ export default function AIArticlesPage() {
     mainGoal: "engagement",
     includeHashtags: true,
     includeEmojis: true,
-
-    
     callToAction: true,
     temperature: 0.7,
     maxTokens: 2000,
@@ -278,8 +276,6 @@ export default function AIArticlesPage() {
     setExpandedTopic(null)
   }
 
-
-
   const saveToDraft = async (content: string, title: string, format: string = "article") => {
     try {
       const response = await fetch("/api/drafts", {
@@ -290,7 +286,6 @@ export default function AIArticlesPage() {
           content,
           format,
           niche: "AI Generated",
-  
         })
       })
 
@@ -317,39 +312,39 @@ export default function AIArticlesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-h-screen">
       {/* Header */}
-      <div className="px-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+      <div className="px-2 sm:px-4">
+        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             AI Articles & Topics Generator 📝
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Generate viral topics and create engaging articles with 6 variations using OpenAI.
           </p>
         </div>
       </div>
 
       {/* Content Generator */}
-      <div className="px-4 space-y-6">
+      <div className="px-2 sm:px-4 space-y-4 sm:space-y-6 pb-6">
         {/* Main Content Area */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
                 Topic Generator
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm sm:text-base">
                 Select a niche and generate viral-worthy topics for your content.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               {/* Niche Selection */}
               <div className="space-y-2">
-                <Label>Select Niche</Label>
+                <Label className="text-sm sm:text-base">Select Niche</Label>
                 <Select value={selectedNiche} onValueChange={setSelectedNiche}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue placeholder="Choose a niche" />
                   </SelectTrigger>
                   <SelectContent>
@@ -365,20 +360,21 @@ export default function AIArticlesPage() {
               {/* Custom Niche Input */}
               {selectedNiche === "Custom Niche" && (
                 <div className="space-y-2">
-                  <Label>Custom Niche</Label>
+                  <Label className="text-sm sm:text-base">Custom Niche</Label>
                   <Input
                     placeholder="Enter your custom niche..."
                     value={customNiche}
                     onChange={(e) => setCustomNiche(e.target.value)}
+                    className="text-sm sm:text-base"
                   />
                 </div>
               )}
 
               {/* Topic Count */}
               <div className="space-y-2">
-                <Label>Number of Topics</Label>
+                <Label className="text-sm sm:text-base">Number of Topics</Label>
                 <Select value={topicCount.toString()} onValueChange={(value) => setTopicCount(parseInt(value))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -390,30 +386,28 @@ export default function AIArticlesPage() {
                 </Select>
               </div>
 
-
-
               {/* AI Customization Panel - Collapsible */}
               <div className="border rounded-lg">
                 <button
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
+                  className="w-full p-3 sm:p-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors min-h-[48px] touch-manipulation"
                 >
-                  <div className="flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
-                    <span className="font-medium">Customization Options</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Settings className="w-4 h-4 flex-shrink-0" />
+                    <span className="font-medium text-sm sm:text-base truncate">Customization Options</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">{customization.tone}</Badge>
-                    <Badge variant="outline">{customization.language}</Badge>
-                    <Badge variant="outline">{customization.wordCount} words</Badge>
-                    <span className="text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Badge variant="outline" className="text-xs hidden xs:inline-flex">{customization.tone}</Badge>
+                    <Badge variant="outline" className="text-xs hidden xs:inline-flex">{customization.language}</Badge>
+                    <Badge variant="outline" className="text-xs hidden xs:inline-flex">{customization.wordCount} words</Badge>
+                    <span className="text-xs sm:text-sm text-muted-foreground">
                       {showAdvanced ? "Hide" : "Show"}
                     </span>
                   </div>
                 </button>
                 
                 {showAdvanced && (
-                  <div className="p-4 border-t">
+                  <div className="p-3 sm:p-4 border-t">
                     <AICustomizationPanel
                       customization={customization}
                       onCustomizationChange={setCustomization}
@@ -430,7 +424,7 @@ export default function AIArticlesPage() {
               <Button
                 onClick={generateTopics}
                 disabled={isGenerating || !selectedNiche || (selectedNiche === "Custom Niche" && !customNiche.trim())}
-                className="w-full"
+                className="w-full h-12 sm:h-11 text-sm sm:text-base"
                 size="lg"
               >
                 {isGenerating ? (
@@ -451,18 +445,18 @@ export default function AIArticlesPage() {
           {/* Generated Topics */}
           {topics.length > 0 && (
             <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
+              <CardHeader className="pb-4 sm:pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
                       Generated Topics ({topics.length})
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-sm sm:text-base">
                       Click on a topic to expand and generate content.
                     </CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={clearTopics}>
+                  <Button variant="outline" size="sm" onClick={clearTopics} className="w-full sm:w-auto min-h-[40px]">
                     <X className="w-4 h-4 mr-2" />
                     Clear All
                   </Button>
@@ -471,14 +465,14 @@ export default function AIArticlesPage() {
               <CardContent>
                 <div className="space-y-4">
                   {topics.map((topic) => (
-                    <div key={topic.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="font-medium mb-2">{topic.title}</h3>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary">{topic.niche}</Badge>
-                            <Badge variant="outline">Viral Score: {topic.viralChance}%</Badge>
-                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"}>
+                    <div key={topic.id} className="border rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0 mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium mb-2 text-sm sm:text-base">{topic.title}</h3>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">{topic.niche}</Badge>
+                            <Badge variant="outline" className="text-xs">Viral Score: {topic.viralChance}%</Badge>
+                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs">
                               {topic.status === "content-ready" ? "Content Ready" : "Generated"}
                             </Badge>
                           </div>
@@ -487,6 +481,7 @@ export default function AIArticlesPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => setExpandedTopic(expandedTopic === topic.id ? null : topic.id)}
+                          className="w-full sm:w-auto min-h-[40px]"
                         >
                           {expandedTopic === topic.id ? "Collapse" : "Expand"}
                         </Button>
@@ -497,27 +492,27 @@ export default function AIArticlesPage() {
                           {topic.status === "content-ready" ? (
                             <div className="space-y-3">
                               <div className="flex items-center gap-2">
-                                <Badge variant="default">{topic.format}</Badge>
-                                <span className="text-sm text-muted-foreground">Content generated</span>
+                                <Badge variant="default" className="text-xs">{topic.format}</Badge>
+                                <span className="text-xs sm:text-sm text-muted-foreground">Content generated</span>
                               </div>
                               {Array.isArray(topic.content) ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                   {topic.content.map((content, index) => (
-                                    <div key={index} className="aspect-square p-4 border rounded-lg bg-muted/30 flex flex-col">
-                                      <div className="flex items-start justify-between mb-3">
+                                    <div key={index} className="aspect-[4/3] sm:aspect-square p-3 sm:p-4 border rounded-lg bg-muted/30 flex flex-col">
+                                      <div className="flex items-start justify-between mb-2 sm:mb-3">
                                         <Badge variant="outline" className="text-xs">Variation {index + 1}</Badge>
                                         <Badge variant="secondary" className="text-xs">{topic.format}</Badge>
                                       </div>
                                       <div className="flex-1 overflow-hidden">
-                                        <p className="text-sm text-muted-foreground line-clamp-6 leading-relaxed whitespace-pre-wrap">
+                                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-4 sm:line-clamp-6 leading-relaxed whitespace-pre-wrap">
                                           {content}
                                         </p>
                                       </div>
-                                      <div className="mt-3 pt-2 border-t border-muted/30 space-y-2">
-                                        <div className="flex gap-2">
+                                      <div className="mt-2 sm:mt-3 pt-2 border-t border-muted/30 space-y-2">
+                                        <div className="flex flex-col sm:flex-row gap-2">
                                           <Button 
                                             size="sm"
-                                            className="flex-1 text-xs"
+                                            className="flex-1 text-xs min-h-[32px]"
                                             onClick={() => saveToDraft(content, `${topic.title} - Variation ${index + 1}`, topic.format || "article")}
                                           >
                                             <Save className="w-3 h-3 mr-1" />
@@ -526,7 +521,7 @@ export default function AIArticlesPage() {
                                           <Button 
                                             size="sm" 
                                             variant="outline"
-                                            className="flex-1 text-xs"
+                                            className="flex-1 text-xs min-h-[32px]"
                                             onClick={() => {
                                               setPreviewContent(content)
                                               setPreviewingTopicId(topic.id)
@@ -538,35 +533,35 @@ export default function AIArticlesPage() {
                                         </div>
                                         <LinkedInPostButton 
                                           content={content}
-                                          className="w-full text-xs h-8"
+                                          className="w-full text-xs h-8 min-h-[32px]"
                                         />
                                         <ScheduleButton
                                           content={content}
                                           defaultPlatform="linkedin"
                                           defaultType="text"
-                                          className="w-full text-xs h-8"
+                                          className="w-full text-xs h-8 min-h-[32px]"
                                         />
                                       </div>
                                     </div>
                                   ))}
                                 </div>
                               ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  <div className="aspect-square p-4 border rounded-lg bg-muted/30 flex flex-col">
-                                    <div className="flex items-start justify-between mb-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                  <div className="aspect-[4/3] sm:aspect-square p-3 sm:p-4 border rounded-lg bg-muted/30 flex flex-col">
+                                    <div className="flex items-start justify-between mb-2 sm:mb-3">
                                       <Badge variant="outline" className="text-xs">Single Content</Badge>
                                       <Badge variant="secondary" className="text-xs">{topic.format}</Badge>
                                     </div>
                                     <div className="flex-1 overflow-hidden">
-                                      <p className="text-sm text-muted-foreground line-clamp-6 leading-relaxed whitespace-pre-wrap">
+                                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-4 sm:line-clamp-6 leading-relaxed whitespace-pre-wrap">
                                         {getTopicContent(topic)}
                                       </p>
                                     </div>
-                                    <div className="mt-3 pt-2 border-t border-muted/30 space-y-2">
-                                      <div className="flex gap-2">
+                                    <div className="mt-2 sm:mt-3 pt-2 border-t border-muted/30 space-y-2">
+                                      <div className="flex flex-col sm:flex-row gap-2">
                                         <Button 
                                           size="sm"
-                                          className="flex-1 text-xs"
+                                          className="flex-1 text-xs min-h-[32px]"
                                           onClick={() => saveToDraft(
                                             getTopicContent(topic), 
                                             topic.title, 
@@ -579,7 +574,7 @@ export default function AIArticlesPage() {
                                         <Button 
                                           size="sm" 
                                           variant="outline"
-                                          className="flex-1 text-xs"
+                                          className="flex-1 text-xs min-h-[32px]"
                                           onClick={() => {
                                             setPreviewContent(getTopicContent(topic))
                                             setPreviewingTopicId(topic.id)
@@ -591,13 +586,13 @@ export default function AIArticlesPage() {
                                       </div>
                                       <LinkedInPostButton 
                                         content={getTopicContent(topic)}
-                                        className="w-full text-xs h-8"
+                                        className="w-full text-xs h-8 min-h-[32px]"
                                       />
                                       <ScheduleButton
                                         content={getTopicContent(topic)}
                                         defaultPlatform="linkedin"
                                         defaultType="text"
-                                        className="w-full text-xs h-8"
+                                        className="w-full text-xs h-8 min-h-[32px]"
                                       />
                                     </div>
                                   </div>
@@ -607,9 +602,9 @@ export default function AIArticlesPage() {
                           ) : (
                             <div className="space-y-3">
                               <div className="space-y-2">
-                                <Label>Content Format</Label>
+                                <Label className="text-sm sm:text-base">Content Format</Label>
                                 <Select onValueChange={(format) => generateContent(topic, format)}>
-                                  <SelectTrigger>
+                                  <SelectTrigger className="text-sm sm:text-base">
                                     <SelectValue placeholder="Select format" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -625,7 +620,7 @@ export default function AIArticlesPage() {
                                 onClick={() => generateContent(topic, "Story")}
                                 disabled={isGenerating}
                                 size="sm"
-                                className="w-full"
+                                className="w-full min-h-[40px]"
                               >
                                 {isGenerating ? (
                                   <>
@@ -668,8 +663,6 @@ export default function AIArticlesPage() {
             }}
           />
         )}
-
-
       </div>
     </div>
   )

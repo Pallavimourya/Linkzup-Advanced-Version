@@ -84,10 +84,10 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-card rounded-2xl p-6 w-full max-w-md shadow-2xl border border-border">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-card-foreground">Schedule Post</h3>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-card rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-border">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-card-foreground">Schedule Post</h3>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground transition-colors"
@@ -135,11 +135,11 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
           </div>
         </div>
         
-        <div className="flex gap-3 mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button
             onClick={handleSchedule}
             disabled={!scheduledDate || !scheduledTime || isScheduling}
-            className="flex-1"
+            className="flex-1 min-h-[40px]"
           >
             {isScheduling ? (
               <>
@@ -158,7 +158,7 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
             variant="outline"
             onClick={onClose}
             disabled={isScheduling}
-            className="flex-1"
+            className="flex-1 min-h-[40px]"
           >
             Cancel
           </Button>
@@ -577,21 +577,21 @@ export default function CustomPostPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-h-screen">
       {/* Header */}
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-2 sm:px-4">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+          <Breadcrumb className="min-w-0">
+            <BreadcrumbList className="flex-wrap">
+              <BreadcrumbItem className="hidden sm:block">
                 <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbItem className="hidden sm:block">
                 <BreadcrumbSeparator />
               </BreadcrumbItem>
               <BreadcrumbItem>
-                <BreadcrumbPage>Custom Post</BreadcrumbPage>
+                <BreadcrumbPage className="text-sm sm:text-base">Custom Post</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -599,26 +599,26 @@ export default function CustomPostPage() {
       </header>
 
       {/* Welcome Section */}
-      <div className="px-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+      <div className="px-2 sm:px-4">
+        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             Create Custom LinkedIn Posts ✍️
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Craft personalized content with rich formatting, images, and scheduling options.
           </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="px-2 sm:px-4 pb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {/* Left: Editor */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
 
             {/* Content Editor */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                 <label className="block text-sm font-medium text-foreground">
                   Content
                 </label>
@@ -634,10 +634,8 @@ export default function CustomPostPage() {
                 </div>
               </div>
 
-              
-              
               {/* Toolbar */}
-              <div className="flex gap-1 bg-muted p-2 rounded-lg w-fit">
+              <div className="flex flex-wrap gap-1 bg-muted p-2 rounded-lg w-fit">
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -677,7 +675,7 @@ export default function CustomPostPage() {
                 </Button>
                 <Button variant="outline" size="sm" className="h-8 px-3 text-primary gap-1 hover:bg-primary hover:text-primary-foreground">
                   <Sparkles className="h-4 w-4" />
-                  AI Assist
+                  <span className="hidden xs:inline">AI Assist</span>
                 </Button>
               </div>
               
@@ -723,25 +721,25 @@ export default function CustomPostPage() {
                     htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent
                   }))
                 }}
-                className="min-h-[300px] resize-none text-base leading-relaxed border-2 focus:border-primary focus:ring-primary/20"
+                className="min-h-[250px] sm:min-h-[300px] resize-none text-sm sm:text-base leading-relaxed border-2 focus:border-primary focus:ring-primary/20"
                 maxLength={maxCharacters}
               />
             </div>
 
               {/* Tags */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
               <label className="block text-sm font-medium text-foreground">
                 Tags
               </label>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input 
                   placeholder="Add a tag..." 
                   value={newTag} 
                   onChange={(e) => setNewTag(e.target.value)} 
                   onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                  className="flex-1"
+                  className="flex-1 text-sm sm:text-base"
                 />
-                <Button size="sm" onClick={addTag} className="gap-2">
+                <Button size="sm" onClick={addTag} className="gap-2 w-full sm:w-auto min-h-[40px]">
                   <Plus className="h-4 w-4" />
                   Add
                 </Button>
@@ -764,19 +762,19 @@ export default function CustomPostPage() {
             </div>
 
             {/* Attachments */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <label className="block text-sm font-medium text-foreground">
                 Attachments
               </label>
               
               {/* Attachment Options */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Upload Images */}
                 <div
-                  className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 hover:bg-muted/50 transform hover:scale-105"
+                  className="border-2 border-dashed border-border rounded-lg p-3 sm:p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 hover:bg-muted/50 transform hover:scale-105"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <Upload className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
                   <p className="text-sm font-medium text-foreground">Upload Images</p>
                   <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
                   <input 
@@ -791,28 +789,26 @@ export default function CustomPostPage() {
 
                 {/* Search Images */}
                 <div 
-                  className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 hover:bg-muted/50 transform hover:scale-105"
+                  className="border-2 border-dashed border-border rounded-lg p-3 sm:p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 hover:bg-muted/50 transform hover:scale-105"
                   onClick={() => setShowImageSearch(true)}
                 >
-                  <Search className="h-6 w-6 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <Search className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
                   <p className="text-sm font-medium text-foreground">Search Images</p>
                   <p className="text-xs text-muted-foreground">Find stock photos & graphics</p>
                 </div>
-
-
               </div>
               
               {/* Uploaded Images Preview */}
               {postData.images.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-foreground">Uploaded Images</h4>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {postData.images.map((img, i) => (
                       <div key={i} className="relative group">
                         <img 
                           src={img} 
                           alt="preview" 
-                          className="rounded-lg h-20 w-full object-cover border border-border" 
+                          className="rounded-lg h-16 sm:h-20 w-full object-cover border border-border" 
                         />
                         <button 
                           onClick={() => removeImage(i)} 
@@ -829,7 +825,7 @@ export default function CustomPostPage() {
           </div>
 
           {/* Right: Preview */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Preview Tabs */}
             <div className="flex border-b border-border">
               <button
@@ -847,42 +843,42 @@ export default function CustomPostPage() {
             </div>
 
             {/* Preview Content */}
-            <div className="bg-card rounded-2xl shadow-lg p-6 border border-border">
+            <div className="bg-card rounded-2xl shadow-lg p-4 sm:p-6 border border-border">
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-semibold">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-semibold text-sm sm:text-base">
                   {session?.user?.name?.charAt(0) || "U"}
                 </div>
                 <div>
-                  <p className="font-semibold text-card-foreground">
+                  <p className="font-semibold text-card-foreground text-sm sm:text-base">
                     {session?.user?.name || "Your Name"}
                   </p>
-                  <p className="text-sm text-muted-foreground capitalize">
+                  <p className="text-xs sm:text-sm text-muted-foreground capitalize">
                     {postData.platform} • {postData.type}
                   </p>
                 </div>
               </div>
               
               {postData.title && (
-                <h3 className="font-semibold text-lg text-card-foreground mb-3">
+                <h3 className="font-semibold text-base sm:text-lg text-card-foreground mb-3">
                   {postData.title}
                 </h3>
               )}
               
               <div 
-                className="text-card-foreground leading-relaxed mb-4 prose prose-sm max-w-none"
+                className="text-card-foreground leading-relaxed mb-4 prose prose-sm max-w-none text-sm sm:text-base"
                 dangerouslySetInnerHTML={{ 
                   __html: formatContentForPreview(postData.content, postData.htmlContent)
                 }}
               />
               
               {postData.images.length > 0 && (
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                   {postData.images.map((img, i) => (
                     <img 
                       key={i} 
                       src={img} 
                       alt="preview" 
-                      className="rounded-lg w-full h-32 object-cover" 
+                      className="rounded-lg w-full h-24 sm:h-32 object-cover" 
                     />
                   ))}
                 </div>
@@ -900,23 +896,23 @@ export default function CustomPostPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-muted rounded-xl p-4">
-              <h4 className="font-medium text-foreground mb-3">Quick Actions</h4>
+            <div className="bg-muted rounded-xl p-3 sm:p-4">
+              <h4 className="font-medium text-foreground mb-3 text-sm sm:text-base">Quick Actions</h4>
               <div className="space-y-3">
                 <Button
                   onClick={handlePostNow}
                   disabled={!isContentValid || isPosting}
-                  className="w-full gap-2"
+                  className="w-full gap-2 min-h-[40px]"
                 >
                   {isPosting ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
-                      Posting to LinkedIn...
+                      <span className="text-sm sm:text-base">Posting to LinkedIn...</span>
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4" />
-                      Post Now
+                      <span className="text-sm sm:text-base">Post Now</span>
                     </>
                   )}
                 </Button>
@@ -925,27 +921,27 @@ export default function CustomPostPage() {
                   onClick={() => setShowScheduleModal(true)}
                   disabled={!isContentValid}
                   variant="outline"
-                  className="w-full gap-2"
+                  className="w-full gap-2 min-h-[40px]"
                 >
                   <Calendar className="h-4 w-4" />
-                  Schedule Post
+                  <span className="text-sm sm:text-base">Schedule Post</span>
                 </Button>
                 
                 <Button
                   onClick={handleSaveDraft}
                   disabled={!isContentValid || isSavingDraft}
                   variant="secondary"
-                  className="w-full gap-2"
+                  className="w-full gap-2 min-h-[40px]"
                 >
                   {isSavingDraft ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-secondary-foreground" />
-                      Saving Draft...
+                      <span className="text-sm sm:text-base">Saving Draft...</span>
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4" />
-                      Save as Draft
+                      <span className="text-sm sm:text-base">Save as Draft</span>
                     </>
                   )}
                 </Button>
@@ -957,14 +953,14 @@ export default function CustomPostPage() {
               {!isContentValid && (
                 <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 text-sm bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg">
                   <AlertCircle className="h-4 w-4" />
-                  Write some content to enable posting
+                  <span className="text-xs sm:text-sm">Write some content to enable posting</span>
                 </div>
               )}
               
               {isContentValid && (
                 <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-950/20 p-3 rounded-lg">
                   <CheckCircle className="h-4 w-4" />
-                  Ready to post or schedule
+                  <span className="text-xs sm:text-sm">Ready to post or schedule</span>
                 </div>
               )}
             </div>
@@ -974,10 +970,10 @@ export default function CustomPostPage() {
 
       {/* Image Search Modal */}
       {showImageSearch && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-2xl p-6 w-full max-w-5xl shadow-2xl border border-border max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-card-foreground">Search Images</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-card rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl border border-border max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-card-foreground">Search Images</h3>
               <button
                 onClick={() => setShowImageSearch(false)}
                 className="text-muted-foreground hover:text-foreground transition-colors"
@@ -986,10 +982,10 @@ export default function CustomPostPage() {
               </button>
             </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Image Source Selection */}
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex-1 w-full">
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Image Source
                   </label>
@@ -1026,32 +1022,32 @@ export default function CustomPostPage() {
                   </Select>
                 </div>
                 
-                <div className="flex-1">
+                <div className="flex-1 w-full">
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Search Images
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Input
                       placeholder="Search for images (e.g., business, technology, nature)..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleImageSearch()}
-                      className="flex-1"
+                      className="flex-1 text-sm sm:text-base"
                     />
                     <Button 
                       onClick={handleImageSearch}
                       disabled={isSearching}
-                      className="gap-2"
+                      className="gap-2 w-full sm:w-auto min-h-[40px]"
                     >
                       {isSearching ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground" />
-                          Searching...
+                          <span className="text-sm sm:text-base">Searching...</span>
                         </>
                       ) : (
                         <>
                           <Search className="h-4 w-4" />
-                          Search
+                          <span className="text-sm sm:text-base">Search</span>
                         </>
                       )}
                     </Button>
@@ -1060,7 +1056,7 @@ export default function CustomPostPage() {
               </div>
               
               {/* Search Results */}
-              <div className="grid grid-cols-5 gap-3 max-h-96 overflow-y-auto">
+              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 max-h-64 sm:max-h-96 overflow-y-auto">
                 {searchResults.length > 0 ? (
                   searchResults.map((image, i) => (
                     <div key={image.id || i} className="relative group cursor-pointer">
@@ -1077,10 +1073,10 @@ export default function CustomPostPage() {
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                         <Button 
                           size="sm" 
-                          className="bg-primary hover:bg-primary/90"
+                          className="bg-primary hover:bg-primary/90 text-xs"
                           onClick={() => handleAddImageFromSearch(image.url)}
                         >
-                          <Plus className="h-4 w-4 mr-1" />
+                          <Plus className="h-3 w-3 mr-1" />
                           Add
                         </Button>
                       </div>
@@ -1093,22 +1089,22 @@ export default function CustomPostPage() {
                     Array.from({ length: 20 }).map((_, i) => (
                       <div key={i} className="relative group cursor-pointer">
                         <div className="aspect-square bg-muted rounded-lg flex items-center justify-center animate-pulse">
-                          <div className="w-8 h-8 bg-muted-foreground/20 rounded-full"></div>
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-muted-foreground/20 rounded-full"></div>
                         </div>
                       </div>
                     ))
                   ) : searchQuery && !isSearching ? (
                     // No results found state
-                    <div className="col-span-5 flex flex-col items-center justify-center py-12 text-center">
-                      <ImageIcon className="h-16 w-16 text-muted-foreground mb-4" />
-                      <h4 className="text-lg font-medium text-foreground mb-2">No images found</h4>
-                      <p className="text-muted-foreground mb-4">
+                    <div className="col-span-3 sm:col-span-4 lg:col-span-5 flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+                      <ImageIcon className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-3 sm:mb-4" />
+                      <h4 className="text-base sm:text-lg font-medium text-foreground mb-2">No images found</h4>
+                      <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
                         No images found for "{searchQuery}". Try a different search term or image source.
                       </p>
                       <Button 
                         onClick={() => setSearchQuery("")}
                         variant="outline"
-                        className="gap-2"
+                        className="gap-2 text-sm sm:text-base"
                       >
                         <Search className="h-4 w-4" />
                         Try different search
@@ -1119,11 +1115,11 @@ export default function CustomPostPage() {
                     Array.from({ length: 20 }).map((_, i) => (
                       <div key={i} className="relative group cursor-pointer">
                         <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          <ImageIcon className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
                         </div>
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <Button size="sm" className="bg-primary hover:bg-primary/90">
-                            <Plus className="h-4 w-4 mr-1" />
+                          <Button size="sm" className="bg-primary hover:bg-primary/90 text-xs">
+                            <Plus className="h-3 w-3 mr-1" />
                             Add
                           </Button>
                         </div>
@@ -1133,7 +1129,7 @@ export default function CustomPostPage() {
                 )}
               </div>
               
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-xs sm:text-sm text-muted-foreground">
                 {searchResults.length > 0 ? (
                   <span>
                     <span className="font-medium capitalize">{imageSource}</span> • Free to use • High quality stock photos
@@ -1149,8 +1145,6 @@ export default function CustomPostPage() {
         </div>
       )}
 
-
-
       {/* Schedule Modal */}
       <ScheduleModal
         isOpen={showScheduleModal}
@@ -1158,6 +1152,6 @@ export default function CustomPostPage() {
         onSchedule={handleSchedule}
         isScheduling={isScheduling}
       />
-          </div>
-    )
-  }
+    </div>
+  )
+}

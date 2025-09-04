@@ -98,13 +98,13 @@ export function AccountHeader() {
 
   return (
     <div className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex h-14 items-center justify-between px-2 sm:px-4">
         {/* Left side - Mobile Navigation and LinkedIn connection status */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           {/* Mobile Dashboard Navigation */}
           <MobileDashboardNav />
           
-          {/* LinkedIn Connection Status */}
+          {/* LinkedIn Connection Status - Responsive */}
           {isLinkedInConnected ? (
             <TooltipProvider>
               <Tooltip>
@@ -112,11 +112,11 @@ export function AccountHeader() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-2 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/20"
+                    className="h-8 px-1.5 sm:px-2 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/20"
                     disabled={isLinkedInLoading}
                   >
-                    <Linkedin className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Connected</span>
+                    <Linkedin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden xs:inline text-xs sm:text-sm">Connected</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -131,12 +131,12 @@ export function AccountHeader() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                    className="h-8 px-1.5 sm:px-2 text-muted-foreground hover:text-foreground"
                     onClick={handleLinkedInConnection}
                     disabled={isLinkedInLoading}
                   >
-                    <Linkedin className="h-4 w-4 mr-1" />
-                    <span className="hidden sm:inline">Connect LinkedIn</span>
+                    <Linkedin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden xs:inline text-xs sm:text-sm">Connect</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -146,7 +146,7 @@ export function AccountHeader() {
             </TooltipProvider>
           )}
 
-          {/* Refresh button - only show on larger screens */}
+          {/* Refresh button - responsive visibility */}
           <div className="hidden sm:block">
             <TooltipProvider>
               <Tooltip>
@@ -168,7 +168,7 @@ export function AccountHeader() {
             </TooltipProvider>
           </div>
 
-          {/* Test disconnect button - only in development */}
+          {/* Test disconnect button - only in development and larger screens */}
           {process.env.NODE_ENV === 'development' && (
             <div className="hidden lg:block">
               <TooltipProvider>
@@ -194,45 +194,45 @@ export function AccountHeader() {
         </div>
 
         {/* Right side - Credits, Theme, Account */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          {/* Credit Display - Responsive */}
-          <div className="hidden sm:block">
-            <CreditDisplay />
+        <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
+          {/* Credit Display - Always visible including mobile */}
+          <div className="block min-w-0 mr-1 sm:mr-0">
+            <CreditDisplay compact={false} />
           </div>
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle - Always visible */}
           <ThemeToggle />
 
-          {/* Account Dropdown - Custom Implementation */}
+          {/* Account Dropdown - Responsive */}
           <div className="relative" ref={dropdownRef}>
             <Button 
               variant="ghost" 
-              className="relative h-10 w-auto px-2 sm:px-3 hover:bg-accent focus:bg-accent"
+              className="relative h-8 sm:h-10 w-auto px-1.5 sm:px-2 lg:px-3 hover:bg-accent focus:bg-accent"
               onClick={() => {
                 console.log('Dropdown trigger clicked - isOpen:', !isDropdownOpen)
                 setIsDropdownOpen(!isDropdownOpen)
               }}
             >
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Avatar className="h-6 w-6 sm:h-8 sm:w-8">
                   <AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
-                  <AvatarFallback>{session.user.name?.charAt(0) || "U"}</AvatarFallback>
+                  <AvatarFallback className="text-xs sm:text-sm">{session.user.name?.charAt(0) || "U"}</AvatarFallback>
                 </Avatar>
-                <div className="hidden md:flex flex-col items-start">
+                <div className="hidden lg:flex flex-col items-start">
                   <span className="text-sm font-medium leading-none">{session.user.name}</span>
                   <span className="text-xs text-muted-foreground">{session.user.email}</span>
                 </div>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
             </Button>
 
-            {/* Custom Dropdown Menu */}
+            {/* Custom Dropdown Menu - Responsive positioning */}
             {isDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 rounded-md border bg-popover p-1 shadow-lg z-[9999]">
+              <div className="absolute right-0 top-full mt-2 w-48 sm:w-56 rounded-md border bg-popover p-1 shadow-lg z-[9999]">
                 <div className="flex items-center justify-start gap-2 p-2 border-b">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">{session.user.name}</p>
-                    <p className="w-[200px] truncate text-sm text-muted-foreground">{session.user.email}</p>
+                    <p className="font-medium text-sm">{session.user.name}</p>
+                    <p className="w-full max-w-[180px] sm:max-w-[200px] truncate text-xs sm:text-sm text-muted-foreground">{session.user.email}</p>
                   </div>
                 </div>
                 

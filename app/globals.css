@@ -93,6 +93,31 @@
   .grid-responsive-4 {
     @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-4;
   }
+  
+  /* Mobile-first responsive utilities */
+  .mobile-first {
+    @apply w-full sm:w-auto;
+  }
+  
+  .mobile-first-flex {
+    @apply flex-col sm:flex-row;
+  }
+  
+  .mobile-first-grid {
+    @apply grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  
+  .mobile-first-text {
+    @apply text-sm sm:text-base;
+  }
+  
+  .mobile-first-spacing {
+    @apply space-y-3 sm:space-y-4;
+  }
+  
+  .mobile-first-padding {
+    @apply p-3 sm:p-4 lg:p-6;
+  }
 }
 
 /* Razorpay Modal Fixes */
@@ -114,39 +139,51 @@ iframe[src*="razorpay"] {
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
   border: 2px solid #bbf7d0 !important;
   color: #166534 !important;
-  box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.1), 0 10px 10px -5px rgba(34, 197, 94, 0.04) !important;
-  border-radius: 12px !important;
+  box-shadow: 0 4px 12px -2px rgba(34, 197, 94, 0.1), 0 2px 4px -1px rgba(34, 197, 94, 0.06) !important;
+  border-radius: 8px !important;
   font-weight: 500 !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+  max-width: 320px !important;
 }
 
 .toast-notification .toast-title {
   color: #15803d !important;
   font-weight: 600 !important;
+  font-size: 12px !important;
 }
 
 .toast-notification .toast-description {
   color: #166534 !important;
   opacity: 0.9 !important;
+  font-size: 11px !important;
 }
 
 /* Toast Viewport Positioning */
 [data-radix-toast-viewport] {
   position: fixed !important;
-  top: 20px !important;
+  top: 16px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 9999 !important;
-  max-width: 420px !important;
+  max-width: 320px !important;
   width: 100% !important;
 }
 
 /* Sonner Toast Styling */
 .sonner-toaster {
   position: fixed !important;
-  top: 20px !important;
+  top: 16px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 9999 !important;
+}
+
+/* Custom Responsive Breakpoints */
+@media (min-width: 475px) {
+  .xs\:inline {
+    display: inline !important;
+  }
 }
 
 /* Fix for modal focus issues */
@@ -209,14 +246,31 @@ iframe[src*="razorpay"] {
   .desktop-p-8 {
     padding: 2rem;
   }
-  
-  .desktop-p-12 {
-    padding: 3rem;
+}
+
+/* Responsive sidebar improvements */
+@media (max-width: 1023px) {
+  .sidebar-hidden {
+    display: none !important;
+  }
+}
+
+/* Mobile header optimizations */
+@media (max-width: 640px) {
+  .mobile-header-compact {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
   
-  .desktop-text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
+  .mobile-header-spacing {
+    gap: 0.25rem;
+  }
+}
+
+/* Tablet header optimizations */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .tablet-header-spacing {
+    gap: 0.5rem;
   }
 }
 

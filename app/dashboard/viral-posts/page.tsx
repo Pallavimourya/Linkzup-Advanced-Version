@@ -194,31 +194,31 @@ export default function ViralPostsPage() {
   })
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-2 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Viral Posts & News</h1>
-          <p className="text-muted-foreground">Discover trending content and stay updated with industry news</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Viral Posts & News</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Discover trending content and stay updated with industry news</p>
         </div>
-        <Button onClick={handleRefresh} disabled={isLoading} variant="outline">
+        <Button onClick={handleRefresh} disabled={isLoading} variant="outline" className="w-full sm:w-auto min-h-[40px]">
           <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search posts and news..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 text-sm sm:text-base"
           />
         </div>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px] text-sm sm:text-base">
             <Filter className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Category" />
           </SelectTrigger>
@@ -234,40 +234,42 @@ export default function ViralPostsPage() {
         </Select>
       </div>
 
-      <Tabs defaultValue="viral-posts" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="viral-posts" className="flex items-center gap-2">
+      <Tabs defaultValue="viral-posts" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 h-10 sm:h-9">
+          <TabsTrigger value="viral-posts" className="flex items-center gap-2 text-xs sm:text-sm">
             <TrendingUp className="h-4 w-4" />
-            Viral Posts
+            <span className="hidden sm:inline">Viral Posts</span>
+            <span className="sm:hidden">Posts</span>
           </TabsTrigger>
-          <TabsTrigger value="news-feed" className="flex items-center gap-2">
+          <TabsTrigger value="news-feed" className="flex items-center gap-2 text-xs sm:text-sm">
             <Eye className="h-4 w-4" />
-            News Feed
+            <span className="hidden sm:inline">News Feed</span>
+            <span className="sm:hidden">News</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="viral-posts" className="space-y-6">
-          <div className="grid gap-6">
+        <TabsContent value="viral-posts" className="space-y-4 sm:space-y-6">
+          <div className="grid gap-4 sm:gap-6">
             {filteredPosts.map((post) => (
               <Card key={post.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12">
+                      <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                         <AvatarImage src={post.author.avatar || "/placeholder.svg"} alt={post.author.name} />
                         <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
                       </Avatar>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{post.author.name}</h3>
+                          <h3 className="font-semibold text-sm sm:text-base truncate">{post.author.name}</h3>
                           {post.author.verified && (
                             <Badge variant="secondary" className="text-xs">
                               Verified
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{post.author.title}</p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{post.author.title}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
                           <Clock className="h-3 w-3 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">{post.timeAgo}</span>
                           <Badge variant="outline" className="text-xs">
@@ -292,43 +294,44 @@ export default function ViralPostsPage() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm leading-relaxed">{post.content}</p>
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <p className="text-xs sm:text-sm leading-relaxed">{post.content}</p>
 
-                  <div className="flex items-center justify-between pt-3 border-t">
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 pt-3 border-t">
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        <Heart className="h-4 w-4" />
+                        <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span>{post.engagement.likes.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <MessageCircle className="h-4 w-4" />
+                        <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span>{post.engagement.comments.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Share2 className="h-4 w-4" />
+                        <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span>{post.engagement.shares.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                         <span>{post.engagement.views.toLocaleString()}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" className="gap-2">
-                        <Sparkles className="h-4 w-4" />
-                        Create Similar
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button size="sm" className="gap-2 min-h-[32px]">
+                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <span className="hidden sm:inline">Create Similar</span>
+                        <span className="sm:hidden">Similar</span>
                       </Button>
                       <LinkedInPostButton 
                         content={post.content}
-                        className="text-xs h-8"
+                        className="text-xs h-8 min-h-[32px]"
                       />
                       <ScheduleButton
                         content={post.content}
                         defaultPlatform="linkedin"
                         defaultType="text"
                         size="sm"
-                        className="text-xs h-8"
+                        className="text-xs h-8 min-h-[32px]"
                       />
                     </div>
                   </div>
@@ -338,14 +341,14 @@ export default function ViralPostsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="news-feed" className="space-y-6">
-          <div className="grid gap-4">
+        <TabsContent value="news-feed" className="space-y-4 sm:space-y-6">
+          <div className="grid gap-3 sm:gap-4">
             {filteredNews.map((item) => (
               <Card key={item.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <Badge variant="outline" className="text-xs">
                           {item.category}
                         </Badge>
@@ -359,21 +362,22 @@ export default function ViralPostsPage() {
                           <span>Relevance: {item.relevanceScore}%</span>
                         </div>
                       </div>
-                      <CardTitle className="text-lg leading-tight">{item.title}</CardTitle>
-                      <CardDescription className="mt-2">{item.summary}</CardDescription>
+                      <CardTitle className="text-base sm:text-lg leading-tight">{item.title}</CardTitle>
+                      <CardDescription className="mt-2 text-xs sm:text-sm">{item.summary}</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                       <span>{item.source}</span>
                       <span>•</span>
                       <span>{item.publishedAt}</span>
                     </div>
-                    <Button size="sm" variant="outline" className="gap-2 bg-transparent">
-                      <Sparkles className="h-4 w-4" />
-                      Create Post
+                    <Button size="sm" variant="outline" className="gap-2 bg-transparent min-h-[32px]">
+                      <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Create Post</span>
+                      <span className="sm:hidden">Create</span>
                     </Button>
                   </div>
                 </CardContent>

@@ -86,12 +86,12 @@ export function AppSidebar() {
   const pathname = usePathname()
 
   return (
-    <Sidebar variant="inset" className="hidden md:block">
-      <SidebarHeader>
+    <Sidebar variant="inset" className="hidden lg:block">
+      <SidebarHeader className="px-2 py-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+            <SidebarMenuButton size="lg" asChild className="w-full justify-start">
+              <Link href="/dashboard" className="flex items-center gap-3 w-full px-3 py-2">
                 <Logo size="sm" className="flex-shrink-0" />
               </Link>
             </SidebarMenuButton>
@@ -99,7 +99,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
             Platform
@@ -111,16 +111,11 @@ export function AppSidebar() {
                   <SidebarMenuButton 
                     asChild 
                     isActive={pathname === item.url}
-                    className="w-full justify-start px-3 py-2 text-sm"
+                    className="w-full justify-start px-3 py-2.5 text-sm hover:bg-accent/50"
                   >
                     <Link href={item.url} className="flex items-center gap-3 w-full">
                       <item.icon className="h-4 w-4 flex-shrink-0" />
                       <span className="truncate">{item.title}</span>
-                      {item.comingSoon && (
-                        <span className="ml-auto text-xs bg-primary/20 text-primary px-2 py-1 rounded-full flex-shrink-0">
-                          Coming Soon
-                        </span>
-                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

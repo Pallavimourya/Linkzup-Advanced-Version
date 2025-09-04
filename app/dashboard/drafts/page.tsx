@@ -238,17 +238,17 @@ export default function DraftsPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-2 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Drafts</h1>
-          <p className="text-muted-foreground">Manage your saved drafts and convert them to posts</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Drafts</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your saved drafts and convert them to posts</p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2 w-full sm:w-auto min-h-[40px]">
               <Plus className="h-4 w-4" />
-              New Draft
+              <span className="text-sm sm:text-base">New Draft</span>
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
@@ -309,18 +309,18 @@ export default function DraftsPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search drafts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 text-sm sm:text-base"
           />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px] text-sm sm:text-base">
             <Filter className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Category" />
           </SelectTrigger>
@@ -335,7 +335,7 @@ export default function DraftsPage() {
           </SelectContent>
         </Select>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px] text-sm sm:text-base">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -349,49 +349,49 @@ export default function DraftsPage() {
       </div>
 
       {/* Drafts Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredDrafts.map((draft) => (
           <Card key={draft.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge className={getTypeColor(draft.type)}>
-                      {getTypeIcon(draft.type)}
-                      <span className="ml-1 capitalize">{draft.type.replace("-", " ")}</span>
-                    </Badge>
-                    <Badge variant="outline">{draft.category}</Badge>
+                              <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge className={getTypeColor(draft.type)}>
+                        {getTypeIcon(draft.type)}
+                        <span className="ml-1 capitalize text-xs">{draft.type.replace("-", " ")}</span>
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">{draft.category}</Badge>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="min-h-[32px]">
+                          <MoreVertical className="h-3 w-3 sm:h-4 sm:w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditDraft(draft)}>
+                          <Edit3 className="mr-2 h-4 w-4" />
+                          {draft.type === "carousel" ? "Edit in Carousel Editor" : "Edit"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDuplicateDraft(draft)}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteDraft(draft)} className="text-red-600">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <CardTitle className="text-lg leading-tight">{draft.title}</CardTitle>
-                  <CardDescription className="mt-1">
+                  <CardTitle className="text-base sm:text-lg leading-tight">{draft.title}</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">
                     {draft.wordCount} words • {format(draft.lastModified, "MMM dd")}
                   </CardDescription>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleEditDraft(draft)}>
-                      <Edit3 className="mr-2 h-4 w-4" />
-                      {draft.type === "carousel" ? "Edit in Carousel Editor" : "Edit"}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDuplicateDraft(draft)}>
-                      <FileText className="mr-2 h-4 w-4" />
-                      Duplicate
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDeleteDraft(draft)} className="text-red-600">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground line-clamp-3">{draft.content}</p>
+            <CardContent className="space-y-3 sm:space-y-4">
+              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3">{draft.content}</p>
 
               {draft.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
@@ -415,7 +415,7 @@ export default function DraftsPage() {
                 </div>
               )}
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <ScheduleButton
                   content={draft.content}
                   images={draft.images || []}
@@ -423,7 +423,7 @@ export default function DraftsPage() {
                   defaultType={draft.type === "carousel" ? "carousel" : "text"}
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 min-h-[32px]"
                   onSuccess={() => {
                     toast({
                       title: "Scheduled!",
@@ -433,21 +433,21 @@ export default function DraftsPage() {
                 />
                 <Button 
                   size="sm" 
-                  className="flex-1 gap-2"
+                  className="flex-1 gap-2 min-h-[32px]"
                   onClick={() => handlePostToLinkedIn(draft)}
                   disabled={postingDrafts.has(draft.id)}
                 >
-                  <Send className="h-4 w-4" />
-                  {postingDrafts.has(draft.id) ? "Posting..." : "Post Now"}
+                  <Send className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm">{postingDrafts.has(draft.id) ? "Posting..." : "Post Now"}</span>
                 </Button>
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 min-h-[32px]"
                   onClick={() => handleDeleteDraft(draft)}
                 >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
+                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm">Delete</span>
                 </Button>
               </div>
             </CardContent>
@@ -456,16 +456,16 @@ export default function DraftsPage() {
       </div>
 
       {filteredDrafts.length === 0 && (
-        <Card className="text-center py-12">
+        <Card className="text-center py-8 sm:py-12">
           <CardContent>
-            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No drafts found</h3>
-            <p className="text-muted-foreground mb-4">
+            <FileText className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-semibold mb-2">No drafts found</h3>
+            <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
               {searchQuery || categoryFilter !== "all" || typeFilter !== "all"
                 ? "Try adjusting your search or filters"
                 : "Start creating content to see your drafts here"}
             </p>
-            <Button>Create Your First Draft</Button>
+            <Button className="min-h-[40px]">Create Your First Draft</Button>
           </CardContent>
         </Card>
       )}

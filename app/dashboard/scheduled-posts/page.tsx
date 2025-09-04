@@ -170,28 +170,28 @@ export default function ScheduledPostsPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-2 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Scheduled Posts</h1>
-          <p className="text-muted-foreground">Manage your scheduled content and track performance</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Scheduled Posts</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your scheduled content and track performance</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={loading}>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <Button variant="outline" onClick={handleRefresh} disabled={loading} className="w-full sm:w-auto min-h-[40px]">
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
-          <Button variant="outline" onClick={() => setShowStats(!showStats)}>
+          <Button variant="outline" onClick={() => setShowStats(!showStats)} className="w-full sm:w-auto min-h-[40px]">
             {showStats ? <EyeOff className="h-4 w-4 mr-2" /> : <BarChart3 className="h-4 w-4 mr-2" />}
-            {showStats ? "Hide Stats" : "Show Stats"}
+            <span className="text-sm sm:text-base">{showStats ? "Hide Stats" : "Show Stats"}</span>
           </Button>
 
           <SchedulePostModal
             content="Write your post content here..."
             trigger={
-              <Button className="gap-2">
+              <Button className="gap-2 w-full sm:w-auto min-h-[40px]">
                 <Plus className="h-4 w-4" />
-                Schedule Post
+                <span className="text-sm sm:text-base">Schedule Post</span>
               </Button>
             }
             onSuccess={() => {
@@ -205,64 +205,64 @@ export default function ScheduledPostsPage() {
 
       {/* Statistics Cards */}
       {showStats && stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Total Posts</CardTitle>
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Pending</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.pending}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.pending}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Posted</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Posted</CardTitle>
               <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.posted}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.posted}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's Posts</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium">Today's Posts</CardTitle>
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.today}</div>
+              <div className="text-xl sm:text-2xl font-bold">{stats.today}</div>
             </CardContent>
           </Card>
         </div>
       )}
 
-      <Tabs defaultValue="list" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+      <Tabs defaultValue="list" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 h-10 sm:h-9">
+          <TabsTrigger value="list" className="text-xs sm:text-sm">List View</TabsTrigger>
+          <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar View</TabsTrigger>
         </TabsList>
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search scheduled posts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 text-sm sm:text-base"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[150px]">
+            <SelectTrigger className="w-full sm:w-[150px] text-sm sm:text-base">
               <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -276,7 +276,7 @@ export default function ScheduledPostsPage() {
             </SelectContent>
           </Select>
           <Select value={platformFilter} onValueChange={setPlatformFilter}>
-            <SelectTrigger className="w-full sm:w-[150px]">
+            <SelectTrigger className="w-full sm:w-[150px] text-sm sm:text-base">
               <SelectValue placeholder="Platform" />
             </SelectTrigger>
             <SelectContent>
@@ -287,7 +287,7 @@ export default function ScheduledPostsPage() {
             </SelectContent>
           </Select>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full sm:w-[150px]">
+            <SelectTrigger className="w-full sm:w-[150px] text-sm sm:text-base">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -300,26 +300,26 @@ export default function ScheduledPostsPage() {
           </Select>
         </div>
 
-        <TabsContent value="list" className="space-y-4">
+        <TabsContent value="list" className="space-y-3 sm:space-y-4">
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Loading scheduled posts...</span>
+            <div className="flex items-center justify-center py-6 sm:py-8">
+              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin" />
+              <span className="ml-2 text-sm sm:text-base">Loading scheduled posts...</span>
             </div>
           ) : error ? (
-            <div className="text-center py-8">
-              <AlertCircle className="h-8 w-8 mx-auto text-red-500 mb-2" />
-              <p className="text-red-500 font-medium">{error}</p>
-              <Button variant="outline" onClick={handleRefresh} className="mt-4 bg-transparent">
+            <div className="text-center py-6 sm:py-8">
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-red-500 mb-2" />
+              <p className="text-red-500 font-medium text-sm sm:text-base">{error}</p>
+              <Button variant="outline" onClick={handleRefresh} className="mt-4 bg-transparent min-h-[40px]">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Try Again
               </Button>
             </div>
           ) : filteredPosts.length === 0 ? (
-            <div className="text-center py-12">
-              <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No scheduled posts found</h3>
-              <p className="text-muted-foreground mb-4">
+            <div className="text-center py-8 sm:py-12">
+              <CalendarIcon className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2">No scheduled posts found</h3>
+              <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
                 {posts.length === 0
                   ? "You haven't scheduled any posts yet. Click the 'Schedule Post' button to get started!"
                   : "No posts match your current filters. Try adjusting your search criteria."}
@@ -327,9 +327,9 @@ export default function ScheduledPostsPage() {
               <SchedulePostModal
                 content="Write your post content here..."
                 trigger={
-                  <Button>
+                  <Button className="min-h-[40px]">
                     <Plus className="h-4 w-4 mr-2" />
-                    Schedule Your First Post
+                    <span className="text-sm sm:text-base">Schedule Your First Post</span>
                   </Button>
                 }
                 onSuccess={() => {
@@ -343,65 +343,65 @@ export default function ScheduledPostsPage() {
               {filteredPosts.map((post) => (
                 <Card key={post._id} className="hover:shadow-md transition-shadow">
                   <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
                           <Badge className={getStatusColor(post.status)}>
                             {getStatusIcon(post.status)}
-                            <span className="ml-1 capitalize">{post.status}</span>
+                            <span className="ml-1 capitalize text-xs">{post.status}</span>
                           </Badge>
-                          <Badge variant="outline" className="capitalize">
+                          <Badge variant="outline" className="capitalize text-xs">
                             {post.type}
                           </Badge>
-                          <Badge variant="outline" className="capitalize">
+                          <Badge variant="outline" className="capitalize text-xs">
                             {post.platform}
                           </Badge>
                           {post.retryCount && post.retryCount > 0 && (
-                            <Badge variant="outline" className="text-orange-600">
+                            <Badge variant="outline" className="text-orange-600 text-xs">
                               Retry {post.retryCount}/{post.maxRetries || 3}
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <CalendarIcon className="h-4 w-4" />
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                          <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span>Scheduled for {format(new Date(post.scheduledFor), "MMM dd, yyyy 'at' h:mm a")}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         {post.status === "pending" && (
-                          <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)}>
-                            <Pause className="h-4 w-4" />
+                          <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="min-h-[32px]">
+                            <Pause className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         )}
                         {post.status === "paused" && (
-                          <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)}>
-                            <Play className="h-4 w-4" />
+                          <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="min-h-[32px]">
+                            <Play className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         )}
                         {post.status === "failed" && (
-                          <Button variant="ghost" size="sm" onClick={() => handleRetryPost(post._id)}>
-                            <RefreshCw className="h-4 w-4" />
+                          <Button variant="ghost" size="sm" onClick={() => handleRetryPost(post._id)} className="min-h-[32px]">
+                            <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm">
-                          <Edit3 className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" className="min-h-[32px]">
+                          <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeletePost(post._id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 min-h-[32px]"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm leading-relaxed mb-4 line-clamp-3">{post.content}</p>
+                    <p className="text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-3">{post.content}</p>
 
                     {post.tags && post.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
+                      <div className="flex flex-wrap gap-1 mb-2 sm:mb-3">
                         {post.tags.map((tag) => (
                           <Badge key={tag} variant="secondary" className="text-xs">
                             {tag}
@@ -411,7 +411,7 @@ export default function ScheduledPostsPage() {
                     )}
 
                     {post.engagement && (
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground pt-3 border-t">
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground pt-3 border-t">
                         <span>{post.engagement.likes} likes</span>
                         <span>{post.engagement.comments} comments</span>
                         <span>{post.engagement.shares} shares</span>
@@ -419,7 +419,7 @@ export default function ScheduledPostsPage() {
                     )}
 
                     {post.errorMessage && (
-                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs sm:text-sm text-red-700">
                         <strong>Error:</strong> {post.errorMessage}
                       </div>
                     )}
@@ -428,8 +428,8 @@ export default function ScheduledPostsPage() {
               ))}
 
               {hasMore && (
-                <div className="text-center py-4">
-                  <Button onClick={handleLoadMore} variant="outline">
+                <div className="text-center py-3 sm:py-4">
+                  <Button onClick={handleLoadMore} variant="outline" className="min-h-[40px]">
                     Load More Posts
                   </Button>
                 </div>
@@ -438,12 +438,12 @@ export default function ScheduledPostsPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="calendar" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <TabsContent value="calendar" className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <Card className="lg:col-span-1">
               <CardHeader>
-                <CardTitle className="text-lg">Calendar</CardTitle>
-                <CardDescription>Select a date to view scheduled posts</CardDescription>
+                <CardTitle className="text-base sm:text-lg">Calendar</CardTitle>
+                <CardDescription className="text-sm">Select a date to view scheduled posts</CardDescription>
               </CardHeader>
               <CardContent>
                 <Calendar
@@ -455,47 +455,49 @@ export default function ScheduledPostsPage() {
               </CardContent>
             </Card>
 
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">
+                  <CardTitle className="text-base sm:text-lg">
                     Posts for {selectedDate ? format(selectedDate, "MMMM dd, yyyy") : "Selected Date"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {filteredPosts.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {filteredPosts.map((post) => (
                         <div
                           key={post._id}
-                          className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                          className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                         >
                           <div className="flex items-center gap-2">
                             {getStatusIcon(post.status)}
-                            <span className="text-sm font-medium">{format(new Date(post.scheduledFor), "h:mm a")}</span>
+                            <span className="text-xs sm:text-sm font-medium">{format(new Date(post.scheduledFor), "h:mm a")}</span>
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm truncate">{post.content}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs sm:text-sm truncate">{post.content}</p>
                           </div>
-                          <Badge variant="outline" className="capitalize text-xs">
-                            {post.type}
-                          </Badge>
-                          <Badge variant="outline" className="capitalize text-xs">
-                            {post.platform}
-                          </Badge>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="capitalize text-xs">
+                              {post.type}
+                            </Badge>
+                            <Badge variant="outline" className="capitalize text-xs">
+                              {post.platform}
+                            </Badge>
+                          </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <CalendarIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-muted-foreground">No posts scheduled for this date</p>
+                    <div className="text-center py-6 sm:py-8">
+                      <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-muted-foreground mb-2" />
+                      <p className="text-sm sm:text-base text-muted-foreground">No posts scheduled for this date</p>
                       <SchedulePostModal
                         content="Write your post content here..."
                         trigger={
-                          <Button variant="outline" className="mt-4 bg-transparent">
+                          <Button variant="outline" className="mt-3 sm:mt-4 bg-transparent min-h-[40px]">
                             <Plus className="h-4 w-4 mr-2" />
-                            Schedule for this date
+                            <span className="text-sm sm:text-base">Schedule for this date</span>
                           </Button>
                         }
                         onSuccess={() => {

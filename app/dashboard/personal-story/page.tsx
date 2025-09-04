@@ -496,20 +496,20 @@ export default function PersonalStoryPage() {
   const currentQuestion = storyQuestions[currentStep]
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-h-screen">
       {/* Header */}
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-2 sm:px-4">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <SidebarTrigger className="-ml-1 flex-shrink-0" />
+          <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+          <Breadcrumb className="min-w-0">
+            <BreadcrumbList className="flex-wrap">
+              <BreadcrumbItem className="hidden sm:block">
                 <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbSeparator className="hidden sm:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Personal Story Generator</BreadcrumbPage>
+                <BreadcrumbPage className="text-sm sm:text-base">Personal Story Generator</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -517,35 +517,35 @@ export default function PersonalStoryPage() {
       </header>
 
       {/* Welcome Section */}
-      <div className="px-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+      <div className="px-2 sm:px-4">
+        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             Personal Story Generator 📖
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Share your professional journey through compelling personal stories that connect with your audience.
           </p>
         </div>
       </div>
 
       {/* Content Generator */}
-      <div className="grid gap-6 px-4 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 px-2 sm:px-4 pb-6 lg:grid-cols-3">
         {/* Main Content Area */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Story Questions */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" />
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <User className="w-5 h-5 text-primary flex-shrink-0" />
                 Your Story Elements
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm sm:text-base">
                 Answer these questions to help us create your personal story. Step {currentStep + 1} of {storyQuestions.length}.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               {/* Progress Indicator */}
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
                 <div className="flex items-center gap-2">
                   {storyQuestions.map((_, index) => (
                     <div
@@ -565,26 +565,27 @@ export default function PersonalStoryPage() {
               </div>
 
               {/* Current Question */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <Label className="text-lg font-medium">{currentQuestion.title}</Label>
+                  <Label className="text-base sm:text-lg font-medium">{currentQuestion.title}</Label>
                   <p className="text-sm text-muted-foreground mt-1">{currentQuestion.description}</p>
                 </div>
                 <Textarea
                   placeholder={currentQuestion.placeholder}
                   value={formData[currentQuestion.key]}
                   onChange={(e) => handleInputChange(currentQuestion.key, e.target.value)}
-                  className="min-h-[120px]"
+                  className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base resize-none"
                 />
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <Button
                     variant="outline"
                     onClick={prevStep}
                     disabled={currentStep === 0}
+                    className="w-full sm:w-auto min-h-[40px]"
                   >
                     Previous
                   </Button>
@@ -592,6 +593,7 @@ export default function PersonalStoryPage() {
                     variant="outline"
                     onClick={clearFormData}
                     size="sm"
+                    className="w-full sm:w-auto min-h-[40px]"
                   >
                     Clear Form
                   </Button>
@@ -600,29 +602,30 @@ export default function PersonalStoryPage() {
                     onClick={saveAnswersToDatabase}
                     size="sm"
                     disabled={Object.values(formData).every(value => value.trim() === "")}
+                    className="w-full sm:w-auto min-h-[40px]"
                   >
                     Save Answers
                   </Button>
                 </div>
                 {currentStep < storyQuestions.length - 1 ? (
-                  <Button onClick={nextStep}>
+                  <Button onClick={nextStep} className="w-full sm:w-auto min-h-[40px]">
                     Next
                   </Button>
                 ) : (
                   <Button
                     onClick={generateStory}
                     disabled={isGenerating}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 w-full sm:w-auto min-h-[40px]"
                   >
                     {isGenerating ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Generating Stories...
+                        <span className="text-sm sm:text-base">Generating Stories...</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4" />
-                        Save & Generate Stories
+                        <span className="text-sm sm:text-base">Save & Generate Stories</span>
                       </>
                     )}
                   </Button>
@@ -634,10 +637,10 @@ export default function PersonalStoryPage() {
           {/* Generated Stories */}
           {isGenerating && (
             <Card>
-              <CardContent className="flex items-center justify-center py-8">
+              <CardContent className="flex items-center justify-center py-6 sm:py-8">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                  <p className="text-muted-foreground">Generating your 3 unique story variations...</p>
+                  <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary mx-auto mb-3 sm:mb-4"></div>
+                  <p className="text-sm sm:text-base text-muted-foreground">Generating your 3 unique story variations...</p>
                 </div>
               </CardContent>
             </Card>
@@ -645,20 +648,20 @@ export default function PersonalStoryPage() {
           
           {generatedStories.length > 0 && (
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-primary" />
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <BookOpen className="w-5 h-5 text-primary flex-shrink-0" />
                   Your Generated Stories ({generatedStories.length})
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm sm:text-base">
                   Choose your preferred story variation. Each variation offers a different approach to your personal story.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {generatedStories.length > 0 && generatedStories.every(story => !story.content || story.content.length < 50) && (
-                    <div className="p-4 border border-orange-200 bg-orange-50 rounded-lg">
-                      <p className="text-sm text-orange-800 mb-2">
+                    <div className="p-3 sm:p-4 border border-orange-200 bg-orange-50 rounded-lg">
+                      <p className="text-xs sm:text-sm text-orange-800 mb-2">
                         Some stories may not have generated properly. 
                       </p>
                       <Button 
@@ -666,6 +669,7 @@ export default function PersonalStoryPage() {
                         variant="outline" 
                         onClick={generateStory}
                         disabled={isGenerating}
+                        className="min-h-[32px]"
                       >
                         {isGenerating ? "Regenerating..." : "Regenerate Stories"}
                       </Button>
@@ -675,21 +679,21 @@ export default function PersonalStoryPage() {
                   {generatedStories.map((story) => (
                     <div
                       key={story.id}
-                      className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                      className="p-3 sm:p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
                       onClick={() => handleSelectStory(story)}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">{story.tone}</Badge>
-                          <Badge variant="outline">{story.wordCount} words</Badge>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0 mb-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">{story.tone}</Badge>
+                          <Badge variant="outline" className="text-xs">{story.wordCount} words</Badge>
                           {story.variation && (
-                            <Badge variant="default">Variation {story.variation}</Badge>
+                            <Badge variant="default" className="text-xs">Variation {story.variation}</Badge>
                           )}
                         </div>
-                        <Eye className="w-4 h-4 text-muted-foreground" />
+                        <Eye className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                       </div>
-                      <h3 className="font-medium mb-2">{story.title}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-4">
+                      <h3 className="font-medium mb-2 text-sm sm:text-base">{story.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-4">
                         {story.content && story.content.length > 0 
                           ? story.content 
                           : "Story content is being generated..."}
@@ -698,13 +702,13 @@ export default function PersonalStoryPage() {
                         <div className="mt-3 pt-2 border-t border-muted/30 space-y-2">
                           <LinkedInPostButton 
                             content={story.content}
-                            className="w-full text-xs h-8"
+                            className="w-full text-xs h-8 min-h-[32px]"
                           />
                           <ScheduleButton
                             content={story.content}
                             defaultPlatform="linkedin"
                             defaultType="text"
-                            className="w-full text-xs h-8"
+                            className="w-full text-xs h-8 min-h-[32px]"
                           />
                         </div>
                       )}
@@ -717,7 +721,7 @@ export default function PersonalStoryPage() {
         </div>
 
         {/* Customization Panel */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <PersonalStoryCustomizationPanel
             customization={customization}
             onCustomizationChange={setCustomization}
@@ -727,41 +731,42 @@ export default function PersonalStoryPage() {
 
       {/* Preview Modal */}
       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto">
           <DialogHeader>
-            <DialogTitle>Preview Your Story</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">Preview Your Story</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base">
               Review your generated personal story before publishing to LinkedIn.
             </DialogDescription>
           </DialogHeader>
           
           {selectedStory && (
             <div className="space-y-4">
-              <div className="p-4 border rounded-lg bg-muted/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary">{selectedStory.tone}</Badge>
-                  <Badge variant="outline">{selectedStory.wordCount} words</Badge>
+              <div className="p-3 sm:p-4 border rounded-lg bg-muted/30">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <Badge variant="secondary" className="text-xs">{selectedStory.tone}</Badge>
+                  <Badge variant="outline" className="text-xs">{selectedStory.wordCount} words</Badge>
                   {selectedStory.variation && (
-                    <Badge variant="default">Variation {selectedStory.variation}</Badge>
+                    <Badge variant="default" className="text-xs">Variation {selectedStory.variation}</Badge>
                   )}
                 </div>
-                <h3 className="font-medium mb-2">{selectedStory.title}</h3>
-                <div className="whitespace-pre-wrap text-sm">
+                <h3 className="font-medium mb-2 text-sm sm:text-base">{selectedStory.title}</h3>
+                <div className="whitespace-pre-wrap text-xs sm:text-sm">
                   {selectedStory.content}
                 </div>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   onClick={handlePostStory}
                   disabled={isPosting}
+                  className="flex-1 sm:flex-none min-h-[40px]"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  {isPosting ? "Posting..." : "Post to LinkedIn"}
+                  <span className="text-sm sm:text-base">{isPosting ? "Posting..." : "Post to LinkedIn"}</span>
                 </Button>
-                <Button variant="outline" onClick={handleSaveDraft}>
+                <Button variant="outline" onClick={handleSaveDraft} className="flex-1 sm:flex-none min-h-[40px]">
                   <Calendar className="w-4 h-4 mr-2" />
-                  Save to Drafts
+                  <span className="text-sm sm:text-base">Save to Drafts</span>
                 </Button>
               </div>
             </div>
