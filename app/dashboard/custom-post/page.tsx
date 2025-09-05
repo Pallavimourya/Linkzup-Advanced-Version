@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { formatIstDate } from "@/lib/ist-utils"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -127,7 +128,7 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
               <Clock className="h-4 w-4" />
               <span className="text-sm font-medium">
                 {scheduledDate && scheduledTime 
-                  ? `Will be posted on ${new Date(`${scheduledDate}T${scheduledTime}`).toLocaleString()}`
+                  ? `Will be posted on ${formatIstDate(new Date(`${scheduledDate}T${scheduledTime}`))}`
                   : "Select date and time"
                 }
               </span>
@@ -294,7 +295,7 @@ export default function CustomPostPage() {
       if (result.success) {
         toast({ 
           title: "Post Scheduled!", 
-          description: `Your post has been scheduled for ${new Date(scheduledDateTime).toLocaleString()}` 
+          description: `Your post has been scheduled for ${formatIstDate(new Date(scheduledDateTime))}` 
         })
         // Reset form
         setPostData({ 

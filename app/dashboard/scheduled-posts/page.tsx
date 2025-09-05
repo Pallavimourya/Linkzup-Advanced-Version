@@ -31,6 +31,7 @@ import { useScheduledPosts } from "@/hooks/use-scheduled-posts"
 import { SchedulePostModal } from "@/components/schedule-post-modal"
 import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
+import { formatIstTime, formatIstDateShort } from "@/lib/ist-utils"
 
 export default function ScheduledPostsPage() {
   const { data: session } = useSession()
@@ -364,7 +365,7 @@ export default function ScheduledPostsPage() {
                         </div>
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                           <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Scheduled for {format(new Date(post.scheduledFor), "MMM dd, yyyy 'at' h:mm a")}</span>
+                          <span>Scheduled for {formatIstDateShort(post.scheduledFor)} at {formatIstTime(post.scheduledFor)}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -472,7 +473,7 @@ export default function ScheduledPostsPage() {
                         >
                           <div className="flex items-center gap-2">
                             {getStatusIcon(post.status)}
-                            <span className="text-xs sm:text-sm font-medium">{format(new Date(post.scheduledFor), "h:mm a")}</span>
+                            <span className="text-xs sm:text-sm font-medium">{formatIstTime(post.scheduledFor)}</span>
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-xs sm:text-sm truncate">{post.content}</p>

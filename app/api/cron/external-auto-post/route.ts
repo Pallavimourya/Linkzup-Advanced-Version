@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
+import { utcToIst } from "@/lib/ist-utils"
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     const now = new Date()
     const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
 
-    console.log(`[External Cron] Processing posts due between ${fiveMinutesAgo.toISOString()} and ${now.toISOString()}`)
+    console.log(`[External Cron] Processing posts due between ${utcToIst(fiveMinutesAgo).toISOString()} IST and ${utcToIst(now).toISOString()} IST`)
 
     const postsToProcess = await db
       .collection("scheduled_posts")

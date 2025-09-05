@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { CalendarIcon, ImageIcon, Loader2, Sparkles } from "lucide-react"
 import { format } from "date-fns"
+import { formatIstDate } from "@/lib/ist-utils"
 import { useScheduledPosts } from "@/hooks/use-scheduled-posts"
 import { useToast } from "@/hooks/use-toast"
 
@@ -69,8 +70,13 @@ export function SchedulePostModal({
   const getScheduledDateTime = (): Date | null => {
     if (!selectedDate || !selectedTime) return null
     const [hours, minutes] = selectedTime.split(":").map(Number)
+    
+    // Create date in local timezone (which is IST)
     const scheduledDateTime = new Date(selectedDate)
     scheduledDateTime.setHours(hours, minutes, 0, 0)
+    
+    // Since we're already in IST timezone, we don't need to convert
+    // The time is already in the correct timezone
     return scheduledDateTime
   }
 
@@ -106,7 +112,7 @@ export function SchedulePostModal({
       if (result.success) {
         toast({
           title: "Post Scheduled!",
-          description: `Will publish on ${format(scheduledDateTime, "PPP 'at' p")}`,
+          description: `Will publish on ${formatIstDate(scheduledDateTime)}`,
         })
         setOpen(false)
         onSuccess?.()
@@ -164,7 +170,7 @@ export function SchedulePostModal({
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="rounded-full">Preview</Badge>
                   {selectedDate && selectedTime ? (
-                    <span className="text-xs text-muted-foreground">{format(new Date(new Date(selectedDate).setHours(Number(selectedTime.split(":")[0]), Number(selectedTime.split(":")[1]), 0, 0)), "PPp")}</span>
+                    <span className="text-xs text-muted-foreground">{formatIstDate(new Date(new Date(selectedDate).setHours(Number(selectedTime.split(":")[0]), Number(selectedTime.split(":")[1]), 0, 0)))}</span>
                   ) : null}
                 </div>
 
