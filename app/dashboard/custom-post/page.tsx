@@ -6,11 +6,21 @@ import { formatIstDate } from "@/lib/ist-utils"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
+import { useAIGeneration } from "@/hooks/use-ai-generation"
 import {
   ArrowLeft,
   Bookmark,
@@ -33,7 +43,8 @@ import {
   AlertCircle,
   Search,
   Palette,
-  Wand2
+  Wand2,
+  Loader2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -188,6 +199,32 @@ export default function CustomPostPage() {
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isScheduling, setIsScheduling] = useState(false)
   const [newTag, setNewTag] = useState("")
+  
+  // AI Assist state
+  const [showAIAssist, setShowAIAssist] = useState(false)
+  const [aiPrompt, setAiPrompt] = useState("")
+  const [aiContentType, setAiContentType] = useState<"linkedin-post" | "article" | "story" | "list" | "quote" | "tips" | "insights" | "question">("linkedin-post")
+  const [aiCustomization, setAiCustomization] = useState<{
+    tone: "professional" | "casual" | "friendly" | "authoritative" | "conversational"
+    language: "english"
+    wordCount: number
+    targetAudience: string
+    mainGoal: "engagement"
+    includeHashtags: boolean
+    includeEmojis: boolean
+    callToAction: boolean
+  }>({
+    tone: "professional",
+    language: "english",
+    wordCount: 150,
+    targetAudience: "LinkedIn professionals",
+    mainGoal: "engagement",
+    includeHashtags: true,
+    includeEmojis: true,
+    callToAction: true,
+  })
+  
+  const { generateContent, isGenerating } = useAIGeneration()
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [showImageSearch, setShowImageSearch] = useState(false)
   const [imageSource, setImageSource] = useState("unsplash")
@@ -446,6 +483,51 @@ export default function CustomPostPage() {
     })
   }
 
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      toast({
+        title: "Prompt Required",
+        description: "Please enter a prompt for AI generation",
+        variant: "destructive"
+      })
+      return
+    }
+
+    const response = await generateContent({
+      type: aiContentType,
+      prompt: aiPrompt.trim(),
+      provider: "openai",
+      customization: aiCustomization
+    })
+
+    if (response && response.content) {
+      // Handle different response types
+      let generatedText = ""
+      if (Array.isArray(response.content)) {
+        // If multiple variations, use the first one
+        generatedText = response.content[0] || ""
+      } else {
+        generatedText = response.content
+      }
+
+      // Insert generated content into the post
+      setPostData(prev => ({
+        ...prev,
+        content: prev.content + (prev.content ? "\n\n" : "") + generatedText,
+        htmlContent: prev.htmlContent + (prev.htmlContent ? "\n\n" : "") + generatedText
+      }))
+
+      // Close the AI Assist modal
+      setShowAIAssist(false)
+      setAiPrompt("")
+
+      toast({
+        title: "Content Generated!",
+        description: "AI-generated content has been added to your post"
+      })
+    }
+  }
+
   const characterCount = postData.content.length
   const maxCharacters = 3000
   const isContentValid = postData.content.trim().length > 0
@@ -588,9 +670,7 @@ export default function CustomPostPage() {
               <BreadcrumbItem className="hidden sm:block">
                 <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbItem className="hidden sm:block">
-                <BreadcrumbSeparator />
-              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden sm:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage className="text-sm sm:text-base">Custom Post</BreadcrumbPage>
               </BreadcrumbItem>
@@ -674,7 +754,12 @@ export default function CustomPostPage() {
                 >
                   <Smile className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="sm" className="h-8 px-3 text-primary gap-1 hover:bg-primary hover:text-primary-foreground">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 px-3 text-primary gap-1 hover:bg-primary hover:text-primary-foreground"
+                  onClick={() => setShowAIAssist(true)}
+                >
                   <Sparkles className="h-4 w-4" />
                   <span className="hidden xs:inline">AI Assist</span>
                 </Button>
@@ -1145,6 +1230,120 @@ export default function CustomPostPage() {
           </div>
         </div>
       )}
+
+      {/* AI Assist Modal */}
+      <Dialog open={showAIAssist} onOpenChange={setShowAIAssist}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              AI Assist
+            </DialogTitle>
+            <DialogDescription>
+              Generate content for your post using AI. Describe what you want to write about.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Content Type Selection */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Content Type</Label>
+              <Select value={aiContentType} onValueChange={(value: any) => setAiContentType(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="linkedin-post">LinkedIn Post</SelectItem>
+                  <SelectItem value="article">Article</SelectItem>
+                  <SelectItem value="story">Story</SelectItem>
+                  <SelectItem value="list">List</SelectItem>
+                  <SelectItem value="quote">Quote</SelectItem>
+                  <SelectItem value="tips">Tips</SelectItem>
+                  <SelectItem value="insights">Insights</SelectItem>
+                  <SelectItem value="question">Question</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Prompt Input */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">What would you like to write about?</Label>
+              <Textarea
+                placeholder="e.g., Share insights about remote work productivity, tips for new entrepreneurs, or discuss the latest trends in AI..."
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                rows={4}
+              />
+            </div>
+
+            {/* Customization Options */}
+            <div className="space-y-4">
+              <Label className="text-sm font-medium">Customization</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Tone</Label>
+                  <Select value={aiCustomization.tone} onValueChange={(value: "professional" | "casual" | "friendly" | "authoritative" | "conversational") => setAiCustomization(prev => ({ ...prev, tone: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="casual">Casual</SelectItem>
+                      <SelectItem value="friendly">Friendly</SelectItem>
+                      <SelectItem value="authoritative">Authoritative</SelectItem>
+                      <SelectItem value="conversational">Conversational</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Word Count</Label>
+                  <Select value={aiCustomization.wordCount.toString()} onValueChange={(value) => setAiCustomization(prev => ({ ...prev, wordCount: parseInt(value) }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="100">100 words</SelectItem>
+                      <SelectItem value="150">150 words</SelectItem>
+                      <SelectItem value="200">200 words</SelectItem>
+                      <SelectItem value="300">300 words</SelectItem>
+                      <SelectItem value="500">500 words</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowAIAssist(false)}
+                disabled={isGenerating}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAIGenerate}
+                disabled={!aiPrompt.trim() || isGenerating}
+                className="gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Generate Content
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Schedule Modal */}
       <ScheduleModal

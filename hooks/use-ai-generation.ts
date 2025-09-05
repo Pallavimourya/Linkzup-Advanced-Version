@@ -36,7 +36,28 @@ export function useAIGeneration() {
   const abortControllerRef = useRef<AbortController | null>(null)
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Poll queue status
+  // Initial queue status fetch - only once when component mounts
+  useEffect(() => {
+    const fetchInitialQueueStatus = async () => {
+      try {
+        const response = await fetch("/api/ai/generate", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" }
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setQueueStatus(data.queue)
+        }
+      } catch (error) {
+        console.warn("Failed to fetch initial queue status:", error)
+      }
+    }
+
+    fetchInitialQueueStatus()
+  }, []) // Empty dependency array - only run once
+
+  // Poll queue status - only when actively generating
   useEffect(() => {
     const pollQueueStatus = async () => {
       try {
@@ -49,8 +70,10 @@ export function useAIGeneration() {
           const data = await response.json()
           const newQueueStatus = data.queue
           
-          // Show queue status notifications
-          if (newQueueStatus && newQueueStatus !== queueStatus) {
+          // Show queue status notifications only if there's a significant change
+          if (newQueueStatus && queueStatus && 
+              (newQueueStatus.queueLength !== queueStatus.queueLength || 
+               newQueueStatus.isProcessing !== queueStatus.isProcessing)) {
             if (newQueueStatus.queueLength > 0 && newQueueStatus.queueLength <= 3) {
               toast({
                 title: "Queue Update",
@@ -71,14 +94,17 @@ export function useAIGeneration() {
       }
     }
 
-    // Poll immediately
-    pollQueueStatus()
+    // Only start polling if we're actively generating
+    if (state.isGenerating) {
+      // Poll immediately
+      pollQueueStatus()
 
-    // Set up interval for polling
-    const interval = setInterval(pollQueueStatus, 2000) // Poll every 2 seconds
+      // Set up interval for polling - reduced frequency to 5 seconds
+      const interval = setInterval(pollQueueStatus, 5000)
 
-    return () => clearInterval(interval)
-  }, [queueStatus, toast])
+      return () => clearInterval(interval)
+    }
+  }, [state.isGenerating, toast]) // Only depend on isGenerating state
 
   // Start progress simulation
   const startProgressSimulation = useCallback(() => {
