@@ -292,6 +292,7 @@ export default function AICarouselPage() {
   const [overlayOpacity, setOverlayOpacity] = useState(0.4)
   const [showRawContent, setShowRawContent] = useState(false)
   const [lastGeneratedContent, setLastGeneratedContent] = useState<string>("")
+  const [isPostingToLinkedIn, setIsPostingToLinkedIn] = useState(false)
   const slideCanvasRef = useRef<HTMLDivElement>(null)
 
   const [aiForm, setAiForm] = useState({
@@ -1270,6 +1271,8 @@ What do you think? Share your thoughts in the comments below.
   const postToLinkedInWithImages = async () => {
     if (!currentProject) return
 
+    setIsPostingToLinkedIn(true)
+    
     try {
       // Convert all slides to images
       const images: string[] = []
@@ -1306,6 +1309,8 @@ What do you think? Share your thoughts in the comments below.
         description: error instanceof Error ? error.message : "Failed to post to LinkedIn. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setIsPostingToLinkedIn(false)
     }
   }
 
@@ -1922,10 +1927,20 @@ What do you think? Share your thoughts in the comments below.
                       <span className="hidden sm:inline">Export PDF</span>
                       <span className="sm:hidden">PDF</span>
                     </Button>
-                    <Button onClick={openLinkedInModal} size="sm" className="flex-shrink-0">
-                      <Linkedin className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Post to LinkedIn</span>
-                      <span className="sm:hidden">LinkedIn</span>
+                    <Button onClick={openLinkedInModal} size="sm" className="flex-shrink-0" disabled={isPostingToLinkedIn}>
+                      {isPostingToLinkedIn ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <span className="hidden sm:inline">Posting...</span>
+                          <span className="sm:hidden">Posting</span>
+                        </>
+                      ) : (
+                        <>
+                          <Linkedin className="w-4 h-4 mr-2" />
+                          <span className="hidden sm:inline">Post to LinkedIn</span>
+                          <span className="sm:hidden">LinkedIn</span>
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -2374,17 +2389,17 @@ What do you think? Share your thoughts in the comments below.
                 <Button
                   variant="outline"
                   onClick={() => setShowLinkedInModal(false)}
-                  disabled={isPosting}
+                  disabled={isPostingToLinkedIn}
                   className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={postToLinkedInWithImages}
-                  disabled={isPosting || !linkedInCaption.trim()}
+                  disabled={isPostingToLinkedIn || !linkedInCaption.trim()}
                   className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
                 >
-                  {isPosting ? (
+                  {isPostingToLinkedIn ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       Posting...
