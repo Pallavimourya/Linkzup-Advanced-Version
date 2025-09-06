@@ -39,6 +39,7 @@ import { toast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
+import domtoimage from 'dom-to-image'
 
 // Import web fonts for carousel templates
 import { Inter, Open_Sans, Montserrat, Lato, Poppins, Roboto, Dancing_Script, Bebas_Neue, Righteous } from 'next/font/google'
@@ -145,6 +146,7 @@ interface CarouselProject {
   aspectRatio: "1:1" | "9:16"
   branding: "none" | "name" | "email" | "both"
   elements: CarouselElement[]
+  titleAccentColor: string
 }
 
 const designTemplates = [
@@ -222,7 +224,6 @@ const backgroundImages = [
   "/Backgrounds/bg14.jpg",
   "/Backgrounds/bg15.jpg",
   "/Backgrounds/bg16.jpg",
-  "/Backgrounds/bg17.jpg",
   "/Backgrounds/bg18.jpg",
   "/Backgrounds/bg19.jpg",
   "/Backgrounds/bg20.jpg",
@@ -232,10 +233,24 @@ const backgroundImages = [
   "/Backgrounds/bg24.jpg",
 ]
 
+// Title accent colors
+const titleAccentColors = [
+  "#FF0000", // Red
+  "#00FFFF", // Cyan
+  "#808080", // Grey
+  "#FF7F50", // Coral
+]
+
 // Function to get a random background image
 const getRandomBackgroundImage = () => {
   const randomIndex = Math.floor(Math.random() * backgroundImages.length)
   return backgroundImages[randomIndex]
+}
+
+// Function to get a random title accent color
+const getRandomTitleColor = () => {
+  const randomIndex = Math.floor(Math.random() * titleAccentColors.length)
+  return titleAccentColors[randomIndex]
 }
 
 const availableElements: Array<{ type: CarouselElement["type"]; label: string; icon: string }> = [
@@ -777,8 +792,9 @@ export default function AICarouselPage() {
         throw new Error('Failed to parse AI content into slides. Please try again.')
       }
       
-      // Generate a single background image for all slides
+      // Generate a single background image and title color for all slides
       const singleBackgroundImage = getRandomBackgroundImage()
+      const titleAccentColor = getRandomTitleColor()
       const template = designTemplates[0] // Default template (Open Sans)
       
       const slides: CarouselSlide[] = parsedSlides.map((slideData, index) => {
@@ -790,7 +806,7 @@ export default function AICarouselPage() {
           type: isFirst ? "first" : isLast ? "last" : "middle",
           content: slideData,
           design: {
-            fontSize: isFirst ? 36 : 24,
+            fontSize: isFirst ? 41 : 29,
             fontFamily: template.fontFamily,
             textColor: "#FFFFFF", // White text for better contrast on backgrounds
             backgroundColor: "#ffffff",
@@ -816,6 +832,7 @@ export default function AICarouselPage() {
         aspectRatio: "1:1",
         branding: "both",
         elements: [],
+        titleAccentColor,
       }
 
       setCurrentProject(newProject)
@@ -852,6 +869,7 @@ export default function AICarouselPage() {
   const createNewProject = () => {
     const template = designTemplates[0] // Default template (Open Sans)
     const singleBackground = getRandomBackgroundImage()
+    const titleAccentColor = getRandomTitleColor()
     const newProject: CarouselProject = {
       id: Date.now().toString(),
       title: "Untitled Carousel",
@@ -861,6 +879,7 @@ export default function AICarouselPage() {
       aspectRatio: "1:1",
       branding: "both",
       elements: [],
+      titleAccentColor,
       slides: [
         {
           id: "1",
@@ -871,7 +890,7 @@ export default function AICarouselPage() {
             bullet: "Engaging subtitle",
           },
           design: {
-            fontSize: 32,
+            fontSize: 35,
             fontFamily: template.fontFamily,
             textColor: "#FFFFFF", // White text for better contrast on backgrounds
             backgroundColor: "#ffffff",
@@ -924,7 +943,7 @@ export default function AICarouselPage() {
         bullets: ["Point 1", "Point 2", "Point 3"],
       },
       design: {
-        fontSize: 24,
+        fontSize: 27,
         fontFamily: template.fontFamily,
         textColor: "#FFFFFF", // White text for better contrast on backgrounds
         backgroundColor: "#ffffff",
@@ -1132,14 +1151,11 @@ export default function AICarouselPage() {
 
     for (let i = 0; i < currentProject.slides.length; i++) {
       setCurrentSlideIndex(i)
-      await new Promise((resolve) => setTimeout(resolve, 100)) // Allow render
+      await new Promise((resolve) => setTimeout(resolve, 200)) // Allow render
 
       if (slideCanvasRef.current) {
-        const canvas = await html2canvas(slideCanvasRef.current, {
-          backgroundColor: null,
-          scale: 2,
-        })
-        images.push(canvas.toDataURL("image/jpeg", 0.9))
+        const imageDataUrl = await captureSlideAsImage(slideCanvasRef.current)
+        images.push(imageDataUrl)
       }
     }
 
@@ -1164,21 +1180,26 @@ export default function AICarouselPage() {
 
     for (let i = 0; i < currentProject.slides.length; i++) {
       setCurrentSlideIndex(i)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 200))
 
       if (slideCanvasRef.current) {
-        const canvas = await html2canvas(slideCanvasRef.current, {
-          backgroundColor: null,
-          scale: 2,
-        })
-
+        const imageDataUrl = await captureSlideAsImage(slideCanvasRef.current)
+        
         if (i > 0) pdf.addPage()
 
-        const imgData = canvas.toDataURL("image/png")
-        const imgWidth = 190
-        const imgHeight = (canvas.height * imgWidth) / canvas.width
-
-        pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight)
+        // Convert data URL to image dimensions
+        const img = new Image()
+        img.src = imageDataUrl
+        
+        // Wait for image to load to get dimensions
+        await new Promise((resolve) => {
+          img.onload = () => {
+            const imgWidth = 190
+            const imgHeight = (img.height * imgWidth) / img.width
+            pdf.addImage(imageDataUrl, "PNG", 10, 10, imgWidth, imgHeight)
+            resolve(void 0)
+          }
+        })
       }
     }
 
@@ -1208,6 +1229,44 @@ What do you think? Share your thoughts in the comments below.
     setShowLinkedInModal(true)
   }
 
+
+  // Alternative function to capture slide as image using dom-to-image
+  const captureSlideAsImage = async (element: HTMLElement): Promise<string> => {
+    try {
+      // Use dom-to-image which handles modern CSS colors better
+      // Capture at higher resolution for better LinkedIn quality
+      const dataUrl = await domtoimage.toPng(element, {
+        quality: 0.95,
+        bgcolor: '#ffffff',
+        width: element.offsetWidth * 2, // 2x resolution for better quality
+        height: element.offsetHeight * 2,
+        style: {
+          transform: 'scale(2)',
+          transformOrigin: 'top left',
+          width: element.offsetWidth + 'px',
+          height: element.offsetHeight + 'px'
+        }
+      })
+      return dataUrl
+    } catch (error) {
+      console.warn('dom-to-image failed, falling back to html2canvas:', error)
+      // Fallback to html2canvas with proper scaling
+      try {
+        const canvas = await html2canvas(element, {
+          backgroundColor: '#ffffff',
+          scale: 2, // 2x scale for better quality
+          useCORS: true,
+          allowTaint: true,
+          logging: false
+        })
+        return canvas.toDataURL("image/jpeg", 0.95)
+      } catch (fallbackError) {
+        console.error('Both dom-to-image and html2canvas failed:', fallbackError)
+        throw new Error('Failed to capture slide image')
+      }
+    }
+  }
+
   const postToLinkedInWithImages = async () => {
     if (!currentProject) return
 
@@ -1217,33 +1276,55 @@ What do you think? Share your thoughts in the comments below.
 
       for (let i = 0; i < currentProject.slides.length; i++) {
         setCurrentSlideIndex(i)
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 200)) // Give more time for render
 
         if (slideCanvasRef.current) {
-          const canvas = await html2canvas(slideCanvasRef.current, {
-            backgroundColor: null,
-            scale: 2,
-          })
-          images.push(canvas.toDataURL("image/jpeg", 0.9))
+          const imageDataUrl = await captureSlideAsImage(slideCanvasRef.current)
+          images.push(imageDataUrl)
         }
       }
 
-      // TODO: Implement actual LinkedIn API posting
-      // await postToLinkedIn(linkedInCaption, images)
-
-      toast({
-        title: "Posted to LinkedIn!",
-        description: `Successfully posted carousel with ${images.length} slides.`,
+      // Call the actual LinkedIn posting API
+      const result = await postToLinkedIn({
+        content: linkedInCaption,
+        images: images
       })
 
-      setShowLinkedInModal(false)
+      if (result.success) {
+        toast({
+          title: "Posted to LinkedIn!",
+          description: `Successfully posted carousel with ${images.length} slides.`,
+        })
+        setShowLinkedInModal(false)
+      } else {
+        throw new Error("Failed to post to LinkedIn")
+      }
     } catch (error) {
+      console.error("LinkedIn posting error:", error)
       toast({
         title: "Posting Failed",
-        description: "Failed to post to LinkedIn. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to post to LinkedIn. Please try again.",
         variant: "destructive",
       })
     }
+  }
+
+  // Helper function to render title with first word colored
+  const renderColoredTitle = (title: string, accentColor: string) => {
+    if (!title) return null
+    
+    const words = title.split(' ')
+    if (words.length === 0) return null
+    
+    const firstWord = words[0]
+    const remainingWords = words.slice(1).join(' ')
+    
+    return (
+      <>
+        <span style={{ color: accentColor }}>{firstWord}</span>
+        {remainingWords && <span> {remainingWords}</span>}
+      </>
+    )
   }
 
   const renderSlideContent = (slide: CarouselSlide) => {
@@ -1251,11 +1332,11 @@ What do you think? Share your thoughts in the comments below.
 
     return (
       <div
-        className="w-full h-full flex flex-col justify-start items-start p-8 relative"
+        className="w-full h-full flex flex-col justify-center items-center p-8 relative"
         style={{
           fontFamily: design.fontFamily,
           color: design.textColor,
-          paddingTop: slide.type === "first" ? "60px" : "32px",
+          paddingTop: "0px",
           textShadow: design.backgroundType === "image" && overlayOpacity > 0 ? "0 2px 4px rgba(0,0,0,0.8)" : "none"
         }}
         data-font-family={design.fontFamily}
@@ -1264,12 +1345,11 @@ What do you think? Share your thoughts in the comments below.
           <>
             {content.top_line && (
               <div
-                className="text-sm opacity-80 mb-2 self-start text-left w-full"
+                className="text-sm opacity-80 mb-2 self-center text-left w-full"
                 onClick={() => setEditingText("top_line")}
                 style={{ 
-                  fontSize: "20px",
+                  fontSize: "25px",
                   marginTop: "-10px",
-                  paddingLeft: "20px",
                   fontFamily: design.fontFamily
                 }}
               >
@@ -1280,7 +1360,7 @@ What do you think? Share your thoughts in the comments below.
                     onBlur={() => setEditingText(null)}
                     onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
                     className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "20px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    style={{ minHeight: "23px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                     autoFocus
                   />
                 ) : (
@@ -1290,11 +1370,10 @@ What do you think? Share your thoughts in the comments below.
             )}
             {content.main_heading && (
               <h1
-                className="font-bold mb-4 leading-tight self-start text-left w-full"
+                className="font-bold mb-4 leading-tight self-center text-left w-full"
                 onClick={() => setEditingText("main_heading")}
                 style={{ 
-                  fontSize: "35px",
-                  paddingLeft: "20px",
+                  fontSize: "40px",
                   fontFamily: design.fontFamily
                 }}
               >
@@ -1305,16 +1384,18 @@ What do you think? Share your thoughts in the comments below.
                     onBlur={() => setEditingText(null)}
                     onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
                     className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "35px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    style={{ minHeight: "38px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                     autoFocus
                   />
                 ) : (
-                  <div className="whitespace-pre-wrap break-words">{content.main_heading}</div>
+                  <span className="whitespace-pre-wrap break-words">
+                    {renderColoredTitle(content.main_heading, currentProject?.titleAccentColor || "#FFFFFF")}
+                  </span>
                 )}
               </h1>
             )}
             {content.bullet && (
-              <p className="text-lg self-start text-left w-full break-words" onClick={() => setEditingText("bullet")} style={{ fontSize: "18px", paddingLeft: "20px", fontFamily: design.fontFamily }}>
+              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("bullet")} style={{ fontSize: "23px", fontFamily: design.fontFamily }}>
                 {editingText === "bullet" ? (
                   <textarea
                     value={content.bullet}
@@ -1322,13 +1403,13 @@ What do you think? Share your thoughts in the comments below.
                     onBlur={() => setEditingText(null)}
                     onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
                     className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "18px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    style={{ minHeight: "21px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                     autoFocus
                   />
                 ) : (
                   <div className="whitespace-pre-wrap break-words">{content.bullet}</div>
                 )}
-              </p>
+              </div>
             )}
           </>
         )}
@@ -1337,9 +1418,9 @@ What do you think? Share your thoughts in the comments below.
           <>
             {content.heading && (
               <h2
-                className="font-bold mb-6 leading-tight self-start text-left w-full break-words"
+                className="font-bold mb-6 leading-tight self-center text-left w-full break-words"
                 onClick={() => setEditingText("heading")}
-                style={{ fontSize: `${design.fontSize}px`, paddingLeft: "20px", fontFamily: design.fontFamily }}
+                style={{ fontSize: `${design.fontSize + 5}px`, fontFamily: design.fontFamily }}
               >
                 {editingText === "heading" ? (
                   <textarea
@@ -1348,11 +1429,13 @@ What do you think? Share your thoughts in the comments below.
                     onBlur={() => setEditingText(null)}
                     onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
                     className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "24px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    style={{ minHeight: "27px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                     autoFocus
                   />
                 ) : (
-                  <div className="whitespace-pre-wrap break-words">{content.heading}</div>
+                  <span className="whitespace-pre-wrap break-words">
+                    {renderColoredTitle(content.heading, currentProject?.titleAccentColor || "#FFFFFF")}
+                  </span>
                 )}
               </h2>
             )}
@@ -1361,9 +1444,9 @@ What do you think? Share your thoughts in the comments below.
                 {content.bullets.map((bullet, index) => (
                   <li
                     key={index}
-                    className="flex items-start gap-2"
+                    className="flex items-center justify-start gap-2"
                     onClick={() => setEditingText(`bullet_${index}`)}
-                    style={{ fontSize: "16px", fontFamily: design.fontFamily }}
+                    style={{ fontSize: "21px", fontFamily: design.fontFamily }}
                   >
                     <span className="w-2 h-2 bg-current rounded-full mt-2 flex-shrink-0"></span>
                     {editingText === `bullet_${index}` ? (
@@ -1376,8 +1459,8 @@ What do you think? Share your thoughts in the comments below.
                         }}
                         onBlur={() => setEditingText(null)}
                         onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                        className="bg-transparent border-b border-current outline-none flex-1 resize-none overflow-hidden"
-                        style={{ minHeight: "16px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        className="bg-transparent border-b border-current outline-none flex-1 resize-none overflow-hidden text-left"
+                        style={{ minHeight: "19px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                         autoFocus
                       />
                     ) : (
@@ -1394,9 +1477,9 @@ What do you think? Share your thoughts in the comments below.
           <>
             {content.tagline && (
               <div
-                className="text-sm opacity-80 mb-2 self-start text-left w-full break-words"
+                className="text-sm opacity-80 mb-2 self-center text-left w-full break-words"
                 onClick={() => setEditingText("tagline")}
-                style={{ fontSize: "14px", paddingLeft: "20px", fontFamily: design.fontFamily }}
+                style={{ fontSize: "19px", fontFamily: design.fontFamily }}
               >
                 {editingText === "tagline" ? (
                   <textarea
@@ -1405,7 +1488,7 @@ What do you think? Share your thoughts in the comments below.
                     onBlur={() => setEditingText(null)}
                     onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
                     className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "14px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    style={{ minHeight: "17px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                     autoFocus
                   />
                 ) : (
@@ -1415,9 +1498,9 @@ What do you think? Share your thoughts in the comments below.
             )}
             {content.final_heading && (
               <h1
-                className="font-bold mb-4 leading-tight self-start text-left w-full break-words"
+                className="font-bold mb-4 leading-tight self-center text-left w-full break-words"
                 onClick={() => setEditingText("final_heading")}
-                style={{ fontSize: `${design.fontSize}px`, paddingLeft: "20px", fontFamily: design.fontFamily }}
+                style={{ fontSize: `${design.fontSize + 5}px`, fontFamily: design.fontFamily }}
               >
                 {editingText === "final_heading" ? (
                   <textarea
@@ -1426,16 +1509,18 @@ What do you think? Share your thoughts in the comments below.
                     onBlur={() => setEditingText(null)}
                     onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
                     className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "24px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    style={{ minHeight: "27px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                     autoFocus
                   />
                 ) : (
-                  <div className="whitespace-pre-wrap break-words">{content.final_heading}</div>
+                  <span className="whitespace-pre-wrap break-words">
+                    {renderColoredTitle(content.final_heading, currentProject?.titleAccentColor || "#FFFFFF")}
+                  </span>
                 )}
               </h1>
             )}
             {content.last_bullet && (
-              <p className="text-lg self-start text-left w-full break-words" onClick={() => setEditingText("last_bullet")} style={{ fontSize: "18px", paddingLeft: "20px", fontFamily: design.fontFamily }}>
+              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("last_bullet")} style={{ fontSize: "23px", fontFamily: design.fontFamily }}>
                 {editingText === "last_bullet" ? (
                   <textarea
                     value={content.last_bullet}
@@ -1443,13 +1528,13 @@ What do you think? Share your thoughts in the comments below.
                     onBlur={() => setEditingText(null)}
                     onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
                     className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "18px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                    style={{ minHeight: "21px", lineHeight: "1.2", fontFamily: design.fontFamily }}
                     autoFocus
                   />
                 ) : (
                   <div className="whitespace-pre-wrap break-words">{content.last_bullet}</div>
                 )}
-              </p>
+              </div>
             )}
           </>
         )}
@@ -1761,8 +1846,8 @@ What do you think? Share your thoughts in the comments below.
                       ref={slideCanvasRef}
                       className="rounded-lg relative overflow-hidden cursor-pointer carousel-slide"
                       style={{
-                        width: currentProject.aspectRatio === "1:1" ? "400px" : "300px",
-                        height: currentProject.aspectRatio === "1:1" ? "400px" : "533px",
+                        width: currentProject.aspectRatio === "1:1" ? "500px" : "400px",
+                        height: currentProject.aspectRatio === "1:1" ? "500px" : "711px",
                         backgroundColor: currentSlide.design.backgroundType === "color" ? currentSlide.design.backgroundColor : "transparent",
                         backgroundImage:
                           currentSlide.design.backgroundType === "image" && currentSlide.design.backgroundImage
@@ -1791,11 +1876,7 @@ What do you think? Share your thoughts in the comments below.
                         {renderSlideContent(currentSlide)}
                       </div>
 
-                      {/* Click to edit indicator */}
-                      <div className="absolute top-2 left-2 flex items-center gap-1 text-white/70 text-xs bg-black/20 px-2 py-1 rounded">
-                        <Type className="w-3 h-3" />
-                        <span>Click text to edit</span>
-                      </div>
+                     
                     </div>
 
                     <div className="absolute top-2 right-2 flex gap-1">
@@ -2219,6 +2300,97 @@ What do you think? Share your thoughts in the comments below.
             </div>
           </div>
         )}
+
+        {/* LinkedIn Posting Modal */}
+        <Dialog open={showLinkedInModal} onOpenChange={setShowLinkedInModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Linkedin className="w-5 h-5 text-blue-600" />
+                Post Carousel to LinkedIn
+              </DialogTitle>
+              <DialogDescription>
+                Review your carousel content and add a caption before posting to LinkedIn.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Carousel Preview */}
+              <div className="space-y-2">
+                <Label>Carousel Preview</Label>
+                <div className="flex gap-2 overflow-x-auto p-2 bg-muted/50 rounded-lg">
+                  {currentProject?.slides.map((slide, index) => (
+                    <div
+                      key={slide.id}
+                      className="flex-shrink-0 w-20 h-20 rounded border overflow-hidden"
+                      style={{
+                        backgroundColor: slide.design.backgroundType === "color" ? slide.design.backgroundColor : "transparent",
+                        backgroundImage:
+                          slide.design.backgroundType === "image" && slide.design.backgroundImage
+                            ? `url(${slide.design.backgroundImage})`
+                            : undefined,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white bg-black/50">
+                        {index + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {currentProject?.slides.length} slide{currentProject?.slides.length !== 1 ? 's' : ''} will be posted as images
+                </p>
+              </div>
+
+              {/* Caption Input */}
+              <div className="space-y-2">
+                <Label htmlFor="linkedin-caption">Caption</Label>
+                <Textarea
+                  id="linkedin-caption"
+                  value={linkedInCaption}
+                  onChange={(e) => setLinkedInCaption(e.target.value)}
+                  placeholder="Write your LinkedIn post caption..."
+                  className="min-h-32"
+                  maxLength={3000}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>LinkedIn character limit: 3000</span>
+                  <span>{linkedInCaption.length}/3000</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowLinkedInModal(false)}
+                  disabled={isPosting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={postToLinkedInWithImages}
+                  disabled={isPosting || !linkedInCaption.trim()}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {isPosting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Linkedin className="w-4 h-4 mr-2" />
+                      Post to LinkedIn
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   )
