@@ -1332,7 +1332,7 @@ What do you think? Share your thoughts in the comments below.
 
     return (
       <div
-        className="w-full h-full flex flex-col justify-center items-center p-8 relative"
+        className="w-full h-full flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 relative"
         style={{
           fontFamily: design.fontFamily,
           color: design.textColor,
@@ -1348,7 +1348,7 @@ What do you think? Share your thoughts in the comments below.
                 className="text-sm opacity-80 mb-2 self-center text-left w-full"
                 onClick={() => setEditingText("top_line")}
                 style={{ 
-                  fontSize: "25px",
+                  fontSize: "clamp(18px, 4vw, 25px)",
                   marginTop: "-10px",
                   fontFamily: design.fontFamily
                 }}
@@ -1373,7 +1373,7 @@ What do you think? Share your thoughts in the comments below.
                 className="font-bold mb-4 leading-tight self-center text-left w-full"
                 onClick={() => setEditingText("main_heading")}
                 style={{ 
-                  fontSize: "40px",
+                  fontSize: "clamp(28px, 6vw, 40px)",
                   fontFamily: design.fontFamily
                 }}
               >
@@ -1395,7 +1395,7 @@ What do you think? Share your thoughts in the comments below.
               </h1>
             )}
             {content.bullet && (
-              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("bullet")} style={{ fontSize: "23px", fontFamily: design.fontFamily }}>
+              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("bullet")} style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}>
                 {editingText === "bullet" ? (
                   <textarea
                     value={content.bullet}
@@ -1420,7 +1420,7 @@ What do you think? Share your thoughts in the comments below.
               <h2
                 className="font-bold mb-6 leading-tight self-center text-left w-full break-words"
                 onClick={() => setEditingText("heading")}
-                style={{ fontSize: `${design.fontSize + 5}px`, fontFamily: design.fontFamily }}
+                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
               >
                 {editingText === "heading" ? (
                   <textarea
@@ -1446,7 +1446,7 @@ What do you think? Share your thoughts in the comments below.
                     key={index}
                     className="flex items-center justify-start gap-2"
                     onClick={() => setEditingText(`bullet_${index}`)}
-                    style={{ fontSize: "21px", fontFamily: design.fontFamily }}
+                    style={{ fontSize: "clamp(16px, 3.5vw, 21px)", fontFamily: design.fontFamily }}
                   >
                     <span className="w-2 h-2 bg-current rounded-full mt-2 flex-shrink-0"></span>
                     {editingText === `bullet_${index}` ? (
@@ -1479,7 +1479,7 @@ What do you think? Share your thoughts in the comments below.
               <div
                 className="text-sm opacity-80 mb-2 self-center text-left w-full break-words"
                 onClick={() => setEditingText("tagline")}
-                style={{ fontSize: "19px", fontFamily: design.fontFamily }}
+                style={{ fontSize: "clamp(16px, 3vw, 19px)", fontFamily: design.fontFamily }}
               >
                 {editingText === "tagline" ? (
                   <textarea
@@ -1500,7 +1500,7 @@ What do you think? Share your thoughts in the comments below.
               <h1
                 className="font-bold mb-4 leading-tight self-center text-left w-full break-words"
                 onClick={() => setEditingText("final_heading")}
-                style={{ fontSize: `${design.fontSize + 5}px`, fontFamily: design.fontFamily }}
+                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
               >
                 {editingText === "final_heading" ? (
                   <textarea
@@ -1520,7 +1520,7 @@ What do you think? Share your thoughts in the comments below.
               </h1>
             )}
             {content.last_bullet && (
-              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("last_bullet")} style={{ fontSize: "23px", fontFamily: design.fontFamily }}>
+              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("last_bullet")} style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}>
                 {editingText === "last_bullet" ? (
                   <textarea
                     value={content.last_bullet}
@@ -1541,7 +1541,7 @@ What do you think? Share your thoughts in the comments below.
 
         {/* Interactive Elements - Display on all slides except last */}
         {currentProject?.elements && currentProject.elements.length > 0 && slide.type !== "last" && (
-          <div className="absolute bottom-16 right-8">
+          <div className="absolute bottom-12 sm:bottom-16 right-4 sm:right-8">
             <div className="flex flex-col gap-1">
               {currentProject.elements.map((element) => (
                 <div
@@ -1573,7 +1573,7 @@ What do you think? Share your thoughts in the comments below.
 
         {/* Branding Section - Display at bottom of each slide */}
         {currentProject?.branding && currentProject.branding !== "none" && (
-          <div className="absolute bottom-4 left-8 right-8">
+          <div className="absolute bottom-2 sm:bottom-4 left-4 sm:left-8 right-4 sm:right-8">
             <div 
               className="text-xs opacity-70 text-center"
               style={{ 
@@ -1618,10 +1618,10 @@ What do you think? Share your thoughts in the comments below.
           font-family: var(--font-poppins), Poppins, sans-serif !important;
         }
       `}</style>
-      <div className={`flex-1 space-y-4 p-4 pt-6 ${openSans.variable} ${montserrat.variable} ${lato.variable} ${poppins.variable} ${roboto.variable} ${inter.variable} ${dancingScript.variable} ${bebasNeue.variable} ${righteous.variable}`}>
+      <div className={`flex-1 space-y-4 p-2 sm:p-4 pt-4 sm:pt-6 ${openSans.variable} ${montserrat.variable} ${lato.variable} ${poppins.variable} ${roboto.variable} ${inter.variable} ${dancingScript.variable} ${bebasNeue.variable} ${righteous.variable}`}>
         {/* Header */}
-        <div className="flex items-center justify-between space-y-2">
-          <div>
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <SidebarTrigger />
               <Breadcrumb>
@@ -1636,13 +1636,13 @@ What do you think? Share your thoughts in the comments below.
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">AI Carousel Generator</h2>
-            <p className="text-muted-foreground">Create engaging LinkedIn carousels with AI or design from scratch</p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">AI Carousel Generator</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">Create engaging LinkedIn carousels with AI or design from scratch</p>
           </div>
         </div>
 
       {!currentProject ? (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -1778,24 +1778,24 @@ What do you think? Share your thoughts in the comments below.
           </Card>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Slide Preview */}
-          <div className="lg:col-span-2">
+          <div className="xl:col-span-2">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                   <CardTitle className="flex items-center gap-2">
                     <Eye className="w-5 h-5 text-primary" />
-                    {currentProject.title}
+                    <span className="truncate">{currentProject.title}</span>
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <Button onClick={() => setCurrentProject(null)} variant="outline" size="sm">
+                    <Button onClick={() => setCurrentProject(null)} variant="outline" size="sm" className="flex-shrink-0">
                       <ChevronLeft className="w-4 h-4 mr-2" />
-                      Back
+                      <span className="hidden sm:inline">Back</span>
                     </Button>
-                    <Button onClick={() => setShowPreviewModal(true)} variant="outline" size="sm">
+                    <Button onClick={() => setShowPreviewModal(true)} variant="outline" size="sm" className="flex-shrink-0">
                       <Eye className="w-4 h-4 mr-2" />
-                      Preview All
+                      <span className="hidden sm:inline">Preview All</span>
                     </Button>
                   </div>
                 </div>
@@ -1808,16 +1808,17 @@ What do you think? Share your thoughts in the comments below.
                     disabled={currentSlideIndex === 0}
                     variant="outline"
                     size="sm"
+                    className="flex-shrink-0"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto px-2">
                     {currentProject.slides.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentSlideIndex(index)}
-                        className={`w-8 h-8 rounded-full text-xs font-medium transition-colors ${
+                        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full text-xs font-medium transition-colors flex-shrink-0 ${
                           index === currentSlideIndex
                             ? "bg-primary text-primary-foreground"
                             : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -1835,6 +1836,7 @@ What do you think? Share your thoughts in the comments below.
                     disabled={currentSlideIndex === currentProject.slides.length - 1}
                     variant="outline"
                     size="sm"
+                    className="flex-shrink-0"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </Button>
@@ -1844,10 +1846,11 @@ What do you think? Share your thoughts in the comments below.
                   <div className="relative flex justify-center">
                     <div
                       ref={slideCanvasRef}
-                      className="rounded-lg relative overflow-hidden cursor-pointer carousel-slide"
+                      className="rounded-lg relative overflow-hidden cursor-pointer carousel-slide w-full max-w-sm sm:max-w-md md:max-w-lg"
                       style={{
-                        width: currentProject.aspectRatio === "1:1" ? "500px" : "400px",
-                        height: currentProject.aspectRatio === "1:1" ? "500px" : "711px",
+                        width: currentProject.aspectRatio === "1:1" ? "min(500px, 100%)" : "min(400px, 100%)",
+                        height: currentProject.aspectRatio === "1:1" ? "min(500px, 100vw)" : "min(711px, 100vw * 1.78)",
+                        aspectRatio: currentProject.aspectRatio === "1:1" ? "1/1" : "9/16",
                         backgroundColor: currentSlide.design.backgroundType === "color" ? currentSlide.design.backgroundColor : "transparent",
                         backgroundImage:
                           currentSlide.design.backgroundType === "image" && currentSlide.design.backgroundImage
@@ -1889,35 +1892,40 @@ What do you think? Share your thoughts in the comments below.
                 )}
 
                 {/* Slide Actions */}
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex gap-2">
-                    <Button onClick={addSlide} variant="outline" size="sm">
+                <div className="flex flex-col space-y-4 mt-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                  <div className="flex gap-2 flex-wrap">
+                    <Button onClick={addSlide} variant="outline" size="sm" className="flex-shrink-0">
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Slide
+                      <span className="hidden sm:inline">Add Slide</span>
+                      <span className="sm:hidden">Add</span>
                     </Button>
                     <Button
                       onClick={() => removeSlide(currentSlideIndex)}
                       disabled={currentProject.slides.length <= 1}
                       variant="outline"
                       size="sm"
+                      className="flex-shrink-0"
                     >
                       <Minus className="w-4 h-4 mr-2" />
-                      Remove
+                      <span className="hidden sm:inline">Remove</span>
                     </Button>
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button onClick={exportAllAsJPEG} variant="outline" size="sm">
+                  <div className="flex gap-2 flex-wrap">
+                    <Button onClick={exportAllAsJPEG} variant="outline" size="sm" className="flex-shrink-0">
                       <FileImage className="w-4 h-4 mr-2" />
-                      Export JPEG
+                      <span className="hidden sm:inline">Export JPEG</span>
+                      <span className="sm:hidden">JPEG</span>
                     </Button>
-                    <Button onClick={exportAsPDF} variant="outline" size="sm">
+                    <Button onClick={exportAsPDF} variant="outline" size="sm" className="flex-shrink-0">
                       <FileText className="w-4 h-4 mr-2" />
-                      Export PDF
+                      <span className="hidden sm:inline">Export PDF</span>
+                      <span className="sm:hidden">PDF</span>
                     </Button>
-                    <Button onClick={openLinkedInModal} size="sm">
+                    <Button onClick={openLinkedInModal} size="sm" className="flex-shrink-0">
                       <Linkedin className="w-4 h-4 mr-2" />
-                      Post to LinkedIn
+                      <span className="hidden sm:inline">Post to LinkedIn</span>
+                      <span className="sm:hidden">LinkedIn</span>
                     </Button>
                   </div>
                 </div>
@@ -1926,7 +1934,7 @@ What do you think? Share your thoughts in the comments below.
           </div>
 
           {/* Editing Panel */}
-          <div className="space-y-4">
+          <div className="space-y-4 order-first xl:order-last">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1936,11 +1944,11 @@ What do you think? Share your thoughts in the comments below.
               </CardHeader>
               <CardContent>
                         <Tabs defaultValue="background" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="background">Background</TabsTrigger>
-            <TabsTrigger value="layout">Layout</TabsTrigger>
-            <TabsTrigger value="fonts">Fonts</TabsTrigger>
-            <TabsTrigger value="elements">Elements</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="background" className="text-xs sm:text-sm">Background</TabsTrigger>
+            <TabsTrigger value="layout" className="text-xs sm:text-sm">Layout</TabsTrigger>
+            <TabsTrigger value="fonts" className="text-xs sm:text-sm">Fonts</TabsTrigger>
+            <TabsTrigger value="elements" className="text-xs sm:text-sm">Elements</TabsTrigger>
           </TabsList>
 
           <TabsContent value="fonts" className="mt-4 space-y-3">
@@ -1981,7 +1989,7 @@ What do you think? Share your thoughts in the comments below.
                   <TabsContent value="background" className="mt-4 space-y-3">
                     <div className="space-y-2">
                       <Label>Background Color</Label>
-                      <div className="grid grid-cols-6 gap-2">
+                      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                         {backgroundColors.map((color) => (
                           <button
                             key={color}
@@ -2002,7 +2010,7 @@ What do you think? Share your thoughts in the comments below.
 
                     <div className="space-y-2">
                       <Label>Background Images</Label>
-                      <div className="grid grid-cols-6 gap-2">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                         {backgroundImages.map((imagePath) => (
                           <button
                             key={imagePath}
@@ -2126,7 +2134,7 @@ What do you think? Share your thoughts in the comments below.
                   <TabsContent value="layout" className="mt-4 space-y-3">
                     <div className="space-y-2">
                       <Label>Aspect Ratio</Label>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <Button
                           variant={currentProject.aspectRatio === "1:1" ? "default" : "outline"}
                           onClick={() => setCurrentProject({ ...currentProject, aspectRatio: "1:1" })}
@@ -2240,7 +2248,7 @@ What do you think? Share your thoughts in the comments below.
                         
                         <div className="space-y-2">
                           <Label>Available Elements</Label>
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {availableElements.map((element) => (
                               <Button
                                 key={element.type}
@@ -2303,7 +2311,7 @@ What do you think? Share your thoughts in the comments below.
 
         {/* LinkedIn Posting Modal */}
         <Dialog open={showLinkedInModal} onOpenChange={setShowLinkedInModal}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl mx-4 sm:mx-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Linkedin className="w-5 h-5 text-blue-600" />
@@ -2322,7 +2330,7 @@ What do you think? Share your thoughts in the comments below.
                   {currentProject?.slides.map((slide, index) => (
                     <div
                       key={slide.id}
-                      className="flex-shrink-0 w-20 h-20 rounded border overflow-hidden"
+                      className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded border overflow-hidden"
                       style={{
                         backgroundColor: slide.design.backgroundType === "color" ? slide.design.backgroundColor : "transparent",
                         backgroundImage:
@@ -2362,18 +2370,19 @@ What do you think? Share your thoughts in the comments below.
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
                 <Button
                   variant="outline"
                   onClick={() => setShowLinkedInModal(false)}
                   disabled={isPosting}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={postToLinkedInWithImages}
                   disabled={isPosting || !linkedInCaption.trim()}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
                 >
                   {isPosting ? (
                     <>
