@@ -21,6 +21,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import { useAIGeneration } from "@/hooks/use-ai-generation"
+import { MicrophoneButton } from "@/components/ui/microphone-button"
 import {
   ArrowLeft,
   Bookmark,
@@ -44,7 +45,8 @@ import {
   Search,
   Palette,
   Wand2,
-  Loader2
+  Loader2,
+  Mic
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -700,9 +702,15 @@ export default function CustomPostPage() {
             {/* Content Editor */}
             <div className="space-y-3 sm:space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                <label className="block text-sm font-medium text-foreground">
-                  Content
-                </label>
+                <div>
+                  <label className="block text-sm font-medium text-foreground">
+                    Content
+                  </label>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <Mic className="h-3 w-3" />
+                    Tip: Click the microphone icon to record your content instead of typing
+                  </p>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className={cn(
                     "text-xs px-2 py-1 rounded-full",
@@ -795,21 +803,35 @@ export default function CustomPostPage() {
                 </div>
               )}
 
-              <Textarea
-                placeholder="Write your post content here... Use @ to mention people, # for hashtags, and let your creativity flow!"
-                value={postData.content}
-                onChange={(e) => {
-                  const newContent = e.target.value
-                  setPostData(prev => ({ 
-                    ...prev, 
-                    content: newContent,
-                    // Keep HTML content in sync with plain text (preserving any existing formatting)
-                    htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent
-                  }))
-                }}
-                className="min-h-[250px] sm:min-h-[300px] resize-none text-sm sm:text-base leading-relaxed border-2 focus:border-primary focus:ring-primary/20"
-                maxLength={maxCharacters}
-              />
+              <div className="relative">
+                <Textarea
+                  placeholder="Write your post content here... Use @ to mention people, # for hashtags, and let your creativity flow!"
+                  value={postData.content}
+                  onChange={(e) => {
+                    const newContent = e.target.value
+                    setPostData(prev => ({ 
+                      ...prev, 
+                      content: newContent,
+                      // Keep HTML content in sync with plain text (preserving any existing formatting)
+                      htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent
+                    }))
+                  }}
+                  className="min-h-[250px] sm:min-h-[300px] resize-none text-sm sm:text-base leading-relaxed border-2 focus:border-primary focus:ring-primary/20 pr-12"
+                  maxLength={maxCharacters}
+                />
+                <div className="absolute bottom-3 right-3">
+                  <MicrophoneButton
+                    onTranscript={(transcript) => setPostData(prev => ({ 
+                      ...prev, 
+                      content: prev.content + (prev.content ? ' ' : '') + transcript.trim(),
+                      htmlContent: prev.htmlContent + (prev.htmlContent ? ' ' : '') + transcript.trim()
+                    }))}
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 hover:bg-muted"
+                  />
+                </div>
+              </div>
             </div>
 
               {/* Tags */}

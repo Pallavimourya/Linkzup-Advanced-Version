@@ -17,11 +17,12 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-
+  Mic,
 } from "lucide-react"
 import { useAIGeneration } from "@/hooks/use-ai-generation"
 import { AIQueueStatus } from "@/components/ai-queue-status"
 import { useToast } from "@/hooks/use-toast"
+import { MicrophoneButton } from "@/components/ui/microphone-button"
 
 import type { ContentType, AIProvider, CustomizationOptions, AIResponse } from "@/lib/ai-service"
 
@@ -232,13 +233,27 @@ export default function AIGeneratorPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="prompt">What would you like to create?</Label>
-                <Textarea
-                  id="prompt"
-                  placeholder="e.g., Share insights about remote work productivity, discuss industry trends, create viral topics for marketing..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[120px]"
-                />
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Mic className="h-3 w-3" />
+                  Tip: Click the microphone icon to record your prompt instead of typing
+                </p>
+                <div className="relative">
+                  <Textarea
+                    id="prompt"
+                    placeholder="e.g., Share insights about remote work productivity, discuss industry trends, create viral topics for marketing..."
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[120px] pr-12"
+                  />
+                  <div className="absolute bottom-3 right-3">
+                    <MicrophoneButton
+                      onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 hover:bg-muted"
+                    />
+                  </div>
+                </div>
               </div>
 
 

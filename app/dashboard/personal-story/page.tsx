@@ -17,13 +17,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { User, BookOpen, Lightbulb, Target, Calendar, Send, Eye, CheckCircle, Sparkles } from "lucide-react"
+import { User, BookOpen, Lightbulb, Target, Calendar, Send, Eye, CheckCircle, Sparkles, Mic } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
 import { PersonalStoryCustomizationPanel, type PersonalStoryCustomization } from "@/components/personal-story-customization"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import { LinkedInPostButton } from "@/components/linkedin-post-button"
 import { ScheduleButton } from "@/components/schedule-button"
+import { MicrophoneButton } from "@/components/ui/microphone-button"
 
 interface PersonalStoryForm {
   challenge: string
@@ -160,6 +161,13 @@ export default function PersonalStoryPage() {
 
   const handleInputChange = (field: keyof PersonalStoryForm, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleMicrophoneTranscript = (field: keyof PersonalStoryForm, transcript: string) => {
+    setFormData((prev) => ({ 
+      ...prev, 
+      [field]: prev[field] + (prev[field] ? ' ' : '') + transcript.trim()
+    }))
   }
 
   const saveAnswersToDatabase = async () => {
@@ -569,13 +577,27 @@ export default function PersonalStoryPage() {
                 <div>
                   <Label className="text-base sm:text-lg font-medium">{currentQuestion.title}</Label>
                   <p className="text-sm text-muted-foreground mt-1">{currentQuestion.description}</p>
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <Mic className="h-3 w-3" />
+                    Tip: Click the microphone icon to record your answer instead of typing
+                  </p>
                 </div>
-                <Textarea
-                  placeholder={currentQuestion.placeholder}
-                  value={formData[currentQuestion.key]}
-                  onChange={(e) => handleInputChange(currentQuestion.key, e.target.value)}
-                  className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base resize-none"
-                />
+                <div className="relative">
+                  <Textarea
+                    placeholder={currentQuestion.placeholder}
+                    value={formData[currentQuestion.key]}
+                    onChange={(e) => handleInputChange(currentQuestion.key, e.target.value)}
+                    className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base resize-none pr-12"
+                  />
+                  <div className="absolute bottom-3 right-3">
+                    <MicrophoneButton
+                      onTranscript={(transcript) => handleMicrophoneTranscript(currentQuestion.key, transcript)}
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 hover:bg-muted"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Navigation */}

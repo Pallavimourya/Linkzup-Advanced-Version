@@ -37,6 +37,7 @@ import {
   Settings,
   Loader2,
   X,
+  Mic,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
@@ -44,6 +45,7 @@ import { useToast } from "@/hooks/use-toast"
 import { LinkedInPostButton } from "@/components/linkedin-post-button"
 import { ScheduleButton } from "@/components/schedule-button"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
+import { MicrophoneButton } from "@/components/ui/microphone-button"
 
 
 interface GeneratedPost {
@@ -527,13 +529,27 @@ export default function DashboardPage() {
               {/* Main Prompt */}
               <div className="space-y-2">
                 <Label htmlFor="prompt" className="text-sm sm:text-base">What would you like to post about?</Label>
-                <Textarea
-                  id="prompt"
-                  placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="min-h-[80px] sm:min-h-[100px] text-sm sm:text-base resize-none"
-                />
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Mic className="h-3 w-3" />
+                  Tip: Click the microphone icon to record your prompt instead of typing
+                </p>
+                <div className="relative">
+                  <Textarea
+                    id="prompt"
+                    placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[80px] sm:min-h-[100px] text-sm sm:text-base resize-none pr-12"
+                  />
+                  <div className="absolute bottom-3 right-3">
+                    <MicrophoneButton
+                      onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 hover:bg-muted"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* AI Customization Panel - Collapsible */}
