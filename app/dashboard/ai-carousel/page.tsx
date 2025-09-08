@@ -1917,16 +1917,6 @@ What do you think? Share your thoughts in the comments below.
                   </div>
 
                   <div className="flex gap-2 flex-wrap">
-                    <Button onClick={exportAllAsJPEG} variant="outline" size="sm" className="flex-shrink-0">
-                      <FileImage className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Export JPEG</span>
-                      <span className="sm:hidden">JPEG</span>
-                    </Button>
-                    <Button onClick={exportAsPDF} variant="outline" size="sm" className="flex-shrink-0">
-                      <FileText className="w-4 h-4 mr-2" />
-                      <span className="hidden sm:inline">Export PDF</span>
-                      <span className="sm:hidden">PDF</span>
-                    </Button>
                     <Button onClick={openLinkedInModal} size="sm" className="flex-shrink-0" disabled={isPostingToLinkedIn}>
                       {isPostingToLinkedIn ? (
                         <>
@@ -2413,6 +2403,182 @@ What do you think? Share your thoughts in the comments below.
                 </Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Preview All Modal */}
+        <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+          <DialogContent className="max-w-4xl mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5 text-primary" />
+                Preview All Slides
+              </DialogTitle>
+              <DialogDescription>
+                Review all slides in your carousel project.
+              </DialogDescription>
+            </DialogHeader>
+            
+            {currentProject && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {currentProject.slides.map((slide, index) => (
+                    <div key={index} className="relative">
+                      {/* Slide Number Badge */}
+                      <div className="absolute -top-2 -right-2 z-10">
+                        <Badge variant="secondary" className="text-xs font-medium">
+                          {index + 1}
+                        </Badge>
+                      </div>
+                      
+                      {/* Slide Preview Card */}
+                      <div 
+                        className="relative aspect-[16/9] rounded-xl overflow-hidden shadow-lg border-2 border-gray-200"
+                        style={{
+                          backgroundColor: slide.design.backgroundColor,
+                          backgroundImage: slide.design.backgroundType === 'image' && slide.design.backgroundImage 
+                            ? `url(${slide.design.backgroundImage})` 
+                            : undefined,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
+                        }}
+                      >
+                        {/* Content Container */}
+                        <div className="absolute inset-0 p-6 flex flex-col justify-center items-center text-center">
+                          <div 
+                            className="w-full max-w-md space-y-4"
+                            style={{
+                              color: slide.design.textColor,
+                              fontFamily: slide.design.fontFamily
+                            }}
+                          >
+                            {/* Top Line */}
+                            {slide.content.top_line && (
+                              <p 
+                                className="text-sm opacity-80 font-medium"
+                                style={{ fontSize: `${slide.design.fontSize * 0.4}px` }}
+                              >
+                                {slide.content.top_line}
+                              </p>
+                            )}
+                            
+                            {/* Main Heading */}
+                            {slide.content.main_heading && (
+                              <h1 
+                                className="font-bold leading-tight"
+                                style={{ fontSize: `${slide.design.fontSize}px` }}
+                              >
+                                {slide.content.main_heading}
+                              </h1>
+                            )}
+                            
+                            {/* Secondary Heading */}
+                            {slide.content.heading && (
+                              <h2 
+                                className="font-semibold"
+                                style={{ fontSize: `${slide.design.fontSize * 0.7}px` }}
+                              >
+                                {slide.content.heading}
+                              </h2>
+                            )}
+                            
+                            {/* Single Bullet */}
+                            {slide.content.bullet && (
+                              <p 
+                                className="font-medium"
+                                style={{ fontSize: `${slide.design.fontSize * 0.5}px` }}
+                              >
+                                • {slide.content.bullet}
+                              </p>
+                            )}
+                            
+                            {/* Multiple Bullets */}
+                            {slide.content.bullets && slide.content.bullets.length > 0 && (
+                              <ul className="space-y-2 text-left">
+                                {slide.content.bullets.slice(0, 4).map((bullet, bulletIndex) => (
+                                  <li 
+                                    key={bulletIndex} 
+                                    className="flex items-start"
+                                    style={{ fontSize: `${slide.design.fontSize * 0.45}px` }}
+                                  >
+                                    <span className="mr-2 mt-1">•</span>
+                                    <span>{bullet}</span>
+                                  </li>
+                                ))}
+                                {slide.content.bullets.length > 4 && (
+                                  <li 
+                                    className="text-sm opacity-70"
+                                    style={{ fontSize: `${slide.design.fontSize * 0.4}px` }}
+                                  >
+                                    +{slide.content.bullets.length - 4} more points...
+                                  </li>
+                                )}
+                              </ul>
+                            )}
+                            
+                            {/* Tagline */}
+                            {slide.content.tagline && (
+                              <p 
+                                className="italic opacity-80"
+                                style={{ fontSize: `${slide.design.fontSize * 0.4}px` }}
+                              >
+                                {slide.content.tagline}
+                              </p>
+                            )}
+                            
+                            {/* Final Heading */}
+                            {slide.content.final_heading && (
+                              <h3 
+                                className="font-bold"
+                                style={{ fontSize: `${slide.design.fontSize * 0.8}px` }}
+                              >
+                                {slide.content.final_heading}
+                              </h3>
+                            )}
+                            
+                            {/* Last Bullet */}
+                            {slide.content.last_bullet && (
+                              <p 
+                                className="font-medium"
+                                style={{ fontSize: `${slide.design.fontSize * 0.5}px` }}
+                              >
+                                • {slide.content.last_bullet}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Slide Type Badge */}
+                        <div className="absolute top-3 left-3">
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs bg-white/90 text-gray-700 border-gray-300"
+                          >
+                            {slide.type}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* Design Info */}
+                      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Font: {slide.design.fontFamily.split(',')[0]}</span>
+                        <span>Size: {slide.design.fontSize}px</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-end pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowPreviewModal(false)}
+                    className="w-full sm:w-auto"
+                  >
+                    Close Preview
+                  </Button>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>
