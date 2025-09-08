@@ -224,6 +224,7 @@ const backgroundImages = [
   "/Backgrounds/bg14.jpg",
   "/Backgrounds/bg15.jpg",
   "/Backgrounds/bg16.jpg",
+  "/Backgrounds/bg17.jpg",
   "/Backgrounds/bg18.jpg",
   "/Backgrounds/bg19.jpg",
   "/Backgrounds/bg20.jpg",
@@ -231,6 +232,12 @@ const backgroundImages = [
   "/Backgrounds/bg22.jpg",
   "/Backgrounds/bg23.jpg",
   "/Backgrounds/bg24.jpg",
+  "/Backgrounds/bg25.jpg",
+  "/Backgrounds/bg26.jpg",
+  "/Backgrounds/bg27.jpg",
+  "/Backgrounds/bg28.jpg",
+  "/Backgrounds/bg29.jpg",
+  "/Backgrounds/bg30.jpg",
 ]
 
 // Title accent colors
