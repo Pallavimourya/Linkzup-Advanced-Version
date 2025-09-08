@@ -366,25 +366,63 @@ export const authOptions: NextAuthOptions = {
         try {
           const client = await clientPromise
           const users = client.db("Linkzup-Advanced").collection("users")
+          const notifications = client.db("Linkzup-Advanced").collection("notifications")
           const { ObjectId } = await import("mongodb")
 
           if (ObjectId.isValid(user.id)) {
+            const trialStartDate = new Date()
+            const trialEndDate = new Date(trialStartDate.getTime() + 2 * 24 * 60 * 60 * 1000) // 2 days
+
             await users.updateOne(
               { _id: new ObjectId(user.id) },
               {
                 $set: {
-                  credits: 0,
-                  trialStartDate: new Date(),
+                  credits: 10,
+                  trialStartDate: trialStartDate,
+                  trialEndDate: trialEndDate,
                   trialPeriodDays: 2,
                   isTrialActive: true,
-                  totalCreditsEver: 0,
+                  totalCreditsEver: 10,
                   bio: null,
                   profilePicture: null,
                   darkMode: false,
+                  hasUsedCoupon: false, // Track coupon usage
+                  deviceFingerprint: user.deviceFingerprint || null, // For fraud protection
                   updatedAt: new Date(),
                 },
               },
             )
+
+            // Create trial started notification
+            await notifications.insertOne({
+              userId: new ObjectId(user.id),
+              type: "trial_started",
+              title: "🎉 Welcome! Your 2-day free trial has started",
+              message: "You have 2 days free trial with 10 credits to explore all features.",
+              isRead: false,
+              createdAt: new Date(),
+              metadata: {
+                trialEndDate: trialEndDate,
+                credits: 10,
+                trialPeriodDays: 2
+              }
+            })
+
+            // Schedule trial ending reminder (24 hours before expiry)
+            const reminderDate = new Date(trialStartDate.getTime() + 1 * 24 * 60 * 60 * 1000) // 1 day later
+            await notifications.insertOne({
+              userId: new ObjectId(user.id),
+              type: "trial_ending_reminder",
+              title: "⏳ Your trial will expire soon",
+              message: "Your trial will expire in 24 hours. Please choose a subscription plan to continue.",
+              isRead: false,
+              scheduledFor: reminderDate,
+              createdAt: new Date(),
+              metadata: {
+                trialEndDate: trialEndDate,
+                reminderType: "24_hours"
+              }
+            })
           }
 
           // Send welcome email to new OAuth users

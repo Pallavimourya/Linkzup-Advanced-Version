@@ -72,16 +72,23 @@ export async function POST(request: NextRequest) {
       },
     )
 
-    // Add credits to user
+    // Add credits to user and mark coupon as used if applied
+    const updateData: any = {
+      $inc: {
+        credits: order.credits,
+        totalCreditsEver: order.credits,
+      },
+      $set: { updatedAt: new Date() },
+    }
+
+    // Mark coupon as used if applied
+    if (order.coupon?.code) {
+      updateData.$set.hasUsedCoupon = true
+    }
+
     await users.updateOne(
       { _id: order.userId },
-      {
-        $inc: {
-          credits: order.credits,
-          totalCreditsEver: order.credits,
-        },
-        $set: { updatedAt: new Date() },
-      },
+      updateData,
     )
 
     // Create payment record (store coupon info for auditability)
@@ -103,6 +110,94 @@ export async function POST(request: NextRequest) {
       await db
         .collection("coupons")
         .updateOne({ code: order.coupon.code }, { $inc: { uses: 1 }, $set: { updatedAt: new Date() } })
+    }
+
+    // Create notifications for successful payment
+    const notifications = db.collection("notifications")
+    
+    // Payment success notification
+    await notifications.insertOne({
+      userId: order.userId,
+      type: "payment_success",
+      title: "✅ Payment successful",
+      message: `Your credits have been successfully added. You now have ${order.credits} new credits.`,
+      isRead: false,
+      createdAt: new Date(),
+      metadata: {
+        credits: order.credits,
+        planType: order.planType,
+        amount: order.amount,
+        coupon: order.coupon
+      }
+    })
+
+    // Coupon applied notification
+    if (order.coupon?.code) {
+      await notifications.insertOne({
+        userId: order.userId,
+        type: "coupon_applied",
+        title: "🎉 Coupon applied successfully",
+        message: `Coupon ${order.coupon.code} applied successfully, discount added to your plan.`,
+        isRead: false,
+        createdAt: new Date(),
+        metadata: {
+          couponCode: order.coupon.code,
+          couponType: order.coupon.type,
+          discountValue: order.coupon.value,
+          originalAmount: order.amount + (order.coupon.type === "percent" ? 
+            Math.round(order.amount * order.coupon.value / 100) : order.coupon.value),
+          finalAmount: order.amount
+        }
+      })
+    }
+
+    // Send invoice email automatically
+    try {
+      const { sendInvoiceEmail } = await import("@/lib/email-utils")
+      const user = await users.findOne({ _id: order.userId })
+      
+      if (user?.email) {
+        const invoice = {
+          invoiceNumber: `INV-${razorpay_payment_id.slice(-8).toUpperCase()}`,
+          invoiceDate: new Date().toISOString(),
+          dueDate: new Date().toISOString(),
+          customer: {
+            name: user.name,
+            email: user.email,
+            address: user.address || "Not provided"
+          },
+          items: [
+            {
+              description: `${order.planType} Plan`,
+              quantity: 1,
+              unitPrice: order.amount,
+              total: order.amount
+            }
+          ],
+          subtotal: order.amount,
+          discount: order.coupon ? 
+            (order.coupon.type === "percent" ? 
+              Math.round(order.amount * order.coupon.value / 100) : 
+              order.coupon.value) : 0,
+          total: order.amount,
+          payment: {
+            method: "Razorpay",
+            transactionId: razorpay_payment_id,
+            orderId: razorpay_order_id,
+            status: "completed",
+            paidAt: new Date().toISOString()
+          },
+          coupon: order.coupon
+        }
+
+        await sendInvoiceEmail({
+          to: user.email,
+          invoice
+        })
+      }
+    } catch (emailError) {
+      console.error("Failed to send invoice email:", emailError)
+      // Don't fail the payment if email fails
     }
 
     // Get updated user data

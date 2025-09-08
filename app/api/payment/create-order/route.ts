@@ -42,8 +42,17 @@ export async function POST(request: NextRequest) {
     if (couponCode && String(couponCode).trim().length > 0) {
       const { db } = await connectToDatabase()
       const coupons = db.collection("coupons")
+      const users = db.collection("users")
       const code = String(couponCode).toUpperCase()
       const coupon = await coupons.findOne({ code })
+
+      // Check if user has already used a coupon
+      const user = await users.findOne({ _id: new ObjectId(session.user.id) })
+      if (user?.hasUsedCoupon) {
+        return NextResponse.json({ 
+          error: "You have already used a coupon code. Only one coupon per account is allowed." 
+        }, { status: 400 })
+      }
 
       const now = new Date()
       const isActive = !!coupon?.active
@@ -57,6 +66,10 @@ export async function POST(request: NextRequest) {
           finalAmount = Math.max(0, amount - (coupon.value || 0))
         }
         appliedCoupon = { code: coupon.code, type: coupon.type, value: coupon.value }
+      } else {
+        return NextResponse.json({ 
+          error: "Invalid or expired coupon code" 
+        }, { status: 400 })
       }
     }
 

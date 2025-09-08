@@ -54,32 +54,39 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Check credits before processing (if not in trial)
+    // Check credits before processing
+    const requiredCredits = getRequiredCredits(type, provider)
+    const actionType = `ai_${type}`
+    
     try {
-      const creditResponse = await fetch(`${request.nextUrl.origin}/api/billing/credits`, {
-        method: "GET",
+      const creditResponse = await fetch(`${request.nextUrl.origin}/api/credits/deduct`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Cookie": request.headers.get("cookie") || ""
-        }
+        },
+        body: JSON.stringify({ 
+          actionType,
+          description: `AI ${type} generation using ${provider}`,
+          credits: requiredCredits
+        })
       })
 
-      if (creditResponse.ok) {
-        const creditData = await creditResponse.json()
-        const requiredCredits = getRequiredCredits(type, provider)
-        
-        if (!creditData.isTrialActive && creditData.credits < requiredCredits) {
-          return NextResponse.json({ 
-            error: "Insufficient credits",
-            required: requiredCredits,
-            available: creditData.credits,
-            suggestion: "Please purchase more credits to continue"
-          }, { status: 402 })
-        }
+      if (!creditResponse.ok) {
+        const errorData = await creditResponse.json()
+        return NextResponse.json({ 
+          error: errorData.error || "Insufficient credits",
+          required: requiredCredits,
+          available: errorData.currentCredits || 0,
+          suggestion: "Please purchase more credits to continue"
+        }, { status: 402 })
       }
     } catch (creditError) {
       console.warn("Could not verify credits:", creditError)
-      // Continue without credit check if it fails
+      return NextResponse.json({ 
+        error: "Credit verification failed",
+        suggestion: "Please try again or contact support"
+      }, { status: 500 })
     }
 
     // Get queue status for client information
@@ -94,24 +101,7 @@ export async function POST(request: NextRequest) {
       session.user.email
     )
 
-    // Deduct credits after successful generation
-    try {
-      const requiredCredits = getRequiredCredits(type, provider)
-      await fetch(`${request.nextUrl.origin}/api/billing/credits`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Cookie": request.headers.get("cookie") || ""
-        },
-        body: JSON.stringify({ 
-          action: "deduct", 
-          amount: requiredCredits 
-        })
-      })
-    } catch (creditError) {
-      console.warn("Could not deduct credits:", creditError)
-      // Don't fail the request if credit deduction fails
-    }
+    // Credits already deducted before generation
 
     // Return success response with metadata
     return NextResponse.json({

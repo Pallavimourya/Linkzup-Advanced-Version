@@ -1,5 +1,5 @@
 export interface CreditAction {
-  type: 'text_only' | 'text_with_post' | 'text_with_image' | 'text_image_post' | 'image_only' | 'auto_post'
+  type: 'text_only' | 'text_with_post' | 'text_with_image' | 'text_image_post' | 'image_only' | 'auto_post' | 'ai_linkedin-post' | 'ai_article' | 'ai_topics' | 'ai_carousel' | 'ai_story' | 'ai_list' | 'ai_quote' | 'ai_before-after' | 'ai_tips' | 'ai_insights' | 'ai_question'
   credits: number
   description: string
 }
@@ -34,6 +34,62 @@ export const CREDIT_ACTIONS: Record<string, CreditAction> = {
     type: 'auto_post',
     credits: 0.5,
     description: 'Auto-posting scheduled content'
+  },
+  // AI Generation Actions
+  'ai_linkedin-post': {
+    type: 'ai_linkedin-post',
+    credits: 0.5,
+    description: 'AI LinkedIn post generation'
+  },
+  'ai_article': {
+    type: 'ai_article',
+    credits: 0.3,
+    description: 'AI article generation'
+  },
+  'ai_topics': {
+    type: 'ai_topics',
+    credits: 0.1,
+    description: 'AI topic generation'
+  },
+  'ai_carousel': {
+    type: 'ai_carousel',
+    credits: 0.4,
+    description: 'AI carousel generation'
+  },
+  'ai_story': {
+    type: 'ai_story',
+    credits: 0.2,
+    description: 'AI story generation'
+  },
+  'ai_list': {
+    type: 'ai_list',
+    credits: 0.2,
+    description: 'AI list generation'
+  },
+  'ai_quote': {
+    type: 'ai_quote',
+    credits: 0.1,
+    description: 'AI quote generation'
+  },
+  'ai_before-after': {
+    type: 'ai_before-after',
+    credits: 0.2,
+    description: 'AI before/after content generation'
+  },
+  'ai_tips': {
+    type: 'ai_tips',
+    credits: 0.2,
+    description: 'AI tips generation'
+  },
+  'ai_insights': {
+    type: 'ai_insights',
+    credits: 0.2,
+    description: 'AI insights generation'
+  },
+  'ai_question': {
+    type: 'ai_question',
+    credits: 0.1,
+    description: 'AI question generation'
   }
 }
 

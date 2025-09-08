@@ -48,8 +48,28 @@ export async function POST(request: NextRequest) {
     const { canPerform } = canPerformAction(totalAvailableCredits, actionType)
     
     if (!canPerform) {
+      // Create notification for credit exhaustion
+      const notifications = db.collection("notifications")
+      
       // If trial is active but no credits, show trial message
       if (isTrialActive && totalAvailableCredits === 0) {
+        // Create notification for trial credits exhausted
+        await notifications.insertOne({
+          userId: new ObjectId(session.user.id),
+          type: "trial_credits_exhausted",
+          title: "🚨 Trial credits exhausted",
+          message: "Your trial credits are over, please purchase more credits to continue.",
+          isRead: false,
+          createdAt: new Date(),
+          metadata: {
+            trialActive: true,
+            requiredCredits,
+            currentCredits,
+            monthlyCredits,
+            totalAvailableCredits
+          }
+        })
+
         return NextResponse.json({ 
           error: "Trial credits exhausted. Please purchase credits to continue.",
           isTrialActive: true,
@@ -64,6 +84,23 @@ export async function POST(request: NextRequest) {
       
       // If trial expired and no credits, show payment required message
       if (!isTrialActive && totalAvailableCredits === 0) {
+        // Create notification for trial expired
+        await notifications.insertOne({
+          userId: new ObjectId(session.user.id),
+          type: "trial_expired",
+          title: "⏰ Trial period expired",
+          message: "Your trial period has expired. Please purchase credits to continue using the service.",
+          isRead: false,
+          createdAt: new Date(),
+          metadata: {
+            trialActive: false,
+            requiredCredits,
+            currentCredits,
+            monthlyCredits,
+            totalAvailableCredits
+          }
+        })
+
         return NextResponse.json({ 
           error: "Trial period expired. Please purchase credits to continue using the service.",
           isTrialActive: false,
@@ -77,6 +114,21 @@ export async function POST(request: NextRequest) {
       }
       
       // Regular insufficient credits message
+      await notifications.insertOne({
+        userId: new ObjectId(session.user.id),
+        type: "credits_exhausted",
+        title: "🚨 Credits exhausted",
+        message: "You have used all your credits. Please purchase extra credits to continue.",
+        isRead: false,
+        createdAt: new Date(),
+        metadata: {
+          requiredCredits,
+          currentCredits,
+          monthlyCredits,
+          totalAvailableCredits
+        }
+      })
+
       return NextResponse.json({ 
         error: "Insufficient credits",
         requiredCredits,
