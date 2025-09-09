@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
 // Helper function to determine required credits based on content type and provider
 function getRequiredCredits(type: ContentType, provider: AIProvider = "openai"): number {
   const baseCreditMap: Record<ContentType, number> = {
-    "linkedin-post": 0.5,    // 6 posts
+    "linkedin-post": 0.5,    // 2 posts
     "article": 0.3,          // Single article
     "topics": 0.1,           // Topic generation
     "carousel": 0.4,         // Multiple slides

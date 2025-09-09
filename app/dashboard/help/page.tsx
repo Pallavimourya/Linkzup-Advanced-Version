@@ -35,7 +35,7 @@ const faqData = [
   {
     question: "How do I generate my first LinkedIn post?",
     answer:
-      "Navigate to the Dashboard, enter your topic in the prompt field, select your preferred tone and audience, then click 'Generate LinkedIn Posts'. Our AI will create 6-7 unique posts for you to choose from.",
+      "Navigate to the Dashboard, enter your topic in the prompt field, select your preferred tone and audience, then click 'Generate LinkedIn Posts'. Our AI will create 2 unique posts for you to choose from.",
   },
   {
     question: "What are credits and how do they work?",
@@ -55,7 +55,7 @@ const faqData = [
   {
     question: "How does the Personal Story feature work?",
     answer:
-      "Answer 6 questions about your professional experiences, and our AI creates compelling narrative stories. You can then select suggested topics to develop into individual LinkedIn posts.",
+      "Answer 2 questions about your professional experiences, and our AI creates compelling narrative stories. You can then select suggested topics to develop into individual LinkedIn posts.",
   },
   {
     question: "What's the difference between carousel and regular posts?",

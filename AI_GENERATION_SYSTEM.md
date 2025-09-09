@@ -30,7 +30,7 @@ The AI generation system provides a unified interface for generating various typ
 
 ## Supported Content Types
 
-- **linkedin-post**: 6 unique LinkedIn posts
+- **linkedin-post**: 2 unique LinkedIn posts
 - **article**: Comprehensive articles
 - **topics**: Viral-worthy topic titles
 - **carousel**: LinkedIn carousel content

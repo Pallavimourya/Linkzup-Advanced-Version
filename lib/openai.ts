@@ -36,7 +36,7 @@ export async function generateLinkedInPosts(params: LinkedInPostParams) {
     } = params
 
     // Build dynamic prompt incorporating all user parameters
-    const dynamicPrompt = `Generate 6 unique, professional LinkedIn posts that align with these parameters:
+    const dynamicPrompt = `Generate 2 unique, professional LinkedIn posts that align with these parameters:
 
 Topic/Subject: ${prompt}
 Tone: ${tone || "professional"}
@@ -52,12 +52,14 @@ Requirements:
 - Write in ${language} language
 - Target the specified audience
 - Align with the main goal
+- Include at least 3 bullet points (•) to make content more engaging and scannable
 - Include relevant hashtags
 - Make posts shareable and conversation-starting
 - Use emojis appropriately for LinkedIn
 - Include clear calls-to-action where appropriate
+- Do NOT include "Post 1:", "Post 2:", or any numbering prefixes
 
-Format the response as 6 distinct posts, each separated by "---POST_SEPARATOR---". Each post should be complete and ready to publish.`
+Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---". Each post should be complete and ready to publish.`
 
     const completion = await getOpenAI().chat.completions.create({
       model: "gpt-4",

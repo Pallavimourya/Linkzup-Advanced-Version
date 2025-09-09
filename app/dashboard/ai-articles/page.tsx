@@ -320,7 +320,7 @@ export default function AIArticlesPage() {
             AI Articles & Topics Generator 📝
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Generate viral topics and create engaging articles with 6 variations using OpenAI.
+            Generate viral topics and create engaging articles with 2 variations using OpenAI.
           </p>
         </div>
       </div>

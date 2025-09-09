@@ -210,7 +210,7 @@ export default function AIGeneratorPage() {
         <div>
           <h1 className="text-3xl font-bold">AI Content Generator</h1>
           <p className="text-muted-foreground">
-            Generate high-quality content with 6 variations for each type using OpenAI
+            Generate high-quality content with 2 variations for each type using OpenAI
           </p>
         </div>
         <Badge variant="outline" className="flex items-center gap-2">

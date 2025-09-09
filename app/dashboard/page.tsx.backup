@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -38,12 +38,6 @@ import {
   Loader2,
   X,
   Mic,
-  Hash,
-  Smile,
-  MousePointer,
-  Layers,
-  BookOpen,
-  User,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
@@ -99,14 +93,12 @@ export default function DashboardPage() {
       })
     }
   }, [searchParams, updateSession, toast])
-  const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedPosts, setGeneratedPosts] = useState<GeneratedPost[]>([])
   const [selectedPost, setSelectedPost] = useState<GeneratedPost | null>(null)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [showGenerationModal, setShowGenerationModal] = useState(false)
-  const [showCustomizationPanel, setShowCustomizationPanel] = useState(false)
   const [prompt, setPrompt] = useState("")
   const [contentType, setContentType] = useState<string>("linkedin-post")
   const [provider, setProvider] = useState<"openai" | "perplexity">("openai")
@@ -204,8 +196,6 @@ export default function DashboardPage() {
       console.error("Failed to check credits:", error)
     }
 
-    // Close the generation modal immediately
-    setShowGenerationModal(false)
     setIsGenerating(true)
 
     try {
@@ -496,164 +486,146 @@ export default function DashboardPage() {
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-2 sm:px-4">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <SidebarTrigger className="-ml-1 flex-shrink-0" />
+          <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+          <Breadcrumb className="min-w-0">
+            <BreadcrumbList className="flex-wrap">
+              <BreadcrumbItem className="hidden sm:block">
+                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden sm:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-sm sm:text-base">AI Content Generator</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
       </header>
 
+      {/* Welcome Section */}
+      <div className="px-2 sm:px-4">
+        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-4 sm:p-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+            Welcome back, {session?.user?.name?.split(" ")[0] || "there"}! 👋
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Ready to create engaging LinkedIn content with AI? Let's generate some amazing posts for your audience.
+          </p>
+        </div>
+      </div>
 
       {/* Content Generator */}
-      <div className={`px-2 sm:px-4 space-y-4 sm:space-y-6 pb-6 transition-all duration-300 ${
-        showCustomizationPanel ? 'blur-sm' : ''
-      }`}>
-        {/* Show form only when not generating and no content generated */}
-        {!isGenerating && generatedPosts.length === 0 && (
-          <div className="space-y-4 sm:space-y-6">
-            <Card>
-              <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
-                  <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
-                  Create your next post
-                </CardTitle>
-                <CardDescription className="text-sm sm:text-base">
-                  Describe what you want to post about, and our AI will generate engaging content for you.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 sm:space-y-6">
-                {/* Main Prompt */}
-                <div className="space-y-2">
-                  <Label htmlFor="prompt" className="text-sm sm:text-base">What would you like to post about?</Label>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Mic className="h-3 w-3" />
-                    Tip: Click the microphone icon to record your prompt instead of typing
-                  </p>
-                  <div className="relative">
-                    <Textarea
-                      id="prompt"
-                      placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      className="min-h-[70px] sm:min-h-[80px] md:min-h-[100px] text-sm sm:text-base resize-none pr-10 sm:pr-12 border-2 border-black"
+      <div className="px-2 sm:px-4 space-y-4 sm:space-y-6 pb-6">
+        {/* Main Content Area */}
+        <div className="space-y-4 sm:space-y-6">
+          <Card>
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Wand2 className="w-5 h-5 text-primary flex-shrink-0" />
+                AI Content Generator
+              </CardTitle>
+              <CardDescription className="text-sm sm:text-base">
+                Describe what you want to post about, and our AI will generate engaging content for you.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 sm:space-y-6">
+              {/* Main Prompt */}
+              <div className="space-y-2">
+                <Label htmlFor="prompt" className="text-sm sm:text-base">What would you like to post about?</Label>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Mic className="h-3 w-3" />
+                  Tip: Click the microphone icon to record your prompt instead of typing
+                </p>
+                <div className="relative">
+                  <Textarea
+                    id="prompt"
+                    placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[80px] sm:min-h-[100px] text-sm sm:text-base resize-none pr-12"
+                  />
+                  <div className="absolute bottom-3 right-3">
+                    <MicrophoneButton
+                      onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 hover:bg-muted"
                     />
-                    <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3">
-                      <MicrophoneButton
-                        onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 hover:bg-muted"
-                      />
-                    </div>
                   </div>
                 </div>
-
-                {/* Generate Button */}
-                <Button
-                  onClick={() => setShowCustomizationPanel(true)}
-                  disabled={!prompt.trim() || isGenerating}
-                  className="w-full relative overflow-hidden h-10 sm:h-11 md:h-12 text-sm sm:text-base"
-                  size="lg"
-                >
-                  <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Generate Content</span>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Feature Cards */}
-        {!isGenerating && generatedPosts.length === 0 && (
-          <div className="space-y-6 sm:space-y-8">
-            {/* Section Title */}
-            <h2 className="text-[28px] sm:text-[34px] md:text-[46px] font-bold text-gray-900 ml-[10px] sm:ml-[25px]">Create with AI</h2>
-            
-            {/* Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              {/* Carousel Card */}
-              <Card 
-                className="cursor-pointer transition-all duration-200 hover:scale-105 bg-white border border-gray-200 shadow-sm hover:shadow-md"
-                onClick={() => router.push('/dashboard/ai-carousel')}
-              >
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-5">
-                    <div className="p-2 sm:p-3 md:p-4 bg-purple-100 rounded-lg flex-shrink-0">
-                      <Layers className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Carousels</h3>
-                      <p className="text-sm sm:text-base text-gray-600 mt-1">Swipe-worthy carousels in seconds</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* AI Topics Card */}
-              <Card 
-                className="cursor-pointer transition-all duration-200 hover:scale-105 bg-white border border-gray-200 shadow-sm hover:shadow-md"
-                onClick={() => router.push('/dashboard/ai-articles')}
-              >
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-5">
-                    <div className="p-2 sm:p-3 md:p-4 bg-purple-100 rounded-lg flex-shrink-0">
-                      <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Post Ideas</h3>
-                      <p className="text-sm sm:text-base text-gray-600 mt-1">Craft magnetic personal headlines</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Personal Story Card */}
-              <Card 
-                className="cursor-pointer transition-all duration-200 hover:scale-105 bg-white border border-gray-200 shadow-sm hover:shadow-md"
-                onClick={() => router.push('/dashboard/personal-story')}
-              >
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-5">
-                    <div className="p-2 sm:p-3 md:p-4 bg-purple-100 rounded-lg flex-shrink-0">
-                      <User className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Personal Story</h3>
-                      <p className="text-sm sm:text-base text-gray-600 mt-1">Share your personal journey</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {/* Show loading state when generating */}
-        {isGenerating && (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-primary animate-pulse" />
               </div>
-            </div>
-            <div className="text-center space-y-2">
-              <h3 className="text-lg font-semibold text-foreground">Generating Your Content</h3>
-              <p className="text-sm text-muted-foreground">Our AI is crafting engaging LinkedIn posts for you...</p>
-            </div>
-          </div>
-        )}
 
-        {/* Generated Posts - Centered when content is generated */}
-        {generatedPosts.length > 0 && (
-          <div className="flex flex-col items-center space-y-6">
-            <div className="w-full max-w-4xl bg-white">
-              <div className="pb-4 sm:pb-6 text-center">
-                <h2 className="flex items-center justify-center gap-2 text-lg sm:text-xl font-semibold text-foreground mb-2">
+              {/* AI Customization Panel - Collapsible */}
+              <div className="border rounded-lg">
+                <button
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="w-full p-3 sm:p-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors min-h-[48px] touch-manipulation"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Settings className="w-4 h-4 flex-shrink-0" />
+                    <span className="font-medium text-sm sm:text-base truncate">Customization Options</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Badge variant="outline" className="text-xs hidden xs:inline-flex">{customization.tone}</Badge>
+                    <Badge variant="outline" className="text-xs hidden xs:inline-flex">{customization.wordCount} words</Badge>
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      {showAdvanced ? "Hide" : "Show"}
+                    </span>
+                  </div>
+                </button>
+                
+                {showAdvanced && (
+                  <div className="p-3 sm:p-4 border-t">
+                    <AICustomizationPanel
+                      customization={customization}
+                      onCustomizationChange={setCustomization}
+                      contentType={contentType}
+                      onContentTypeChange={setContentType}
+                      showAdvanced={false}
+                      onToggleAdvanced={() => {}}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Generate Button */}
+              <Button
+                onClick={() => setShowGenerationModal(true)}
+                disabled={!prompt.trim() || isGenerating}
+                className="w-full relative overflow-hidden h-12 sm:h-11 text-sm sm:text-base"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="absolute inset-0 bg-primary/20" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+                    <div className="relative flex items-center justify-center w-full">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <span className="text-sm sm:text-base">Generating Content...</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Generate Content</span>
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Generated Posts */}
+          {generatedPosts.length > 0 && (
+            <Card>
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                   <Target className="w-5 h-5 text-primary flex-shrink-0" />
                   Generated Content ({generatedPosts.length})
-                </h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base">
                   Select content to preview and customize before publishing to LinkedIn.
-                </p>
-              </div>
-              <div className="p-0">
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {generatedPosts.map((post, index) => (
                     <LinkedInPostPreview
@@ -666,236 +638,11 @@ export default function DashboardPage() {
                     />
                   ))}
                 </div>
-              </div>
-            </div>
-            
-            {/* Generate More Button */}
-            <Button
-              onClick={() => {
-                setGeneratedPosts([])
-                setShowAdvanced(false)
-              }}
-              variant="outline"
-              className="px-8"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate More Content
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Customization Panel - Overlay */}
-      {showCustomizationPanel && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex justify-end">
-          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[45%] bg-white h-full shadow-2xl overflow-y-auto">
-            {/* Header */}
-            <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-semibold">Customize your post</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowCustomizationPanel(false)}
-                className="h-8 w-8 p-0"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Content */}
-            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-              {/* Input Field */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">What would you like to post about?</Label>
-                <Input
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full"
-                  placeholder="Enter your topic..."
-                />
-              </div>
-
-              {/* Original Customization Options */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Tone</Label>
-                    <Select
-                      value={customization.tone}
-                      onValueChange={(value) => setCustomization(prev => ({ ...prev, tone: value as any }))}
-                    >
-                      <SelectTrigger className="h-10 sm:h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="professional">Professional</SelectItem>
-                        <SelectItem value="casual">Casual</SelectItem>
-                        <SelectItem value="friendly">Friendly</SelectItem>
-                        <SelectItem value="authoritative">Authoritative</SelectItem>
-                        <SelectItem value="conversational">Conversational</SelectItem>
-                        <SelectItem value="inspirational">Inspirational</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Word Count</Label>
-                    <Select
-                      value={customization.wordCount?.toString()}
-                      onValueChange={(value) => setCustomization(prev => ({ ...prev, wordCount: parseInt(value) }))}
-                    >
-                      <SelectTrigger className="h-10 sm:h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="100">100 words</SelectItem>
-                        <SelectItem value="150">150 words</SelectItem>
-                        <SelectItem value="200">200 words</SelectItem>
-                        <SelectItem value="250">250 words</SelectItem>
-                        <SelectItem value="300">300 words</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Language</Label>
-                  <Select
-                    value={customization.language}
-                    onValueChange={(value) => setCustomization(prev => ({ ...prev, language: value }))}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="english">English</SelectItem>
-                        <SelectItem value="hindi">Hindi</SelectItem>
-                        <SelectItem value="spanish">Spanish</SelectItem>
-                        <SelectItem value="french">French</SelectItem>
-                        <SelectItem value="german">German</SelectItem>
-                        <SelectItem value="italian">Italian</SelectItem>
-                      </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Content Type</Label>
-                  <Select
-                    value={contentType}
-                    onValueChange={(value) => setContentType(value as any)}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="linkedin-post">LinkedIn Post</SelectItem>
-                      <SelectItem value="article">Article</SelectItem>
-                      <SelectItem value="story">Story</SelectItem>
-                      <SelectItem value="list">List</SelectItem>
-                      <SelectItem value="quote">Quote</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Target Audience</Label>
-                  <Input
-                    placeholder="e.g., LinkedIn professionals"
-                    value={customization.targetAudience}
-                    onChange={(e) => setCustomization(prev => ({ ...prev, targetAudience: e.target.value }))}
-                    className="h-10 sm:h-9"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Main Goal</Label>
-                  <Select
-                    value={customization.mainGoal}
-                    onValueChange={(value) => setCustomization(prev => ({ ...prev, mainGoal: value as any }))}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="engagement">Engagement</SelectItem>
-                      <SelectItem value="awareness">Awareness</SelectItem>
-                      <SelectItem value="conversion">Conversion</SelectItem>
-                      <SelectItem value="education">Education</SelectItem>
-                      <SelectItem value="entertainment">Entertainment</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Content Features */}
-                <div className="space-y-3 pt-4 border-t">
-                  <h3 className="text-sm font-medium">Content Features</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Hash className="w-4 h-4" />
-                        <Label className="text-sm">Include Hashtags</Label>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={customization.includeHashtags}
-                        onChange={(e) => setCustomization(prev => ({ ...prev, includeHashtags: e.target.checked }))}
-                        className="h-5 w-5 sm:h-4 sm:w-4"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Smile className="w-4 h-4" />
-                        <Label className="text-sm">Include Emojis</Label>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={customization.includeEmojis}
-                        onChange={(e) => setCustomization(prev => ({ ...prev, includeEmojis: e.target.checked }))}
-                        className="h-5 w-5 sm:h-4 sm:w-4"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MousePointer className="w-4 h-4" />
-                        <Label className="text-sm">Call to Action</Label>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={customization.callToAction}
-                        onChange={(e) => setCustomization(prev => ({ ...prev, callToAction: e.target.checked }))}
-                        className="h-5 w-5 sm:h-4 sm:w-4"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Generate Button */}
-              <div className="pt-4">
-                <Button
-                  onClick={() => {
-                    setShowGenerationModal(true)
-                    setShowCustomizationPanel(false)
-                  }}
-                  disabled={!prompt.trim() || isGenerating}
-                  className="w-full h-10 sm:h-11 md:h-12"
-                >
-                  {isGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
-                      Generating...
-                    </>
-                  ) : (
-                    "Generate"
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Enhanced Preview Modal */}
       {showPreviewModal && selectedPost && (
@@ -910,6 +657,246 @@ export default function DashboardPage() {
       )}
 
       {/* Generation Modal */}
+          <DialogHeader>
+            <DialogTitle className="text-lg sm:text-xl">Preview Content</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base">
+              Review your generated content and add images before publishing to LinkedIn.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedPost && (
+            <div className="space-y-4">
+              {/* Content Preview */}
+              <div className="p-3 sm:p-4 border rounded-lg bg-muted/30">
+                <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
+                  <Badge variant="secondary" className="text-xs">{selectedPost.tone}</Badge>
+                  <Badge variant="outline" className="text-xs">{selectedPost.wordCount} words</Badge>
+                </div>
+                {isEditing ? (
+                  <div className="space-y-2">
+                    <Textarea
+                      value={editableContent}
+                      onChange={(e) => setEditableContent(e.target.value)}
+                      className="min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base"
+                      placeholder="Edit your post content..."
+                    />
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button size="sm" onClick={handleSaveEdit} className="flex-1 sm:flex-none">
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Changes
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleCancelEdit} className="flex-1 sm:flex-none">
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="whitespace-pre-wrap text-sm sm:text-base">{selectedPost.content}</div>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={handleEdit}
+                      className="mt-2"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Edit Post
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Image Management Section */}
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <Label className="text-base font-medium">Add Image to Your Content</Label>
+                  {selectedImage && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelectedImage(null)}
+                      className="w-full sm:w-auto"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Remove Image
+                    </Button>
+                  )}
+                </div>
+
+                {selectedImage && (
+                  <div className="relative">
+                    <img
+                      src={selectedImage}
+                      alt="Selected for content"
+                      className="w-full h-32 sm:h-48 object-cover rounded-lg"
+                    />
+                    <Badge className="absolute top-2 left-2 text-xs">
+                      Selected Image
+                    </Badge>
+                  </div>
+                )}
+
+                {/* Image Manager Tabs */}
+                <Tabs defaultValue="upload" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 h-10 sm:h-9">
+                    <TabsTrigger value="upload" className="text-xs sm:text-sm">
+                      <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">Upload</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="search" className="text-xs sm:text-sm">
+                      <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">Search</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="ai-generate" className="text-xs sm:text-sm">
+                      <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      <span className="hidden xs:inline">AI Generate</span>
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Upload Tab */}
+                  <TabsContent value="upload" className="mt-3 sm:mt-4">
+                    <Card>
+                      <CardContent className="pt-4 sm:pt-6">
+                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 sm:p-6 text-center">
+                          <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
+                            Drag and drop images here or click to browse
+                          </p>
+                          <Button
+                            onClick={() => document.getElementById('content-file-upload')?.click()}
+                            disabled={isLoading}
+                            size="sm"
+                            className="w-full sm:w-auto"
+                          >
+                            {isLoading ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <Upload className="w-4 h-4 mr-2" />
+                            )}
+                            Choose Files
+                          </Button>
+                          <input
+                            id="content-file-upload"
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+                        </div>
+
+                        {uploadedImages.length > 0 && (
+                          <div className="space-y-2 mt-3 sm:mt-4">
+                            <Label className="text-sm">Uploaded Images</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              {uploadedImages.map((url, index) => (
+                                <div key={index} className="relative group">
+                                  <img
+                                    src={url}
+                                    alt={`Uploaded ${index + 1}`}
+                                    className="w-full h-20 sm:h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleImageSelect(url)}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Search Tab */}
+                  <TabsContent value="search" className="mt-3 sm:mt-4">
+                    <Card>
+                      <CardContent className="pt-4 sm:pt-6">
+                        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
+                          <Input
+                            placeholder="Search for images..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && searchImages()}
+                            className="flex-1 text-sm sm:text-base"
+                          />
+                          <Select value={selectedSource} onValueChange={setSelectedSource}>
+                            <SelectTrigger className="w-full sm:w-32 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {imageSources.map((source) => (
+                                <SelectItem key={source.value} value={source.value}>
+                                  {source.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button onClick={searchImages} disabled={isLoading || !searchQuery.trim()} size="sm" className="w-full sm:w-auto min-h-[40px]">
+                            {isLoading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Search className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
+
+                        {searchResults.length > 0 && (
+                          <div className="space-y-2">
+                            <Label className="text-sm">Search Results</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 sm:max-h-64 overflow-y-auto">
+                              {searchResults.map((result) => (
+                                <div key={result.id} className="relative group">
+                                  <img
+                                    src={result.thumbnail}
+                                    alt={result.title || 'Search result'}
+                                    className="w-full h-20 sm:h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleImageSelect(result.url)}
+                                  />
+                                  <Badge className="absolute top-1 left-1 text-xs">
+                                    {result.source}
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* AI Generate Tab */}
+                  <TabsContent value="ai-generate" className="mt-3 sm:mt-4">
+                    <Card>
+                      <CardContent className="pt-4 sm:pt-6">
+                        <div className="space-y-2">
+                          <Label className="text-sm">Describe the image you want to generate</Label>
+                          <Textarea
+                            placeholder="A professional business meeting with modern office background..."
+                            value={aiPrompt}
+                            onChange={(e) => setAiPrompt(e.target.value)}
+                            rows={3}
+                            className="text-sm sm:text-base resize-none"
+                          />
+                          <Button 
+                            onClick={generateAIImage} 
+                            disabled={isLoading || !aiPrompt.trim()}
+                            className="w-full"
+                            size="sm"
+                          >
+                            {isLoading ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4 mr-2" />
+                            )}
+                            Generate Image
+                          </Button>
+                        </div>
+
+                        {aiResults.length > 0 && (
+                          <div className="space-y-2 mt-3 sm:mt-4">
+                            <Label className="text-sm">Generated Images</Label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 sm:max-h-64 overflow-y-auto">
+                              {aiResults.map((result) => (
       {/* Generation Modal */}
       <Dialog open={showGenerationModal} onOpenChange={setShowGenerationModal}>
         <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto">
