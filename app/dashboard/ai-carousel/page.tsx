@@ -37,6 +37,7 @@ import {
 import { useSession } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
+import { ScheduleButton } from "@/components/schedule-button"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
 import domtoimage from 'dom-to-image'
@@ -1939,6 +1940,20 @@ What do you think? Share your thoughts in the comments below.
                         </>
                       )}
                     </Button>
+                    
+                    <ScheduleButton
+                      content={linkedInCaption || `Check out my latest carousel about ${currentProject?.topic || "this topic"}! 
+
+What do you think? Share your thoughts in the comments below.
+
+#LinkedIn #Content #${currentProject?.topic?.replace(/\s+/g, "") || "Learning"}`}
+                      defaultPlatform="linkedin"
+                      defaultType="carousel"
+                      variant="outline"
+                      size="sm"
+                      className="flex-shrink-0"
+                      disabled={!currentProject}
+                    />
                   </div>
                 </div>
               </CardContent>

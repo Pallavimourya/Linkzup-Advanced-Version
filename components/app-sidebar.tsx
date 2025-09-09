@@ -56,11 +56,6 @@ const menuItems = [
     icon: Sparkles,
   },
   {
-    title: "Viral Post & News",
-    url: "/dashboard/viral-posts",
-    icon: TrendingUp,
-  },
-  {
     title: "Scheduled Posts",
     url: "/dashboard/scheduled-posts",
     icon: Calendar,
