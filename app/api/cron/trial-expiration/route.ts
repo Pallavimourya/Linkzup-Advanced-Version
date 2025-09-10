@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
 
     const { db } = await connectToDatabase()
     const users = db.collection("users")
+    const notifications = db.collection("notifications")
 
     const now = new Date()
     let expiredCount = 0
@@ -28,16 +29,35 @@ export async function POST(request: NextRequest) {
       
       // Check if trial has expired
       if (now > trialEndDate) {
+        // Set trial as inactive and reset credits to 0
         await users.updateOne(
           { _id: user._id },
           {
             $set: {
               isTrialActive: false,
+              credits: 0, // Reset credits to 0 when trial expires
               updatedAt: now,
             },
           }
         )
+
+        // Create trial expired notification
+        await notifications.insertOne({
+          userId: user._id,
+          type: "trial_expired",
+          title: "⏰ Your free trial has expired",
+          message: "Your 2-day free trial has ended. Purchase credits to continue using all features.",
+          isRead: false,
+          createdAt: now,
+          metadata: {
+            trialEndDate: trialEndDate,
+            expiredAt: now,
+            creditsReset: true
+          }
+        })
+
         expiredCount++
+        console.log(`Trial expired for user: ${user.email} (${user.name})`)
       }
     }
 

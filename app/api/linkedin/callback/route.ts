@@ -113,7 +113,10 @@ export async function GET(request: NextRequest) {
         let user = await users.findOne({ email: profile.email })
 
         if (!user) {
-          // Create new user with proper NextAuth structure
+          // Create new user with proper NextAuth structure and 10 free trial credits
+          const trialStartDate = new Date()
+          const trialEndDate = new Date(trialStartDate.getTime() + 2 * 24 * 60 * 60 * 1000) // 2 days
+          
           const newUser = {
             email: profile.email,
             name: profile.name,
@@ -122,14 +125,16 @@ export async function GET(request: NextRequest) {
             linkedinConnected: true,
             linkedinConnectedAt: new Date(),
             linkedinAccessToken: accessToken,
-            credits: 0,
-            trialStartDate: new Date(),
+            credits: 10, // Give 10 free credits for trial
+            trialStartDate: trialStartDate,
+            trialEndDate: trialEndDate,
             trialPeriodDays: 2,
             isTrialActive: true,
-            totalCreditsEver: 0,
+            totalCreditsEver: 10, // Track total credits ever received
             bio: null,
             profilePicture: null,
             darkMode: false,
+            hasUsedCoupon: false, // Track coupon usage
             createdAt: new Date(),
             updatedAt: new Date(),
           }
@@ -137,6 +142,38 @@ export async function GET(request: NextRequest) {
           const result = await users.insertOne(newUser)
           user = { ...newUser, _id: result.insertedId }
           console.log("New user created with LinkedIn:", profile.email)
+
+          // Create trial started notification for new LinkedIn user
+          const notifications = db.collection("notifications")
+          await notifications.insertOne({
+            userId: result.insertedId,
+            type: "trial_started",
+            title: "🎉 Welcome! Your 2-day free trial has started",
+            message: "You have 2 days free trial with 10 credits to explore all features.",
+            isRead: false,
+            createdAt: new Date(),
+            metadata: {
+              trialEndDate: trialEndDate,
+              credits: 10,
+              trialPeriodDays: 2
+            }
+          })
+
+          // Schedule trial ending reminder (24 hours before expiry)
+          const reminderDate = new Date(trialStartDate.getTime() + 1 * 24 * 60 * 60 * 1000) // 1 day later
+          await notifications.insertOne({
+            userId: result.insertedId,
+            type: "trial_ending_reminder",
+            title: "⏰ Your free trial ends tomorrow",
+            message: "Your 2-day free trial ends in 24 hours. Consider upgrading to continue using all features.",
+            isRead: false,
+            scheduledFor: reminderDate,
+            createdAt: new Date(),
+            metadata: {
+              trialEndDate: trialEndDate,
+              reminderType: "trial_ending"
+            }
+          })
         } else {
           // Update existing user's LinkedIn connection
           await users.updateOne(

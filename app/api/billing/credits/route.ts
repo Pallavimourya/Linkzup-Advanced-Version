@@ -91,13 +91,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Update trial status if expired
+    // Update trial status if expired and reset credits to 0
     if (user.isTrialActive && !isTrialActive) {
       await users.updateOne(
         { _id: new ObjectId(session.user.id) },
         {
           $set: {
             isTrialActive: false,
+            credits: 0, // Reset credits to 0 when trial expires
             updatedAt: new Date(),
           },
         },
