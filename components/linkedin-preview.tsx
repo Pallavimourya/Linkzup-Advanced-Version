@@ -18,11 +18,14 @@ import {
   X,
   Loader2,
   Send,
-  Settings
+  Settings,
+  Smartphone,
+  Monitor
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import { LinkedInPostButton } from "@/components/linkedin-post-button"
+import { useSession } from "next-auth/react"
 
 interface LinkedInPreviewProps {
   content: string
@@ -34,6 +37,7 @@ interface LinkedInPreviewProps {
 export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpdate }: LinkedInPreviewProps) {
   const { toast } = useToast()
   const { isLinkedInConnected } = useLinkedInPosting()
+  const { data: session } = useSession()
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [imageSource, setImageSource] = useState<"ai-carousel" | "search" | "ai-generate" | "upload" | null>(null)
   
@@ -54,6 +58,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
   const [aiPrompt, setAiPrompt] = useState("")
   const [aiResults, setAiResults] = useState<any[]>([])
   const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
 
   // Edit functions
   const handleEdit = () => {
@@ -244,19 +249,49 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Preview Mode Toggle */}
+          <div className="flex items-center justify-center gap-2 p-2 bg-muted rounded-lg">
+            <Button
+              variant={previewMode === "desktop" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setPreviewMode("desktop")}
+              className="flex items-center gap-2"
+            >
+              <Monitor className="w-4 h-4" />
+              Desktop
+            </Button>
+            <Button
+              variant={previewMode === "mobile" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setPreviewMode("mobile")}
+              className="flex items-center gap-2"
+            >
+              <Smartphone className="w-4 h-4" />
+              Mobile
+            </Button>
+          </div>
+
           {/* LinkedIn Post Preview */}
-          <div className="border rounded-lg p-4 bg-white">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium">👤</span>
+          <div className={`border rounded-lg p-4 bg-white ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
+            <div className={`flex items-center gap-3 mb-4 ${previewMode === "mobile" ? "gap-2" : ""}`}>
+              <div className={`bg-gray-300 rounded-full flex items-center justify-center overflow-hidden ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}>
+                {session?.user?.image ? (
+                  <img 
+                    src={session.user.image} 
+                    alt="Profile" 
+                    className={`w-full h-full object-cover ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}
+                  />
+                ) : (
+                  <span className={`font-medium ${previewMode === "mobile" ? "text-xs" : "text-sm"}`}>👤</span>
+                )}
               </div>
               <div>
-                <div className="font-medium">Your Name</div>
-                <div className="text-sm text-gray-500">Just now • 🌍</div>
+                <div className={`font-medium ${previewMode === "mobile" ? "text-sm" : ""}`}>{session?.user?.name || "Your Name"}</div>
+                <div className={`text-gray-500 ${previewMode === "mobile" ? "text-xs" : "text-sm"}`}>Just now • 🌍</div>
               </div>
             </div>
             
-            <div className="text-sm leading-relaxed mb-4">
+            <div className={`leading-relaxed mb-4 ${previewMode === "mobile" ? "text-xs" : "text-sm"}`}>
               {isEditing ? (
                 <div className="space-y-2">
                   <Textarea
@@ -297,12 +332,12 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                 <img 
                   src={selectedImage} 
                   alt="Post image" 
-                  className="w-full rounded-lg"
+                  className={`w-full rounded-lg ${previewMode === "mobile" ? "h-48 object-cover" : ""}`}
                 />
               </div>
             )}
 
-            <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className={`flex items-center gap-4 text-gray-500 ${previewMode === "mobile" ? "text-xs gap-2" : "text-sm"}`}>
               <div className="flex items-center gap-1">
                 <span>👍</span>
                 <span>Like</span>

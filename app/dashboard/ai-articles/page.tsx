@@ -68,6 +68,8 @@ export default function AIArticlesPage() {
   const [showTopicGenerator, setShowTopicGenerator] = useState(true)
   const [provider, setProvider] = useState<"openai" | "perplexity">("openai")
   const [recommendedTopics, setRecommendedTopics] = useState<Topic[]>([])
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
+  const [hasGeneratedTopics, setHasGeneratedTopics] = useState(false)
 
   const [customization, setCustomization] = useState<CustomizationOptions>({
     tone: "professional",
@@ -191,7 +193,21 @@ export default function AIArticlesPage() {
       }
 
       const data = await response.json()
-      let topicsArray = Array.isArray(data.data.content) ? data.data.content : []
+      console.log("API Response:", data) // Debug log
+      
+      // Handle different response structures
+      let topicsArray = []
+      if (Array.isArray(data.data?.content)) {
+        topicsArray = data.data.content
+      } else if (Array.isArray(data.content)) {
+        topicsArray = data.content
+      } else if (Array.isArray(data.data)) {
+        topicsArray = data.data
+      } else if (Array.isArray(data)) {
+        topicsArray = data
+      }
+      
+      console.log("Topics Array:", topicsArray) // Debug log
       
       // Ensure we have exactly 4 topics
       if (topicsArray.length < 4) {
@@ -215,6 +231,17 @@ export default function AIArticlesPage() {
         }
       }
       
+      // If still no topics, create fallback topics
+      if (topicsArray.length === 0) {
+        const baseTopic = topicPrompt.trim()
+        topicsArray = [
+          `${baseTopic}: Key Strategies and Best Practices`,
+          `${baseTopic}: Future Trends and Predictions`,
+          `${baseTopic}: Common Challenges and Solutions`,
+          `${baseTopic}: Success Stories and Case Studies`
+        ]
+      }
+      
       const generatedTopics: Topic[] = topicsArray.slice(0, 4).map((title: string, index: number) => ({
             id: `topic-${Date.now()}-${index}`,
             title,
@@ -225,6 +252,8 @@ export default function AIArticlesPage() {
 
       setTopics(generatedTopics)
       setShowTopicGenerator(false) // Hide the topic generator section
+      setHasGeneratedTopics(true) // Mark that topics have been generated
+      console.log("Generated topics:", generatedTopics) // Debug log
       toast({
         title: "Success!",
         description: `Generated 4 topics for ${contentType}`,
@@ -306,6 +335,8 @@ export default function AIArticlesPage() {
           : t
       ))
 
+      // Set the selected topic and hide others
+      setSelectedTopicId(topic.id)
       setShowCustomization(null)
       toast({
         title: "Success!",
@@ -323,10 +354,89 @@ export default function AIArticlesPage() {
     }
   }
 
+  // Direct generation for recommended topics (bypasses customization)
+  const generateRecommendedTopicContent = async (topic: Topic) => {
+    setIsGenerating(true)
+
+    try {
+      const creditResponse = await fetch("/api/billing/credits")
+      if (creditResponse.ok) {
+        const creditData = await creditResponse.json()
+        if (!creditData.isTrialActive && creditData.credits < 0.3) {
+          toast({
+            title: "Insufficient Credits",
+            description: "You need at least 0.3 credits to generate content. Please purchase more credits.",
+            variant: "destructive",
+          })
+          window.location.href = "/dashboard/billing"
+          return
+        }
+      }
+
+      const response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "linkedin-post",
+          prompt: topic.title,
+          provider: "openai",
+          customization: {
+            tone: "professional",
+            language: "english",
+            wordCount: 150,
+            targetAudience: "LinkedIn professionals",
+            mainGoal: "engagement",
+            includeHashtags: true,
+            includeEmojis: true,
+            callToAction: true,
+            temperature: 0.7,
+            maxTokens: 1000,
+            format: "linkedin-post",
+            niche: topic.niche,
+            variations: 4
+          }
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to generate content")
+      }
+
+      const data = await response.json()
+      const content = Array.isArray(data.data.content) ? data.data.content : [data.data.content]
+
+      // Update recommended topics
+      setRecommendedTopics(prev => prev.map(t => 
+        t.id === topic.id 
+          ? { ...t, content: content, format: "linkedin-post", status: "content-ready" as const }
+          : t
+      ))
+
+      // Set the selected topic and hide others
+      setSelectedTopicId(topic.id)
+      toast({
+        title: "Content Generated!",
+        description: `Generated ${content.length} variations for "${topic.title}"`,
+      })
+    } catch (error) {
+      console.error("Error generating content:", error)
+      toast({
+        title: "Generation Failed",
+        description: error instanceof Error ? error.message : "Failed to generate content",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   const clearTopics = () => {
     setTopics([])
     setExpandedTopic(null)
     setShowTopicGenerator(true) // Show the topic generator section again
+    setHasGeneratedTopics(false) // Reset the generated topics flag
+    setSelectedTopicId(null) // Reset selected topic
   }
 
   const saveToDraft = async (content: string, title: string, format: string = "article") => {
@@ -370,7 +480,7 @@ export default function AIArticlesPage() {
       <div className="px-2 sm:px-4">
         <div className="text-center py-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">
-            What's on your mind today?
+            {hasGeneratedTopics ? "Topics generated for you" : "What's on your mind today?"}
           </h1>
         </div>
       </div>
@@ -479,12 +589,22 @@ export default function AIArticlesPage() {
                           {topic.status === "generated" && (
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <Button
-                                onClick={() => setShowCustomization(topic.id)}
+                                onClick={() => generateRecommendedTopicContent(topic)}
                                 size="sm"
                                 className="w-full"
+                                disabled={isGenerating}
                               >
-                                <Sparkles className="w-4 h-4 mr-2" />
-                                Generate Content
+                                {isGenerating ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Generating...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles className="w-4 h-4 mr-2" />
+                                    Generate Content
+                                  </>
+                                )}
                               </Button>
                             </div>
                           )}
@@ -581,7 +701,7 @@ export default function AIArticlesPage() {
                   <div>
                     <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                       <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-                      Generated Topics ({topics.length})
+                      Generated Topics
                     </CardTitle>
                     <CardDescription className="text-sm sm:text-base">
                         Hover over topics to see generate button, or click to view generated content.
@@ -594,8 +714,28 @@ export default function AIArticlesPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {topics.map((topic) => (
+                <div className="grid grid-cols-1 gap-4">
+                  {(() => {
+                    const filteredTopics = topics.filter(topic => {
+                      // If no topic is selected, show all topics
+                      if (!selectedTopicId) return true
+                      // If a topic is selected, only show that topic
+                      return topic.id === selectedTopicId
+                    })
+                    console.log("All topics:", topics)
+                    console.log("Selected topic ID:", selectedTopicId)
+                    console.log("Filtered topics:", filteredTopics)
+                    return filteredTopics
+                  })()
+                    .sort((a, b) => {
+                      // Move selected topic to the top
+                      if (selectedTopicId) {
+                        if (a.id === selectedTopicId) return -1
+                        if (b.id === selectedTopicId) return 1
+                      }
+                      return 0
+                    })
+                    .map((topic) => (
                     <div key={topic.id} className="group relative border rounded-lg p-4 hover:shadow-md transition-all duration-200">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between">
@@ -710,6 +850,11 @@ export default function AIArticlesPage() {
                               )}
                             </div>
 
+        {/* Background Blur Overlay */}
+        {showCustomization && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />
+        )}
+
         {/* Customization Panel */}
         {showCustomization && (
           <Card className="fixed inset-x-4 bottom-4 z-50 max-w-2xl mx-auto">
@@ -770,7 +915,7 @@ export default function AIArticlesPage() {
                                 ) : (
                                   <>
                                     <Sparkles className="w-4 h-4 mr-2" />
-                      Generate 4 Posts
+                      Generate Posts
                                   </>
                                 )}
                               </Button>

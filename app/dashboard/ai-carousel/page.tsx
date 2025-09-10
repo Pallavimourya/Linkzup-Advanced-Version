@@ -302,6 +302,11 @@ export default function AICarouselPage() {
   const [lastGeneratedContent, setLastGeneratedContent] = useState<string>("")
   const [isPostingToLinkedIn, setIsPostingToLinkedIn] = useState(false)
   const slideCanvasRef = useRef<HTMLDivElement>(null)
+  
+  // Drag functionality state
+  const [draggedElement, setDraggedElement] = useState<string | null>(null)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
 
   const [aiForm, setAiForm] = useState({
     topic: "",
@@ -937,6 +942,81 @@ export default function AICarouselPage() {
     })
   }
 
+  // Drag functionality handlers
+  const handleDragStart = (e: React.MouseEvent, elementId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDraggedElement(elementId)
+    setIsDragging(true)
+    setDragStart({ x: e.clientX, y: e.clientY })
+    
+    // Prevent text selection during drag
+    document.body.style.userSelect = 'none'
+  }
+
+  const handleDragMove = (e: React.MouseEvent) => {
+    if (!isDragging || !draggedElement || !currentProject || !currentSlide) return
+
+    const deltaY = e.clientY - dragStart.y
+    const containerHeight = slideCanvasRef.current?.clientHeight || 400
+    const maxMove = containerHeight * 0.3 // Allow 30% of container height movement
+
+    // Update the position of the dragged element
+    const updatedSlides = [...currentProject.slides]
+    const currentSlideData = updatedSlides[currentSlideIndex]
+    
+    // Calculate new position (clamp between -maxMove and maxMove)
+    const newY = Math.max(-maxMove, Math.min(maxMove, currentSlideData.position.y + deltaY))
+    
+    updatedSlides[currentSlideIndex] = {
+      ...currentSlideData,
+      position: {
+        ...currentSlideData.position,
+        y: newY
+      }
+    }
+
+    setCurrentProject({
+      ...currentProject,
+      slides: updatedSlides,
+    })
+
+    setDragStart({ x: e.clientX, y: e.clientY })
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
+    setDraggedElement(null)
+    
+    // Restore text selection
+    document.body.style.userSelect = ''
+  }
+
+  // Add mouse event listeners for drag functionality
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        handleDragMove(e as any)
+      }
+    }
+
+    const handleMouseUp = () => {
+      if (isDragging) {
+        handleDragEnd()
+      }
+    }
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging, draggedElement, dragStart, currentProject, currentSlideIndex])
+
   const addSlide = () => {
     if (!currentProject) return
 
@@ -1350,20 +1430,25 @@ What do you think? Share your thoughts in the comments below.
           fontFamily: design.fontFamily,
           color: design.textColor,
           paddingTop: "0px",
-          textShadow: design.backgroundType === "image" && overlayOpacity > 0 ? "0 2px 4px rgba(0,0,0,0.8)" : "none"
+          textShadow: design.backgroundType === "image" && overlayOpacity > 0 ? "0 2px 4px rgba(0,0,0,0.8)" : "none",
+          transform: `translateY(${slide.position.y}px)`,
+          transition: isDragging ? 'none' : 'transform 0.1s ease-out'
         }}
         data-font-family={design.fontFamily}
+        onMouseMove={handleDragMove}
       >
         {slide.type === "first" && (
           <>
             {content.top_line && (
               <div
-                className="text-sm opacity-80 mb-2 self-center text-left w-full"
+                className={`text-sm opacity-80 mb-2 self-center text-left w-full ${isDragging && draggedElement === 'top_line' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
                 onClick={() => setEditingText("top_line")}
+                onMouseDown={(e) => handleDragStart(e, 'top_line')}
                 style={{ 
                   fontSize: "clamp(18px, 4vw, 25px)",
                   marginTop: "-10px",
-                  fontFamily: design.fontFamily
+                  fontFamily: design.fontFamily,
+                  userSelect: 'none'
                 }}
               >
                 {editingText === "top_line" ? (
@@ -1383,11 +1468,13 @@ What do you think? Share your thoughts in the comments below.
             )}
             {content.main_heading && (
               <h1
-                className="font-bold mb-4 leading-tight self-center text-left w-full"
+                className={`font-bold mb-4 leading-tight self-center text-left w-full ${isDragging && draggedElement === 'main_heading' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
                 onClick={() => setEditingText("main_heading")}
+                onMouseDown={(e) => handleDragStart(e, 'main_heading')}
                 style={{ 
                   fontSize: "clamp(28px, 6vw, 40px)",
-                  fontFamily: design.fontFamily
+                  fontFamily: design.fontFamily,
+                  userSelect: 'none'
                 }}
               >
                 {editingText === "main_heading" ? (
@@ -1408,7 +1495,12 @@ What do you think? Share your thoughts in the comments below.
               </h1>
             )}
             {content.bullet && (
-              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("bullet")} style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}>
+              <div 
+                className={`text-lg self-center text-left w-full break-words ${isDragging && draggedElement === 'bullet' ? 'cursor-grabbing' : 'cursor-grab'} select-none`} 
+                onClick={() => setEditingText("bullet")} 
+                onMouseDown={(e) => handleDragStart(e, 'bullet')}
+                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily, userSelect: 'none' }}
+              >
                 {editingText === "bullet" ? (
                   <textarea
                     value={content.bullet}
@@ -1431,9 +1523,10 @@ What do you think? Share your thoughts in the comments below.
           <>
             {content.heading && (
               <h2
-                className="font-bold mb-6 leading-tight self-center text-left w-full break-words"
+                className={`font-bold mb-6 leading-tight self-center text-left w-full break-words ${isDragging && draggedElement === 'heading' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
                 onClick={() => setEditingText("heading")}
-                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
+                onMouseDown={(e) => handleDragStart(e, 'heading')}
+                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily, userSelect: 'none' }}
               >
                 {editingText === "heading" ? (
                   <textarea
@@ -1457,9 +1550,10 @@ What do you think? Share your thoughts in the comments below.
                 {content.bullets.map((bullet, index) => (
                   <li
                     key={index}
-                    className="flex items-center justify-start gap-2"
+                    className={`flex items-center justify-start gap-2 ${isDragging && draggedElement === `bullet_${index}` ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
                     onClick={() => setEditingText(`bullet_${index}`)}
-                    style={{ fontSize: "clamp(16px, 3.5vw, 21px)", fontFamily: design.fontFamily }}
+                    onMouseDown={(e) => handleDragStart(e, `bullet_${index}`)}
+                    style={{ fontSize: "clamp(16px, 3.5vw, 21px)", fontFamily: design.fontFamily, userSelect: 'none' }}
                   >
                     <span className="w-2 h-2 bg-current rounded-full mt-2 flex-shrink-0"></span>
                     {editingText === `bullet_${index}` ? (
@@ -1490,9 +1584,10 @@ What do you think? Share your thoughts in the comments below.
           <>
             {content.tagline && (
               <div
-                className="text-sm opacity-80 mb-2 self-center text-left w-full break-words"
+                className={`text-sm opacity-80 mb-2 self-center text-left w-full break-words ${isDragging && draggedElement === 'tagline' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
                 onClick={() => setEditingText("tagline")}
-                style={{ fontSize: "clamp(16px, 3vw, 19px)", fontFamily: design.fontFamily }}
+                onMouseDown={(e) => handleDragStart(e, 'tagline')}
+                style={{ fontSize: "clamp(16px, 3vw, 19px)", fontFamily: design.fontFamily, userSelect: 'none' }}
               >
                 {editingText === "tagline" ? (
                   <textarea
@@ -1511,9 +1606,10 @@ What do you think? Share your thoughts in the comments below.
             )}
             {content.final_heading && (
               <h1
-                className="font-bold mb-4 leading-tight self-center text-left w-full break-words"
+                className={`font-bold mb-4 leading-tight self-center text-left w-full break-words ${isDragging && draggedElement === 'final_heading' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
                 onClick={() => setEditingText("final_heading")}
-                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
+                onMouseDown={(e) => handleDragStart(e, 'final_heading')}
+                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily, userSelect: 'none' }}
               >
                 {editingText === "final_heading" ? (
                   <textarea
@@ -1533,7 +1629,12 @@ What do you think? Share your thoughts in the comments below.
               </h1>
             )}
             {content.last_bullet && (
-              <div className="text-lg self-center text-left w-full break-words" onClick={() => setEditingText("last_bullet")} style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}>
+              <div 
+                className={`text-lg self-center text-left w-full break-words ${isDragging && draggedElement === 'last_bullet' ? 'cursor-grabbing' : 'cursor-grab'} select-none`} 
+                onClick={() => setEditingText("last_bullet")} 
+                onMouseDown={(e) => handleDragStart(e, 'last_bullet')}
+                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily, userSelect: 'none' }}
+              >
                 {editingText === "last_bullet" ? (
                   <textarea
                     value={content.last_bullet}

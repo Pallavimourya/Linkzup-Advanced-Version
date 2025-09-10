@@ -232,7 +232,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <Link href="/" className="flex items-center space-x-2">
-                <Logo size="md" />
+                <Logo size="lg" />
               </Link>
               <p className="text-muted-foreground">
                 Transform your professional identity with AI-powered personal branding.

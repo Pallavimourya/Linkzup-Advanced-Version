@@ -44,6 +44,9 @@ import {
   Layers,
   BookOpen,
   User,
+  TrendingUp,
+  BarChart3,
+  Zap,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
@@ -137,6 +140,125 @@ export default function DashboardPage() {
     temperature: 0.7,
     maxTokens: 1000,
   })
+
+  // Recommended topics data - 50 topics
+  const recommendedTopics = [
+    "Remote work productivity tips",
+    "Industry trends and insights",
+    "Personal career journey",
+    "Team collaboration strategies",
+    "Leadership lessons learned",
+    "Digital transformation insights",
+    "Customer success stories",
+    "Innovation in business",
+    "Work-life balance tips",
+    "Professional networking advice",
+    "Startup challenges and solutions",
+    "Technology adoption strategies",
+    "Employee engagement ideas",
+    "Market analysis and predictions",
+    "Sustainability in business",
+    "Diversity and inclusion initiatives",
+    "Mental health in the workplace",
+    "Future of work trends",
+    "Client relationship building",
+    "Productivity hacks and tools",
+    "AI and automation impact",
+    "Building company culture",
+    "Sales and marketing strategies",
+    "Financial planning for professionals",
+    "Mentorship and career growth",
+    "Digital marketing trends",
+    "Entrepreneurship journey",
+    "Data-driven decision making",
+    "Customer experience optimization",
+    "Brand building strategies",
+    "Project management best practices",
+    "Cybersecurity awareness",
+    "E-commerce growth tactics",
+    "Social media marketing",
+    "Content creation strategies",
+    "Business development tips",
+    "Investment and wealth building",
+    "Supply chain optimization",
+    "Human resources insights",
+    "Quality assurance processes",
+    "Risk management strategies",
+    "International business expansion",
+    "Product development lifecycle",
+    "Customer retention techniques",
+    "Performance metrics and KPIs",
+    "Change management strategies",
+    "Vendor relationship management",
+    "Compliance and regulations",
+    "Innovation and R&D",
+    "Strategic planning methods",
+    "Crisis management approaches",
+    "Partnership and collaboration",
+    "Market research techniques",
+    "Competitive analysis strategies",
+    "Business process improvement",
+    "Digital security best practices",
+    "Remote team management",
+    "Customer feedback systems",
+    "Business automation tools",
+    "Professional development planning"
+  ]
+
+  // Get 12 random topics
+  const getRandomTopics = () => {
+    const shuffled = [...recommendedTopics].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, 12)
+  }
+
+  // Function to get appropriate icon for each topic
+  const getTopicIcon = (topic: string) => {
+    const topicLower = topic.toLowerCase()
+    
+    if (topicLower.includes('remote') || topicLower.includes('work') || topicLower.includes('productivity')) {
+      return <MousePointer className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('leadership') || topicLower.includes('team') || topicLower.includes('management')) {
+      return <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('marketing') || topicLower.includes('sales') || topicLower.includes('brand')) {
+      return <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('ai') || topicLower.includes('technology') || topicLower.includes('digital')) {
+      return <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('career') || topicLower.includes('personal') || topicLower.includes('journey')) {
+      return <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('business') || topicLower.includes('strategy') || topicLower.includes('growth')) {
+      return <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('innovation') || topicLower.includes('startup') || topicLower.includes('entrepreneur')) {
+      return <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('data') || topicLower.includes('analytics') || topicLower.includes('metrics')) {
+      return <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('customer') || topicLower.includes('client') || topicLower.includes('experience')) {
+      return <Smile className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else if (topicLower.includes('finance') || topicLower.includes('investment') || topicLower.includes('wealth')) {
+      return <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    } else {
+      return <Hash className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+    }
+  }
+
+  const [randomTopics, setRandomTopics] = useState(getRandomTopics())
+  const [clickedTopic, setClickedTopic] = useState<string | null>(null)
+
+  // Shuffle topics on every page visit
+  useEffect(() => {
+    setRandomTopics(getRandomTopics())
+  }, [])
+
+  // Handle recommended topic click
+  const handleTopicClick = async (topic: string) => {
+    setPrompt(topic)
+    setClickedTopic(topic)
+    
+    // Wait for prompt to be set, then open customization panel
+    setTimeout(() => {
+      setShowCustomizationPanel(true)
+      setClickedTopic(null)
+    }, 200)
+  }
 
   const imageSources = [
     { value: "unsplash", label: "Unsplash" },
@@ -563,7 +685,10 @@ export default function DashboardPage() {
         {!isGenerating && generatedPosts.length === 0 && (
           <div className="space-y-6 sm:space-y-8">
             {/* Section Title */}
-            <h2 className="text-[28px] sm:text-[34px] md:text-[46px] font-bold text-gray-900 ml-[10px] sm:ml-[25px]">Create with AI</h2>
+            <h2 className="text-[28px] sm:text-[34px] md:text-[46px] font-bold text-gray-900 ml-[10px] sm:ml-[25px] flex items-center gap-3">
+              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
+              Create with AI
+            </h2>
             
             {/* Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
@@ -620,6 +745,74 @@ export default function DashboardPage() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        )}
+
+        {/* Recommended Topics Section */}
+        {!isGenerating && generatedPosts.length === 0 && (
+          <div className="space-y-6 sm:space-y-8">
+            {/* Section Title */}
+            <div className="flex items-center justify-between ml-[10px] sm:ml-[25px]">
+              <h2 className="text-[28px] sm:text-[34px] md:text-[46px] font-bold text-gray-900 flex items-center gap-3">
+                <Hash className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
+                Recommended Topics for Your Next Post
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setRandomTopics(getRandomTopics())
+                  toast({
+                    title: "Topics Refreshed!",
+                    description: "New topic suggestions have been loaded.",
+                  })
+                }}
+                className="mr-[10px] sm:mr-[25px]"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
+            
+            {/* Topics Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+              {randomTopics.map((topic, index) => (
+                <Card 
+                  key={index}
+                  className={`cursor-pointer transition-all duration-200 hover:scale-105 bg-white border shadow-sm hover:shadow-md hover:border-primary/30 ${
+                    clickedTopic === topic 
+                      ? 'border-primary bg-primary/5 scale-105' 
+                      : 'border-gray-200'
+                  }`}
+                  onClick={() => handleTopicClick(topic)}
+                >
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col items-center text-center space-y-3">
+                      <div className={`p-3 rounded-xl flex-shrink-0 ${
+                        clickedTopic === topic 
+                          ? 'bg-primary/20' 
+                          : 'bg-primary/10'
+                      }`}>
+                        {clickedTopic === topic ? (
+                          <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                        ) : (
+                          getTopicIcon(topic)
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm sm:text-base font-medium leading-tight ${
+                          clickedTopic === topic 
+                            ? 'text-primary' 
+                            : 'text-gray-900'
+                        }`}>
+                          {topic}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         )}
@@ -875,9 +1068,9 @@ export default function DashboardPage() {
               {/* Generate Button */}
               <div className="pt-4">
                 <Button
-                  onClick={() => {
-                    setShowGenerationModal(true)
+                  onClick={async () => {
                     setShowCustomizationPanel(false)
+                    await handleGenerate()
                   }}
                   disabled={!prompt.trim() || isGenerating}
                   className="w-full h-10 sm:h-11 md:h-12"

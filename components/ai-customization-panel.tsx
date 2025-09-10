@@ -102,7 +102,7 @@ export function AICustomizationPanel({
           <div className="space-y-2">
             <Label className="text-sm font-medium">AI Provider</Label>
             <Select value={provider} onValueChange={onProviderChange}>
-              <SelectTrigger>
+              <SelectTrigger className="border border-gray-300">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -128,7 +128,7 @@ export function AICustomizationPanel({
           <div className="space-y-2">
             <Label className="text-sm font-medium">Content Type</Label>
             <Select value={contentType} onValueChange={onContentTypeChange}>
-              <SelectTrigger>
+              <SelectTrigger className="border border-gray-300">
                 <SelectValue placeholder="Select content type" />
               </SelectTrigger>
               <SelectContent>
@@ -163,7 +163,7 @@ export function AICustomizationPanel({
               value={customization.tone} 
               onValueChange={(value) => updateCustomization({ tone: value as any })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border border-gray-300">
                 <SelectValue placeholder="Select tone" />
               </SelectTrigger>
               <SelectContent>
@@ -184,7 +184,7 @@ export function AICustomizationPanel({
               value={customization.language} 
               onValueChange={(value) => updateCustomization({ language: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border border-gray-300">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -210,7 +210,7 @@ export function AICustomizationPanel({
               value={customization.wordCount?.toString()} 
               onValueChange={(value) => updateCustomization({ wordCount: parseInt(value) })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border border-gray-300">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -231,6 +231,7 @@ export function AICustomizationPanel({
               placeholder="e.g., Software developers, Marketing professionals..."
               value={customization.targetAudience || ""}
               onChange={(e) => updateCustomization({ targetAudience: e.target.value })}
+              className="border border-gray-300"
             />
           </div>
 
@@ -241,7 +242,7 @@ export function AICustomizationPanel({
               value={customization.mainGoal} 
               onValueChange={(value) => updateCustomization({ mainGoal: value as any })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border border-gray-300">
                 <SelectValue placeholder="Select main goal" />
               </SelectTrigger>
               <SelectContent>
