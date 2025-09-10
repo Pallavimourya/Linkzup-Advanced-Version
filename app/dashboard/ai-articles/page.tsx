@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -13,6 +13,7 @@ import { LinkedInPreview } from "@/components/linkedin-preview"
 import { LinkedInPostButton } from "@/components/linkedin-post-button"
 import { ScheduleButton } from "@/components/schedule-button"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
+import { useEffect } from "react"
 
 // Predefined recommended topics
 const allRecommendedTopics = [
@@ -42,6 +43,8 @@ const allRecommendedTopics = [
   "Technology Adoption: Embracing Change in the Workplace",
   "Personal Development: Skills Every Professional Should Master"
 ]
+
+
 
 interface Topic {
   id: string
@@ -97,6 +100,7 @@ export default function AIArticlesPage() {
   useEffect(() => {
     generateRandomRecommendedTopics()
   }, [])
+
   // Helper function to safely get content from topic
   const getTopicContent = (topic: Topic): string => {
     if (!topic.content) {
@@ -387,16 +391,16 @@ export default function AIArticlesPage() {
                       <div className="flex-shrink-0">
                         <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
                           <SelectTrigger className="border-0 rounded-none h-14 px-4 text-sm font-medium bg-transparent focus:ring-0 focus:ring-offset-0">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                             <SelectItem value="caseStudy">Case Study</SelectItem>
                             <SelectItem value="descriptive">Descriptive</SelectItem>
                             <SelectItem value="list">List</SelectItem>
                             <SelectItem value="story">Story</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  </SelectContent>
+                </Select>
+              </div>
 
                       {/* Separator */}
                       <div className="w-px h-8 bg-border"></div>
@@ -410,31 +414,31 @@ export default function AIArticlesPage() {
                           className="border-0 rounded-none h-14 px-4 text-sm bg-transparent focus:ring-0 focus:ring-offset-0 placeholder:text-muted-foreground"
                           onKeyPress={(e) => e.key === 'Enter' && !isGenerating && topicPrompt.trim() && generateTopics()}
                         />
-                      </div>
+              </div>
 
-                      {/* Generate Button */}
+              {/* Generate Button */}
                       <div className="flex-shrink-0">
-                        <Button
-                          onClick={generateTopics}
+              <Button
+                onClick={generateTopics}
                           disabled={isGenerating || !topicPrompt.trim()}
                           className="h-14 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-none border-0 focus:ring-0 focus:ring-offset-0"
-                        >
-                          {isGenerating ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                               Generating...
-                            </>
-                          ) : (
-                            <>
+                  </>
+                ) : (
+                  <>
                               Generate ideas
                               <Sparkles className="w-4 h-4 ml-2" />
-                            </>
-                          )}
-                        </Button>
+                  </>
+                )}
+              </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+            </CardContent>
+          </Card>
               </div>
             </div>
           )}
@@ -572,84 +576,24 @@ export default function AIArticlesPage() {
           {topics.length > 0 && (
             <div className="max-w-6xl mx-auto">
               <Card className="border-0 shadow-lg">
-                <CardHeader className="pb-4 sm:pb-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                    <div>
-                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                        <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-                        Generated Topics ({topics.length})
-                      </CardTitle>
-                      <CardDescription className="text-sm sm:text-base">
+              <CardHeader className="pb-4 sm:pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
+                      Generated Topics ({topics.length})
+                    </CardTitle>
+                    <CardDescription className="text-sm sm:text-base">
                         Hover over topics to see generate button, or click to view generated content.
-                      </CardDescription>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={clearTopics} className="w-full sm:w-auto min-h-[40px]">
-                      <X className="w-4 h-4 mr-2" />
-                      Clear All
-                    </Button>
+                    </CardDescription>
                   </div>
-                </CardHeader>
-                <CardContent>
-                <div className="space-y-4">
-                  {topics.map((topic) => (
-                    <div key={topic.id} className="border rounded-lg p-3 sm:p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0 mb-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium mb-2 text-sm sm:text-base">{topic.title}</h3>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">{topic.niche}</Badge>
-                            <Badge variant="outline" className="text-xs">Viral Score: {topic.viralChance}%</Badge>
-                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs">
-                              {topic.status === "content-ready" ? "Content Ready" : "Generated"}
-                            </Badge>
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setExpandedTopic(expandedTopic === topic.id ? null : topic.id)}
-                          className="w-full sm:w-auto min-h-[40px]"
-                        >
-                          {expandedTopic === topic.id ? "Collapse" : "Expand"}
-                        </Button>
-                      </div>
-
-                      {expandedTopic === topic.id && (
-                        <div className="space-y-4 pt-4 border-t">
-                          {topic.status === "content-ready" ? (
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="default" className="text-xs">{topic.format}</Badge>
-                                <span className="text-xs sm:text-sm text-muted-foreground">Content generated</span>
-                              </div>
-                              {Array.isArray(topic.content) ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                                  {topic.content.map((content, index) => (
-                                    <div key={index} className="aspect-[4/3] sm:aspect-square p-3 sm:p-4 border rounded-lg bg-muted/30 flex flex-col">
-                                      <div className="flex items-start justify-between mb-2 sm:mb-3">
-                                        <Badge variant="outline" className="text-xs">Variation {index + 1}</Badge>
-                                        <Badge variant="secondary" className="text-xs">{topic.format}</Badge>
-                                      </div>
-                                      <div className="flex-1 overflow-hidden">
-                                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-4 sm:line-clamp-6 leading-relaxed whitespace-pre-wrap">
-                                          {content}
-                                        </p>
-                                      </div>
-                                      <div className="mt-2 sm:mt-3 pt-2 border-t border-muted/30 space-y-2">
-                                        <div className="flex flex-col sm:flex-row gap-2">
-                                          <Button 
-                                            size="sm"
-                                            className="flex-1 text-xs min-h-[32px]"
-                                            onClick={() => saveToDraft(content, `${topic.title} - Variation ${index + 1}`, topic.format || "article")}
-                                          >
-                                            <Save className="w-3 h-3 mr-1" />
-                                            Save
-                                          </Button>
-                                          <Button 
-                                            size="sm" 
-                                            variant="outline"
-                                            className="flex-1 text-xs min-h-[32px]"
-=======
+                  <Button variant="outline" size="sm" onClick={clearTopics} className="w-full sm:w-auto min-h-[40px]">
+                    <X className="w-4 h-4 mr-2" />
+                    Clear All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {topics.map((topic) => (
                     <div key={topic.id} className="group relative border rounded-lg p-4 hover:shadow-md transition-all duration-200">
@@ -705,7 +649,6 @@ export default function AIArticlesPage() {
                                             size="sm" 
                                             variant="outline"
                                         className="flex-1 text-xs h-8"
->>>>>>> newcode
                                             onClick={() => {
                                               setPreviewContent(content)
                                               setPreviewingTopicId(topic.id)
@@ -714,19 +657,6 @@ export default function AIArticlesPage() {
                                             <Eye className="w-3 h-3 mr-1" />
                                             Preview
                                           </Button>
-<<<<<<< HEAD
-                                        </div>
-                                        <LinkedInPostButton 
-                                          content={content}
-                                          className="w-full text-xs h-8 min-h-[32px]"
-                                        />
-                                        <ScheduleButton
-                                          content={content}
-                                          defaultPlatform="linkedin"
-                                          defaultType="text"
-                                          className="w-full text-xs h-8 min-h-[32px]"
-                                        />
-=======
                                       <Button 
                                         size="sm"
                                         className="flex-1 text-xs h-8"
@@ -735,43 +665,11 @@ export default function AIArticlesPage() {
                                         <Save className="w-3 h-3 mr-1" />
                                         Save
                                       </Button>
->>>>>>> newcode
                                       </div>
                                     </div>
                                   ))}
                                 </div>
                               ) : (
-<<<<<<< HEAD
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                                  <div className="aspect-[4/3] sm:aspect-square p-3 sm:p-4 border rounded-lg bg-muted/30 flex flex-col">
-                                    <div className="flex items-start justify-between mb-2 sm:mb-3">
-                                      <Badge variant="outline" className="text-xs">Single Content</Badge>
-                                      <Badge variant="secondary" className="text-xs">{topic.format}</Badge>
-                                    </div>
-                                    <div className="flex-1 overflow-hidden">
-                                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-4 sm:line-clamp-6 leading-relaxed whitespace-pre-wrap">
-                                        {getTopicContent(topic)}
-                                      </p>
-                                    </div>
-                                    <div className="mt-2 sm:mt-3 pt-2 border-t border-muted/30 space-y-2">
-                                      <div className="flex flex-col sm:flex-row gap-2">
-                                        <Button 
-                                          size="sm"
-                                          className="flex-1 text-xs min-h-[32px]"
-                                          onClick={() => saveToDraft(
-                                            getTopicContent(topic), 
-                                            topic.title, 
-                                            topic.format || "article"
-                                          )}
-                                        >
-                                          <Save className="w-3 h-3 mr-1" />
-                                          Save
-                                        </Button>
-                                        <Button 
-                                          size="sm" 
-                                          variant="outline"
-                                          className="flex-1 text-xs min-h-[32px]"
-=======
                               <div className="p-3 border rounded-lg bg-muted/30">
                                 <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed mb-3">
                                         {getTopicContent(topic)}
@@ -781,7 +679,6 @@ export default function AIArticlesPage() {
                                           size="sm" 
                                           variant="outline"
                                     className="flex-1 text-xs h-8"
->>>>>>> newcode
                                           onClick={() => {
                                             setPreviewContent(getTopicContent(topic))
                                             setPreviewingTopicId(topic.id)
@@ -790,47 +687,6 @@ export default function AIArticlesPage() {
                                           <Eye className="w-3 h-3 mr-1" />
                                           Preview
                                         </Button>
-<<<<<<< HEAD
-                                      </div>
-                                      <LinkedInPostButton 
-                                        content={getTopicContent(topic)}
-                                        className="w-full text-xs h-8 min-h-[32px]"
-                                      />
-                                      <ScheduleButton
-                                        content={getTopicContent(topic)}
-                                        defaultPlatform="linkedin"
-                                        defaultType="text"
-                                        className="w-full text-xs h-8 min-h-[32px]"
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="space-y-3">
-                              <div className="space-y-2">
-                                <Label className="text-sm sm:text-base">Content Format</Label>
-                                <Select onValueChange={(format) => generateContent(topic, format)}>
-                                  <SelectTrigger className="text-sm sm:text-base">
-                                    <SelectValue placeholder="Select format" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {contentFormats.map((format) => (
-                                      <SelectItem key={format} value={format}>
-                                        {format}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <Button
-                                onClick={() => generateContent(topic, "Story")}
-                                disabled={isGenerating}
-                                size="sm"
-                                className="w-full min-h-[40px]"
-                              >
-=======
                                   <Button 
                                     size="sm"
                                     className="flex-1 text-xs h-8"
@@ -906,7 +762,6 @@ export default function AIArticlesPage() {
                   disabled={isGenerating}
                   className="flex-1"
                 >
->>>>>>> newcode
                                 {isGenerating ? (
                                   <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -915,31 +770,14 @@ export default function AIArticlesPage() {
                                 ) : (
                                   <>
                                     <Sparkles className="w-4 h-4 mr-2" />
-<<<<<<< HEAD
-                                    Generate Story Content
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-=======
                       Generate 4 Posts
                                   </>
                                 )}
                               </Button>
->>>>>>> newcode
                 </div>
               </CardContent>
             </Card>
           )}
-<<<<<<< HEAD
-        </div>
-=======
->>>>>>> newcode
 
         {/* LinkedIn Preview Modal */}
         {previewContent && (
