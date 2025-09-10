@@ -99,13 +99,9 @@ export function AppSidebar() {
                   <SidebarMenuButton size="lg" asChild className="w-full">
                     <Link href="/dashboard" className="flex items-center gap-3 w-full px-3 py-2">
                       <Logo size="sm" className="flex-shrink-0" />
-                      <span className="truncate">LinkzUp</span>
                     </Link>
                   </SidebarMenuButton>
                 </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>LinkzUp</p>
-                </TooltipContent>
               </Tooltip>
             </SidebarMenuItem>
           </SidebarMenu>
