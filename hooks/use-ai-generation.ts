@@ -75,15 +75,19 @@ export function useAIGeneration() {
               (newQueueStatus.queueLength !== queueStatus.queueLength || 
                newQueueStatus.isProcessing !== queueStatus.isProcessing)) {
             if (newQueueStatus.queueLength > 0 && newQueueStatus.queueLength <= 3) {
-              toast({
-                title: "Queue Update",
-                description: `You are ${newQueueStatus.queueLength === 1 ? 'next' : `#${newQueueStatus.queueLength} in queue`}`,
-              })
+              setTimeout(() => {
+                toast({
+                  title: "Queue Update",
+                  description: `You are ${newQueueStatus.queueLength === 1 ? 'next' : `#${newQueueStatus.queueLength} in queue`}`,
+                })
+              }, 0)
             } else if (newQueueStatus.queueLength > 3) {
-              toast({
-                title: "Queue Busy",
-                description: `High demand! You are #${newQueueStatus.queueLength} in queue. Estimated wait: ${Math.ceil(newQueueStatus.queueLength / newQueueStatus.maxConcurrentRequests) * 30}s`,
-              })
+              setTimeout(() => {
+                toast({
+                  title: "Queue Busy",
+                  description: `High demand! You are #${newQueueStatus.queueLength} in queue. Estimated wait: ${Math.ceil(newQueueStatus.queueLength / newQueueStatus.maxConcurrentRequests) * 30}s`,
+                })
+              }, 0)
             }
           }
           
@@ -110,32 +114,40 @@ export function useAIGeneration() {
   const startProgressSimulation = useCallback(() => {
     setState(prev => ({ ...prev, isGenerating: true, progress: 0 }))
     
-    // Show generation started notification
-    toast({
-      title: "AI Generation Started",
-      description: "Your content is being generated. This may take a few moments...",
-    })
+    // Use setTimeout to defer toast to next tick to avoid render cycle issues
+    setTimeout(() => {
+      toast({
+        title: "AI Generation Started",
+        description: "Your content is being generated. This may take a few moments...",
+      })
+    }, 0)
     
     progressIntervalRef.current = setInterval(() => {
       setState(prev => {
         const newProgress = Math.min(prev.progress + Math.random() * 10, 90)
         
-        // Show progress milestones
+        // Show progress milestones - defer to next tick
         if (newProgress >= 25 && prev.progress < 25) {
-          toast({
-            title: "Analyzing Content",
-            description: "AI is analyzing your prompt and generating ideas...",
-          })
+          setTimeout(() => {
+            toast({
+              title: "Analyzing Content",
+              description: "AI is analyzing your prompt and generating ideas...",
+            })
+          }, 0)
         } else if (newProgress >= 50 && prev.progress < 50) {
-          toast({
-            title: "Creating Content",
-            description: "AI is crafting your content with the specified tone and style...",
-          })
+          setTimeout(() => {
+            toast({
+              title: "Creating Content",
+              description: "AI is crafting your content with the specified tone and style...",
+            })
+          }, 0)
         } else if (newProgress >= 75 && prev.progress < 75) {
-          toast({
-            title: "Finalizing",
-            description: "AI is polishing and optimizing your content...",
-          })
+          setTimeout(() => {
+            toast({
+              title: "Finalizing",
+              description: "AI is polishing and optimizing your content...",
+            })
+          }, 0)
         }
         
         return { ...prev, progress: newProgress }
@@ -165,19 +177,23 @@ export function useAIGeneration() {
 
     // Check queue status before starting
     if (queueStatus && queueStatus.queueLength > 5) {
-      toast({
-        title: "High Queue Volume",
-        description: `Queue is busy with ${queueStatus.queueLength} requests. Your request will be processed in order.`,
-      })
+      setTimeout(() => {
+        toast({
+          title: "High Queue Volume",
+          description: `Queue is busy with ${queueStatus.queueLength} requests. Your request will be processed in order.`,
+        })
+      }, 0)
     }
 
     // Abort any existing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
-      toast({
-        title: "Previous Request Cancelled",
-        description: "Starting new generation request...",
-      })
+      setTimeout(() => {
+        toast({
+          title: "Previous Request Cancelled",
+          description: "Starting new generation request...",
+        })
+      }, 0)
     }
 
     // Create new abort controller
@@ -222,29 +238,35 @@ export function useAIGeneration() {
       
       // Show success message with content details
       const contentType = request.type.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-      toast({
-        title: "Content Generated Successfully! 🎉",
-        description: `Your ${contentType} is ready! ${data.message || "Content has been generated with your specifications."}`,
-      })
+      setTimeout(() => {
+        toast({
+          title: "Content Generated Successfully! 🎉",
+          description: `Your ${contentType} is ready! ${data.message || "Content has been generated with your specifications."}`,
+        })
+      }, 0)
 
       return data.data
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         console.log("Request was aborted")
-        toast({
-          title: "Generation Cancelled",
-          description: "Content generation was cancelled by user.",
-        })
+        setTimeout(() => {
+          toast({
+            title: "Generation Cancelled",
+            description: "Content generation was cancelled by user.",
+          })
+        }, 0)
         return null
       }
 
       console.error("Error generating content:", error)
       
-      toast({
-        title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate content. Please try again.",
-        variant: "destructive"
-      })
+      setTimeout(() => {
+        toast({
+          title: "Generation Failed",
+          description: error instanceof Error ? error.message : "Failed to generate content. Please try again.",
+          variant: "destructive"
+        })
+      }, 0)
 
       return null
     } finally {
@@ -257,10 +279,12 @@ export function useAIGeneration() {
   const abortGeneration = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
-      toast({
-        title: "Generation Cancelled",
-        description: "Content generation has been cancelled.",
-      })
+      setTimeout(() => {
+        toast({
+          title: "Generation Cancelled",
+          description: "Content generation has been cancelled.",
+        })
+      }, 0)
     }
     stopProgressSimulation()
   }, [stopProgressSimulation, toast])

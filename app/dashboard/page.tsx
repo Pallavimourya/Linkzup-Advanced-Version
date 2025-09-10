@@ -509,7 +509,7 @@ export default function DashboardPage() {
           <div className="space-y-4 sm:space-y-6">
             <Card>
               <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="flex items-center gap-2 text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
+                <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl">
                   <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
                   Create your next post
                 </CardTitle>

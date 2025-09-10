@@ -564,17 +564,29 @@ export default function CustomPostPage() {
   const formatContentForPreview = (content: string, htmlContent: string) => {
     if (!content) return "Your content will appear here..."
     
-    if (htmlContent && htmlContent !== content) {
-      // If we have HTML content (with formatting), preserve line breaks
-      return htmlContent.replace(/\n/g, '<br>')
-    } else {
-      // If no HTML formatting, just preserve line breaks and convert to HTML
-      return content
-        .replace(/\n/g, '<br>')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-    }
+    // Use the content that has the most formatting information
+    const sourceContent = htmlContent && htmlContent !== content ? htmlContent : content
+    
+    // First, handle line breaks - convert \n to <br>
+    let formattedContent = sourceContent.replace(/\n/g, '<br>')
+    
+    // Then escape HTML characters to prevent XSS, but preserve our formatting tags
+    formattedContent = formattedContent
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+    
+    // Now restore our allowed formatting tags
+    formattedContent = formattedContent
+      .replace(/&lt;br&gt;/g, '<br>')
+      .replace(/&lt;strong&gt;/g, '<strong>')
+      .replace(/&lt;\/strong&gt;/g, '</strong>')
+      .replace(/&lt;em&gt;/g, '<em>')
+      .replace(/&lt;\/em&gt;/g, '</em>')
+      .replace(/&lt;u&gt;/g, '<u>')
+      .replace(/&lt;\/u&gt;/g, '</u>')
+    
+    return formattedContent
   }
 
   // Keyboard shortcuts
@@ -622,26 +634,28 @@ export default function CustomPostPage() {
     }
     
     // Create new HTML content with formatting
-    let newHtmlContent = postData.htmlContent
+    let newHtmlContent = postData.htmlContent || postData.content
     
     // Get the plain text before and after selection
     const beforeText = postData.content.substring(0, start)
     const afterText = postData.content.substring(end)
     
+    // Create formatted text
+    let formattedText = selectedText
     switch (format) {
       case 'bold':
-        // Add bold formatting to HTML content
-        newHtmlContent = beforeText + `<strong>${selectedText}</strong>` + afterText
+        formattedText = `<strong>${selectedText}</strong>`
         break
       case 'italic':
-        // Add italic formatting to HTML content
-        newHtmlContent = beforeText + `<em>${selectedText}</em>` + afterText
+        formattedText = `<em>${selectedText}</em>`
         break
       case 'underline':
-        // Add underline formatting to HTML content
-        newHtmlContent = beforeText + `<u>${selectedText}</u>` + afterText
+        formattedText = `<u>${selectedText}</u>`
         break
     }
+    
+    // Update HTML content by replacing the selected text with formatted version
+    newHtmlContent = beforeText + formattedText + afterText
     
     setPostData(prev => ({ 
       ...prev, 
@@ -652,7 +666,7 @@ export default function CustomPostPage() {
     // Set cursor position after formatting
     setTimeout(() => {
       textarea.focus()
-      textarea.setSelectionRange(start, start + selectedText.length)
+      textarea.setSelectionRange(start + formattedText.length, start + formattedText.length)
     }, 0)
     
     toast({
@@ -815,11 +829,12 @@ export default function CustomPostPage() {
                     setPostData(prev => ({ 
                       ...prev, 
                       content: newContent,
-                      // Keep HTML content in sync with plain text (preserving any existing formatting)
+                      // If HTML content was the same as plain text, update it too
+                      // Otherwise, keep the HTML content as is (preserving formatting)
                       htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent
                     }))
                   }}
-                  className="min-h-[250px] sm:min-h-[300px] resize-none text-sm sm:text-base leading-relaxed border-2 focus:border-primary focus:ring-primary/20 pr-12"
+                  className="min-h-[250px] sm:min-h-[300px] resize-none text-sm sm:text-base leading-relaxed border border-black focus:border-primary focus:ring-primary/20 pr-12"
                   maxLength={maxCharacters}
                 />
                 <div className="absolute bottom-3 right-3">
@@ -882,7 +897,7 @@ export default function CustomPostPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Upload Images */}
                 <div
-                  className="border-2 border-dashed border-border rounded-lg p-3 sm:p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 hover:bg-muted/50 transform hover:scale-105"
+                  className="border-2 border-dashed border-border rounded-lg p-3 sm:p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 transform hover:scale-105"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -900,7 +915,7 @@ export default function CustomPostPage() {
 
                 {/* Search Images */}
                 <div 
-                  className="border-2 border-dashed border-border rounded-lg p-3 sm:p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 hover:bg-muted/50 transform hover:scale-105"
+                  className="border-2 border-dashed border-border rounded-lg p-3 sm:p-4 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 group bg-muted/30 transform hover:scale-105"
                   onClick={() => setShowImageSearch(true)}
                 >
                   <Search className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -953,57 +968,99 @@ export default function CustomPostPage() {
               </button>
             </div>
 
-            {/* Preview Content */}
-            <div className="bg-card rounded-2xl shadow-lg p-4 sm:p-6 border border-border">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-semibold text-sm sm:text-base">
-                  {session?.user?.name?.charAt(0) || "U"}
-                </div>
-                <div>
-                  <p className="font-semibold text-card-foreground text-sm sm:text-base">
-                    {session?.user?.name || "Your Name"}
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground capitalize">
-                    {postData.platform} • {postData.type}
-                  </p>
+            {/* Preview Content - LinkedIn Style */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              {/* LinkedIn Header */}
+              <div className="p-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-lg">
+                    {session?.user?.name?.charAt(0) || "U"}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900 text-base">
+                      {session?.user?.name || "Your Name"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      LinkedIn • {postData.type === 'text' ? 'Text' : 'Post'}
+                    </p>
+                  </div>
+                  <div className="text-gray-400">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </svg>
+                  </div>
                 </div>
               </div>
               
-              {postData.title && (
-                <h3 className="font-semibold text-base sm:text-lg text-card-foreground mb-3">
-                  {postData.title}
-                </h3>
-              )}
+              {/* LinkedIn Content */}
+              <div className="p-4">
+                {postData.title && (
+                  <h3 className="font-semibold text-lg text-gray-900 mb-3">
+                    {postData.title}
+                  </h3>
+                )}
+                
+                <div 
+                  className="text-gray-900 leading-relaxed mb-4 text-base"
+                  dangerouslySetInnerHTML={{ 
+                    __html: formatContentForPreview(postData.content, postData.htmlContent)
+                  }}
+                />
+                
+                {postData.images.length > 0 && (
+                  <div className={`grid gap-2 mb-4 ${postData.images.length === 1 ? 'grid-cols-1' : postData.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                    {postData.images.map((img, i) => (
+                      <img 
+                        key={i} 
+                        src={img} 
+                        alt="preview" 
+                        className={`rounded-lg w-full object-cover ${postData.images.length === 1 ? 'h-64' : 'h-32'}`}
+                      />
+                    ))}
+                  </div>
+                )}
+                
+                {postData.tags.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mb-4">
+                    {postData.tags.map(tag => (
+                      <span key={tag} className="text-blue-600 text-sm font-medium hover:underline cursor-pointer">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               
-              <div 
-                className="text-card-foreground leading-relaxed mb-4 prose prose-sm max-w-none text-sm sm:text-base"
-                dangerouslySetInnerHTML={{ 
-                  __html: formatContentForPreview(postData.content, postData.htmlContent)
-                }}
-              />
-              
-              {postData.images.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                  {postData.images.map((img, i) => (
-                    <img 
-                      key={i} 
-                      src={img} 
-                      alt="preview" 
-                      className="rounded-lg w-full h-24 sm:h-32 object-cover" 
-                    />
-                  ))}
+              {/* LinkedIn Footer */}
+              <div className="px-4 py-3 border-t border-gray-100">
+                <div className="flex items-center justify-between text-gray-500 text-sm">
+                  <div className="flex items-center gap-6">
+                    <button className="flex items-center gap-2 hover:text-gray-700 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      <span>Like</span>
+                    </button>
+                    <button className="flex items-center gap-2 hover:text-gray-700 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                      <span>Comment</span>
+                    </button>
+                    <button className="flex items-center gap-2 hover:text-gray-700 transition-colors">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                      </svg>
+                      <span>Share</span>
+                    </button>
+                  </div>
+                  <button className="hover:text-gray-700 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                    </svg>
+                  </button>
                 </div>
-              )}
-              
-              {postData.tags.length > 0 && (
-                <div className="flex gap-2 flex-wrap">
-                  {postData.tags.map(tag => (
-                    <span key={tag} className="text-primary text-sm font-medium">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
+              </div>
             </div>
 
             {/* Quick Actions */}
@@ -1298,6 +1355,7 @@ export default function CustomPostPage() {
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 rows={4}
+                className="border border-black"
               />
             </div>
 

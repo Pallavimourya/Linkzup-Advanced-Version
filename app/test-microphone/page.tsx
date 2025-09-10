@@ -6,15 +6,18 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { MicrophoneButton } from '@/components/ui/microphone-button'
 import { useMicrophone } from '@/hooks/use-microphone'
-import { Mic, MicOff, Square, AlertCircle } from 'lucide-react'
+import { Mic, MicOff, Square, AlertCircle, Pause, Play } from 'lucide-react'
 
 export default function TestMicrophonePage() {
   const [transcript, setTranscript] = useState('')
   const { 
     isRecording, 
+    isPaused,
     isSupported, 
     error, 
     startRecording, 
+    pauseRecording,
+    resumeRecording,
     stopRecording, 
     clearTranscript 
   } = useMicrophone()
@@ -68,6 +71,11 @@ export default function TestMicrophonePage() {
                   <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                   <span className="text-sm text-red-700">Recording in progress...</span>
                 </>
+              ) : isPaused ? (
+                <>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm text-yellow-700">Recording paused</span>
+                </>
               ) : (
                 <>
                   <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
@@ -90,7 +98,7 @@ export default function TestMicrophonePage() {
           {/* Manual Controls */}
           <div className="p-4 border rounded-lg">
             <h3 className="font-medium mb-3">Manual Controls</h3>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button
                 onClick={startRecording}
                 disabled={!isSupported || isRecording}
@@ -101,8 +109,26 @@ export default function TestMicrophonePage() {
                 Start Recording
               </Button>
               <Button
-                onClick={stopRecording}
+                onClick={pauseRecording}
                 disabled={!isRecording}
+                variant="outline"
+                size="sm"
+              >
+                <Pause className="h-4 w-4 mr-2" />
+                Pause
+              </Button>
+              <Button
+                onClick={resumeRecording}
+                disabled={!isPaused}
+                variant="outline"
+                size="sm"
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Resume
+              </Button>
+              <Button
+                onClick={stopRecording}
+                disabled={!isRecording && !isPaused}
                 variant="outline"
                 size="sm"
               >
@@ -145,8 +171,10 @@ export default function TestMicrophonePage() {
             <h3 className="font-medium text-blue-900 mb-2">Instructions</h3>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• Click the microphone button to start recording</li>
+              <li>• When recording, you'll see pause and stop buttons</li>
+              <li>• Use pause to temporarily stop recording (can resume later)</li>
+              <li>• Use stop to end recording completely</li>
               <li>• Speak clearly into your microphone</li>
-              <li>• Click the stop button or the microphone button again to stop</li>
               <li>• Your speech will be converted to text automatically</li>
               <li>• Make sure your browser has microphone permissions</li>
             </ul>

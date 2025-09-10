@@ -263,7 +263,7 @@ export default function DraftsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="content">Content</Label>
-                <Textarea id="content" placeholder="Start writing your post..." className="min-h-[200px]" />
+                <Textarea id="content" placeholder="Start writing your post..." className="min-h-[200px] border border-black" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -499,7 +499,7 @@ export default function DraftsPage() {
                       wordCount: e.target.value.split(" ").length,
                     })
                   }
-                  className="min-h-[200px]"
+                  className="min-h-[200px] border border-black"
                 />
               </div>
               <div className="flex justify-end gap-2">

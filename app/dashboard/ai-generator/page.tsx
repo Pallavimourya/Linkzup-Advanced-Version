@@ -243,7 +243,7 @@ export default function AIGeneratorPage() {
                     placeholder="e.g., Share insights about remote work productivity, discuss industry trends, create viral topics for marketing..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[120px] pr-12"
+                    className="min-h-[120px] border border-black pr-12"
                   />
                   <div className="absolute bottom-3 right-3">
                     <MicrophoneButton

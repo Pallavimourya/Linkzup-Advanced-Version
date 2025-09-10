@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Mic, MicOff, Square, AlertCircle } from 'lucide-react'
+import { Mic, MicOff, Square, AlertCircle, Pause, Play } from 'lucide-react'
 import { useMicrophone } from '@/hooks/use-microphone'
 import { cn } from '@/lib/utils'
 
@@ -23,10 +23,13 @@ export function MicrophoneButton({
 }: MicrophoneButtonProps) {
   const { 
     isRecording, 
+    isPaused,
     isSupported, 
     transcript, 
     error, 
     startRecording, 
+    pauseRecording,
+    resumeRecording,
     stopRecording, 
     clearTranscript 
   } = useMicrophone()
@@ -53,9 +56,21 @@ export function MicrophoneButton({
   const handleClick = async () => {
     if (isRecording) {
       stopRecording()
+    } else if (isPaused) {
+      await resumeRecording()
     } else {
       await startRecording()
     }
+  }
+
+  const handlePauseClick = () => {
+    if (isRecording) {
+      pauseRecording()
+    }
+  }
+
+  const handleStopClick = () => {
+    stopRecording()
   }
 
   if (!isSupported) {
@@ -74,24 +89,57 @@ export function MicrophoneButton({
 
   return (
     <div className="relative">
-      <Button
-        variant={variant}
-        size={size}
-        onClick={handleClick}
-        disabled={disabled}
-        className={cn(
-          "transition-all duration-200",
-          isRecording && "bg-red-500 hover:bg-red-600 text-white animate-pulse",
-          className
-        )}
-        title={isRecording ? "Click to stop recording" : "Click to start recording"}
-      >
-        {isRecording ? (
-          <Square className="h-4 w-4" />
-        ) : (
-          <Mic className="h-4 w-4" />
-        )}
-      </Button>
+      {/* Show pause and stop buttons when recording */}
+      {isRecording ? (
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size={size}
+            onClick={handlePauseClick}
+            disabled={disabled}
+            className={cn(
+              "h-8 w-8 p-0 hover:bg-yellow-100 text-yellow-600",
+              className
+            )}
+            title="Pause recording"
+          >
+            <Pause className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size={size}
+            onClick={handleStopClick}
+            disabled={disabled}
+            className={cn(
+              "h-8 w-8 p-0 hover:bg-red-100 text-red-600",
+              className
+            )}
+            title="Stop recording"
+          >
+            <Square className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        /* Show main microphone button when not recording */
+        <Button
+          variant={variant}
+          size={size}
+          onClick={handleClick}
+          disabled={disabled}
+          className={cn(
+            "transition-all duration-200",
+            isPaused && "bg-yellow-500 hover:bg-yellow-600 text-white",
+            className
+          )}
+          title={isPaused ? "Click to resume recording" : "Click to start recording"}
+        >
+          {isPaused ? (
+            <Play className="h-4 w-4" />
+          ) : (
+            <Mic className="h-4 w-4" />
+          )}
+        </Button>
+      )}
       
       {/* Error Tooltip */}
       {showError && error && (

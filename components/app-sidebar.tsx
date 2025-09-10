@@ -36,51 +36,71 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-const menuItems = [
+const menuSections = [
   {
-    title: "Home",
-    url: "/dashboard",
-    icon: Home,
+    title: "Main",
+    items: [
+      {
+        title: "Home",
+        url: "/dashboard",
+        icon: Home,
+      },
+    ]
   },
   {
-    title: "Custom Post",
-    url: "/dashboard/custom-post",
-    icon: Edit3,
+    title: "Content Creation",
+    items: [
+      {
+        title: "Custom Post",
+        url: "/dashboard/custom-post",
+        icon: Edit3,
+      },
+      {
+        title: "Topic Generator",
+        url: "/dashboard/ai-articles",
+        icon: BookOpen,
+      },
+      {
+        title: "Personal Story",
+        url: "/dashboard/personal-story",
+        icon: Sparkles,
+      },
+      {
+        title: "AI Carousel",
+        url: "/dashboard/ai-carousel",
+        icon: Sparkles,
+      },
+    ]
   },
   {
-    title: "Topic Generator",
-    url: "/dashboard/ai-articles",
-    icon: BookOpen,
+    title: "Management",
+    items: [
+      {
+        title: "Scheduled Posts",
+        url: "/dashboard/scheduled-posts",
+        icon: Calendar,
+      },
+      {
+        title: "Drafts",
+        url: "/dashboard/drafts",
+        icon: FileText,
+      },
+    ]
   },
   {
-    title: "Personal Story",
-    url: "/dashboard/personal-story",
-    icon: Sparkles,
-  },
-  {
-    title: "AI Carousel",
-    url: "/dashboard/ai-carousel",
-    icon: Sparkles,
-  },
-  {
-    title: "Scheduled Posts",
-    url: "/dashboard/scheduled-posts",
-    icon: Calendar,
-  },
-  {
-    title: "Drafts",
-    url: "/dashboard/drafts",
-    icon: FileText,
-  },
-  {
-    title: "Billing",
-    url: "/dashboard/billing",
-    icon: CreditCard,
-  },
-  {
-    title: "Help",
-    url: "/dashboard/help",
-    icon: HelpCircle,
+    title: "Account",
+    items: [
+      {
+        title: "Billing",
+        url: "/dashboard/billing",
+        icon: CreditCard,
+      },
+      {
+        title: "Help",
+        url: "/dashboard/help",
+        icon: HelpCircle,
+      },
+    ]
   },
 ]
 
@@ -108,38 +128,40 @@ export function AppSidebar() {
         </SidebarHeader>
 
         <SidebarContent className="px-2">
-          <SidebarGroup>
-            {state === "expanded" && (
-              <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
-                Platform
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={pathname === item.url}
-                        className="w-full px-3 py-2.5 text-base hover:bg-accent/50"
-                      >
-                        <Link href={item.url} className="flex items-center gap-3 w-full">
-                          <item.icon className="h-5 w-5 flex-shrink-0" />
-                          <span className="truncate">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>{item.title}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {menuSections.map((section, sectionIndex) => (
+            <SidebarGroup key={section.title}>
+              {state === "expanded" && (
+                <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
+                  {section.title}
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {section.items.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <SidebarMenuButton 
+                            asChild 
+                            isActive={pathname === item.url}
+                            className="w-full px-3 py-2.5 text-base hover:bg-accent/50"
+                          >
+                            <Link href={item.url} className="flex items-center gap-3 w-full">
+                              <item.icon className="h-5 w-5 flex-shrink-0" />
+                              <span className="truncate">{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p>{item.title}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
         </SidebarContent>
 
         <SidebarRail />

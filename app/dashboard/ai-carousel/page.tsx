@@ -2387,7 +2387,7 @@ What do you think? Share your thoughts in the comments below.
                   value={linkedInCaption}
                   onChange={(e) => setLinkedInCaption(e.target.value)}
                   placeholder="Write your LinkedIn post caption..."
-                  className="min-h-32"
+                  className="min-h-32 border border-black"
                   maxLength={3000}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">

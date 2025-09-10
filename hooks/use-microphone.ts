@@ -10,10 +10,13 @@ interface UseMicrophoneOptions {
 
 interface UseMicrophoneReturn {
   isRecording: boolean
+  isPaused: boolean
   isSupported: boolean
   transcript: string
   error: string | null
   startRecording: () => Promise<void>
+  pauseRecording: () => void
+  resumeRecording: () => void
   stopRecording: () => void
   clearTranscript: () => void
 }
@@ -25,6 +28,7 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
     interimResults = true 
   } = options
   const [isRecording, setIsRecording] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const [transcript, setTranscript] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSupported, setIsSupported] = useState(false)
@@ -58,6 +62,7 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
 
     recognition.onstart = () => {
       setIsRecording(true)
+      setIsPaused(false)
       setError(null)
       setTranscript('') // Clear previous transcript
     }
@@ -76,10 +81,12 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
       console.error('Speech recognition error:', event.error)
       setError(`Speech recognition error: ${event.error}`)
       setIsRecording(false)
+      setIsPaused(false)
     }
 
     recognition.onend = () => {
       setIsRecording(false)
+      setIsPaused(false)
     }
 
     return recognition
@@ -121,12 +128,35 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
     }
   }, [initializeSpeechRecognition])
 
+  const pauseRecording = useCallback(() => {
+    if (recognitionRef.current && isRecording && !isPaused) {
+      recognitionRef.current.stop()
+      setIsPaused(true)
+    }
+  }, [isRecording, isPaused])
+
+  const resumeRecording = useCallback(async () => {
+    if (isPaused && !isRecording) {
+      try {
+        const recognition = initializeSpeechRecognition()
+        if (recognition) {
+          recognitionRef.current = recognition
+          recognition.start()
+        }
+      } catch (err) {
+        console.error('Error resuming recording:', err)
+        setError('Failed to resume recording. Please try again.')
+      }
+    }
+  }, [isPaused, isRecording, initializeSpeechRecognition])
+
   const stopRecording = useCallback(() => {
     if (recognitionRef.current) {
       recognitionRef.current.stop()
       recognitionRef.current = null
     }
     setIsRecording(false)
+    setIsPaused(false)
   }, [])
 
   const clearTranscript = useCallback(() => {
@@ -141,10 +171,13 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
 
   return {
     isRecording,
+    isPaused,
     isSupported,
     transcript,
     error,
     startRecording,
+    pauseRecording,
+    resumeRecording,
     stopRecording,
     clearTranscript
   }

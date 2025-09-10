@@ -587,7 +587,7 @@ export default function PersonalStoryPage() {
                     placeholder={currentQuestion.placeholder}
                     value={formData[currentQuestion.key]}
                     onChange={(e) => handleInputChange(currentQuestion.key, e.target.value)}
-                    className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base resize-none pr-12"
+                    className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base resize-none border border-black pr-12"
                   />
                   <div className="absolute bottom-3 right-3">
                     <MicrophoneButton

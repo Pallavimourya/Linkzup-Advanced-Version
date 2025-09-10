@@ -329,7 +329,7 @@ export default function ProfilePage() {
                       value={profile.bio}
                       onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                       placeholder="Tell us about yourself..."
-                      className="min-h-[100px]"
+                      className="min-h-[100px] border border-black"
                     />
                     <p className="text-sm text-muted-foreground">
                       Brief description for your profile. Maximum 500 characters.
