@@ -766,7 +766,14 @@ export default function CustomPostPage() {
                   variant="outline" 
                   size="sm" 
                   className="h-8 px-3 text-primary gap-1 hover:bg-primary hover:text-primary-foreground"
+<<<<<<< HEAD
                   onClick={() => setShowAIAssist(true)}
+=======
+                  onClick={() => {
+                    setAiPrompt(postData.content.trim())
+                    setShowAIAssist(true)
+                  }}
+>>>>>>> 136723e (new)
                 >
                   <Sparkles className="h-4 w-4" />
                   <span className="hidden xs:inline">AI Assist</span>
