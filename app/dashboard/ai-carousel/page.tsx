@@ -33,6 +33,7 @@ import {
   Linkedin,
   FileImage,
   FileText,
+  GripVertical,
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
@@ -307,6 +308,10 @@ export default function AICarouselPage() {
   const [draggedElement, setDraggedElement] = useState<string | null>(null)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
+  const [draggedBulletIndex, setDraggedBulletIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+  const [draggedContentKey, setDraggedContentKey] = useState<string | null>(null)
+  const [dragOverContentKey, setDragOverContentKey] = useState<string | null>(null)
 
   const [aiForm, setAiForm] = useState({
     topic: "",
@@ -928,12 +933,31 @@ export default function AICarouselPage() {
     if (!currentProject || !currentSlide) return
 
     const updatedSlides = [...currentProject.slides]
-    updatedSlides[currentSlideIndex] = {
-      ...updatedSlides[currentSlideIndex],
-      content: {
-        ...updatedSlides[currentSlideIndex].content,
-        [field]: value,
-      },
+    const currentSlideData = updatedSlides[currentSlideIndex]
+    
+    // Handle bullet editing
+    if (field.startsWith('bullet_')) {
+      const bulletIndex = parseInt(field.split('_')[1])
+      if (currentSlideData.content.bullets && currentSlideData.content.bullets[bulletIndex] !== undefined) {
+        const newBullets = [...currentSlideData.content.bullets]
+        newBullets[bulletIndex] = value
+        updatedSlides[currentSlideIndex] = {
+          ...currentSlideData,
+          content: {
+            ...currentSlideData.content,
+            bullets: newBullets
+          }
+        }
+      }
+    } else {
+      // Handle regular field editing
+      updatedSlides[currentSlideIndex] = {
+        ...currentSlideData,
+        content: {
+          ...currentSlideData.content,
+          [field]: value,
+        },
+      }
     }
 
     setCurrentProject({
@@ -992,17 +1016,168 @@ export default function AICarouselPage() {
     document.body.style.userSelect = ''
   }
 
+  // Universal drag and drop functions for all content elements
+  const handleContentDragStart = (e: React.MouseEvent, contentKey: string, bulletIndex?: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (bulletIndex !== undefined) {
+      setDraggedBulletIndex(bulletIndex)
+    } else {
+      setDraggedContentKey(contentKey)
+    }
+    
+    setDragStart({ x: e.clientX, y: e.clientY })
+    setIsDragging(true)
+    
+    // Prevent text selection during drag
+    document.body.style.userSelect = 'none'
+  }
+
+  const handleContentDragOver = (e: React.MouseEvent, contentKey: string, bulletIndex?: number) => {
+    e.preventDefault()
+    
+    if (bulletIndex !== undefined) {
+      if (draggedBulletIndex === null || draggedBulletIndex === bulletIndex) return
+      setDragOverIndex(bulletIndex)
+    } else {
+      if (draggedContentKey === null || draggedContentKey === contentKey) return
+      setDragOverContentKey(contentKey)
+    }
+  }
+
+  const handleContentDrop = (e: React.MouseEvent, contentKey: string, bulletIndex?: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!currentProject || !currentSlide) return
+    
+    const updatedSlides = [...currentProject.slides]
+    const currentSlideData = updatedSlides[currentSlideIndex]
+    
+    if (bulletIndex !== undefined && draggedBulletIndex !== null) {
+      // Handle bullet reordering
+      if (currentSlideData.content.bullets && draggedBulletIndex !== bulletIndex) {
+        const newBullets: string[] = [...currentSlideData.content.bullets]
+        const draggedBullet = newBullets.splice(draggedBulletIndex, 1)[0]
+        newBullets.splice(bulletIndex, 0, draggedBullet)
+        
+        updatedSlides[currentSlideIndex] = {
+          ...currentSlideData,
+          content: {
+            ...currentSlideData.content,
+            bullets: newBullets
+          }
+        }
+      }
+    } else if (draggedContentKey && draggedContentKey !== contentKey) {
+      // Handle content element reordering
+      const contentOrder = getContentOrder(currentSlideData.type)
+      const draggedIndex = contentOrder.indexOf(draggedContentKey)
+      const targetIndex = contentOrder.indexOf(contentKey)
+      
+      if (draggedIndex !== -1 && targetIndex !== -1) {
+        const newOrder = [...contentOrder]
+        const draggedItem = newOrder.splice(draggedIndex, 1)[0]
+        newOrder.splice(targetIndex, 0, draggedItem)
+        
+        // Reorder content based on new order
+        const reorderedContent = reorderSlideContent(currentSlideData.content, newOrder)
+        
+        updatedSlides[currentSlideIndex] = {
+          ...currentSlideData,
+          content: reorderedContent
+        }
+      }
+    }
+    
+    setCurrentProject({
+      ...currentProject,
+      slides: updatedSlides,
+    })
+    
+    // Reset drag state
+    setDraggedBulletIndex(null)
+    setDragOverIndex(null)
+    setDraggedContentKey(null)
+    setDragOverContentKey(null)
+    setIsDragging(false)
+    document.body.style.userSelect = ''
+  }
+
+  const handleContentDragEnd = () => {
+    setDraggedBulletIndex(null)
+    setDragOverIndex(null)
+    setDraggedContentKey(null)
+    setDragOverContentKey(null)
+    setIsDragging(false)
+    document.body.style.userSelect = ''
+  }
+
+  // Helper function to get content order for each slide type
+  const getContentOrder = (slideType: string): string[] => {
+    switch (slideType) {
+      case 'first':
+        return ['top_line', 'main_heading', 'bullet']
+      case 'middle':
+        return ['heading', 'bullets']
+      case 'last':
+        return ['tagline', 'final_heading', 'last_bullet']
+      default:
+        return []
+    }
+  }
+
+  // Helper function to reorder slide content
+  const reorderSlideContent = (content: any, newOrder: string[]) => {
+    const reorderedContent: any = {}
+    
+    newOrder.forEach(key => {
+      if (content[key] !== undefined) {
+        reorderedContent[key] = content[key]
+      }
+    })
+    
+    // Add any remaining properties that weren't in the order
+    Object.keys(content).forEach(key => {
+      if (!newOrder.includes(key)) {
+        reorderedContent[key] = content[key]
+      }
+    })
+    
+    return reorderedContent
+  }
+
   // Add mouse event listeners for drag functionality
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
+      if (isDragging && draggedElement && !draggedBulletIndex && !draggedContentKey) {
         handleDragMove(e as any)
       }
     }
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
       if (isDragging) {
-        handleDragEnd()
+        if (draggedBulletIndex !== null || draggedContentKey !== null) {
+          // Find the element under the mouse cursor for drop
+          const element = document.elementFromPoint(e.clientX, e.clientY)
+          if (element) {
+            const dragHandle = element.closest('[data-drag-handle]')
+            if (dragHandle) {
+              const contentKey = dragHandle.getAttribute('data-content-key')
+              const bulletIndex = dragHandle.getAttribute('data-bullet-index')
+              
+              if (contentKey && draggedContentKey && draggedContentKey !== contentKey) {
+                handleContentDrop(e as any, contentKey)
+              } else if (bulletIndex !== null && draggedBulletIndex !== null && draggedBulletIndex !== parseInt(bulletIndex)) {
+                handleContentDrop(e as any, 'bullets', parseInt(bulletIndex))
+              }
+            }
+          }
+          handleContentDragEnd()
+        } else {
+          handleDragEnd()
+        }
       }
     }
 
@@ -1015,7 +1190,7 @@ export default function AICarouselPage() {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isDragging, draggedElement, dragStart, currentProject, currentSlideIndex])
+  }, [isDragging, draggedElement, draggedBulletIndex, draggedContentKey, dragStart, currentProject, currentSlideIndex])
 
   const addSlide = () => {
     if (!currentProject) return
@@ -1422,14 +1597,17 @@ What do you think? Share your thoughts in the comments below.
 
   const renderSlideContent = (slide: CarouselSlide) => {
     const { content, design } = slide
+    
+    console.log('Rendering slide content:', slide)
 
     return (
       <div
-        className="w-full h-full flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 relative"
+        className="w-full h-full flex flex-col justify-start items-center p-4 sm:p-6 md:p-8 relative"
         style={{
           fontFamily: design.fontFamily,
           color: design.textColor,
-          paddingTop: "0px",
+          paddingTop: "60px",
+          paddingBottom: "80px",
           textShadow: design.backgroundType === "image" && overlayOpacity > 0 ? "0 2px 4px rgba(0,0,0,0.8)" : "none",
           transform: `translateY(${slide.position.y}px)`,
           transition: isDragging ? 'none' : 'transform 0.1s ease-out'
@@ -1437,220 +1615,432 @@ What do you think? Share your thoughts in the comments below.
         data-font-family={design.fontFamily}
         onMouseMove={handleDragMove}
       >
+        <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col justify-start pt-8">
         {slide.type === "first" && (
-          <>
+          <div className="w-full space-y-4 text-left">
             {content.top_line && (
               <div
-                className={`text-sm opacity-80 mb-2 self-center text-left w-full ${isDragging && draggedElement === 'top_line' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
-                onClick={() => setEditingText("top_line")}
-                onMouseDown={(e) => handleDragStart(e, 'top_line')}
+                className={`text-sm opacity-80 mb-2 self-center text-left w-full relative group ${
+                  draggedContentKey === 'top_line' 
+                    ? 'opacity-50 scale-95' 
+                    : dragOverContentKey === 'top_line' 
+                    ? 'border-t-2 border-white/50 pt-2' 
+                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                } transition-all duration-200`}
                 style={{ 
                   fontSize: "clamp(18px, 4vw, 25px)",
                   marginTop: "-10px",
                   fontFamily: design.fontFamily,
-                  userSelect: 'none'
                 }}
               >
-                {editingText === "top_line" ? (
-                  <textarea
-                    value={content.top_line}
-                    onChange={(e) => handleTextEdit("top_line", e.target.value)}
-                    onBlur={() => setEditingText(null)}
-                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "23px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                    autoFocus
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap break-words">{content.top_line}</div>
+                <div className="flex items-start gap-2">
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                    onMouseDown={(e) => handleContentDragStart(e, 'top_line')}
+                    onMouseOver={(e) => handleContentDragOver(e, 'top_line')}
+                    onMouseUp={(e) => handleContentDrop(e, 'top_line')}
+                    title="Drag to reorder"
+                    data-drag-handle="true"
+                    data-content-key="top_line"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <div 
+                    className="flex-1"
+                    onClick={() => setEditingText("top_line")}
+                  >
+                    {editingText === "top_line" ? (
+                      <textarea
+                        value={content.top_line}
+                        onChange={(e) => handleTextEdit("top_line", e.target.value)}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                        style={{ minHeight: "23px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap break-words">{content.top_line}</div>
+                    )}
+                  </div>
+                </div>
+                {isDragging && draggedContentKey === 'top_line' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging...</span>
+                  </div>
                 )}
               </div>
             )}
             {content.main_heading && (
               <h1
-                className={`font-bold mb-4 leading-tight self-center text-left w-full ${isDragging && draggedElement === 'main_heading' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
-                onClick={() => setEditingText("main_heading")}
-                onMouseDown={(e) => handleDragStart(e, 'main_heading')}
+                className={`font-bold mb-4 leading-tight self-center text-left w-full relative group ${
+                  draggedContentKey === 'main_heading' 
+                    ? 'opacity-50 scale-95' 
+                    : dragOverContentKey === 'main_heading' 
+                    ? 'border-t-2 border-white/50 pt-2' 
+                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                } transition-all duration-200`}
                 style={{ 
                   fontSize: "clamp(28px, 6vw, 40px)",
                   fontFamily: design.fontFamily,
-                  userSelect: 'none'
                 }}
               >
-                {editingText === "main_heading" ? (
-                  <textarea
-                    value={content.main_heading}
-                    onChange={(e) => handleTextEdit("main_heading", e.target.value)}
-                    onBlur={() => setEditingText(null)}
-                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "38px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                    autoFocus
-                  />
-                ) : (
-                  <span className="whitespace-pre-wrap break-words">
-                    {renderColoredTitle(content.main_heading, currentProject?.titleAccentColor || "#FFFFFF")}
-                  </span>
+                <div className="flex items-start gap-2">
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                    onMouseDown={(e) => handleContentDragStart(e, 'main_heading')}
+                    onMouseOver={(e) => handleContentDragOver(e, 'main_heading')}
+                    onMouseUp={(e) => handleContentDrop(e, 'main_heading')}
+                    title="Drag to reorder"
+                    data-drag-handle="true"
+                    data-content-key="main_heading"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <div 
+                    className="flex-1"
+                    onClick={() => setEditingText("main_heading")}
+                  >
+                    {editingText === "main_heading" ? (
+                      <textarea
+                        value={content.main_heading}
+                        onChange={(e) => handleTextEdit("main_heading", e.target.value)}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                        style={{ minHeight: "38px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="whitespace-pre-wrap break-words">
+                        {renderColoredTitle(content.main_heading, currentProject?.titleAccentColor || "#FFFFFF")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {isDragging && draggedContentKey === 'main_heading' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging...</span>
+                  </div>
                 )}
               </h1>
             )}
             {content.bullet && (
               <div 
-                className={`text-lg self-center text-left w-full break-words ${isDragging && draggedElement === 'bullet' ? 'cursor-grabbing' : 'cursor-grab'} select-none`} 
-                onClick={() => setEditingText("bullet")} 
-                onMouseDown={(e) => handleDragStart(e, 'bullet')}
-                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily, userSelect: 'none' }}
+                className={`text-lg self-center text-left w-full break-words relative group ${
+                  draggedContentKey === 'bullet' 
+                    ? 'opacity-50 scale-95' 
+                    : dragOverContentKey === 'bullet' 
+                    ? 'border-t-2 border-white/50 pt-2' 
+                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                } transition-all duration-200`} 
+                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}
               >
-                {editingText === "bullet" ? (
-                  <textarea
-                    value={content.bullet}
-                    onChange={(e) => handleTextEdit("bullet", e.target.value)}
-                    onBlur={() => setEditingText(null)}
-                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "21px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                    autoFocus
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap break-words">{content.bullet}</div>
+                <div className="flex items-start gap-2">
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                    onMouseDown={(e) => handleContentDragStart(e, 'bullet')}
+                    onMouseOver={(e) => handleContentDragOver(e, 'bullet')}
+                    onMouseUp={(e) => handleContentDrop(e, 'bullet')}
+                    title="Drag to reorder"
+                    data-drag-handle="true"
+                    data-content-key="bullet"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <div 
+                    className="flex-1"
+                    onClick={() => setEditingText("bullet")}
+                  >
+                    {editingText === "bullet" ? (
+                      <textarea
+                        value={content.bullet}
+                        onChange={(e) => handleTextEdit("bullet", e.target.value)}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                        style={{ minHeight: "21px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap break-words">{content.bullet}</div>
+                    )}
+                  </div>
+                </div>
+                {isDragging && draggedContentKey === 'bullet' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging...</span>
+                  </div>
                 )}
               </div>
             )}
-          </>
+          </div>
         )}
 
         {slide.type === "middle" && (
-          <>
+          <div className="w-full space-y-4 text-left">
             {content.heading && (
               <h2
-                className={`font-bold mb-6 leading-tight self-center text-left w-full break-words ${isDragging && draggedElement === 'heading' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
-                onClick={() => setEditingText("heading")}
-                onMouseDown={(e) => handleDragStart(e, 'heading')}
-                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily, userSelect: 'none' }}
+                className={`font-bold mb-6 leading-tight self-center text-left w-full break-words relative group ${
+                  draggedContentKey === 'heading' 
+                    ? 'opacity-50 scale-95' 
+                    : dragOverContentKey === 'heading' 
+                    ? 'border-t-2 border-white/50 pt-2' 
+                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                } transition-all duration-200`}
+                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
               >
-                {editingText === "heading" ? (
-                  <textarea
-                    value={content.heading}
-                    onChange={(e) => handleTextEdit("heading", e.target.value)}
-                    onBlur={() => setEditingText(null)}
-                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "27px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                    autoFocus
-                  />
-                ) : (
-                  <span className="whitespace-pre-wrap break-words">
-                    {renderColoredTitle(content.heading, currentProject?.titleAccentColor || "#FFFFFF")}
-                  </span>
+                <div className="flex items-start gap-2">
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                    onMouseDown={(e) => handleContentDragStart(e, 'heading')}
+                    onMouseOver={(e) => handleContentDragOver(e, 'heading')}
+                    onMouseUp={(e) => handleContentDrop(e, 'heading')}
+                    title="Drag to reorder"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <div 
+                    className="flex-1"
+                    onClick={() => setEditingText("heading")}
+                  >
+                    {editingText === "heading" ? (
+                      <textarea
+                        value={content.heading}
+                        onChange={(e) => handleTextEdit("heading", e.target.value)}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                        style={{ minHeight: "27px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="whitespace-pre-wrap break-words">
+                        {renderColoredTitle(content.heading, currentProject?.titleAccentColor || "#FFFFFF")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {isDragging && draggedContentKey === 'heading' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging...</span>
+                  </div>
                 )}
               </h2>
             )}
             {content.bullets && (
-              <ul className="space-y-3 text-left w-full px-5">
-                {content.bullets.map((bullet, index) => (
-                  <li
-                    key={index}
-                    className={`flex items-center justify-start gap-2 ${isDragging && draggedElement === `bullet_${index}` ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
-                    onClick={() => setEditingText(`bullet_${index}`)}
-                    onMouseDown={(e) => handleDragStart(e, `bullet_${index}`)}
-                    style={{ fontSize: "clamp(16px, 3.5vw, 21px)", fontFamily: design.fontFamily, userSelect: 'none' }}
-                  >
-                    <span className="w-2 h-2 bg-current rounded-full mt-2 flex-shrink-0"></span>
-                    {editingText === `bullet_${index}` ? (
-                      <textarea
-                        value={bullet}
-                        onChange={(e) => {
-                          const newBullets = [...content.bullets!]
-                          newBullets[index] = e.target.value
-                          handleTextEdit("bullets", newBullets as any)
-                        }}
-                        onBlur={() => setEditingText(null)}
-                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                        className="bg-transparent border-b border-current outline-none flex-1 resize-none overflow-hidden text-left"
-                        style={{ minHeight: "19px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                        autoFocus
-                      />
-                    ) : (
-                      <span className="whitespace-pre-wrap break-words">{bullet}</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <div className="relative group">
+                <ul className="space-y-3 text-left w-full px-5">
+                  {content.bullets.map((bullet, index) => (
+                    <li
+                      key={index}
+                      className={`flex items-center justify-start gap-2 group relative ${
+                        draggedBulletIndex === index 
+                          ? 'opacity-50 scale-95' 
+                          : dragOverIndex === index 
+                          ? 'border-t-2 border-white/50 pt-2' 
+                          : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                      } transition-all duration-200`}
+                      style={{ fontSize: "clamp(16px, 3.5vw, 21px)", fontFamily: design.fontFamily }}
+                    >
+                      <button
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                        onMouseDown={(e) => handleContentDragStart(e, 'bullets', index)}
+                        onMouseOver={(e) => handleContentDragOver(e, 'bullets', index)}
+                        onMouseUp={(e) => handleContentDrop(e, 'bullets', index)}
+                        title="Drag to reorder"
+                      >
+                        <GripVertical className="w-3 h-3" />
+                      </button>
+                      <span className="w-2 h-2 bg-current rounded-full mt-2 flex-shrink-0"></span>
+                      <div 
+                        className="flex-1"
+                        onClick={() => setEditingText(`bullet_${index}`)}
+                      >
+                        {editingText === `bullet_${index}` ? (
+                          <textarea
+                            value={bullet}
+                            onChange={(e) => {
+                              const newBullets = [...content.bullets!]
+                              newBullets[index] = e.target.value
+                              handleTextEdit("bullets", newBullets as any)
+                            }}
+                            onBlur={() => setEditingText(null)}
+                            onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                            className="bg-transparent border-b border-current outline-none w-full resize-none overflow-hidden text-left"
+                            style={{ minHeight: "19px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                            autoFocus
+                          />
+                        ) : (
+                          <span className="whitespace-pre-wrap break-words">{bullet}</span>
+                        )}
+                      </div>
+                      {/* Drag indicator */}
+                      {isDragging && draggedBulletIndex === index && (
+                        <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                          <span className="text-xs opacity-70">Dragging...</span>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {/* Bullets container drag indicator */}
+                {isDragging && draggedContentKey === 'bullets' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging bullets...</span>
+                  </div>
+                )}
+              </div>
             )}
-          </>
+          </div>
         )}
 
         {slide.type === "last" && (
-          <>
+          <div className="w-full space-y-4 text-left">
             {content.tagline && (
               <div
-                className={`text-sm opacity-80 mb-2 self-center text-left w-full break-words ${isDragging && draggedElement === 'tagline' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
-                onClick={() => setEditingText("tagline")}
-                onMouseDown={(e) => handleDragStart(e, 'tagline')}
-                style={{ fontSize: "clamp(16px, 3vw, 19px)", fontFamily: design.fontFamily, userSelect: 'none' }}
+                className={`text-sm opacity-80 mb-2 self-center text-left w-full break-words relative group ${
+                  draggedContentKey === 'tagline' 
+                    ? 'opacity-50 scale-95' 
+                    : dragOverContentKey === 'tagline' 
+                    ? 'border-t-2 border-white/50 pt-2' 
+                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                } transition-all duration-200`}
+                style={{ fontSize: "clamp(16px, 3vw, 19px)", fontFamily: design.fontFamily }}
               >
-                {editingText === "tagline" ? (
-                  <textarea
-                    value={content.tagline}
-                    onChange={(e) => handleTextEdit("tagline", e.target.value)}
-                    onBlur={() => setEditingText(null)}
-                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "17px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                    autoFocus
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap break-words">{content.tagline}</div>
+                <div className="flex items-start gap-2">
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                    onMouseDown={(e) => handleContentDragStart(e, 'tagline')}
+                    onMouseOver={(e) => handleContentDragOver(e, 'tagline')}
+                    onMouseUp={(e) => handleContentDrop(e, 'tagline')}
+                    title="Drag to reorder"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <div 
+                    className="flex-1"
+                    onClick={() => setEditingText("tagline")}
+                  >
+                    {editingText === "tagline" ? (
+                      <textarea
+                        value={content.tagline}
+                        onChange={(e) => handleTextEdit("tagline", e.target.value)}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                        style={{ minHeight: "17px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap break-words">{content.tagline}</div>
+                    )}
+                  </div>
+                </div>
+                {isDragging && draggedContentKey === 'tagline' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging...</span>
+                  </div>
                 )}
               </div>
             )}
             {content.final_heading && (
               <h1
-                className={`font-bold mb-4 leading-tight self-center text-left w-full break-words ${isDragging && draggedElement === 'final_heading' ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
-                onClick={() => setEditingText("final_heading")}
-                onMouseDown={(e) => handleDragStart(e, 'final_heading')}
-                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily, userSelect: 'none' }}
+                className={`font-bold mb-4 leading-tight self-center text-left w-full break-words relative group ${
+                  draggedContentKey === 'final_heading' 
+                    ? 'opacity-50 scale-95' 
+                    : dragOverContentKey === 'final_heading' 
+                    ? 'border-t-2 border-white/50 pt-2' 
+                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                } transition-all duration-200`}
+                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
               >
-                {editingText === "final_heading" ? (
-                  <textarea
-                    value={content.final_heading}
-                    onChange={(e) => handleTextEdit("final_heading", e.target.value)}
-                    onBlur={() => setEditingText(null)}
-                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "27px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                    autoFocus
-                  />
-                ) : (
-                  <span className="whitespace-pre-wrap break-words">
-                    {renderColoredTitle(content.final_heading, currentProject?.titleAccentColor || "#FFFFFF")}
-                  </span>
+                <div className="flex items-start gap-2">
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                    onMouseDown={(e) => handleContentDragStart(e, 'final_heading')}
+                    onMouseOver={(e) => handleContentDragOver(e, 'final_heading')}
+                    onMouseUp={(e) => handleContentDrop(e, 'final_heading')}
+                    title="Drag to reorder"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <div 
+                    className="flex-1"
+                    onClick={() => setEditingText("final_heading")}
+                  >
+                    {editingText === "final_heading" ? (
+                      <textarea
+                        value={content.final_heading}
+                        onChange={(e) => handleTextEdit("final_heading", e.target.value)}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                        style={{ minHeight: "27px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="whitespace-pre-wrap break-words">
+                        {renderColoredTitle(content.final_heading, currentProject?.titleAccentColor || "#FFFFFF")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {isDragging && draggedContentKey === 'final_heading' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging...</span>
+                  </div>
                 )}
               </h1>
             )}
             {content.last_bullet && (
               <div 
-                className={`text-lg self-center text-left w-full break-words ${isDragging && draggedElement === 'last_bullet' ? 'cursor-grabbing' : 'cursor-grab'} select-none`} 
-                onClick={() => setEditingText("last_bullet")} 
-                onMouseDown={(e) => handleDragStart(e, 'last_bullet')}
-                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily, userSelect: 'none' }}
+                className={`text-lg self-center text-left w-full break-words relative group ${
+                  draggedContentKey === 'last_bullet' 
+                    ? 'opacity-50 scale-95' 
+                    : dragOverContentKey === 'last_bullet' 
+                    ? 'border-t-2 border-white/50 pt-2' 
+                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                } transition-all duration-200`} 
+                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}
               >
-                {editingText === "last_bullet" ? (
-                  <textarea
-                    value={content.last_bullet}
-                    onChange={(e) => handleTextEdit("last_bullet", e.target.value)}
-                    onBlur={() => setEditingText(null)}
-                    onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
-                    className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
-                    style={{ minHeight: "21px", lineHeight: "1.2", fontFamily: design.fontFamily }}
-                    autoFocus
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap break-words">{content.last_bullet}</div>
+                <div className="flex items-start gap-2">
+                  <button
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
+                    onMouseDown={(e) => handleContentDragStart(e, 'last_bullet')}
+                    onMouseOver={(e) => handleContentDragOver(e, 'last_bullet')}
+                    onMouseUp={(e) => handleContentDrop(e, 'last_bullet')}
+                    title="Drag to reorder"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+                  <div 
+                    className="flex-1"
+                    onClick={() => setEditingText("last_bullet")}
+                  >
+                    {editingText === "last_bullet" ? (
+                      <textarea
+                        value={content.last_bullet}
+                        onChange={(e) => handleTextEdit("last_bullet", e.target.value)}
+                        onBlur={() => setEditingText(null)}
+                        onKeyDown={(e) => e.key === "Enter" && setEditingText(null)}
+                        className="bg-transparent border-b border-current outline-none text-left w-full resize-none overflow-hidden"
+                        style={{ minHeight: "21px", lineHeight: "1.2", fontFamily: design.fontFamily }}
+                        autoFocus
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap break-words">{content.last_bullet}</div>
+                    )}
+                  </div>
+                </div>
+                {isDragging && draggedContentKey === 'last_bullet' && (
+                  <div className="absolute inset-0 bg-white/10 rounded-lg border-2 border-dashed border-white/30 flex items-center justify-center">
+                    <span className="text-xs opacity-70">Dragging...</span>
+                  </div>
                 )}
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* Interactive Elements - Display on all slides except last */}
@@ -1687,12 +2077,12 @@ What do you think? Share your thoughts in the comments below.
 
         {/* Branding Section - Display at bottom of each slide */}
         {currentProject?.branding && currentProject.branding !== "none" && (
-          <div className="absolute bottom-2 sm:bottom-4 left-4 sm:left-8 right-4 sm:right-8">
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20">
             <div 
-              className="text-xs opacity-70 text-center"
+              className="text-sm opacity-90 text-center px-4 py-2 whitespace-nowrap"
               style={{ 
                 fontFamily: design.fontFamily,
-                color: design.textColor
+                color: design.textColor || "#FFFFFF"
               }}
             >
               {currentProject.branding === "name" && session?.user?.name && (
@@ -1704,9 +2094,13 @@ What do you think? Share your thoughts in the comments below.
               {currentProject.branding === "both" && session?.user?.name && session?.user?.email && (
                 <span>{session.user.name} • {session.user.email}</span>
               )}
+              {!session?.user?.name && !session?.user?.email && (
+                <span>Branding Preview</span>
+              )}
             </div>
           </div>
         )}
+        </div>
       </div>
     )
   }
@@ -1768,7 +2162,7 @@ What do you think? Share your thoughts in the comments below.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-2 -mt-[20px]">
                 <Label htmlFor="topic">Topic *</Label>
                 <Input
                   id="topic"
