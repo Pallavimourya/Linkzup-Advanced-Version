@@ -1,5 +1,6 @@
 "use client"
 
+import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -29,6 +30,35 @@ import {
   Sparkles,
   TrendingUp,
   Calendar,
+  ArrowRight,
+  CheckCircle,
+  Star,
+  Globe,
+  Target,
+  Heart,
+  Share2,
+  Eye,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Lightbulb,
+  Shield,
+  Award,
+  Rocket,
+  MessageSquare,
+  BarChart3,
+  RefreshCw,
+  Copy,
+  Archive,
+  Settings,
+  Info,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Plus,
+  Minus,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react"
 
 const faqData = [
@@ -70,36 +100,79 @@ const features = [
     title: "AI Content Generator",
     description: "Generate engaging LinkedIn posts with customizable tone, audience, and goals.",
     link: "/dashboard",
+    color: "from-blue-500 to-purple-500",
+    bgColor: "from-blue-50 to-purple-50",
   },
   {
     icon: Users,
     title: "Personal Story",
     description: "Transform your experiences into compelling professional narratives.",
     link: "/dashboard/personal-story",
+    color: "from-green-500 to-blue-500",
+    bgColor: "from-green-50 to-blue-50",
   },
   {
     icon: Sparkles,
     title: "AI Carousel",
     description: "Create multi-slide visual content with custom backgrounds and text.",
     link: "/dashboard/ai-carousel",
+    color: "from-purple-500 to-pink-500",
+    bgColor: "from-purple-50 to-pink-50",
   },
   {
     icon: TrendingUp,
     title: "Viral Posts & News",
     description: "Discover trending content and industry news for inspiration.",
     link: "/dashboard/viral-posts",
+    color: "from-orange-500 to-red-500",
+    bgColor: "from-orange-50 to-red-50",
   },
   {
     icon: Calendar,
     title: "Scheduled Posts",
     description: "Plan and automate your LinkedIn content calendar.",
     link: "/dashboard/scheduled-posts",
+    color: "from-indigo-500 to-blue-500",
+    bgColor: "from-indigo-50 to-blue-50",
   },
   {
     icon: FileText,
     title: "Drafts",
     description: "Save, edit, and manage your content before publishing.",
     link: "/dashboard/drafts",
+    color: "from-teal-500 to-green-500",
+    bgColor: "from-teal-50 to-green-50",
+  },
+]
+
+const quickStartSteps = [
+  {
+    step: 1,
+    title: "Go to Dashboard",
+    description: "Navigate to the main dashboard and find the AI Content Generator section.",
+    icon: Target,
+    color: "from-blue-500 to-blue-600",
+  },
+  {
+    step: 2,
+    title: "Enter Your Topic",
+    description: "Describe what you want to post about in the prompt field.",
+    icon: MessageSquare,
+    color: "from-green-500 to-green-600",
+  },
+  {
+    step: 3,
+    title: "Customize Settings",
+    description: "Select your preferred tone, target audience, and content goals.",
+    icon: Settings,
+    color: "from-purple-500 to-purple-600",
+  },
+  {
+    step: 4,
+    title: "Generate & Post",
+    description: "Click generate to create multiple post options, then preview and publish your favorite.",
+    icon: Rocket,
+    color: "from-orange-500 to-orange-600",
   },
 ]
 
@@ -124,261 +197,371 @@ export default function HelpPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Header */}
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Help & Support</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
-      {/* Welcome Section */}
-      <div className="px-4">
-        <div className="rounded-lg bg-gradient-to-r from-primary/10 to-secondary/10 p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <HelpCircle className="w-6 h-6 text-primary" />
-            Help & Support
-          </h1>
-          <p className="text-muted-foreground">
-            Get help with LinkzUp features, find answers to common questions, and contact our support team.
-          </p>
-        </div>
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50/30 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-green-500/5 to-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Help Content */}
-      <div className="px-4">
-        <Tabs defaultValue="getting-started" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="getting-started" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Getting Started
-            </TabsTrigger>
-            <TabsTrigger value="features" className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Features
-            </TabsTrigger>
-            <TabsTrigger value="faq" className="flex items-center gap-2">
-              <HelpCircle className="w-4 h-4" />
-              FAQ
-            </TabsTrigger>
-            <TabsTrigger value="contact" className="flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" />
-              Contact
-            </TabsTrigger>
-          </TabsList>
+      <div className="relative z-10 flex flex-col gap-4 sm:gap-6 lg:gap-8">
+        {/* Enhanced Header */}
+        <motion.header 
+          className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Help & Support</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </motion.header>
 
-          {/* Getting Started Tab */}
-          <TabsContent value="getting-started">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Video className="w-5 h-5 text-primary" />
-                    How to Use LinkzUp
-                  </CardTitle>
-                  <CardDescription>Watch our comprehensive tutorial to get started quickly</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-video bg-muted rounded-lg flex items-center justify-center mb-4">
-                    <div className="text-center">
-                      <Play className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">Tutorial video coming soon!</p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        We're preparing a comprehensive video guide to help you master LinkzUp.
-                      </p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="mb-4">
-                    Coming Soon
-                  </Badge>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Start Guide</CardTitle>
-                  <CardDescription>Follow these steps to create your first LinkedIn post</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
-                        1
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">Go to Dashboard</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Navigate to the main dashboard and find the AI Content Generator section.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
-                        2
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">Enter Your Topic</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Describe what you want to post about in the prompt field.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
-                        3
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">Customize Settings</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Select your preferred tone, target audience, and content goals.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
-                        4
-                      </div>
-                      <div>
-                        <h4 className="font-semibold">Generate & Post</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Click generate to create multiple post options, then preview and publish your favorite.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Enhanced Welcome Section */}
+        <motion.div 
+          className="px-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="rounded-2xl bg-gradient-to-r from-green-500/10 to-blue-500/10 p-8 border border-green-200/50 backdrop-blur-sm">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
+                <HelpCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-green-900 bg-clip-text text-transparent">
+                  Help & Support
+                </h1>
+                <p className="text-gray-600">
+                  Get help with LinkzUp features, find answers to common questions, and contact our support team.
+                </p>
+              </div>
             </div>
-          </TabsContent>
+          </div>
+        </motion.div>
 
-          {/* Features Tab */}
-          <TabsContent value="features">
-            <div className="grid gap-6 md:grid-cols-2">
-              {features.map((feature, index) => (
-                <Card key={index} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <feature.icon className="w-5 h-5 text-primary" />
-                      {feature.title}
-                    </CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button variant="outline" asChild className="w-full bg-transparent">
-                      <a href={feature.link}>Learn More</a>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+        {/* Enhanced Help Content */}
+        <motion.div 
+          className="px-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <Tabs defaultValue="getting-started" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 h-12 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <TabsTrigger value="getting-started" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">
+                <BookOpen className="w-4 h-4" />
+                Getting Started
+              </TabsTrigger>
+              <TabsTrigger value="features" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">
+                <Sparkles className="w-4 h-4" />
+                Features
+              </TabsTrigger>
+              <TabsTrigger value="faq" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">
+                <HelpCircle className="w-4 h-4" />
+                FAQ
+              </TabsTrigger>
+              <TabsTrigger value="contact" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">
+                <MessageCircle className="w-4 h-4" />
+                Contact
+              </TabsTrigger>
+            </TabsList>
 
-          {/* FAQ Tab */}
-          <TabsContent value="faq">
-            <div className="space-y-4">
-              {faqData.map((faq, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{faq.question}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{faq.answer}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+            {/* Enhanced Getting Started Tab */}
+            <TabsContent value="getting-started">
+              <div className="space-y-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                >
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-3 text-lg">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                          <Video className="w-4 h-4 text-blue-600" />
+                        </div>
+                        How to Use LinkzUp
+                      </CardTitle>
+                      <CardDescription>Watch our comprehensive tutorial to get started quickly</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mb-4 border border-gray-200">
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Play className="w-8 h-8 text-white" />
+                          </div>
+                          <p className="text-gray-600 font-medium">Tutorial video coming soon!</p>
+                          <p className="text-sm text-gray-500 mt-2">
+                            We're preparing a comprehensive video guide to help you master LinkzUp.
+                          </p>
+                        </div>
+                      </div>
+                      <Badge className="mb-4 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200">
+                        Coming Soon
+                      </Badge>
+                    </CardContent>
+                  </Card>
+                </motion.div>
 
-          {/* Contact Tab */}
-          <TabsContent value="contact">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-primary" />
-                    24/7 Support Available
-                  </CardTitle>
-                  <CardDescription>We're here to help you succeed with LinkzUp</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer">
-                      <CardContent className="p-4 text-center" onClick={handleEmailSupport}>
-                        <Mail className="w-8 h-8 text-primary mx-auto mb-3" />
-                        <h4 className="font-semibold mb-2">Email Support</h4>
-                        <p className="text-sm text-muted-foreground mb-3">Get detailed help via email</p>
-                        <p className="text-sm font-medium">techzuperstudio@gmail.com</p>
-                        <Button variant="outline" className="w-full mt-3 bg-transparent">
-                          Send Email
-                        </Button>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8 }}
+                >
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-3 text-lg">
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
+                          <Rocket className="w-4 h-4 text-green-600" />
+                        </div>
+                        Quick Start Guide
+                      </CardTitle>
+                      <CardDescription>Follow these steps to create your first LinkedIn post</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        {quickStartSteps.map((step, index) => (
+                          <motion.div
+                            key={step.step}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: 1.0 + index * 0.1 }}
+                            className="flex gap-4"
+                          >
+                            <div className={`flex-shrink-0 w-10 h-10 bg-gradient-to-r ${step.color} text-white rounded-full flex items-center justify-center text-sm font-semibold shadow-lg`}>
+                              {step.step}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <step.icon className="w-4 h-4 text-gray-600" />
+                                <h4 className="font-semibold text-gray-900">{step.title}</h4>
+                              </div>
+                              <p className="text-sm text-gray-600 leading-relaxed">
+                                {step.description}
+                              </p>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+            </TabsContent>
+
+            {/* Enhanced Features Tab */}
+            <TabsContent value="features">
+              <motion.div 
+                className="grid gap-6 md:grid-cols-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                {features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <Card className="h-full bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-3">
+                          <div className={`w-10 h-10 bg-gradient-to-r ${feature.bgColor} rounded-lg flex items-center justify-center`}>
+                            <feature.icon className={`w-5 h-5 bg-gradient-to-r ${feature.color} bg-clip-text text-transparent`} />
+                          </div>
+                          {feature.title}
+                        </CardTitle>
+                        <CardDescription>{feature.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <Button 
+                            variant="outline" 
+                            asChild 
+                            className="w-full bg-transparent border-gray-200 hover:bg-gray-50"
+                          >
+                            <a href={feature.link} className="flex items-center gap-2">
+                              Learn More
+                              <ArrowRight className="w-4 h-4" />
+                            </a>
+                          </Button>
+                        </motion.div>
                       </CardContent>
                     </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </TabsContent>
 
-                    <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer">
-                      <CardContent className="p-4 text-center" onClick={handlePhoneSupport}>
-                        <Phone className="w-8 h-8 text-primary mx-auto mb-3" />
-                        <h4 className="font-semibold mb-2">Phone Support</h4>
-                        <p className="text-sm text-muted-foreground mb-3">Speak directly with our team</p>
-                        <p className="text-sm font-medium">+91 7697624256</p>
-                        <Button variant="outline" className="w-full mt-3 bg-transparent">
-                          Call Now
-                        </Button>
+            {/* Enhanced FAQ Tab */}
+            <TabsContent value="faq">
+              <motion.div 
+                className="space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+              >
+                {faqData.map((faq, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
+                    whileHover={{ y: -2 }}
+                  >
+                    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-3 text-lg">
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                            <HelpCircle className="w-4 h-4 text-blue-600" />
+                          </div>
+                          {faq.question}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
                       </CardContent>
                     </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </TabsContent>
 
-                    <Card className="border-2 hover:border-primary/50 transition-colors cursor-pointer">
-                      <CardContent className="p-4 text-center" onClick={handleWhatsAppSupport}>
-                        <MessageCircle className="w-8 h-8 text-primary mx-auto mb-3" />
-                        <h4 className="font-semibold mb-2">WhatsApp Chat</h4>
-                        <p className="text-sm text-muted-foreground mb-3">Quick chat support</p>
-                        <p className="text-sm font-medium">+91 7697624256</p>
-                        <Button className="w-full mt-3">
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Chat on WhatsApp
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Enhanced Contact Tab */}
+            <TabsContent value="contact">
+              <div className="space-y-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                >
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-3 text-lg">
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-green-600" />
+                        </div>
+                        24/7 Support Available
+                      </CardTitle>
+                      <CardDescription>We're here to help you succeed with LinkzUp</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-6 md:grid-cols-3">
+                        <motion.div
+                          whileHover={{ y: -5 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 backdrop-blur-sm">
+                            <CardContent className="p-6 text-center" onClick={handleEmailSupport}>
+                              <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Mail className="w-6 h-6 text-blue-600" />
+                              </div>
+                              <h4 className="font-semibold mb-2 text-gray-900">Email Support</h4>
+                              <p className="text-sm text-gray-600 mb-3">Get detailed help via email</p>
+                              <p className="text-sm font-medium text-blue-600 mb-4">techzuperstudio@gmail.com</p>
+                              <Button variant="outline" className="w-full bg-transparent border-gray-200 hover:bg-gray-50">
+                                Send Email
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Support Hours</CardTitle>
-                  <CardDescription>Our team is available to help you</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">Email Support:</span>
-                      <span className="text-muted-foreground">24/7 (Response within 24 hours)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Phone Support:</span>
-                      <span className="text-muted-foreground">24/7 Available</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">WhatsApp Chat:</span>
-                      <span className="text-muted-foreground">24/7 Instant Response</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+                        <motion.div
+                          whileHover={{ y: -5 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 backdrop-blur-sm">
+                            <CardContent className="p-6 text-center" onClick={handlePhoneSupport}>
+                              <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Phone className="w-6 h-6 text-green-600" />
+                              </div>
+                              <h4 className="font-semibold mb-2 text-gray-900">Phone Support</h4>
+                              <p className="text-sm text-gray-600 mb-3">Speak directly with our team</p>
+                              <p className="text-sm font-medium text-green-600 mb-4">+91 7697624256</p>
+                              <Button variant="outline" className="w-full bg-transparent border-gray-200 hover:bg-gray-50">
+                                Call Now
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+
+                        <motion.div
+                          whileHover={{ y: -5 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 backdrop-blur-sm">
+                            <CardContent className="p-6 text-center" onClick={handleWhatsAppSupport}>
+                              <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <MessageCircle className="w-6 h-6 text-green-600" />
+                              </div>
+                              <h4 className="font-semibold mb-2 text-gray-900">WhatsApp Chat</h4>
+                              <p className="text-sm text-gray-600 mb-3">Quick chat support</p>
+                              <p className="text-sm font-medium text-green-600 mb-4">+91 7697624256</p>
+                              <Button className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                                <MessageCircle className="w-4 h-4 mr-2" />
+                                Chat on WhatsApp
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8 }}
+                >
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-3 text-lg">
+                        <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-purple-600" />
+                        </div>
+                        Support Hours
+                      </CardTitle>
+                      <CardDescription>Our team is available to help you</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <span className="font-medium text-gray-900">Email Support:</span>
+                          <span className="text-blue-600 font-medium">24/7 (Response within 24 hours)</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
+                          <span className="font-medium text-gray-900">Phone Support:</span>
+                          <span className="text-green-600 font-medium">24/7 Available</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                          <span className="font-medium text-gray-900">WhatsApp Chat:</span>
+                          <span className="text-purple-600 font-medium">24/7 Instant Response</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
       </div>
     </div>
   )

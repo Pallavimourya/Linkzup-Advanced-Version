@@ -70,26 +70,29 @@ export function MobileDashboardNav() {
 
         <SheetContent
           side="left"
-          className="w-72 sm:w-80 p-0 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-r border-slate-200 dark:border-slate-700"
+          className="w-80 sm:w-96 p-0 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-r border-slate-200 dark:border-slate-700"
         >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+          </SheetHeader>
         
           {/* Credit Display */}
           {/* <Link href="/dashboard" onClick={closeSheet}>
               <Logo size="lg" className="justify-center" />
             </Link> */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+          <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700">
             <CreditDisplay compact={true} />
           </div>
 
           {/* Menu */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-7">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="space-y-6 sm:space-y-8">
               {menuSections.map((section) => (
                 <div key={section.title} className="space-y-2">
-                  <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">
+                  <div className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2 sm:px-3">
                     {section.title}
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 sm:space-y-2">
                     {section.items.map((item) => {
                       const active = pathname === item.url
                       return (
@@ -97,7 +100,7 @@ export function MobileDashboardNav() {
                           key={item.title}
                           href={item.url}
                           onClick={closeSheet}
-                          className={`group flex items-center gap-4 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative ${
+                          className={`group flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-200 relative ${
                             active
                               ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 shadow-sm"
                               : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-blue-600"
@@ -108,13 +111,13 @@ export function MobileDashboardNav() {
                             <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-md"></span>
                           )}
                           <item.icon
-                            className={`h-5 w-5 flex-shrink-0 ${
+                            className={`h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ${
                               active
                                 ? "text-blue-600 dark:text-blue-400"
                                 : "text-slate-500 dark:text-slate-400 group-hover:text-blue-500"
                             }`}
                           />
-                          <span className="truncate">{item.title}</span>
+                          <span className="truncate text-sm sm:text-base">{item.title}</span>
                         </Link>
                       )
                     })}

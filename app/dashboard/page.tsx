@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -116,7 +117,7 @@ export default function DashboardPage() {
   
   // Image Management State
   const [isLoading, setIsLoading] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [imageSearchQuery, setImageSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [selectedSource, setSelectedSource] = useState("unsplash")
   const [aiPrompt, setAiPrompt] = useState("")
@@ -141,112 +142,145 @@ export default function DashboardPage() {
     maxTokens: 1000,
   })
 
-  // Recommended topics data - 50 topics
+  // Recommended topics data with categories - 50 topics
   const recommendedTopics = [
-    "Remote work productivity tips",
-    "Industry trends and insights",
-    "Personal career journey",
-    "Team collaboration strategies",
-    "Leadership lessons learned",
-    "Digital transformation insights",
-    "Customer success stories",
-    "Innovation in business",
-    "Work-life balance tips",
-    "Professional networking advice",
-    "Startup challenges and solutions",
-    "Technology adoption strategies",
-    "Employee engagement ideas",
-    "Market analysis and predictions",
-    "Sustainability in business",
-    "Diversity and inclusion initiatives",
-    "Mental health in the workplace",
-    "Future of work trends",
-    "Client relationship building",
-    "Productivity hacks and tools",
-    "AI and automation impact",
-    "Building company culture",
-    "Sales and marketing strategies",
-    "Financial planning for professionals",
-    "Mentorship and career growth",
-    "Digital marketing trends",
-    "Entrepreneurship journey",
-    "Data-driven decision making",
-    "Customer experience optimization",
-    "Brand building strategies",
-    "Project management best practices",
-    "Cybersecurity awareness",
-    "E-commerce growth tactics",
-    "Social media marketing",
-    "Content creation strategies",
-    "Business development tips",
-    "Investment and wealth building",
-    "Supply chain optimization",
-    "Human resources insights",
-    "Quality assurance processes",
-    "Risk management strategies",
-    "International business expansion",
-    "Product development lifecycle",
-    "Customer retention techniques",
-    "Performance metrics and KPIs",
-    "Change management strategies",
-    "Vendor relationship management",
-    "Compliance and regulations",
-    "Innovation and R&D",
-    "Strategic planning methods",
-    "Crisis management approaches",
-    "Partnership and collaboration",
-    "Market research techniques",
-    "Competitive analysis strategies",
-    "Business process improvement",
-    "Digital security best practices",
-    "Remote team management",
-    "Customer feedback systems",
-    "Business automation tools",
-    "Professional development planning"
+    { topic: "Remote work productivity tips", category: "productivity" },
+    { topic: "Industry trends and insights", category: "trends" },
+    { topic: "Personal career journey", category: "career" },
+    { topic: "Team collaboration strategies", category: "leadership" },
+    { topic: "Leadership lessons learned", category: "leadership" },
+    { topic: "Digital transformation insights", category: "technology" },
+    { topic: "Customer success stories", category: "business" },
+    { topic: "Innovation in business", category: "innovation" },
+    { topic: "Work-life balance tips", category: "lifestyle" },
+    { topic: "Professional networking advice", category: "career" },
+    { topic: "Startup challenges and solutions", category: "entrepreneurship" },
+    { topic: "Technology adoption strategies", category: "technology" },
+    { topic: "Employee engagement ideas", category: "leadership" },
+    { topic: "Market analysis and predictions", category: "business" },
+    { topic: "Sustainability in business", category: "sustainability" },
+    { topic: "Diversity and inclusion initiatives", category: "culture" },
+    { topic: "Mental health in the workplace", category: "wellness" },
+    { topic: "Future of work trends", category: "trends" },
+    { topic: "Client relationship building", category: "business" },
+    { topic: "Productivity hacks and tools", category: "productivity" },
+    { topic: "AI and automation impact", category: "technology" },
+    { topic: "Building company culture", category: "culture" },
+    { topic: "Sales and marketing strategies", category: "marketing" },
+    { topic: "Financial planning for professionals", category: "finance" },
+    { topic: "Mentorship and career growth", category: "career" },
+    { topic: "Digital marketing trends", category: "marketing" },
+    { topic: "Entrepreneurship journey", category: "entrepreneurship" },
+    { topic: "Data-driven decision making", category: "analytics" },
+    { topic: "Customer experience optimization", category: "business" },
+    { topic: "Brand building strategies", category: "marketing" },
+    { topic: "Project management best practices", category: "productivity" },
+    { topic: "Cybersecurity awareness", category: "technology" },
+    { topic: "E-commerce growth tactics", category: "business" },
+    { topic: "Social media marketing", category: "marketing" },
+    { topic: "Content creation strategies", category: "marketing" },
+    { topic: "Business development tips", category: "business" },
+    { topic: "Investment and wealth building", category: "finance" },
+    { topic: "Supply chain optimization", category: "business" },
+    { topic: "Human resources insights", category: "leadership" },
+    { topic: "Quality assurance processes", category: "productivity" },
+    { topic: "Risk management strategies", category: "business" },
+    { topic: "International business expansion", category: "business" },
+    { topic: "Product development lifecycle", category: "innovation" },
+    { topic: "Customer retention techniques", category: "business" },
+    { topic: "Performance metrics and KPIs", category: "analytics" },
+    { topic: "Change management strategies", category: "leadership" },
+    { topic: "Vendor relationship management", category: "business" },
+    { topic: "Compliance and regulations", category: "business" },
+    { topic: "Innovation and R&D", category: "innovation" },
+    { topic: "Strategic planning methods", category: "business" },
+    { topic: "Crisis management approaches", category: "leadership" },
+    { topic: "Partnership and collaboration", category: "business" },
+    { topic: "Market research techniques", category: "analytics" },
+    { topic: "Competitive analysis strategies", category: "business" },
+    { topic: "Business process improvement", category: "productivity" },
+    { topic: "Digital security best practices", category: "technology" },
+    { topic: "Remote team management", category: "leadership" },
+    { topic: "Customer feedback systems", category: "business" },
+    { topic: "Business automation tools", category: "technology" },
+    { topic: "Professional development planning", category: "career" }
   ]
 
-  // Get 12 random topics
-  const getRandomTopics = () => {
-    const shuffled = [...recommendedTopics].sort(() => 0.5 - Math.random())
+  // Topic categories
+  const topicCategories = [
+    { id: "all", name: "All Topics", icon: "🌟", count: recommendedTopics.length },
+    { id: "business", name: "Business", icon: "💼", count: recommendedTopics.filter(t => t.category === "business").length },
+    { id: "technology", name: "Technology", icon: "🚀", count: recommendedTopics.filter(t => t.category === "technology").length },
+    { id: "leadership", name: "Leadership", icon: "👥", count: recommendedTopics.filter(t => t.category === "leadership").length },
+    { id: "marketing", name: "Marketing", icon: "📈", count: recommendedTopics.filter(t => t.category === "marketing").length },
+    { id: "career", name: "Career", icon: "🎯", count: recommendedTopics.filter(t => t.category === "career").length },
+    { id: "productivity", name: "Productivity", icon: "⚡", count: recommendedTopics.filter(t => t.category === "productivity").length },
+    { id: "innovation", name: "Innovation", icon: "💡", count: recommendedTopics.filter(t => t.category === "innovation").length },
+    { id: "trends", name: "Trends", icon: "📊", count: recommendedTopics.filter(t => t.category === "trends").length }
+  ]
+
+  // State declarations first
+  const [clickedTopic, setClickedTopic] = useState<string | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [searchQuery, setSearchQuery] = useState("")
+
+  // Get filtered and random topics
+  const getFilteredTopics = () => {
+    let filtered = recommendedTopics
+
+    // Filter by category
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(t => t.category === selectedCategory)
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(t => 
+        t.topic.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+
+    // Shuffle and return up to 12 topics
+    const shuffled = [...filtered].sort(() => 0.5 - Math.random())
     return shuffled.slice(0, 12)
   }
 
-  // Function to get appropriate icon for each topic
-  const getTopicIcon = (topic: string) => {
-    const topicLower = topic.toLowerCase()
-    
-    if (topicLower.includes('remote') || topicLower.includes('work') || topicLower.includes('productivity')) {
+  // Function to get appropriate icon for each topic category
+  const getTopicIcon = (category: string) => {
+    switch (category) {
+      case 'productivity':
       return <MousePointer className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('leadership') || topicLower.includes('team') || topicLower.includes('management')) {
+      case 'leadership':
       return <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('marketing') || topicLower.includes('sales') || topicLower.includes('brand')) {
+      case 'marketing':
       return <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('ai') || topicLower.includes('technology') || topicLower.includes('digital')) {
+      case 'technology':
       return <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('career') || topicLower.includes('personal') || topicLower.includes('journey')) {
+      case 'career':
       return <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('business') || topicLower.includes('strategy') || topicLower.includes('growth')) {
+      case 'business':
       return <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('innovation') || topicLower.includes('startup') || topicLower.includes('entrepreneur')) {
+      case 'innovation':
       return <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('data') || topicLower.includes('analytics') || topicLower.includes('metrics')) {
+      case 'analytics':
       return <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('customer') || topicLower.includes('client') || topicLower.includes('experience')) {
-      return <Smile className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else if (topicLower.includes('finance') || topicLower.includes('investment') || topicLower.includes('wealth')) {
+      case 'trends':
       return <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-    } else {
+      default:
       return <Hash className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
     }
   }
 
-  const [randomTopics, setRandomTopics] = useState(getRandomTopics())
-  const [clickedTopic, setClickedTopic] = useState<string | null>(null)
+  const [randomTopics, setRandomTopics] = useState(() => {
+    // Initialize with all topics shuffled
+    const shuffled = [...recommendedTopics].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, 12)
+  })
 
-  // Shuffle topics on every page visit
+  // Update topics when filters change
   useEffect(() => {
-    setRandomTopics(getRandomTopics())
-  }, [])
+    setRandomTopics(getFilteredTopics())
+  }, [selectedCategory, searchQuery])
 
   // Handle recommended topic click
   const handleTopicClick = async (topic: string) => {
@@ -391,17 +425,21 @@ export default function DashboardPage() {
     setShowPreviewModal(true)
   }
 
-  const handleSaveDraft = async () => {
-    if (!selectedPost) return
+  const handleSaveDraft = async (content?: string, title?: string, format?: string) => {
+    const contentToSave = content || selectedPost?.content
+    const titleToSave = title || `AI Generated ${contentType}`
+    const formatToSave = format || contentType
+
+    if (!contentToSave) return
 
     try {
       const response = await fetch("/api/drafts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: `AI Generated ${contentType}`,
-          content: selectedPost.content,
-          format: contentType,
+          title: titleToSave,
+          content: contentToSave,
+          format: formatToSave,
           niche: "AI Generated"
         })
       })
@@ -478,7 +516,7 @@ export default function DashboardPage() {
   }
 
   const searchImages = async () => {
-    if (!searchQuery.trim()) return
+    if (!imageSearchQuery.trim()) return
 
     setIsLoading(true)
     try {
@@ -488,7 +526,7 @@ export default function DashboardPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: searchQuery,
+          query: imageSearchQuery,
           source: selectedSource,
         }),
       })
@@ -499,13 +537,13 @@ export default function DashboardPage() {
           setSearchResults(data.images)
           toast({
             title: "Search Complete",
-            description: `Found ${data.images.length} images for "${searchQuery}" from ${data.source}`,
+            description: `Found ${data.images.length} images for "${imageSearchQuery}" from ${data.source}`,
           })
         } else {
           setSearchResults([])
           toast({
             title: "No Images Found",
-            description: `No images found for "${searchQuery}". Try a different search term.`,
+            description: `No images found for "${imageSearchQuery}". Try a different search term.`,
             variant: "destructive"
           })
         }
@@ -613,9 +651,14 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl"></div>
+      </div>
       {/* Header */}
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-2 sm:px-4">
+      <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-3 sm:px-4 lg:px-6">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <SidebarTrigger className="-ml-1 flex-shrink-0" />
         </div>
@@ -623,44 +666,48 @@ export default function DashboardPage() {
 
 
       {/* Content Generator */}
-      <div className={`px-2 sm:px-4 space-y-4 sm:space-y-6 pb-6 transition-all duration-300 ${
+      <div className={`px-3 sm:px-4 lg:px-6 space-y-4 sm:space-y-6 lg:space-y-8 pb-4 sm:pb-6 lg:pb-8 transition-all duration-300 relative z-10 ${
         showCustomizationPanel ? 'blur-sm' : ''
       }`}>
         {/* Show form only when not generating and no content generated */}
         {!isGenerating && generatedPosts.length === 0 && (
-          <div className="space-y-4 sm:space-y-6">
-            <Card>
-              <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl">
-                  <Wand2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
-                  Create your next post
+          <div className="max-w-5xl mx-auto">
+            <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-sm">
+              <CardHeader className="pb-6 sm:pb-8 lg:pb-12 text-center px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary to-purple-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mb-4 sm:mb-6">
+                  <Wand2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                </div>
+                <CardTitle className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">
+                  Start Creating
                 </CardTitle>
-                <CardDescription className="text-sm sm:text-base">
+                <CardDescription className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl sm:max-w-3xl mx-auto">
                   Describe what you want to post about, and our AI will generate engaging content for you.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4 sm:space-y-6">
+              <CardContent className="space-y-6 sm:space-y-8 lg:space-y-10 px-4 sm:px-6 lg:px-8 xl:px-12 pb-8 sm:pb-10 lg:pb-12">
                 {/* Main Prompt */}
-                <div className="space-y-2">
-                  <Label htmlFor="prompt" className="text-sm sm:text-base">What would you like to post about?</Label>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Mic className="h-3 w-3" />
+                <div className="space-y-3">
+                  <Label htmlFor="prompt" className="text-base sm:text-lg font-semibold text-gray-900">
+                    What would you like to post about?
+                  </Label>
+                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                    <Mic className="h-4 w-4" />
                     Tip: Click the microphone icon to record your prompt instead of typing
                   </p>
-                  <div className="relative">
+                  <div className="relative group">
                     <Textarea
                       id="prompt"
                       placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      className="min-h-[70px] sm:min-h-[80px] md:min-h-[100px] text-sm sm:text-base resize-none pr-10 sm:pr-12 border-2 border-black"
+                      className="min-h-[120px] sm:min-h-[140px] text-lg resize-none pr-14 border-2 border-gray-200 focus:border-primary transition-all duration-200 rounded-xl bg-gray-50/50 focus:bg-white"
                     />
-                    <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3">
+                    <div className="absolute bottom-4 right-4">
                       <MicrophoneButton
                         onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
                         size="sm"
                         variant="ghost"
-                        className="h-8 w-8 p-0 hover:bg-muted"
+                        className="h-10 w-10 p-0 hover:bg-primary/10 rounded-lg transition-colors"
                       />
                     </div>
                   </div>
@@ -670,11 +717,11 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => setShowCustomizationPanel(true)}
                   disabled={!prompt.trim() || isGenerating}
-                  className="w-full relative overflow-hidden h-10 sm:h-11 md:h-12 text-sm sm:text-base"
+                  className="w-full h-14 sm:h-16 text-lg sm:text-xl font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white border-0 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
                   size="lg"
                 >
-                  <Sparkles className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="text-sm sm:text-base">Generate Content</span>
+                  <Sparkles className="w-6 h-6 mr-3" />
+                  Generate Content
                 </Button>
               </CardContent>
             </Card>
@@ -683,28 +730,37 @@ export default function DashboardPage() {
 
         {/* Feature Cards */}
         {!isGenerating && generatedPosts.length === 0 && (
-          <div className="space-y-6 sm:space-y-8">
+          <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 mt-32 sm:mt-40">
             {/* Section Title */}
-            <h2 className="text-[28px] sm:text-[34px] md:text-[46px] font-bold text-gray-900 ml-[10px] sm:ml-[25px] flex items-center gap-3">
-              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
-              Create with AI
-            </h2>
+            <div className="text-center">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-4">
+                Explore AI Tools
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+                Choose from our powerful AI-powered content creation tools
+              </p>
+            </div>
             
             {/* Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {/* Carousel Card */}
               <Card 
-                className="cursor-pointer transition-all duration-200 hover:scale-105 bg-white border border-gray-200 shadow-sm hover:shadow-md"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/ai-carousel')}
               >
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-5">
-                    <div className="p-2 sm:p-3 md:p-4 bg-purple-100 rounded-lg flex-shrink-0">
-                      <Layers className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" />
+                <CardContent className="p-6 sm:p-8 relative">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <Layers className="w-8 h-8 text-white" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Carousels</h3>
-                      <p className="text-sm sm:text-base text-gray-600 mt-1">Swipe-worthy carousels in seconds</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">AI Carousels</h3>
+                    <p className="text-gray-600 leading-relaxed">Create stunning swipe-worthy carousels with AI-generated content and visuals</p>
+                    <div className="mt-6 flex items-center text-primary font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                      <span>Get Started</span>
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                   </div>
                 </CardContent>
@@ -712,17 +768,22 @@ export default function DashboardPage() {
 
               {/* AI Topics Card */}
               <Card 
-                className="cursor-pointer transition-all duration-200 hover:scale-105 bg-white border border-gray-200 shadow-sm hover:shadow-md"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/ai-articles')}
               >
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-5">
-                    <div className="p-2 sm:p-3 md:p-4 bg-purple-100 rounded-lg flex-shrink-0">
-                      <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" />
+                <CardContent className="p-6 sm:p-8 relative">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <BookOpen className="w-8 h-8 text-white" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Post Ideas</h3>
-                      <p className="text-sm sm:text-base text-gray-600 mt-1">Craft magnetic personal headlines</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Post Ideas</h3>
+                    <p className="text-gray-600 leading-relaxed">Generate compelling post ideas and headlines that capture attention</p>
+                    <div className="mt-6 flex items-center text-primary font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                      <span>Get Started</span>
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                   </div>
                 </CardContent>
@@ -730,17 +791,22 @@ export default function DashboardPage() {
 
               {/* Personal Story Card */}
               <Card 
-                className="cursor-pointer transition-all duration-200 hover:scale-105 bg-white border border-gray-200 shadow-sm hover:shadow-md"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/personal-story')}
               >
-                <CardContent className="p-4 sm:p-6 md:p-8">
-                  <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-5">
-                    <div className="p-2 sm:p-3 md:p-4 bg-purple-100 rounded-lg flex-shrink-0">
-                      <User className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-purple-600" />
+                <CardContent className="p-6 sm:p-8 relative">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <User className="w-8 h-8 text-white" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Personal Story</h3>
-                      <p className="text-sm sm:text-base text-gray-600 mt-1">Share your personal journey</p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Personal Stories</h3>
+                    <p className="text-gray-600 leading-relaxed">Share your personal journey and experiences in an engaging way</p>
+                    <div className="mt-6 flex items-center text-primary font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                      <span>Get Started</span>
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                   </div>
                 </CardContent>
@@ -749,131 +815,333 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Recommended Topics Section */}
+        {/* Enhanced Topic Generator Section */}
         {!isGenerating && generatedPosts.length === 0 && (
-          <div className="space-y-6 sm:space-y-8">
-            {/* Section Title */}
-            <div className="flex items-center justify-between ml-[10px] sm:ml-[25px]">
-              <h2 className="text-[28px] sm:text-[34px] md:text-[46px] font-bold text-gray-900 flex items-center gap-3">
-                <Hash className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary" />
-                Recommended Topics for Your Next Post
+          <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
+            {/* Enhanced Section Header */}
+            <div className="text-center space-y-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-purple-500/20 to-blue-500/20 blur-3xl rounded-full"></div>
+                <div className="relative">
+                  <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-primary to-purple-600 bg-clip-text text-transparent mb-4">
+                    AI Topic Generator
               </h2>
+                  <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Discover trending topics and get instant inspiration for your next viral post
+              </p>
+                </div>
+              </div>
+              
+              {/* Enhanced Controls */}
+              <div className="space-y-6 pt-4">
+                {/* Search and Filter Controls */}
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-4 max-w-4xl mx-auto">
+                  {/* Search Input */}
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Input
+                      placeholder="Search topics..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4 py-3 bg-white/90 backdrop-blur-sm border-2 border-gray-200 focus:border-primary rounded-xl shadow-lg focus:shadow-xl transition-all duration-300"
+                    />
+                  </div>
+                  
+                  {/* Category Filter */}
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {topicCategories.map((category) => (
+                      <Button
+                        key={category.id}
+                        variant={selectedCategory === category.id ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+                          selectedCategory === category.id
+                            ? "bg-primary text-white shadow-lg"
+                            : "bg-white/90 backdrop-blur-sm border-2 border-gray-200 hover:border-primary/40 hover:bg-primary/5"
+                        }`}
+                      >
+                        <span className="text-lg">{category.icon}</span>
+                        <span className="font-medium">{category.name}</span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          selectedCategory === category.id
+                            ? "bg-white/20 text-white"
+                            : "bg-gray-100 text-gray-600"
+                        }`}>
+                          {category.count}
+                        </span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 variant="outline"
-                size="sm"
+                size="lg"
                 onClick={() => {
-                  setRandomTopics(getRandomTopics())
+                      setRandomTopics(getFilteredTopics())
                   toast({
-                    title: "Topics Refreshed!",
-                    description: "New topic suggestions have been loaded.",
+                        title: "✨ Topics Refreshed!",
+                        description: "Fresh topic suggestions have been loaded for you.",
                   })
                 }}
-                className="mr-[10px] sm:mr-[25px]"
+                    className="bg-white/90 backdrop-blur-sm border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3"
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Refresh
+                    <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
+                    <span className="font-semibold">Refresh Topics</span>
               </Button>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span>Live trending data</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
-            {/* Topics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-              {randomTopics.map((topic, index) => (
-                <Card 
+            {/* Enhanced Topics Grid */}
+            <div className="relative">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 rounded-3xl"></div>
+              
+              <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 p-6 sm:p-8">
+                {randomTopics.length > 0 ? (
+                  randomTopics.map((topicData, index) => (
+                    <motion.div
                   key={index}
-                  className={`cursor-pointer transition-all duration-200 hover:scale-105 bg-white border shadow-sm hover:shadow-md hover:border-primary/30 ${
-                    clickedTopic === topic 
-                      ? 'border-primary bg-primary/5 scale-105' 
-                      : 'border-gray-200'
-                  }`}
-                  onClick={() => handleTopicClick(topic)}
-                >
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className={`p-3 rounded-xl flex-shrink-0 ${
-                        clickedTopic === topic 
-                          ? 'bg-primary/20' 
-                          : 'bg-primary/10'
-                      }`}>
-                        {clickedTopic === topic ? (
-                          <Loader2 className="w-6 h-6 text-primary animate-spin" />
-                        ) : (
-                          getTopicIcon(topic)
+                      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        duration: 0.5, 
+                        delay: index * 0.1,
+                        ease: "easeOut"
+                      }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        y: -5,
+                        transition: { duration: 0.2 }
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Card 
+                        className={`group cursor-pointer transition-all duration-500 bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl overflow-hidden relative ${
+                          clickedTopic === topicData.topic 
+                            ? 'ring-2 ring-primary/60 bg-gradient-to-br from-primary/10 to-purple-500/10 scale-105 shadow-2xl' 
+                            : 'hover:ring-2 hover:ring-primary/30 hover:bg-gradient-to-br hover:from-white/90 hover:to-primary/5'
+                        }`}
+                        onClick={() => handleTopicClick(topicData.topic)}
+                      >
+                        {/* Animated Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        {/* Floating Elements */}
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-500"></div>
+                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 rounded-full translate-y-8 -translate-x-8 group-hover:scale-110 transition-transform duration-500"></div>
+                        
+                        <CardContent className="p-6 sm:p-8 relative z-10">
+                          <div className="space-y-4">
+                            {/* Icon Container */}
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 ${
+                              clickedTopic === topicData.topic 
+                                ? 'bg-gradient-to-br from-primary to-purple-600 scale-110 shadow-lg' 
+                                : 'bg-gradient-to-br from-primary/10 to-purple-500/10 group-hover:from-primary/20 group-hover:to-purple-500/20 group-hover:scale-110 group-hover:shadow-lg'
+                            }`}>
+                              {clickedTopic === topicData.topic ? (
+                                <Loader2 className="w-8 h-8 text-white animate-spin" />
+                              ) : (
+                                <div className="text-primary group-hover:text-white transition-colors duration-300">
+                                  {getTopicIcon(topicData.category)}
+                                </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm sm:text-base font-medium leading-tight ${
-                          clickedTopic === topic 
-                            ? 'text-primary' 
-                            : 'text-gray-900'
-                        }`}>
-                          {topic}
-                        </p>
+                            
+                            {/* Topic Title */}
+                            <h3 className={`text-base sm:text-lg font-bold leading-tight transition-colors duration-300 ${
+                              clickedTopic === topicData.topic 
+                          ? 'text-primary' 
+                          : 'text-gray-900 group-hover:text-primary'
+                      }`}>
+                              {topicData.topic}
+                      </h3>
+                            
+                            {/* Category Badge */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full font-medium">
+                                {topicCategories.find(c => c.id === topicData.category)?.name || topicData.category}
+                              </span>
+                            </div>
+                            
+                            {/* Action Indicator */}
+                            <div className="flex items-center justify-between">
+                              <div className={`flex items-center text-sm transition-colors duration-300 ${
+                                clickedTopic === topicData.topic 
+                                  ? 'text-primary' 
+                                  : 'text-gray-500 group-hover:text-primary'
+                              }`}>
+                                <span className="font-medium">Click to generate</span>
+                                <motion.svg 
+                                  className="w-4 h-4 ml-2" 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  viewBox="0 0 24 24"
+                                  animate={{ x: clickedTopic === topicData.topic ? 5 : 0 }}
+                                  transition={{ duration: 0.3 }}
+                                >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </motion.svg>
+                              </div>
+                              
+                              {/* Trending Badge */}
+                              <div className="flex items-center gap-1 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                                <span className="font-medium">Trending</span>
+                              </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                      <Search className="w-10 h-10 text-gray-400" />
+            </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No topics found</h3>
+                    <p className="text-gray-500 mb-6 max-w-md">
+                      {searchQuery.trim() 
+                        ? `No topics match "${searchQuery}". Try adjusting your search or category filter.`
+                        : "No topics available in this category. Try selecting a different category."
+                      }
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSearchQuery("")
+                        setSelectedCategory("all")
+                      }}
+                      className="gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Clear Filters
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Enhanced Footer */}
+            <div className="text-center space-y-4 pt-8">
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>{recommendedTopics.length}+ Topics Available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span>9 Categories</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Smart Search & Filter</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>AI-Powered Generation</span>
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-400 max-w-3xl mx-auto">
+                Each topic is carefully curated and categorized for maximum engagement. 
+                Use the search and category filters to find exactly what you need, then click any topic to instantly generate personalized content with our advanced AI.
+              </p>
             </div>
           </div>
         )}
 
         {/* Show loading state when generating */}
         {isGenerating && (
-          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+          <div className="flex flex-col items-center justify-center py-16 sm:py-20 space-y-8">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+              <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+                <Sparkles className="w-8 h-8 text-primary animate-pulse" />
               </div>
             </div>
-            <div className="text-center space-y-2">
-              <h3 className="text-lg font-semibold text-foreground">Generating Your Content</h3>
-              <p className="text-sm text-muted-foreground">Our AI is crafting engaging LinkedIn posts for you...</p>
+            <div className="text-center space-y-4 max-w-md mx-auto">
+              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Creating Magic
+              </h3>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Our AI is crafting engaging content tailored just for you...
+              </p>
+              <div className="flex justify-center space-x-1">
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Generated Posts - Centered when content is generated */}
         {generatedPosts.length > 0 && (
-          <div className="flex flex-col items-center space-y-6">
-            <div className="w-full max-w-4xl bg-white">
-              <div className="pb-4 sm:pb-6 text-center">
-                <h2 className="flex items-center justify-center gap-2 text-lg sm:text-xl font-semibold text-foreground mb-2">
-                  <Target className="w-5 h-5 text-primary flex-shrink-0" />
-                  Generated Content ({generatedPosts.length})
-                </h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  Select content to preview and customize before publishing to LinkedIn.
-                </p>
+          <div className="max-w-6xl mx-auto space-y-8">
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl mb-4">
+                <Target className="w-8 h-8 text-white" />
               </div>
-              <div className="p-0">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {generatedPosts.map((post, index) => (
-                    <LinkedInPostPreview
-                      key={post.id}
-                      content={post.content}
-                      tone={post.tone}
-                      wordCount={post.wordCount}
-                      onClick={() => handleSelectPost(post)}
-                      className="hover:shadow-lg transition-all duration-200"
-                    />
-                  ))}
-                </div>
-              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Your Content is Ready!
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+                We've generated {generatedPosts.length} unique {generatedPosts.length === 1 ? 'post' : 'posts'} for you. 
+                Click on any post to preview and customize before publishing.
+              </p>
             </div>
             
-            {/* Generate More Button */}
-            <Button
-              onClick={() => {
-                setGeneratedPosts([])
-                setShowAdvanced(false)
-              }}
-              variant="outline"
-              className="px-8"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate More Content
-            </Button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              {generatedPosts.map((post, index) => (
+                <div key={post.id} className="group">
+                  <LinkedInPostPreview
+                    content={post.content}
+                    tone={post.tone}
+                    wordCount={post.wordCount}
+                    onClick={() => handleSelectPost(post)}
+                    className="hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+              <Button
+                onClick={() => {
+                  setGeneratedPosts([])
+                  setShowAdvanced(false)
+                }}
+                variant="outline"
+                size="lg"
+                className="bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-gray-50 shadow-lg hover:shadow-xl transition-all duration-200 px-8"
+              >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Generate More Content
+              </Button>
+              <Button
+                onClick={() => {
+                  setGeneratedPosts([])
+                  setShowAdvanced(false)
+                }}
+                variant="ghost"
+                size="lg"
+                className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                Start Over
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -1095,7 +1363,7 @@ export default function DashboardPage() {
         <EnhancedLinkedInPreview
           content={selectedPost.content}
           onSaveToDraft={(content, title, format) => handleSaveDraft(content, title, format)}
-          onClose={handleClosePreview}
+          onClose={() => handleClosePreview(false)}
           onContentUpdate={(newContent) => {
             setSelectedPost(prev => prev ? { ...prev, content: newContent } : null)
           }}
@@ -1181,3 +1449,4 @@ export default function DashboardPage() {
     </div>
   )
 }
+

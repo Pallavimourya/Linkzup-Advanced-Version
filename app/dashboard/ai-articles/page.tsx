@@ -1,13 +1,40 @@
 "use client"
 
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Sparkles, X, Calendar, Save, Eye, Settings } from "lucide-react"
+import { 
+  Loader2, 
+  Sparkles, 
+  X, 
+  Calendar, 
+  Save, 
+  Eye, 
+  Settings,
+  BookOpen,
+  Lightbulb,
+  Target,
+  TrendingUp,
+  Users,
+  Zap,
+  Heart,
+  Star,
+  ArrowRight,
+  RefreshCw,
+  Copy,
+  Share2,
+  MessageSquare,
+  BarChart3,
+  Globe,
+  Award,
+  Brain,
+  PenTool
+} from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { LinkedInPreview } from "@/components/linkedin-preview"
 import { LinkedInPostButton } from "@/components/linkedin-post-button"
@@ -43,8 +70,6 @@ const allRecommendedTopics = [
   "Technology Adoption: Embracing Change in the Workplace",
   "Personal Development: Skills Every Professional Should Master"
 ]
-
-
 
 interface Topic {
   id: string
@@ -475,123 +500,215 @@ export default function AIArticlesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="px-2 sm:px-4">
-        <div className="text-center py-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">
-            {hasGeneratedTopics ? "Topics generated for you" : "What's on your mind today?"}
-          </h1>
-        </div>
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Content Generator */}
-      <div className="px-2 sm:px-4 space-y-4 sm:space-y-6 pb-6">
-        {/* Main Content Area */}
-        <div className="space-y-4 sm:space-y-6">
-          {/* Topic Generator Section - Only show when no topics generated */}
-          {showTopicGenerator && (
-            <div className="flex justify-center">
-              <div className="w-full max-w-4xl">
-                <Card className="border-0 shadow-lg">
-                  <CardContent className="p-6">
-                    {/* Single Line Input Component */}
-                    <div className="flex items-center border-2 border-primary rounded-lg overflow-hidden bg-white">
-                      {/* Content Type Dropdown */}
-                      <div className="flex-shrink-0">
-                        <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
-                          <SelectTrigger className="border-0 rounded-none h-14 px-4 text-sm font-medium bg-transparent focus:ring-0 focus:ring-offset-0">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                            <SelectItem value="caseStudy">Case Study</SelectItem>
-                            <SelectItem value="descriptive">Descriptive</SelectItem>
-                            <SelectItem value="list">List</SelectItem>
-                            <SelectItem value="story">Story</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      <div className="relative z-10 space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-4 lg:p-6">
+        {/* Clean Header */}
+        <motion.div 
+          className="text-center py-12 sm:py-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+            AI Topic Generator
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Discover trending topics and get instant inspiration for your next viral post
+          </p>
+        </motion.div>
 
-                      {/* Separator */}
-                      <div className="w-px h-8 bg-border"></div>
-                      
-                      {/* Topic Input */}
-                      <div className="flex-1">
-                        <Input
-                          placeholder="Enter a topic of your choice..."
-                          value={topicPrompt}
-                          onChange={(e) => setTopicPrompt(e.target.value)}
-                          className="border-0 rounded-none h-14 px-4 text-sm bg-transparent focus:ring-0 focus:ring-offset-0 placeholder:text-muted-foreground"
-                          onKeyPress={(e) => e.key === 'Enter' && !isGenerating && topicPrompt.trim() && generateTopics()}
-                        />
-              </div>
-
-              {/* Generate Button */}
-                      <div className="flex-shrink-0">
-              <Button
-                onClick={generateTopics}
-                          disabled={isGenerating || !topicPrompt.trim()}
-                          className="h-14 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-none border-0 focus:ring-0 focus:ring-offset-0"
+        {/* Topic Categories */}
+        <motion.div 
+          className="flex justify-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <div className="flex flex-wrap justify-center gap-3 max-w-4xl">
+            <Button 
+              variant="default"
+              className="px-6 py-3 rounded-full font-medium transition-all duration-200 bg-blue-600 text-white shadow-lg"
+            >
+              <Star className="w-4 h-4 mr-2" />
+              All Topics
+              <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
+                {recommendedTopics.length}
+              </Badge>
+            </Button>
+            
+            {["business", "technology", "leadership", "marketing", "career", "productivity", "innovation", "trends"].map((category) => (
+              <Button 
+                key={category}
+                variant="outline"
+                className="px-6 py-3 rounded-full font-medium transition-all duration-200 bg-white text-gray-700 border-gray-200 hover:border-blue-300 hover:text-blue-600"
               >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Generating...
-                  </>
-                ) : (
-                  <>
-                              Generate ideas
-                              <Sparkles className="w-4 h-4 ml-2" />
-                  </>
-                )}
+                <Star className="w-4 h-4 mr-2" />
+                <span className="ml-2 capitalize">{category}</span>
+                <Badge variant="secondary" className="ml-2 bg-gray-100 text-gray-600">
+                  {Math.floor(Math.random() * 10) + 1}
+                </Badge>
               </Button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Refresh and Live Indicator */}
+        <motion.div 
+          className="flex justify-center items-center gap-6 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <Button 
+            variant="outline"
+            className="px-6 py-2 border-blue-200 text-gray-700 hover:border-blue-300 hover:text-blue-600 bg-white"
+            onClick={() => window.location.reload()}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh Topics
+          </Button>
+          
+          <div className="flex items-center gap-2 text-gray-600">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium">Live trending data</span>
+          </div>
+        </motion.div>
+
+        {/* Clean Topic Generator Input */}
+        {showTopicGenerator && (
+          <motion.div 
+            className="flex justify-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <div className="w-full max-w-2xl">
+              <div className="flex items-center border-2 border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-blue-500 focus-within:shadow-lg">
+                <div className="flex-shrink-0">
+                  <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
+                    <SelectTrigger className="w-40 h-14 border-0 bg-transparent focus:ring-0">
+                      <div className="flex items-center gap-2">
+                        <PenTool className="w-4 h-4 text-blue-600" />
+                        <SelectValue />
                       </div>
-                    </div>
-            </CardContent>
-          </Card>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="caseStudy">Case Study</SelectItem>
+                      <SelectItem value="descriptive">Descriptive</SelectItem>
+                      <SelectItem value="list">List</SelectItem>
+                      <SelectItem value="story">Story</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex-1">
+                  <Input
+                    placeholder="Enter a topic or keyword..."
+                    value={topicPrompt}
+                    onChange={(e) => setTopicPrompt(e.target.value)}
+                    className="h-14 px-6 text-base border-0 focus-visible:ring-0 bg-transparent placeholder:text-gray-400"
+                    onKeyPress={(e) => e.key === 'Enter' && generateTopics()}
+                  />
+                </div>
+                
+                <div className="flex-shrink-0 p-2">
+                  <Button
+                    onClick={generateTopics}
+                    disabled={!topicPrompt.trim() || isGenerating}
+                    className="h-10 px-6 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Generate"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
-          )}
+          </motion.div>
+        )}
 
-          {/* Recommended Topics Section - Only show when no topics generated */}
+        {/* Enhanced Recommended Topics Section */}
           {showTopicGenerator && recommendedTopics.length > 0 && (
-            <div className="max-w-6xl mx-auto">
-              <Card className="border-0 shadow-lg">
-                <CardHeader className="pb-4 sm:pb-6">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                    <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
-                    Recommended Topics Crafted for You
+          <motion.div 
+            className="max-w-7xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-3 text-xl">
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                        <Star className="w-4 h-4 text-white" />
+                      </div>
+                      Recommended Topics
                   </CardTitle>
-                  <CardDescription className="text-sm sm:text-base">
-                    Click on any topic to generate content, or use the input above to create your own.
+                    <CardDescription className="mt-2">
+                      Hand-picked trending topics to inspire your next post
                   </CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={generateRandomRecommendedTopics}
+                    className="gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Refresh
+                  </Button>
+                </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {recommendedTopics.map((topic) => (
-                      <div key={topic.id} className="group relative border rounded-lg p-4 hover:shadow-md transition-all duration-200">
-                        <div className="space-y-3">
+              <CardContent className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {recommendedTopics.map((topic, index) => (
+                    <motion.div
+                      key={topic.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      whileHover={{ y: -5 }}
+                      className="group relative bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-purple-200 hover:shadow-xl transition-all duration-300"
+                    >
+                      <div className="space-y-4">
                           <div className="flex items-start justify-between">
-                            <h3 className="font-medium text-sm sm:text-base leading-tight">{topic.title}</h3>
-                            <Badge variant="outline" className="text-xs ml-2 flex-shrink-0">
+                          <h3 className="font-semibold text-lg leading-tight text-gray-900 group-hover:text-purple-600 transition-colors">
+                            {topic.title}
+                          </h3>
+                          <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200">
                               {topic.viralChance}% viral
                             </Badge>
                           </div>
                           
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">{topic.niche}</Badge>
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            {topic.niche}
+                          </Badge>
                             <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs">
-                              {topic.status === "content-ready" ? "Content Ready" : "Generated"}
+                            {topic.status === "content-ready" ? "Content Ready" : "Ready to Generate"}
                             </Badge>
                           </div>
 
-                          {/* Hover Generate Button */}
+                        {/* Generate Button */}
                           {topic.status === "generated" && (
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                          >
                               <Button
                                 onClick={() => generateRecommendedTopicContent(topic)}
                                 size="sm"
-                                className="w-full"
+                              className="w-full h-10 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
                                 disabled={isGenerating}
                               >
                                 {isGenerating ? (
@@ -606,32 +723,34 @@ export default function AIArticlesPage() {
                                   </>
                                 )}
                               </Button>
-                            </div>
+                          </motion.div>
                           )}
 
                           {/* Generated Content Display */}
                           {topic.status === "content-ready" && topic.content && (
-                            <div className="space-y-3">
+                          <div className="space-y-4">
                               <div className="flex items-center gap-2">
-                                <Badge variant="default" className="text-xs">{topic.format}</Badge>
-                                <span className="text-xs text-muted-foreground">4 variations generated</span>
+                              <Badge variant="default" className="text-xs bg-green-100 text-green-700">
+                                {topic.format}
+                              </Badge>
+                              <span className="text-xs text-gray-500">4 variations generated</span>
                               </div>
                               
                               {Array.isArray(topic.content) ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <div className="grid grid-cols-1 gap-3">
                                   {topic.content.map((content, index) => (
-                                    <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                      <div className="flex items-start justify-between mb-2">
+                                  <div key={index} className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
+                                    <div className="flex items-start justify-between mb-3">
                                         <Badge variant="outline" className="text-xs">Post {index + 1}</Badge>
                                       </div>
-                                      <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed mb-3">
+                                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
                                         {content}
                                       </p>
                                       <div className="flex gap-2">
                                         <Button 
                                           size="sm"
                                           variant="outline"
-                                          className="flex-1 text-xs h-8"
+                                        className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
                                           onClick={() => {
                                             setPreviewContent(content)
                                             setPreviewingTopicId(topic.id)
@@ -642,7 +761,7 @@ export default function AIArticlesPage() {
                                         </Button>
                                         <Button 
                                           size="sm"
-                                          className="flex-1 text-xs h-8"
+                                        className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
                                           onClick={() => saveToDraft(content, `${topic.title} - Post ${index + 1}`, "linkedin-post")}
                                         >
                                           <Save className="w-3 h-3 mr-1" />
@@ -653,15 +772,15 @@ export default function AIArticlesPage() {
                                   ))}
                                 </div>
                               ) : (
-                                <div className="p-3 border rounded-lg bg-muted/30">
-                                  <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed mb-3">
+                              <div className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
+                                <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
                                     {getTopicContent(topic)}
                                   </p>
                                   <div className="flex gap-2">
                                     <Button 
                                       size="sm"
                                       variant="outline"
-                                      className="flex-1 text-xs h-8"
+                                    className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
                                       onClick={() => {
                                         setPreviewContent(getTopicContent(topic))
                                         setPreviewingTopicId(topic.id)
@@ -672,7 +791,7 @@ export default function AIArticlesPage() {
                                     </Button>
                                     <Button 
                                       size="sm"
-                                      className="flex-1 text-xs h-8"
+                                    className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
                                       onClick={() => saveToDraft(getTopicContent(topic), topic.title, "linkedin-post")}
                                     >
                                       <Save className="w-3 h-3 mr-1" />
@@ -684,111 +803,134 @@ export default function AIArticlesPage() {
                             </div>
                           )}
                         </div>
-                      </div>
+                    </motion.div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
-            </div>
+          </motion.div>
           )}
 
-          {/* Generated Topics */}
+        {/* Enhanced Generated Topics */}
           {topics.length > 0 && (
-            <div className="max-w-6xl mx-auto">
-              <Card className="border-0 shadow-lg">
-              <CardHeader className="pb-4 sm:pb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+          <motion.div 
+            className="max-w-7xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                      <Calendar className="w-5 h-5 text-primary flex-shrink-0" />
-                      Generated Topics
+                    <CardTitle className="flex items-center gap-3 text-xl">
+                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-white" />
+                      </div>
+                      Your Generated Topics
                     </CardTitle>
-                    <CardDescription className="text-sm sm:text-base">
-                        Hover over topics to see generate button, or click to view generated content.
+                    <CardDescription className="mt-2">
+                      Click on any topic to generate content or customize your preferences
                     </CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={clearTopics} className="w-full sm:w-auto min-h-[40px]">
-                    <X className="w-4 h-4 mr-2" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={clearTopics} 
+                    className="gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                  >
+                    <X className="w-4 h-4" />
                     Clear All
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-4">
+              <CardContent className="p-8">
+                <div className="space-y-6">
                   {(() => {
                     const filteredTopics = topics.filter(topic => {
-                      // If no topic is selected, show all topics
                       if (!selectedTopicId) return true
-                      // If a topic is selected, only show that topic
                       return topic.id === selectedTopicId
                     })
-                    console.log("All topics:", topics)
-                    console.log("Selected topic ID:", selectedTopicId)
-                    console.log("Filtered topics:", filteredTopics)
                     return filteredTopics
                   })()
                     .sort((a, b) => {
-                      // Move selected topic to the top
                       if (selectedTopicId) {
                         if (a.id === selectedTopicId) return -1
                         if (b.id === selectedTopicId) return 1
                       }
                       return 0
                     })
-                    .map((topic) => (
-                    <div key={topic.id} className="group relative border rounded-lg p-4 hover:shadow-md transition-all duration-200">
-                      <div className="space-y-3">
+                    .map((topic, index) => (
+                      <motion.div
+                        key={topic.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        whileHover={{ y: -5 }}
+                        className="group relative bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-green-200 hover:shadow-xl transition-all duration-300"
+                      >
+                        <div className="space-y-4">
                         <div className="flex items-start justify-between">
-                          <h3 className="font-medium text-sm sm:text-base leading-tight">{topic.title}</h3>
-                          <Badge variant="outline" className="text-xs ml-2 flex-shrink-0">
+                            <h3 className="font-semibold text-lg leading-tight text-gray-900 group-hover:text-green-600 transition-colors">
+                              {topic.title}
+                            </h3>
+                            <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200">
                             {topic.viralChance}% viral
                           </Badge>
                         </div>
                         
                         <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">{topic.niche}</Badge>
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                              {topic.niche}
+                            </Badge>
                             <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs">
-                              {topic.status === "content-ready" ? "Content Ready" : "Generated"}
+                              {topic.status === "content-ready" ? "Content Ready" : "Ready to Generate"}
                             </Badge>
                         </div>
 
-                        {/* Hover Generate Button */}
+                          {/* Generate Button */}
                         {topic.status === "generated" && (
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              whileHover={{ opacity: 1 }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            >
                         <Button
                               onClick={() => setShowCustomization(topic.id)}
                           size="sm"
-                              className="w-full"
+                                className="w-full h-10 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white"
                         >
                               <Sparkles className="w-4 h-4 mr-2" />
                               Generate Content
                         </Button>
-                      </div>
+                            </motion.div>
                         )}
 
                         {/* Generated Content Display */}
                         {topic.status === "content-ready" && topic.content && (
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                               <div className="flex items-center gap-2">
-                                <Badge variant="default" className="text-xs">{topic.format}</Badge>
-                              <span className="text-xs text-muted-foreground">4 variations generated</span>
+                                <Badge variant="default" className="text-xs bg-green-100 text-green-700">
+                                  {topic.format}
+                                </Badge>
+                                <span className="text-xs text-gray-500">4 variations generated</span>
                               </div>
                             
                               {Array.isArray(topic.content) ? (
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {topic.content.map((content, index) => (
-                                  <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                    <div className="flex items-start justify-between mb-2">
+                                    <div key={index} className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
+                                      <div className="flex items-start justify-between mb-3">
                                       <Badge variant="outline" className="text-xs">Post {index + 1}</Badge>
                                       </div>
-                                    <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed mb-3">
+                                      <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
                                           {content}
                                         </p>
                                     <div className="flex gap-2">
                                           <Button 
                                             size="sm" 
                                             variant="outline"
-                                        className="flex-1 text-xs h-8"
+                                          className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
                                             onClick={() => {
                                               setPreviewContent(content)
                                               setPreviewingTopicId(topic.id)
@@ -799,7 +941,7 @@ export default function AIArticlesPage() {
                                           </Button>
                                       <Button 
                                         size="sm"
-                                        className="flex-1 text-xs h-8"
+                                          className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
                                         onClick={() => saveToDraft(content, `${topic.title} - Post ${index + 1}`, "linkedin-post")}
                                       >
                                         <Save className="w-3 h-3 mr-1" />
@@ -810,15 +952,15 @@ export default function AIArticlesPage() {
                                   ))}
                                 </div>
                               ) : (
-                              <div className="p-3 border rounded-lg bg-muted/30">
-                                <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed mb-3">
+                                <div className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
+                                  <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
                                         {getTopicContent(topic)}
                                       </p>
                                 <div className="flex gap-2">
                                         <Button 
                                           size="sm" 
                                           variant="outline"
-                                    className="flex-1 text-xs h-8"
+                                      className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
                                           onClick={() => {
                                             setPreviewContent(getTopicContent(topic))
                                             setPreviewingTopicId(topic.id)
@@ -829,7 +971,7 @@ export default function AIArticlesPage() {
                                         </Button>
                                   <Button 
                                     size="sm"
-                                    className="flex-1 text-xs h-8"
+                                      className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
                                     onClick={() => saveToDraft(getTopicContent(topic), topic.title, "linkedin-post")}
                                   >
                                     <Save className="w-3 h-3 mr-1" />
@@ -841,12 +983,12 @@ export default function AIArticlesPage() {
                                       </div>
                         )}
                                     </div>
-                                  </div>
+                      </motion.div>
                   ))}
                 </div>
               </CardContent>
               </Card>
-                                </div>
+          </motion.div>
                               )}
                             </div>
 
@@ -941,7 +1083,6 @@ export default function AIArticlesPage() {
             }}
           />
         )}
-      </div>
     </div>
   )
 }

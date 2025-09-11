@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +26,23 @@ import {
   BarChart3,
   Loader2,
   EyeOff,
+  Calendar as CalendarLucide,
+  TrendingUp,
+  Users,
+  Target,
+  Zap,
+  Heart,
+  MessageSquare,
+  Share2,
+  Eye,
+  MoreVertical,
+  Copy,
+  Archive,
+  Star,
+  Globe,
+  Smartphone,
+  Monitor,
+  Tablet,
 } from "lucide-react"
 import { format } from "date-fns"
 import { useScheduledPosts } from "@/hooks/use-scheduled-posts"
@@ -124,6 +142,34 @@ export default function ScheduledPostsPage() {
     }
   }
 
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case "linkedin":
+        return <Globe className="h-3 w-3" />
+      case "twitter":
+        return <MessageSquare className="h-3 w-3" />
+      case "facebook":
+        return <Users className="h-3 w-3" />
+      default:
+        return <Globe className="h-3 w-3" />
+    }
+  }
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "text":
+        return <MessageSquare className="h-3 w-3" />
+      case "carousel":
+        return <Monitor className="h-3 w-3" />
+      case "image":
+        return <Eye className="h-3 w-3" />
+      case "article":
+        return <Target className="h-3 w-3" />
+      default:
+        return <MessageSquare className="h-3 w-3" />
+    }
+  }
+
   const handleDeletePost = async (postId: string) => {
     const result = await deletePost(postId)
     if (result.success) {
@@ -171,349 +217,507 @@ export default function ScheduledPostsPage() {
   }
 
   return (
-    <div className="flex-1 space-y-4 sm:space-y-6 p-2 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Scheduled Posts</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Manage your scheduled content and track performance</p>
-        </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={loading} className="w-full sm:w-auto min-h-[40px]">
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <Button variant="outline" onClick={() => setShowStats(!showStats)} className="w-full sm:w-auto min-h-[40px]">
-            {showStats ? <EyeOff className="h-4 w-4 mr-2" /> : <BarChart3 className="h-4 w-4 mr-2" />}
-            <span className="text-sm sm:text-base">{showStats ? "Hide Stats" : "Show Stats"}</span>
-          </Button>
-
-          <SchedulePostModal
-            content="Write your post content here..."
-            trigger={
-              <Button className="gap-2 w-full sm:w-auto min-h-[40px]">
-                <Plus className="h-4 w-4" />
-                <span className="text-sm sm:text-base">Schedule Post</span>
-              </Button>
-            }
-            onSuccess={() => {
-              console.log("[v0] Post scheduled successfully, refreshing data")
-              fetchPosts()
-              fetchStats()
-            }}
-          />
-        </div>
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50/30 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-green-500/5 to-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Statistics Cards */}
-      {showStats && stats && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Total Posts</CardTitle>
-              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Pending</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{stats.pending}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Posted</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{stats.posted}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs sm:text-sm font-medium">Today's Posts</CardTitle>
-              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl sm:text-2xl font-bold">{stats.today}</div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      <Tabs defaultValue="list" className="space-y-4 sm:space-y-6">
-        <TabsList className="grid w-full grid-cols-2 h-10 sm:h-9">
-          <TabsTrigger value="list" className="text-xs sm:text-sm">List View</TabsTrigger>
-          <TabsTrigger value="calendar" className="text-xs sm:text-sm">Calendar View</TabsTrigger>
-        </TabsList>
-
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search scheduled posts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 text-sm sm:text-base"
+      <div className="relative z-10 space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-4 lg:p-6">
+        {/* Enhanced Header */}
+        <motion.div 
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
+                <CalendarLucide className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-green-900 bg-clip-text text-transparent">
+                  Scheduled Posts
+                </h1>
+                <p className="text-sm text-gray-600">Manage your scheduled content and track performance</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button variant="outline" onClick={handleRefresh} disabled={loading} className="gap-2 h-12 border-gray-200 hover:bg-gray-50">
+                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                Refresh
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button variant="outline" onClick={() => setShowStats(!showStats)} className="gap-2 h-12 border-gray-200 hover:bg-gray-50">
+                {showStats ? <EyeOff className="h-4 w-4" /> : <BarChart3 className="h-4 w-4" />}
+                {showStats ? "Hide Stats" : "Show Stats"}
+              </Button>
+            </motion.div>
+            <SchedulePostModal
+              content="Write your post content here..."
+              trigger={
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button className="gap-2 h-12 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                    <Plus className="h-4 w-4" />
+                    Schedule Post
+                  </Button>
+                </motion.div>
+              }
+              onSuccess={() => {
+                console.log("[v0] Post scheduled successfully, refreshing data")
+                fetchPosts()
+                fetchStats()
+              }}
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[150px] text-sm sm:text-base">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="posted">Posted</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
-              <SelectItem value="paused">Paused</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={platformFilter} onValueChange={setPlatformFilter}>
-            <SelectTrigger className="w-full sm:w-[150px] text-sm sm:text-base">
-              <SelectValue placeholder="Platform" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Platforms</SelectItem>
-              <SelectItem value="linkedin">LinkedIn</SelectItem>
-              <SelectItem value="twitter">Twitter</SelectItem>
-              <SelectItem value="facebook">Facebook</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full sm:w-[150px] text-sm sm:text-base">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="text">Text</SelectItem>
-              <SelectItem value="carousel">Carousel</SelectItem>
-              <SelectItem value="image">Image</SelectItem>
-              <SelectItem value="article">Article</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        </motion.div>
 
-        <TabsContent value="list" className="space-y-3 sm:space-y-4">
-          {loading ? (
-            <div className="flex items-center justify-center py-6 sm:py-8">
-              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin" />
-              <span className="ml-2 text-sm sm:text-base">Loading scheduled posts...</span>
-            </div>
-          ) : error ? (
-            <div className="text-center py-6 sm:py-8">
-              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-red-500 mb-2" />
-              <p className="text-red-500 font-medium text-sm sm:text-base">{error}</p>
-              <Button variant="outline" onClick={handleRefresh} className="mt-4 bg-transparent min-h-[40px]">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Try Again
-              </Button>
-            </div>
-          ) : filteredPosts.length === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <CalendarIcon className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
-              <h3 className="text-base sm:text-lg font-semibold mb-2">No scheduled posts found</h3>
-              <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
-                {posts.length === 0
-                  ? "You haven't scheduled any posts yet. Click the 'Schedule Post' button to get started!"
-                  : "No posts match your current filters. Try adjusting your search criteria."}
-              </p>
-              <SchedulePostModal
-                content="Write your post content here..."
-                trigger={
-                  <Button className="min-h-[40px]">
-                    <Plus className="h-4 w-4 mr-2" />
-                    <span className="text-sm sm:text-base">Schedule Your First Post</span>
-                  </Button>
-                }
-                onSuccess={() => {
-                  fetchPosts()
-                  fetchStats()
-                }}
+        {/* Enhanced Statistics Cards */}
+        {showStats && stats && (
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <motion.div
+              whileHover={{ y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Posts</CardTitle>
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                    <CalendarIcon className="h-4 w-4 text-blue-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+                  <p className="text-xs text-gray-500 mt-1">All scheduled posts</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div
+              whileHover={{ y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
+                  <div className="w-8 h-8 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-lg flex items-center justify-center">
+                    <Clock className="h-4 w-4 text-yellow-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-gray-900">{stats.pending}</div>
+                  <p className="text-xs text-gray-500 mt-1">Awaiting publication</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div
+              whileHover={{ y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Posted</CardTitle>
+                  <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-green-200 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-gray-900">{stats.posted}</div>
+                  <p className="text-xs text-gray-500 mt-1">Successfully published</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div
+              whileHover={{ y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">Today's Posts</CardTitle>
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-purple-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-gray-900">{stats.today}</div>
+                  <p className="text-xs text-gray-500 mt-1">Scheduled for today</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+
+        <Tabs defaultValue="list" className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <TabsList className="grid w-full grid-cols-2 h-12 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <TabsTrigger value="list" className="text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">
+                List View
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">
+                Calendar View
+              </TabsTrigger>
+            </TabsList>
+          </motion.div>
+
+          {/* Enhanced Search and Filters */}
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+          >
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                placeholder="Search scheduled posts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm"
               />
             </div>
-          ) : (
-            <>
-              {filteredPosts.map((post) => (
-                <Card key={post._id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <Badge className={getStatusColor(post.status)}>
-                            {getStatusIcon(post.status)}
-                            <span className="ml-1 capitalize text-xs">{post.status}</span>
-                          </Badge>
-                          <Badge variant="outline" className="capitalize text-xs">
-                            {post.type}
-                          </Badge>
-                          <Badge variant="outline" className="capitalize text-xs">
-                            {post.platform}
-                          </Badge>
-                          {post.retryCount && post.retryCount > 0 && (
-                            <Badge variant="outline" className="text-orange-600 text-xs">
-                              Retry {post.retryCount}/{post.maxRetries || 3}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                          <CalendarIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span>Scheduled for {formatIstDateShort(post.scheduledFor)} at {formatIstTime(post.scheduledFor)}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {post.status === "pending" && (
-                          <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="min-h-[32px]">
-                            <Pause className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        )}
-                        {post.status === "paused" && (
-                          <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="min-h-[32px]">
-                            <Play className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        )}
-                        {post.status === "failed" && (
-                          <Button variant="ghost" size="sm" onClick={() => handleRetryPost(post._id)} className="min-h-[32px]">
-                            <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="sm" className="min-h-[32px]">
-                          <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeletePost(post._id)}
-                          className="text-red-600 hover:text-red-700 min-h-[32px]"
-                        >
-                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4 line-clamp-3">{post.content}</p>
+            <div className="flex gap-3">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[160px] h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-gray-500" />
+                    <SelectValue placeholder="Status" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="posted">Posted</SelectItem>
+                  <SelectItem value="failed">Failed</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={platformFilter} onValueChange={setPlatformFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                  <SelectValue placeholder="Platform" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Platforms</SelectItem>
+                  <SelectItem value="linkedin">LinkedIn</SelectItem>
+                  <SelectItem value="twitter">Twitter</SelectItem>
+                  <SelectItem value="facebook">Facebook</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="text">Text</SelectItem>
+                  <SelectItem value="carousel">Carousel</SelectItem>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="article">Article</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </motion.div>
 
-                    {post.tags && post.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2 sm:mb-3">
-                        {post.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
+          <TabsContent value="list" className="space-y-4">
+            {loading ? (
+              <motion.div 
+                className="flex items-center justify-center py-12"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  </div>
+                  <p className="text-gray-600">Loading scheduled posts...</p>
+                </div>
+              </motion.div>
+            ) : error ? (
+              <motion.div 
+                className="text-center py-12"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="h-8 w-8 text-red-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Posts</h3>
+                <p className="text-red-500 font-medium mb-4">{error}</p>
+                <Button variant="outline" onClick={handleRefresh} className="gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Try Again
+                </Button>
+              </motion.div>
+            ) : filteredPosts.length === 0 ? (
+              <motion.div 
+                className="text-center py-12"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <div className="w-20 h-20 bg-gradient-to-r from-green-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CalendarIcon className="h-10 w-10 text-green-500" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">No scheduled posts found</h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  {posts.length === 0
+                    ? "You haven't scheduled any posts yet. Click the 'Schedule Post' button to get started!"
+                    : "No posts match your current filters. Try adjusting your search criteria."}
+                </p>
+                <SchedulePostModal
+                  content="Write your post content here..."
+                  trigger={
+                    <Button className="gap-2 h-12 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                      <Plus className="h-4 w-4" />
+                      Schedule Your First Post
+                    </Button>
+                  }
+                  onSuccess={() => {
+                    fetchPosts()
+                    fetchStats()
+                  }}
+                />
+              </motion.div>
+            ) : (
+              <motion.div 
+                className="space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+              >
+                <AnimatePresence>
+                  {filteredPosts.map((post, index) => (
+                    <motion.div
+                      key={post._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                        <CardHeader className="pb-4 bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <Badge className={`${getStatusColor(post.status)} border-0 shadow-sm`}>
+                                  {getStatusIcon(post.status)}
+                                  <span className="ml-1 capitalize text-xs font-medium">{post.status}</span>
+                                </Badge>
+                                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                  {getTypeIcon(post.type)}
+                                  <span className="ml-1 capitalize">{post.type}</span>
+                                </Badge>
+                                <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                                  {getPlatformIcon(post.platform)}
+                                  <span className="ml-1 capitalize">{post.platform}</span>
+                                </Badge>
+                                {post.retryCount && post.retryCount > 0 && (
+                                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                                    Retry {post.retryCount}/{post.maxRetries || 3}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <CalendarIcon className="h-4 w-4" />
+                                <span>Scheduled for {formatIstDateShort(post.scheduledFor)} at {formatIstTime(post.scheduledFor)}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {post.status === "pending" && (
+                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-yellow-50">
+                                  <Pause className="h-4 w-4 text-yellow-600" />
+                                </Button>
+                              )}
+                              {post.status === "paused" && (
+                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-green-50">
+                                  <Play className="h-4 w-4 text-green-600" />
+                                </Button>
+                              )}
+                              {post.status === "failed" && (
+                                <Button variant="ghost" size="sm" onClick={() => handleRetryPost(post._id)} className="h-8 w-8 p-0 hover:bg-blue-50">
+                                  <RefreshCw className="h-4 w-4 text-blue-600" />
+                                </Button>
+                              )}
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-50">
+                                <Edit3 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeletePost(post._id)}
+                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                          <p className="text-sm leading-relaxed mb-4 line-clamp-3 text-gray-700">{post.content}</p>
+
+                          {post.tags && post.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {post.tags.map((tag) => (
+                                <Badge key={tag} variant="secondary" className="text-xs bg-gray-50 text-gray-600">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+
+                          {post.engagement && (
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 pt-4 border-t border-gray-100">
+                              <span className="flex items-center gap-1">
+                                <Heart className="h-3 w-3" />
+                                {post.engagement.likes} likes
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MessageSquare className="h-3 w-3" />
+                                {post.engagement.comments} comments
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Share2 className="h-3 w-3" />
+                                {post.engagement.shares} shares
+                              </span>
+                            </div>
+                          )}
+
+                          {post.errorMessage && (
+                            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                              <strong>Error:</strong> {post.errorMessage}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {hasMore && (
+                  <motion.div 
+                    className="text-center py-6"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <Button onClick={handleLoadMore} variant="outline" className="gap-2 h-12 border-gray-200 hover:bg-gray-50">
+                      Load More Posts
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-6">
+            <motion.div 
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-3 text-lg">
+                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                      <CalendarLucide className="w-4 h-4 text-white" />
+                    </div>
+                    Calendar
+                  </CardTitle>
+                  <CardDescription>Select a date to view scheduled posts</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="rounded-xl border-0"
+                  />
+                </CardContent>
+              </Card>
+
+              <div className="lg:col-span-2 space-y-4">
+                <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+                    <CardTitle className="flex items-center gap-3 text-lg">
+                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <Clock className="w-4 h-4 text-white" />
+                      </div>
+                      Posts for {selectedDate ? format(selectedDate, "MMMM dd, yyyy") : "Selected Date"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {filteredPosts.length > 0 ? (
+                      <div className="space-y-3">
+                        {filteredPosts.map((post, index) => (
+                          <motion.div
+                            key={post._id}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: index * 0.1 }}
+                            className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              {getStatusIcon(post.status)}
+                              <span className="text-sm font-medium text-gray-900">{formatIstTime(post.scheduledFor)}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-gray-700 truncate">{post.content}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                {getTypeIcon(post.type)}
+                                <span className="ml-1 capitalize">{post.type}</span>
+                              </Badge>
+                              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                                {getPlatformIcon(post.platform)}
+                                <span className="ml-1 capitalize">{post.platform}</span>
+                              </Badge>
+                            </div>
+                          </motion.div>
                         ))}
                       </div>
-                    )}
-
-                    {post.engagement && (
-                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground pt-3 border-t">
-                        <span>{post.engagement.likes} likes</span>
-                        <span>{post.engagement.comments} comments</span>
-                        <span>{post.engagement.shares} shares</span>
-                      </div>
-                    )}
-
-                    {post.errorMessage && (
-                      <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs sm:text-sm text-red-700">
-                        <strong>Error:</strong> {post.errorMessage}
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-gradient-to-r from-green-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CalendarIcon className="h-8 w-8 text-green-500" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled for this date</h3>
+                        <p className="text-gray-600 mb-4">Schedule a post for this date to get started</p>
+                        <SchedulePostModal
+                          content="Write your post content here..."
+                          trigger={
+                            <Button variant="outline" className="gap-2 border-gray-200 hover:bg-gray-50">
+                              <Plus className="h-4 w-4" />
+                              Schedule for this date
+                            </Button>
+                          }
+                          onSuccess={() => {
+                            fetchPosts()
+                            fetchStats()
+                          }}
+                        />
                       </div>
                     )}
                   </CardContent>
                 </Card>
-              ))}
-
-              {hasMore && (
-                <div className="text-center py-3 sm:py-4">
-                  <Button onClick={handleLoadMore} variant="outline" className="min-h-[40px]">
-                    Load More Posts
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </TabsContent>
-
-        <TabsContent value="calendar" className="space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            <Card className="lg:col-span-1">
-              <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Calendar</CardTitle>
-                <CardDescription className="text-sm">Select a date to view scheduled posts</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-md border"
-                />
-              </CardContent>
-            </Card>
-
-            <div className="lg:col-span-2 space-y-3 sm:space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base sm:text-lg">
-                    Posts for {selectedDate ? format(selectedDate, "MMMM dd, yyyy") : "Selected Date"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {filteredPosts.length > 0 ? (
-                    <div className="space-y-2 sm:space-y-3">
-                      {filteredPosts.map((post) => (
-                        <div
-                          key={post._id}
-                          className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(post.status)}
-                            <span className="text-xs sm:text-sm font-medium">{formatIstTime(post.scheduledFor)}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm truncate">{post.content}</p>
-                          </div>
-                          <div className="flex gap-2">
-                            <Badge variant="outline" className="capitalize text-xs">
-                              {post.type}
-                            </Badge>
-                            <Badge variant="outline" className="capitalize text-xs">
-                              {post.platform}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6 sm:py-8">
-                      <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm sm:text-base text-muted-foreground">No posts scheduled for this date</p>
-                      <SchedulePostModal
-                        content="Write your post content here..."
-                        trigger={
-                          <Button variant="outline" className="mt-3 sm:mt-4 bg-transparent min-h-[40px]">
-                            <Plus className="h-4 w-4 mr-2" />
-                            <span className="text-sm sm:text-base">Schedule for this date</span>
-                          </Button>
-                        }
-                        onSuccess={() => {
-                          fetchPosts()
-                          fetchStats()
-                        }}
-                      />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+              </div>
+            </motion.div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }
