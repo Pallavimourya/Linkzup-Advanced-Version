@@ -2,8 +2,8 @@ import { connectToDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 
 export interface ScheduledPost {
-  _id?: string
-  userId: string
+  _id?: ObjectId
+  userId: string | ObjectId
   userEmail: string
   content: string
   images?: string[]
@@ -26,6 +26,10 @@ export interface ScheduledPost {
     comments: number
     shares: number
   }
+  scheduledAt?: Date
+  lastChecked?: Date
+  redundancyEnabled?: boolean
+  backupScheduleTime?: Date
 }
 
 export interface SchedulePostRequest {
@@ -48,7 +52,7 @@ export interface UpdateScheduledPostRequest {
 }
 
 /**
- * Schedule a new post with external cron job
+ * Schedule a new post with external cron job and redundancy
  */
 export async function schedulePost(postData: SchedulePostRequest) {
   try {
@@ -62,6 +66,10 @@ export async function schedulePost(postData: SchedulePostRequest) {
       updatedAt: new Date(),
       retryCount: 0,
       maxRetries: 3,
+      // Add redundancy markers
+      scheduledAt: new Date(),
+      lastChecked: new Date(),
+      redundancyEnabled: true,
     }
 
     const result = await db.collection("scheduled_posts").insertOne(scheduledPost)
@@ -70,25 +78,34 @@ export async function schedulePost(postData: SchedulePostRequest) {
       return { success: false, error: "Failed to create scheduled post" }
     }
 
-    // Register external cron job
+    // Register external cron job (primary)
     const cronJobResult = await registerExternalCronJob({
       postId: result.insertedId.toString(),
       scheduledFor: postData.scheduledFor,
       userId: postData.userId,
     })
 
-    if (cronJobResult.success) {
-      // Update post with cron job ID
-      await db.collection("scheduled_posts").updateOne(
-        { _id: result.insertedId },
-        { $set: { cronJobId: cronJobResult.cronJobId, updatedAt: new Date() } }
-      )
-    }
+    // Set up backup monitoring (secondary)
+    const backupSchedule = new Date(postData.scheduledFor.getTime() + 5 * 60 * 1000) // 5 minutes after
+    await db.collection("scheduled_posts").updateOne(
+      { _id: result.insertedId },
+      { 
+        $set: { 
+          cronJobId: cronJobResult.cronJobId,
+          backupScheduleTime: backupSchedule,
+          updatedAt: new Date() 
+        } 
+      }
+    )
+
+    // Log successful scheduling
+    console.log(`[Scheduling] Post ${result.insertedId} scheduled for ${postData.scheduledFor.toISOString()} with backup at ${backupSchedule.toISOString()}`)
 
     return { 
       success: true, 
       postId: result.insertedId.toString(),
-      cronJobId: cronJobResult.cronJobId 
+      cronJobId: cronJobResult.cronJobId,
+      backupScheduleTime: backupSchedule.toISOString()
     }
   } catch (error) {
     console.error("Error scheduling post:", error)
