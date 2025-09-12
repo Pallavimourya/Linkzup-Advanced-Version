@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       coupon: order.coupon || null,
     })
 
-    // If coupon applied, increment its uses (defensive, webhook also handles this)
+    // If coupon applied, increment its uses (webhook also handles this, but this is the primary handler)
     if (order.coupon?.code) {
       await db
         .collection("coupons")
@@ -144,9 +144,10 @@ export async function POST(request: NextRequest) {
           couponCode: order.coupon.code,
           couponType: order.coupon.type,
           discountValue: order.coupon.value,
-          originalAmount: order.amount + (order.coupon.type === "percent" ? 
-            Math.round(order.amount * order.coupon.value / 100) : order.coupon.value),
-          finalAmount: order.amount
+          originalAmount: order.amount,
+          finalAmount: order.coupon.type === "percent" ? 
+            Math.max(0, Math.round(order.amount * (1 - order.coupon.value / 100))) : 
+            Math.max(0, order.amount - order.coupon.value)
         }
       })
     }

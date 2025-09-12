@@ -35,8 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    // Optional: validate coupon and compute discounted amount
-    let finalAmount = amount
+    // Validate coupon but don't apply discount here - that happens during payment processing
     let appliedCoupon: null | { code: string; type: "percent" | "fixed"; value: number } = null
 
     if (couponCode && String(couponCode).trim().length > 0) {
@@ -56,15 +55,12 @@ export async function POST(request: NextRequest) {
 
       const now = new Date()
       const isActive = !!coupon?.active
+      const isVisible = coupon?.visible !== false // default visible
       const notExpired = !coupon?.expiresAt || new Date(coupon.expiresAt) >= now
       const notMaxed = !coupon?.maxRedemptions || (coupon?.uses || 0) < coupon.maxRedemptions
 
-      if (coupon && isActive && notExpired && notMaxed) {
-        if (coupon.type === "percent") {
-          finalAmount = Math.max(0, Math.round(amount * (1 - (coupon.value || 0) / 100)))
-        } else {
-          finalAmount = Math.max(0, amount - (coupon.value || 0))
-        }
+      if (coupon && isActive && isVisible && notExpired && notMaxed) {
+        // Store coupon info but don't apply discount yet
         appliedCoupon = { code: coupon.code, type: coupon.type, value: coupon.value }
       } else {
         return NextResponse.json({ 
@@ -73,9 +69,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create Razorpay order with discounted amount (in paise)
+    // Create Razorpay order with original amount (discount applied during payment processing)
     const order = await getRazorpay().orders.create({
-      amount: finalAmount * 100, // paise
+      amount: amount * 100, // paise
       currency: "INR",
       receipt: `order_${Date.now()}`.slice(0, 40), // under 40 chars
       notes: {
@@ -95,7 +91,7 @@ export async function POST(request: NextRequest) {
       userId: new ObjectId(session.user.id),
       planType,
       credits,
-      amount: finalAmount, // store final amount (₹)
+      amount: amount, // store original amount (₹)
       status: "pending",
       coupon: appliedCoupon, // store coupon info for webhook/verify
       createdAt: new Date(),

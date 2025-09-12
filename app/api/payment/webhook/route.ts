@@ -92,12 +92,7 @@ export async function POST(request: NextRequest) {
         coupon: order.coupon || null,
       })
 
-      // Increment coupon usage if applied
-      if (order.coupon?.code) {
-        await db
-          .collection("coupons")
-          .updateOne({ code: order.coupon.code }, { $inc: { uses: 1 }, $set: { updatedAt: new Date() } })
-      }
+      // Note: Coupon usage increment is handled in the verify route to avoid double counting
     }
 
     return NextResponse.json({ success: true })

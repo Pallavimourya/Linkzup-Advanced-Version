@@ -244,11 +244,12 @@ export default function DraftsPage() {
   }
 
   return (
-    <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-500/5 to-cyan-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-4 lg:p-6">
@@ -261,14 +262,14 @@ export default function DraftsPage() {
         >
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-teal-500 to-secondary rounded-xl flex items-center justify-center">
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
                   My Drafts
                 </h1>
-                <p className="text-sm text-gray-600">Manage your saved content and turn ideas into posts</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Manage your saved content and turn ideas into posts</p>
               </div>
             </div>
           </div>
@@ -278,63 +279,63 @@ export default function DraftsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Button className="gap-2 w-full sm:w-auto h-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button className="gap-2 w-full sm:w-auto h-12 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                   <Plus className="h-4 w-4" />
                   <span>Create New Draft</span>
                 </Button>
               </motion.div>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl bg-white dark:bg-black border border-teal-200 dark:border-teal-800">
               <DialogHeader>
-                <DialogTitle>Create New Draft</DialogTitle>
-                <DialogDescription>Start writing your next LinkedIn post</DialogDescription>
+                <DialogTitle className="text-black dark:text-white">Create New Draft</DialogTitle>
+                <DialogDescription className="text-gray-600 dark:text-gray-400">Start writing your next LinkedIn post</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input id="title" placeholder="Give your draft a title..." />
+                  <Label htmlFor="title" className="text-black dark:text-white">Title</Label>
+                  <Input id="title" placeholder="Give your draft a title..." className="border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="content">Content</Label>
-                  <Textarea id="content" placeholder="Start writing your post..." className="min-h-[200px] border border-black" />
+                  <Label htmlFor="content" className="text-black dark:text-white">Content</Label>
+                  <Textarea id="content" placeholder="Start writing your post..." className="min-h-[200px] border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
+                    <Label htmlFor="category" className="text-black dark:text-white">Category</Label>
                     <Select>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 bg-white dark:bg-black text-black dark:text-white">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="marketing">Marketing</SelectItem>
-                        <SelectItem value="leadership">Leadership</SelectItem>
-                        <SelectItem value="technology">Technology</SelectItem>
-                        <SelectItem value="productivity">Productivity</SelectItem>
-                        <SelectItem value="career">Career</SelectItem>
+                      <SelectContent className="bg-white dark:bg-black border border-teal-200 dark:border-teal-800">
+                        <SelectItem value="marketing" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Marketing</SelectItem>
+                        <SelectItem value="leadership" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Leadership</SelectItem>
+                        <SelectItem value="technology" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Technology</SelectItem>
+                        <SelectItem value="productivity" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Productivity</SelectItem>
+                        <SelectItem value="career" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Career</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="type">Type</Label>
+                    <Label htmlFor="type" className="text-black dark:text-white">Type</Label>
                     <Select>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 bg-white dark:bg-black text-black dark:text-white">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="text">Text Post</SelectItem>
-                        <SelectItem value="carousel">Carousel</SelectItem>
-                        <SelectItem value="story">Story</SelectItem>
+                      <SelectContent className="bg-white dark:bg-black border border-teal-200 dark:border-teal-800">
+                        <SelectItem value="text" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Text Post</SelectItem>
+                        <SelectItem value="carousel" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Carousel</SelectItem>
+                        <SelectItem value="story" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Story</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tags">Tags (comma separated)</Label>
-                  <Input id="tags" placeholder="AI, Marketing, Tips..." />
+                  <Label htmlFor="tags" className="text-black dark:text-white">Tags (comma separated)</Label>
+                  <Input id="tags" placeholder="AI, Marketing, Tips..." className="border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400" />
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline">Cancel</Button>
-                  <Button>Save Draft</Button>
+                  <Button variant="outline" className="border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300">Cancel</Button>
+                  <Button className="bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white">Save Draft</Button>
                 </div>
               </div>
             </DialogContent>
@@ -349,42 +350,42 @@ export default function DraftsPage() {
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
             <Input
               placeholder="Search your drafts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm"
+              className="pl-12 h-12 border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 rounded-xl bg-white/95 dark:bg-black/95 backdrop-blur-sm text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
           <div className="flex gap-3">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
+              <SelectTrigger className="w-full sm:w-[180px] h-12 border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 rounded-xl bg-white/95 dark:bg-black/95 backdrop-blur-sm text-black dark:text-white">
                 <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-gray-500" />
+                  <Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                   <SelectValue placeholder="Category" />
                 </div>
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="marketing">Marketing</SelectItem>
-                <SelectItem value="leadership">Leadership</SelectItem>
-                <SelectItem value="technology">Technology</SelectItem>
-                <SelectItem value="productivity">Productivity</SelectItem>
-                <SelectItem value="career">Career</SelectItem>
-                <SelectItem value="personal development">Personal Development</SelectItem>
+              <SelectContent className="bg-white dark:bg-black border border-teal-200 dark:border-teal-800">
+                <SelectItem value="all" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">All Categories</SelectItem>
+                <SelectItem value="marketing" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Marketing</SelectItem>
+                <SelectItem value="leadership" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Leadership</SelectItem>
+                <SelectItem value="technology" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Technology</SelectItem>
+                <SelectItem value="productivity" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Productivity</SelectItem>
+                <SelectItem value="career" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Career</SelectItem>
+                <SelectItem value="personal development" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Personal Development</SelectItem>
               </SelectContent>
             </Select>
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full sm:w-[160px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
+              <SelectTrigger className="w-full sm:w-[160px] h-12 border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 rounded-xl bg-white/95 dark:bg-black/95 backdrop-blur-sm text-black dark:text-white">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="text">Text Post</SelectItem>
-                <SelectItem value="carousel">Carousel</SelectItem>
-                <SelectItem value="story">Story</SelectItem>
-                <SelectItem value="viral-inspired">Viral Inspired</SelectItem>
+              <SelectContent className="bg-white dark:bg-black border border-teal-200 dark:border-teal-800">
+                <SelectItem value="all" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">All Types</SelectItem>
+                <SelectItem value="text" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Text Post</SelectItem>
+                <SelectItem value="carousel" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Carousel</SelectItem>
+                <SelectItem value="story" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Story</SelectItem>
+                <SelectItem value="viral-inspired" className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">Viral Inspired</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -408,9 +409,9 @@ export default function DraftsPage() {
                 whileHover={{ y: -5 }}
                 className="group"
               >
-                <Card className="h-full bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                <Card className="h-full bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
                   {/* Card Header with Gradient */}
-                  <CardHeader className="pb-4 bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-b border-gray-100">
+                  <CardHeader className="pb-4 bg-gradient-to-r from-teal-50/50 to-secondary/20 dark:from-teal-950/30 dark:to-secondary/10 border-b border-teal-200/50 dark:border-teal-800/50">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
                         <div className="flex flex-wrap items-center gap-2">
@@ -418,26 +419,26 @@ export default function DraftsPage() {
                             {getTypeIcon(draft.type)}
                             <span className="ml-1 capitalize text-xs font-medium">{draft.type.replace("-", " ")}</span>
                           </Badge>
-                          <Badge variant="outline" className="text-xs bg-white/50 border-gray-200">
+                          <Badge variant="outline" className="text-xs bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300">
                             {draft.category}
                           </Badge>
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-white/50">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-teal-50 dark:hover:bg-teal-950/50">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => handleEditDraft(draft)} className="cursor-pointer">
+                          <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-black border border-teal-200 dark:border-teal-800">
+                            <DropdownMenuItem onClick={() => handleEditDraft(draft)} className="cursor-pointer text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">
                               <Edit3 className="mr-2 h-4 w-4" />
                               {draft.type === "carousel" ? "Edit in Carousel Editor" : "Edit Draft"}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDuplicateDraft(draft)} className="cursor-pointer">
+                            <DropdownMenuItem onClick={() => handleDuplicateDraft(draft)} className="cursor-pointer text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">
                               <Copy className="mr-2 h-4 w-4" />
                               Duplicate
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDeleteDraft(draft)} className="text-red-600 cursor-pointer">
+                            <DropdownMenuItem onClick={() => handleDeleteDraft(draft)} className="text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/50">
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete
                             </DropdownMenuItem>
@@ -445,10 +446,10 @@ export default function DraftsPage() {
                         </DropdownMenu>
                       </div>
                       <div>
-                        <CardTitle className="text-lg font-semibold leading-tight text-gray-900 group-hover:text-blue-600 transition-colors">
+                        <CardTitle className="text-lg font-semibold leading-tight text-black dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
                           {draft.title}
                         </CardTitle>
-                        <CardDescription className="text-sm text-gray-500 mt-1">
+                        <CardDescription className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                           <div className="flex items-center gap-4">
                             <span className="flex items-center gap-1">
                               <FileText className="h-3 w-3" />
@@ -476,12 +477,12 @@ export default function DraftsPage() {
                     {draft.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {draft.tags.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          <Badge key={tag} variant="secondary" className="text-xs bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
                             {tag}
                           </Badge>
                         ))}
                         {draft.tags.length > 3 && (
-                          <Badge variant="secondary" className="text-xs bg-gray-50 text-gray-600">
+                          <Badge variant="secondary" className="text-xs bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                             +{draft.tags.length - 3} more
                           </Badge>
                         )}
@@ -490,7 +491,7 @@ export default function DraftsPage() {
 
                     {/* Source Info */}
                     {draft.source && (
-                      <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg p-2">
                         <Sparkles className="h-3 w-3" />
                         <span>Generated from {draft.source}</span>
                       </div>
@@ -506,7 +507,7 @@ export default function DraftsPage() {
                           defaultType={draft.type === "carousel" ? "carousel" : "text"}
                           variant="outline"
                           size="sm"
-                          className="h-9 text-xs border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                          className="h-9 text-xs border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-700 dark:text-teal-300"
                           onSuccess={() => {
                             toast({
                               title: "Scheduled!",
@@ -516,7 +517,7 @@ export default function DraftsPage() {
                         />
                         <Button 
                           size="sm" 
-                          className="h-9 text-xs bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0"
+                          className="h-9 text-xs bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white border-0"
                           onClick={() => handlePostToLinkedIn(draft)}
                           disabled={postingDrafts.has(draft.id)}
                         >
@@ -536,7 +537,7 @@ export default function DraftsPage() {
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="w-full h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300"
+                        className="w-full h-9 text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/50 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-700"
                         onClick={() => handleDeleteDraft(draft)}
                       >
                         <Trash2 className="h-3 w-3 mr-1" />
@@ -558,22 +559,22 @@ export default function DraftsPage() {
             transition={{ duration: 0.6 }}
             className="flex justify-center"
           >
-            <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+            <Card className="w-full max-w-md bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-xl">
               <CardContent className="text-center py-12 px-8">
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <FileText className="h-10 w-10 text-blue-500" />
+                <div className="w-20 h-20 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <FileText className="h-10 w-10 text-teal-500 dark:text-teal-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl font-semibold text-black dark:text-white mb-3">
                   {searchQuery || categoryFilter !== "all" || typeFilter !== "all"
                     ? "No drafts match your search"
                     : "No drafts yet"}
                 </h3>
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
                   {searchQuery || categoryFilter !== "all" || typeFilter !== "all"
                     ? "Try adjusting your search terms or filters to find what you're looking for."
                     : "Start creating amazing content and your drafts will appear here."}
                 </p>
-                <Button className="h-12 px-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                <Button className="h-12 px-8 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Draft
                 </Button>

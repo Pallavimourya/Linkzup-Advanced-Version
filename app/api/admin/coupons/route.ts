@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     maxRedemptions: Number(payload.maxRedemptions) || 0,
     expiresAt: payload.expiresAt ? new Date(payload.expiresAt) : null,
     active: payload.active !== false,
+    visible: payload.visible !== false, // default visible
     uses: 0,
     updatedAt: new Date(),
   }

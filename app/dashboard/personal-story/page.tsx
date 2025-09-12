@@ -543,11 +543,12 @@ export default function PersonalStoryPage() {
   const currentQuestion = storyQuestions[currentStep]
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       {/* Header */}
@@ -584,7 +585,7 @@ export default function PersonalStoryPage() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
             <motion.div 
-              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-4"
+              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl mb-4"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
@@ -593,7 +594,7 @@ export default function PersonalStoryPage() {
             </motion.div>
             
             <motion.h1 
-              className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent leading-tight"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent leading-tight"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
@@ -602,7 +603,7 @@ export default function PersonalStoryPage() {
             </motion.h1>
             
             <motion.p 
-              className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed"
+              className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
@@ -655,18 +656,18 @@ export default function PersonalStoryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1.6, ease: "easeOut" }}
               >
-                <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl overflow-hidden">
-                  <CardHeader className="pb-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+                <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl overflow-hidden">
+                  <CardHeader className="pb-6 bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${currentQuestion.color} flex items-center justify-center`}>
                           <currentQuestion.icon className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <CardTitle className="text-2xl font-bold text-gray-900">
+                          <CardTitle className="text-2xl font-bold text-black dark:text-white">
                             {currentQuestion.title}
                           </CardTitle>
-                          <CardDescription className="text-gray-600 mt-1">
+                          <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
                             Step {currentStep + 1} of {storyQuestions.length} • {currentQuestion.description}
                           </CardDescription>
                         </div>
@@ -684,8 +685,8 @@ export default function PersonalStoryPage() {
                     {/* Enhanced Progress Indicator */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">Story Progress</span>
-                        <span className="text-sm text-gray-500">{Math.round(((currentStep + 1) / storyQuestions.length) * 100)}% Complete</span>
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Story Progress</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{Math.round(((currentStep + 1) / storyQuestions.length) * 100)}% Complete</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {storyQuestions.map((question, index) => (
@@ -722,7 +723,7 @@ export default function PersonalStoryPage() {
                     {/* Enhanced Question Input */}
                     <div className="space-y-6">
                       <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                           <Mic className="h-4 w-4" />
                           <span>Tip: Click the microphone icon to record your answer instead of typing</span>
                         </div>
@@ -733,27 +734,27 @@ export default function PersonalStoryPage() {
                           placeholder={currentQuestion.placeholder}
                           value={formData[currentQuestion.key]}
                           onChange={(e) => handleInputChange(currentQuestion.key, e.target.value)}
-                          className={`min-h-[200px] text-lg resize-none border-2 ${currentQuestion.borderColor} focus:border-purple-500 focus:ring-purple-200 rounded-2xl bg-gradient-to-br ${currentQuestion.bgColor} focus:bg-white pr-16 transition-all duration-300`}
+                          className={`min-h-[200px] text-lg resize-none border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 rounded-2xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-16 transition-all duration-300`}
                         />
                         <div className="absolute bottom-4 right-4">
                           <MicrophoneButton
                             onTranscript={(transcript) => handleMicrophoneTranscript(currentQuestion.key, transcript)}
                             size="sm"
                             variant="ghost"
-                            className="h-12 w-12 p-0 hover:bg-purple-100 rounded-xl transition-colors"
+                            className="h-12 w-12 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-xl transition-colors"
                           />
                         </div>
                       </div>
                     </div>
 
                     {/* Enhanced Navigation */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6 border-t border-teal-200/50 dark:border-teal-800/50">
                       <div className="flex flex-wrap gap-3">
                         <Button
                           variant="outline"
                           onClick={prevStep}
                           disabled={currentStep === 0}
-                          className="gap-2 h-12 px-6 rounded-xl border-2 hover:bg-gray-50"
+                          className="gap-2 h-12 px-6 rounded-xl border-2 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300"
                         >
                           <ArrowLeft className="w-4 h-4" />
                           Previous
@@ -761,7 +762,7 @@ export default function PersonalStoryPage() {
                         <Button
                           variant="outline"
                           onClick={clearFormData}
-                          className="gap-2 h-12 px-6 rounded-xl border-2 hover:bg-red-50 hover:border-red-200"
+                          className="gap-2 h-12 px-6 rounded-xl border-2 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/50 hover:border-red-300 dark:hover:border-red-700 text-red-600 dark:text-red-400"
                         >
                           <Trash2 className="w-4 h-4" />
                           Clear All
@@ -770,7 +771,7 @@ export default function PersonalStoryPage() {
                           variant="outline"
                           onClick={saveAnswersToDatabase}
                           disabled={Object.values(formData).every(value => value.trim() === "")}
-                          className="gap-2 h-12 px-6 rounded-xl border-2 hover:bg-blue-50 hover:border-blue-200"
+                          className="gap-2 h-12 px-6 rounded-xl border-2 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-600 dark:text-teal-400"
                         >
                           <Save className="w-4 h-4" />
                           Save Progress
@@ -780,7 +781,7 @@ export default function PersonalStoryPage() {
                       {currentStep < storyQuestions.length - 1 ? (
                         <Button 
                           onClick={nextStep} 
-                          className="gap-2 h-12 px-8 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                          className="gap-2 h-12 px-8 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                         >
                           Next Step
                           <ArrowRight className="w-4 h-4" />
@@ -789,7 +790,7 @@ export default function PersonalStoryPage() {
                         <Button
                           onClick={generateStory}
                           disabled={isGenerating}
-                          className="gap-3 h-12 px-8 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                          className="gap-3 h-12 px-8 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                         >
                           {isGenerating ? (
                             <>
@@ -818,7 +819,7 @@ export default function PersonalStoryPage() {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
+                    <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
                       <CardContent className="flex items-center justify-center py-16">
                         <div className="text-center space-y-6">
                           <motion.div
@@ -826,19 +827,19 @@ export default function PersonalStoryPage() {
                             animate={{ rotate: 360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           >
-                            <div className="w-20 h-20 border-4 border-purple-200 border-t-purple-500 rounded-full"></div>
+                            <div className="w-20 h-20 border-4 border-teal-200 dark:border-teal-800 border-t-teal-500 dark:border-t-teal-400 rounded-full"></div>
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <Sparkles className="w-8 h-8 text-purple-500 animate-pulse" />
+                              <Sparkles className="w-8 h-8 text-teal-500 dark:text-teal-400 animate-pulse" />
                             </div>
                           </motion.div>
                           <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-gray-900">Crafting Your Stories</h3>
-                            <p className="text-gray-600">Our AI is weaving your experiences into compelling narratives...</p>
+                            <h3 className="text-2xl font-bold text-black dark:text-white">Crafting Your Stories</h3>
+                            <p className="text-gray-600 dark:text-gray-400">Our AI is weaving your experiences into compelling narratives...</p>
                           </div>
                           <div className="flex justify-center space-x-1">
-                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                           </div>
                         </div>
                       </CardContent>
@@ -853,17 +854,17 @@ export default function PersonalStoryPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl">
-                    <CardHeader className="pb-6 bg-gradient-to-r from-green-500/10 to-emerald-500/10">
+                  <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
+                    <CardHeader className="pb-6 bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-secondary rounded-2xl flex items-center justify-center">
                           <BookOpen className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <CardTitle className="text-2xl font-bold text-gray-900">
+                          <CardTitle className="text-2xl font-bold text-black dark:text-white">
                             Your Story Collection
                           </CardTitle>
-                          <CardDescription className="text-gray-600 mt-1">
+                          <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
                             {generatedStories.length} unique variations • Choose your favorite to share
                           </CardDescription>
                         </div>
@@ -874,24 +875,24 @@ export default function PersonalStoryPage() {
                       <div className="space-y-6">
                         {generatedStories.length > 0 && generatedStories.every(story => !story.content || story.content.length < 50) && (
                           <motion.div 
-                            className="p-6 border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl"
+                            className="p-6 border-2 border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/30 rounded-2xl"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3 }}
                           >
                             <div className="flex items-center gap-3 mb-4">
-                              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                              <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
                                 <RefreshCw className="w-4 h-4 text-white" />
                               </div>
-                              <h4 className="font-semibold text-orange-800">Regeneration Needed</h4>
+                              <h4 className="font-semibold text-amber-800 dark:text-amber-200">Regeneration Needed</h4>
                             </div>
-                            <p className="text-orange-700 mb-4">
+                            <p className="text-amber-700 dark:text-amber-300 mb-4">
                               Some stories may not have generated properly. Click below to regenerate with fresh content.
                             </p>
                             <Button 
                               onClick={generateStory}
                               disabled={isGenerating}
-                              className="gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+                              className="gap-2 bg-amber-500 hover:bg-amber-600 text-white"
                             >
                               <RefreshCw className="w-4 h-4" />
                               {isGenerating ? "Regenerating..." : "Regenerate Stories"}
@@ -909,7 +910,7 @@ export default function PersonalStoryPage() {
                               className="group cursor-pointer"
                               onClick={() => handleSelectStory(story)}
                             >
-                              <Card className="bg-white border-2 border-gray-200 hover:border-purple-300 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                              <Card className="bg-white dark:bg-black border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
                                 <CardContent className="p-6">
                                   <div className="flex items-start justify-between mb-4">
                                     <div className="flex flex-wrap items-center gap-2">
@@ -925,33 +926,33 @@ export default function PersonalStoryPage() {
                                         </Badge>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-2 text-gray-400 group-hover:text-purple-500 transition-colors">
+                                    <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 group-hover:text-teal-500 dark:group-hover:text-teal-400 transition-colors">
                                       <Eye className="w-5 h-5" />
                                       <span className="text-sm font-medium">Preview</span>
                                     </div>
                                   </div>
                                   
-                                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors">
+                                  <h3 className="text-xl font-bold text-black dark:text-white mb-3 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
                                     {story.title}
                                   </h3>
                                   
-                                  <p className="text-gray-600 leading-relaxed line-clamp-4 mb-4">
+                                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-4 mb-4">
                                     {story.content && story.content.length > 0 
                                       ? story.content 
                                       : "Story content is being generated..."}
                                   </p>
                                   
                                   {story.content && story.content.length > 0 && (
-                                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                                    <div className="flex gap-3 pt-4 border-t border-teal-200/50 dark:border-teal-800/50">
                                       <LinkedInPostButton 
                                         content={story.content}
-                                        className="flex-1 h-10 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl"
+                                        className="flex-1 h-10 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl"
                                       />
                                       <ScheduleButton
                                         content={story.content}
                                         defaultPlatform="linkedin"
                                         defaultType="text"
-                                        className="flex-1 h-10 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl"
+                                        className="flex-1 h-10 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl"
                                       />
                                     </div>
                                   )}
@@ -986,15 +987,15 @@ export default function PersonalStoryPage() {
 
       {/* Enhanced Preview Modal */}
       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto bg-white/95 backdrop-blur-sm">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200 dark:border-teal-800">
           <DialogHeader className="pb-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-secondary rounded-2xl flex items-center justify-center">
                 <Eye className="w-6 h-6 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-bold text-gray-900">Story Preview</DialogTitle>
-                <DialogDescription className="text-gray-600 mt-1">
+                <DialogTitle className="text-2xl font-bold text-black dark:text-white">Story Preview</DialogTitle>
+                <DialogDescription className="text-gray-600 dark:text-gray-400 mt-1">
                   Review your generated personal story before publishing to LinkedIn
                 </DialogDescription>
               </div>
@@ -1009,26 +1010,26 @@ export default function PersonalStoryPage() {
               transition={{ duration: 0.5 }}
             >
               {/* Story Content */}
-              <Card className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-2 border-purple-200">
+              <Card className="bg-gradient-to-br from-teal-50/50 to-secondary/20 dark:from-teal-950/30 dark:to-secondary/10 border-2 border-teal-200 dark:border-teal-800">
                 <CardContent className="p-8">
                   <div className="flex flex-wrap items-center gap-3 mb-6">
-                    <Badge variant="secondary" className="text-sm px-3 py-1">
+                    <Badge variant="secondary" className="text-sm px-3 py-1 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300">
                       {selectedStory.tone}
                     </Badge>
-                    <Badge variant="outline" className="text-sm px-3 py-1">
+                    <Badge variant="outline" className="text-sm px-3 py-1 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300">
                       {selectedStory.wordCount} words
                     </Badge>
                     {selectedStory.variation && (
-                      <Badge className="text-sm px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                      <Badge className="text-sm px-3 py-1 bg-gradient-to-r from-teal-500 to-secondary text-white">
                         Variation {selectedStory.variation}
                       </Badge>
                     )}
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">{selectedStory.title}</h3>
+                  <h3 className="text-2xl font-bold text-black dark:text-white mb-6">{selectedStory.title}</h3>
                   
                   <div className="prose prose-lg max-w-none">
-                    <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-base">
+                    <div className="whitespace-pre-wrap text-black dark:text-white leading-relaxed text-base">
                       {selectedStory.content}
                     </div>
                   </div>
@@ -1040,7 +1041,7 @@ export default function PersonalStoryPage() {
                 <Button 
                   onClick={handlePostStory}
                   disabled={isPosting}
-                  className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="flex-1 h-12 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   {isPosting ? (
                     <>
@@ -1057,7 +1058,7 @@ export default function PersonalStoryPage() {
                 <Button 
                   variant="outline" 
                   onClick={handleSaveDraft} 
-                  className="flex-1 h-12 border-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 rounded-xl transition-all duration-300"
+                  className="flex-1 h-12 border-2 border-teal-200 dark:border-teal-800 hover:border-teal-300 dark:hover:border-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300 rounded-xl transition-all duration-300"
                 >
                   <Save className="w-5 h-5 mr-3" />
                   <span>Save to Drafts</span>

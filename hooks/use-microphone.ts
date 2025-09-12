@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 
 interface UseMicrophoneOptions {
   language?: string
@@ -33,9 +33,10 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
   const [error, setError] = useState<string | null>(null)
   const [isSupported, setIsSupported] = useState(false)
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<any | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+  const streamRef = useRef<MediaStream | null>(null)
 
   // Check if speech recognition is supported
   const checkSupport = useCallback(() => {
@@ -55,8 +56,8 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
     if (!SpeechRecognition) return null
 
     const recognition = new SpeechRecognition()
-    recognition.continuous = false // Set to false to avoid continuous recognition
-    recognition.interimResults = false // Set to false to only get final results
+    recognition.continuous = true // Set to true for continuous recording
+    recognition.interimResults = true // Set to true to get interim results
     recognition.lang = language
     recognition.maxAlternatives = 1
 
@@ -67,30 +68,48 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
       setTranscript('') // Clear previous transcript
     }
 
-    recognition.onresult = (event) => {
-      // Get the most confident result
-      const result = event.results[0][0]
-      const transcript = result.transcript.trim()
+    recognition.onresult = (event: any) => {
+      let finalTranscript = ''
+      let interimTranscript = ''
       
-      if (transcript) {
-        setTranscript(transcript)
+      // Process all results
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i]
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript
+        } else {
+          interimTranscript += result[0].transcript
+        }
+      }
+      
+      // Update transcript with both final and interim results
+      const fullTranscript = finalTranscript + interimTranscript
+      if (fullTranscript.trim()) {
+        setTranscript(fullTranscript.trim())
       }
     }
 
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error)
+      // Don't stop recording for certain errors that can be recovered
+      if (event.error === 'no-speech' || event.error === 'audio-capture') {
+        // These errors are common and don't require stopping
+        return
+      }
       setError(`Speech recognition error: ${event.error}`)
       setIsRecording(false)
       setIsPaused(false)
     }
 
     recognition.onend = () => {
-      setIsRecording(false)
-      setIsPaused(false)
+      // Only stop if not manually paused
+      if (!isPaused) {
+        setIsRecording(false)
+      }
     }
 
     return recognition
-  }, [language])
+  }, [language, isPaused])
 
   const startRecording = useCallback(async () => {
     try {
@@ -98,19 +117,21 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
       
       // Check for microphone permission
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream // Store the stream for cleanup
       
       // Initialize speech recognition
       const recognition = initializeSpeechRecognition()
       if (!recognition) {
         setError('Speech recognition is not supported in this browser')
+        // Clean up stream if recognition fails
+        stream.getTracks().forEach(track => track.stop())
         return
       }
 
       recognitionRef.current = recognition
       recognition.start()
       
-      // Clean up the stream after starting recognition
-      stream.getTracks().forEach(track => track.stop())
+      // Keep the stream alive for continuous recording
       
     } catch (err) {
       console.error('Error starting recording:', err)
@@ -132,12 +153,20 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
     if (recognitionRef.current && isRecording && !isPaused) {
       recognitionRef.current.stop()
       setIsPaused(true)
+      // Keep the stream alive when pausing for resume functionality
     }
   }, [isRecording, isPaused])
 
   const resumeRecording = useCallback(async () => {
     if (isPaused && !isRecording) {
       try {
+        // Check if we still have a valid stream
+        if (!streamRef.current) {
+          // Re-acquire stream if needed
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+          streamRef.current = stream
+        }
+        
         const recognition = initializeSpeechRecognition()
         if (recognition) {
           recognitionRef.current = recognition
@@ -155,6 +184,13 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
       recognitionRef.current.stop()
       recognitionRef.current = null
     }
+    
+    // Clean up the audio stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    
     setIsRecording(false)
     setIsPaused(false)
   }, [])
@@ -168,6 +204,18 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
   useState(() => {
     checkSupport()
   })
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop())
+      }
+    }
+  }, [])
 
   return {
     isRecording,
@@ -186,7 +234,7 @@ export function useMicrophone(options: UseMicrophoneOptions = {}): UseMicrophone
 // Extend Window interface for TypeScript
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition
-    webkitSpeechRecognition: typeof SpeechRecognition
+    SpeechRecognition: any
+    webkitSpeechRecognition: any
   }
 }

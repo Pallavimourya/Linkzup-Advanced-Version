@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Plus, Tag, Percent, DollarSign, Users, Calendar, CheckCircle, XCircle, Trash2, Edit } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Plus, Tag, Percent, DollarSign, Users, Calendar, CheckCircle, XCircle, Trash2, Edit, Eye } from "lucide-react"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -22,6 +23,7 @@ export default function AdminCouponsPage() {
     maxRedemptions: 100,
     expiresAt: "",
     active: true,
+    visible: true,
   })
 
   // Predefined coupons
@@ -61,7 +63,7 @@ export default function AdminCouponsPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(draft),
     })
-    setDraft({ code: "", type: "percent", value: 10, maxRedemptions: 100, expiresAt: "", active: true })
+    setDraft({ code: "", type: "percent", value: 10, maxRedemptions: 100, expiresAt: "", active: true, visible: true })
     mutate()
   }
 
@@ -228,6 +230,27 @@ export default function AdminCouponsPage() {
             </div>
           </div>
 
+          {/* Visibility Control */}
+          <div className="space-y-2">
+            <Label htmlFor="coupon-visibility" className="text-sm">Visibility</Label>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="coupon-visibility"
+                checked={draft.visible}
+                onCheckedChange={(checked) => setDraft({ ...draft, visible: checked })}
+              />
+              <Label htmlFor="coupon-visibility" className="text-sm">
+                {draft.visible ? "Visible to users" : "Hidden from users"}
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {draft.visible 
+                ? "This coupon will be visible in the user dashboard billing section" 
+                : "This coupon will be hidden from users but can still be applied manually"
+              }
+            </p>
+          </div>
+
           <Separator />
 
           <Button onClick={save} className="w-full sm:w-auto text-sm sm:text-base">
@@ -271,6 +294,17 @@ export default function AdminCouponsPage() {
                           <Badge variant="outline" className="text-red-600 border-red-600 text-xs">
                             <XCircle className="h-3 w-3 mr-1" />
                             Inactive
+                          </Badge>
+                        )}
+                        {c.visible !== false ? (
+                          <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">
+                            <Eye className="h-3 w-3 mr-1" />
+                            Visible
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-gray-600 border-gray-600 text-xs">
+                            <Eye className="h-3 w-3 mr-1" />
+                            Hidden
                           </Badge>
                         )}
                       </div>

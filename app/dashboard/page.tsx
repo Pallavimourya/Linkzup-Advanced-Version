@@ -651,11 +651,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
       {/* Header */}
       <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-3 sm:px-4 lg:px-6">
@@ -672,25 +673,25 @@ export default function DashboardPage() {
         {/* Show form only when not generating and no content generated */}
         {!isGenerating && generatedPosts.length === 0 && (
           <div className="max-w-5xl mx-auto">
-            <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-sm">
+            <Card className="shadow-2xl bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50">
               <CardHeader className="pb-6 sm:pb-8 lg:pb-12 text-center px-4 sm:px-6 lg:px-8">
-                <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary to-purple-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mb-4 sm:mb-6">
+                <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl sm:rounded-3xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg">
                   <Wand2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
-                <CardTitle className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">
+                <CardTitle className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black dark:text-white">
                   Start Creating
                 </CardTitle>
-                <CardDescription className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl sm:max-w-3xl mx-auto">
+                <CardDescription className="text-base sm:text-lg lg:text-xl text-gray-700 dark:text-gray-300 max-w-2xl sm:max-w-3xl mx-auto">
                   Describe what you want to post about, and our AI will generate engaging content for you.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6 sm:space-y-8 lg:space-y-10 px-4 sm:px-6 lg:px-8 xl:px-12 pb-8 sm:pb-10 lg:pb-12">
                 {/* Main Prompt */}
                 <div className="space-y-3">
-                  <Label htmlFor="prompt" className="text-base sm:text-lg font-semibold text-gray-900">
+                  <Label htmlFor="prompt" className="text-base sm:text-lg font-semibold text-black dark:text-white">
                     What would you like to post about?
                   </Label>
-                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                     <Mic className="h-4 w-4" />
                     Tip: Click the microphone icon to record your prompt instead of typing
                   </p>
@@ -700,14 +701,14 @@ export default function DashboardPage() {
                       placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      className="min-h-[120px] sm:min-h-[140px] text-lg resize-none pr-14 border-2 border-gray-200 focus:border-primary transition-all duration-200 rounded-xl bg-gray-50/50 focus:bg-white"
+                      className="min-h-[120px] sm:min-h-[140px] text-lg resize-none pr-14 border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 transition-all duration-200 rounded-xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     />
                     <div className="absolute bottom-4 right-4">
                       <MicrophoneButton
                         onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
                         size="sm"
                         variant="ghost"
-                        className="h-10 w-10 p-0 hover:bg-primary/10 rounded-lg transition-colors"
+                        className="h-10 w-10 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-lg transition-colors"
                       />
                     </div>
                   </div>
@@ -717,7 +718,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => setShowCustomizationPanel(true)}
                   disabled={!prompt.trim() || isGenerating}
-                  className="w-full h-14 sm:h-16 text-lg sm:text-xl font-semibold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white border-0 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+                  className="w-full h-14 sm:h-16 text-lg sm:text-xl font-semibold bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white border-0 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
                   size="lg"
                 >
                   <Sparkles className="w-6 h-6 mr-3" />
@@ -733,10 +734,10 @@ export default function DashboardPage() {
           <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 mt-32 sm:mt-40">
             {/* Section Title */}
             <div className="text-center">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent mb-4">
                 Explore AI Tools
               </h2>
-              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
                 Choose from our powerful AI-powered content creation tools
               </p>
             </div>
@@ -745,18 +746,18 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {/* Carousel Card */}
               <Card 
-                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl overflow-hidden"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/ai-carousel')}
               >
                 <CardContent className="p-6 sm:p-8 relative">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <Layers className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">AI Carousels</h3>
-                    <p className="text-gray-600 leading-relaxed">Create stunning swipe-worthy carousels with AI-generated content and visuals</p>
-                    <div className="mt-6 flex items-center text-primary font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                    <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">AI Carousels</h3>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Create stunning swipe-worthy carousels with AI-generated content and visuals</p>
+                    <div className="mt-6 flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                       <span>Get Started</span>
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -768,18 +769,18 @@ export default function DashboardPage() {
 
               {/* AI Topics Card */}
               <Card 
-                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl overflow-hidden"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/ai-articles')}
               >
                 <CardContent className="p-6 sm:p-8 relative">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full -translate-y-10 translate-x-10"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-secondary to-teal-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <BookOpen className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Post Ideas</h3>
-                    <p className="text-gray-600 leading-relaxed">Generate compelling post ideas and headlines that capture attention</p>
-                    <div className="mt-6 flex items-center text-primary font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                    <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">Post Ideas</h3>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Generate compelling post ideas and headlines that capture attention</p>
+                    <div className="mt-6 flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                       <span>Get Started</span>
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -791,18 +792,18 @@ export default function DashboardPage() {
 
               {/* Personal Story Card */}
               <Card 
-                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl overflow-hidden"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/personal-story')}
               >
                 <CardContent className="p-6 sm:p-8 relative">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <User className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Personal Stories</h3>
-                    <p className="text-gray-600 leading-relaxed">Share your personal journey and experiences in an engaging way</p>
-                    <div className="mt-6 flex items-center text-primary font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                    <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">Personal Stories</h3>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Share your personal journey and experiences in an engaging way</p>
+                    <div className="mt-6 flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                       <span>Get Started</span>
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -821,12 +822,12 @@ export default function DashboardPage() {
             {/* Enhanced Section Header */}
             <div className="text-center space-y-6">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-purple-500/20 to-blue-500/20 blur-3xl rounded-full"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 via-secondary/20 to-teal-400/20 blur-3xl rounded-full"></div>
                 <div className="relative">
-                  <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-primary to-purple-600 bg-clip-text text-transparent mb-4">
+                  <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent mb-4">
                     AI Topic Generator
               </h2>
-                  <p className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                  <p className="text-xl sm:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
                     Discover trending topics and get instant inspiration for your next viral post
               </p>
                 </div>
@@ -838,12 +839,12 @@ export default function DashboardPage() {
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-4 max-w-4xl mx-auto">
                   {/* Search Input */}
                   <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 w-5 h-5" />
                     <Input
                       placeholder="Search topics..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-3 bg-white/90 backdrop-blur-sm border-2 border-gray-200 focus:border-primary rounded-xl shadow-lg focus:shadow-xl transition-all duration-300"
+                      className="pl-10 pr-4 py-3 bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 rounded-xl shadow-lg focus:shadow-xl transition-all duration-300 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     />
                   </div>
                   
@@ -857,8 +858,8 @@ export default function DashboardPage() {
                         onClick={() => setSelectedCategory(category.id)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
                           selectedCategory === category.id
-                            ? "bg-primary text-white shadow-lg"
-                            : "bg-white/90 backdrop-blur-sm border-2 border-gray-200 hover:border-primary/40 hover:bg-primary/5"
+                            ? "bg-teal-500 text-white shadow-lg"
+                            : "bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-teal-200 dark:border-teal-800 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/50"
                         }`}
                       >
                         <span className="text-lg">{category.icon}</span>
@@ -866,7 +867,7 @@ export default function DashboardPage() {
                         <span className={`text-xs px-2 py-1 rounded-full ${
                           selectedCategory === category.id
                             ? "bg-white/20 text-white"
-                            : "bg-gray-100 text-gray-600"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                         }`}>
                           {category.count}
                         </span>
@@ -887,14 +888,14 @@ export default function DashboardPage() {
                         description: "Fresh topic suggestions have been loaded for you.",
                   })
                 }}
-                    className="bg-white/90 backdrop-blur-sm border-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3"
+                    className="bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-teal-200 dark:border-teal-800 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3"
               >
                     <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
                     <span className="font-semibold">Refresh Topics</span>
               </Button>
                   
-                  <div className="flex items-center gap-2 text-sm text-gray-500 bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full border border-teal-200 dark:border-teal-800">
+                    <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
                     <span>Live trending data</span>
                   </div>
                 </div>
@@ -904,7 +905,7 @@ export default function DashboardPage() {
             {/* Enhanced Topics Grid */}
             <div className="relative">
               {/* Background Pattern */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 rounded-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-secondary/5 rounded-3xl"></div>
               
               <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 p-6 sm:p-8">
                 {randomTopics.length > 0 ? (
@@ -926,32 +927,32 @@ export default function DashboardPage() {
                       whileTap={{ scale: 0.95 }}
                     >
                       <Card 
-                        className={`group cursor-pointer transition-all duration-500 bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl overflow-hidden relative ${
+                        className={`group cursor-pointer transition-all duration-500 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-xl hover:shadow-2xl overflow-hidden relative ${
                           clickedTopic === topicData.topic 
-                            ? 'ring-2 ring-primary/60 bg-gradient-to-br from-primary/10 to-purple-500/10 scale-105 shadow-2xl' 
-                            : 'hover:ring-2 hover:ring-primary/30 hover:bg-gradient-to-br hover:from-white/90 hover:to-primary/5'
+                            ? 'ring-2 ring-teal-500/60 bg-gradient-to-br from-teal-500/10 to-secondary/10 scale-105 shadow-2xl' 
+                            : 'hover:ring-2 hover:ring-teal-500/30 hover:bg-gradient-to-br hover:from-white/90 dark:hover:from-black/90 hover:to-teal-500/5'
                         }`}
                         onClick={() => handleTopicClick(topicData.topic)}
                       >
                         {/* Animated Background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
                         {/* Floating Elements */}
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-500"></div>
-                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 rounded-full translate-y-8 -translate-x-8 group-hover:scale-110 transition-transform duration-500"></div>
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-500"></div>
+                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-secondary/10 to-teal-500/10 rounded-full translate-y-8 -translate-x-8 group-hover:scale-110 transition-transform duration-500"></div>
                         
                         <CardContent className="p-6 sm:p-8 relative z-10">
                           <div className="space-y-4">
                             {/* Icon Container */}
                             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 ${
                               clickedTopic === topicData.topic 
-                                ? 'bg-gradient-to-br from-primary to-purple-600 scale-110 shadow-lg' 
-                                : 'bg-gradient-to-br from-primary/10 to-purple-500/10 group-hover:from-primary/20 group-hover:to-purple-500/20 group-hover:scale-110 group-hover:shadow-lg'
+                                ? 'bg-gradient-to-br from-teal-500 to-secondary scale-110 shadow-lg' 
+                                : 'bg-gradient-to-br from-teal-500/10 to-secondary/10 group-hover:from-teal-500/20 group-hover:to-secondary/20 group-hover:scale-110 group-hover:shadow-lg'
                             }`}>
                               {clickedTopic === topicData.topic ? (
                                 <Loader2 className="w-8 h-8 text-white animate-spin" />
                               ) : (
-                                <div className="text-primary group-hover:text-white transition-colors duration-300">
+                                <div className="text-teal-600 dark:text-teal-400 group-hover:text-white transition-colors duration-300">
                                   {getTopicIcon(topicData.category)}
                                 </div>
                         )}
@@ -960,15 +961,15 @@ export default function DashboardPage() {
                             {/* Topic Title */}
                             <h3 className={`text-base sm:text-lg font-bold leading-tight transition-colors duration-300 ${
                               clickedTopic === topicData.topic 
-                          ? 'text-primary' 
-                          : 'text-gray-900 group-hover:text-primary'
+                          ? 'text-teal-600 dark:text-teal-400' 
+                          : 'text-black dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400'
                       }`}>
                               {topicData.topic}
                       </h3>
                             
                             {/* Category Badge */}
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full font-medium">
+                              <span className="text-xs text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full font-medium">
                                 {topicCategories.find(c => c.id === topicData.category)?.name || topicData.category}
                               </span>
                             </div>
@@ -977,8 +978,8 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-between">
                               <div className={`flex items-center text-sm transition-colors duration-300 ${
                                 clickedTopic === topicData.topic 
-                                  ? 'text-primary' 
-                                  : 'text-gray-500 group-hover:text-primary'
+                                  ? 'text-teal-600 dark:text-teal-400' 
+                                  : 'text-gray-600 dark:text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400'
                               }`}>
                                 <span className="font-medium">Click to generate</span>
                                 <motion.svg 
@@ -994,8 +995,8 @@ export default function DashboardPage() {
                               </div>
                               
                               {/* Trending Badge */}
-                              <div className="flex items-center gap-1 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                              <div className="flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-900/50 px-2 py-1 rounded-full">
+                                <div className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse"></div>
                                 <span className="font-medium">Trending</span>
                               </div>
                       </div>
@@ -1065,22 +1066,22 @@ export default function DashboardPage() {
         {isGenerating && (
           <div className="flex flex-col items-center justify-center py-16 sm:py-20 space-y-8">
             <div className="relative">
-              <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+              <div className="w-20 h-20 border-4 border-teal-200 dark:border-teal-800 border-t-teal-500 rounded-full animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+                <Sparkles className="w-8 h-8 text-teal-500 animate-pulse" />
               </div>
             </div>
             <div className="text-center space-y-4 max-w-md mx-auto">
-              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
                 Creating Magic
               </h3>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                 Our AI is crafting engaging content tailored just for you...
               </p>
               <div className="flex justify-center space-x-1">
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
               </div>
             </div>
           </div>
@@ -1090,13 +1091,13 @@ export default function DashboardPage() {
         {generatedPosts.length > 0 && (
           <div className="max-w-6xl mx-auto space-y-8">
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl mb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl mb-4 shadow-lg">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
                 Your Content is Ready!
               </h2>
-              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
                 We've generated {generatedPosts.length} unique {generatedPosts.length === 1 ? 'post' : 'posts'} for you. 
                 Click on any post to preview and customize before publishing.
               </p>
@@ -1125,7 +1126,7 @@ export default function DashboardPage() {
                 }}
                 variant="outline"
                 size="lg"
-                className="bg-white/80 backdrop-blur-sm border-gray-200 hover:bg-gray-50 shadow-lg hover:shadow-xl transition-all duration-200 px-8"
+                className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 shadow-lg hover:shadow-xl transition-all duration-200 px-8"
               >
                 <Sparkles className="w-5 h-5 mr-2" />
                 Generate More Content
@@ -1137,7 +1138,7 @@ export default function DashboardPage() {
                 }}
                 variant="ghost"
                 size="lg"
-                className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200"
               >
                 Start Over
               </Button>
@@ -1149,10 +1150,10 @@ export default function DashboardPage() {
       {/* Customization Panel - Overlay */}
       {showCustomizationPanel && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex justify-end">
-          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[45%] bg-white h-full shadow-2xl overflow-y-auto">
+          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[45%] bg-white dark:bg-black h-full shadow-2xl overflow-y-auto border-l border-teal-200/50 dark:border-teal-800/50">
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b p-4 sm:p-6 flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-semibold">Customize your post</h2>
+            <div className="sticky top-0 bg-white dark:bg-black border-b border-teal-200 dark:border-teal-800 p-4 sm:p-6 flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl font-semibold text-black dark:text-white">Customize your post</h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -1167,11 +1168,11 @@ export default function DashboardPage() {
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Input Field */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">What would you like to post about?</Label>
+                <Label className="text-sm font-medium text-black dark:text-white">What would you like to post about?</Label>
                 <Input
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full"
+                  className="w-full bg-white dark:bg-black border-teal-200 dark:border-teal-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Enter your topic..."
                 />
               </div>
@@ -1180,7 +1181,7 @@ export default function DashboardPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Tone</Label>
+                    <Label className="text-sm font-medium text-black dark:text-white">Tone</Label>
                     <Select
                       value={customization.tone}
                       onValueChange={(value) => setCustomization(prev => ({ ...prev, tone: value as any }))}
@@ -1200,7 +1201,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Word Count</Label>
+                    <Label className="text-sm font-medium text-black dark:text-white">Word Count</Label>
                     <Select
                       value={customization.wordCount?.toString()}
                       onValueChange={(value) => setCustomization(prev => ({ ...prev, wordCount: parseInt(value) }))}
@@ -1220,7 +1221,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Language</Label>
+                  <Label className="text-sm font-medium text-black dark:text-white">Language</Label>
                   <Select
                     value={customization.language}
                     onValueChange={(value) => setCustomization(prev => ({ ...prev, language: value }))}
@@ -1240,7 +1241,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Content Type</Label>
+                  <Label className="text-sm font-medium text-black dark:text-white">Content Type</Label>
                   <Select
                     value={contentType}
                     onValueChange={(value) => setContentType(value as any)}
@@ -1259,7 +1260,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Target Audience</Label>
+                  <Label className="text-sm font-medium text-black dark:text-white">Target Audience</Label>
                   <Input
                     placeholder="e.g., LinkedIn professionals"
                     value={customization.targetAudience}
@@ -1269,7 +1270,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Main Goal</Label>
+                  <Label className="text-sm font-medium text-black dark:text-white">Main Goal</Label>
                   <Select
                     value={customization.mainGoal}
                     onValueChange={(value) => setCustomization(prev => ({ ...prev, mainGoal: value as any }))}
@@ -1288,13 +1289,13 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Content Features */}
-                <div className="space-y-3 pt-4 border-t">
-                  <h3 className="text-sm font-medium">Content Features</h3>
+                <div className="space-y-3 pt-4 border-t border-teal-200 dark:border-teal-800">
+                  <h3 className="text-sm font-medium text-black dark:text-white">Content Features</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Hash className="w-4 h-4" />
-                        <Label className="text-sm">Include Hashtags</Label>
+                        <Label className="text-sm text-black dark:text-white">Include Hashtags</Label>
                       </div>
                       <input
                         type="checkbox"
@@ -1307,7 +1308,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Smile className="w-4 h-4" />
-                        <Label className="text-sm">Include Emojis</Label>
+                        <Label className="text-sm text-black dark:text-white">Include Emojis</Label>
                       </div>
                       <input
                         type="checkbox"
@@ -1320,7 +1321,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <MousePointer className="w-4 h-4" />
-                        <Label className="text-sm">Call to Action</Label>
+                        <Label className="text-sm text-black dark:text-white">Call to Action</Label>
                       </div>
                       <input
                         type="checkbox"
@@ -1341,11 +1342,11 @@ export default function DashboardPage() {
                     await handleGenerate()
                   }}
                   disabled={!prompt.trim() || isGenerating}
-                  className="w-full h-10 sm:h-11 md:h-12"
+                  className="w-full h-10 sm:h-11 md:h-12 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white"
                 >
                   {isGenerating ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Generating...
                     </>
                   ) : (
@@ -1373,10 +1374,10 @@ export default function DashboardPage() {
       {/* Generation Modal */}
       {/* Generation Modal */}
       <Dialog open={showGenerationModal} onOpenChange={setShowGenerationModal}>
-        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto bg-white dark:bg-black border-teal-200 dark:border-teal-800">
           <DialogHeader>
-            <DialogTitle className="text-lg sm:text-xl">Generate Content</DialogTitle>
-            <DialogDescription className="text-sm sm:text-base">
+            <DialogTitle className="text-lg sm:text-xl text-black dark:text-white">Generate Content</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
               Review your settings and generate content with AI.
             </DialogDescription>
           </DialogHeader>
@@ -1384,30 +1385,30 @@ export default function DashboardPage() {
           <div className="space-y-4 sm:space-y-6">
             {/* Prompt Preview */}
             <div className="space-y-2">
-              <Label className="text-sm sm:text-base">Your Topic</Label>
-              <div className="p-3 border rounded-lg bg-muted/30">
-                <p className="text-sm sm:text-base">{prompt}</p>
+              <Label className="text-sm sm:text-base text-black dark:text-white">Your Topic</Label>
+              <div className="p-3 border border-teal-200 dark:border-teal-800 rounded-lg bg-gray-50 dark:bg-gray-900">
+                <p className="text-sm sm:text-base text-black dark:text-white">{prompt}</p>
               </div>
             </div>
 
             {/* Current Settings Summary */}
             <div className="space-y-2">
-              <Label className="text-sm sm:text-base">Current Settings</Label>
+              <Label className="text-sm sm:text-base text-black dark:text-white">Current Settings</Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">Content Type:</span>
+                  <span className="font-medium text-black dark:text-white">Content Type:</span>
                   <Badge variant="outline" className="text-xs">{contentType}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">Tone:</span>
+                  <span className="font-medium text-black dark:text-white">Tone:</span>
                   <Badge variant="outline" className="text-xs">{customization.tone}</Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">Word Count:</span>
+                  <span className="font-medium text-black dark:text-white">Word Count:</span>
                   <Badge variant="outline" className="text-xs">{customization.wordCount} words</Badge>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">Language:</span>
+                  <span className="font-medium text-black dark:text-white">Language:</span>
                   <Badge variant="outline" className="text-xs">{customization.language}</Badge>
                 </div>
               </div>
@@ -1415,7 +1416,7 @@ export default function DashboardPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setShowGenerationModal(false)} className="w-full sm:w-auto min-h-[40px]">
+              <Button variant="outline" onClick={() => setShowGenerationModal(false)} className="w-full sm:w-auto min-h-[40px] border-teal-200 dark:border-teal-800 text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">
                 Cancel
               </Button>
               <Button 
@@ -1424,11 +1425,11 @@ export default function DashboardPage() {
                   setShowGenerationModal(false)
                 }}
                 disabled={isGenerating}
-                className="relative overflow-hidden w-full sm:w-auto min-h-[40px]"
+                className="relative overflow-hidden w-full sm:w-auto min-h-[40px] bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white"
               >
                 {isGenerating ? (
                   <>
-                    <div className="absolute inset-0 bg-primary/20" />
+                    <div className="absolute inset-0 bg-teal-500/20" />
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
                     <div className="relative flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>

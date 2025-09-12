@@ -500,11 +500,12 @@ export default function AIArticlesPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-4 lg:p-6">
@@ -515,10 +516,10 @@ export default function AIArticlesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent mb-4">
             AI Topic Generator
           </h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Discover trending topics and get instant inspiration for your next viral post
           </p>
         </motion.div>
@@ -533,11 +534,11 @@ export default function AIArticlesPage() {
           <div className="flex flex-wrap justify-center gap-3 max-w-4xl">
             <Button 
               variant="default"
-              className="px-6 py-3 rounded-full font-medium transition-all duration-200 bg-blue-600 text-white shadow-lg"
+              className="px-6 py-3 rounded-full font-medium transition-all duration-200 bg-gradient-to-r from-teal-500 to-secondary text-white shadow-lg"
             >
               <Star className="w-4 h-4 mr-2" />
               All Topics
-              <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
+              <Badge variant="secondary" className="ml-2 bg-white/20 text-white">
                 {recommendedTopics.length}
               </Badge>
             </Button>
@@ -546,11 +547,11 @@ export default function AIArticlesPage() {
               <Button 
                 key={category}
                 variant="outline"
-                className="px-6 py-3 rounded-full font-medium transition-all duration-200 bg-white text-gray-700 border-gray-200 hover:border-blue-300 hover:text-blue-600"
+                className="px-6 py-3 rounded-full font-medium transition-all duration-200 bg-white dark:bg-black text-gray-700 dark:text-gray-300 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:text-teal-600 dark:hover:text-teal-400"
               >
                 <Star className="w-4 h-4 mr-2" />
                 <span className="ml-2 capitalize">{category}</span>
-                <Badge variant="secondary" className="ml-2 bg-gray-100 text-gray-600">
+                <Badge variant="secondary" className="ml-2 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300">
                   {Math.floor(Math.random() * 10) + 1}
                 </Badge>
               </Button>
@@ -567,15 +568,15 @@ export default function AIArticlesPage() {
         >
           <Button 
             variant="outline"
-            className="px-6 py-2 border-blue-200 text-gray-700 hover:border-blue-300 hover:text-blue-600 bg-white"
+            className="px-6 py-2 border-teal-200 dark:border-teal-800 text-gray-700 dark:text-gray-300 hover:border-teal-500 dark:hover:border-teal-400 hover:text-teal-600 dark:hover:text-teal-400 bg-white dark:bg-black"
             onClick={() => window.location.reload()}
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh Topics
           </Button>
           
-          <div className="flex items-center gap-2 text-gray-600">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
             <span className="text-sm font-medium">Live trending data</span>
           </div>
         </motion.div>
@@ -589,12 +590,12 @@ export default function AIArticlesPage() {
             transition={{ duration: 0.6, delay: 0.6 }}
           >
             <div className="w-full max-w-2xl">
-              <div className="flex items-center border-2 border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-blue-500 focus-within:shadow-lg">
+              <div className="flex items-center border-2 border-teal-200 dark:border-teal-800 rounded-2xl overflow-hidden bg-white dark:bg-black shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-teal-500 dark:focus-within:border-teal-400 focus-within:shadow-lg">
                 <div className="flex-shrink-0">
                   <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
                     <SelectTrigger className="w-40 h-14 border-0 bg-transparent focus:ring-0">
                       <div className="flex items-center gap-2">
-                        <PenTool className="w-4 h-4 text-blue-600" />
+                        <PenTool className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                         <SelectValue />
                       </div>
                     </SelectTrigger>
@@ -612,7 +613,7 @@ export default function AIArticlesPage() {
                     placeholder="Enter a topic or keyword..."
                     value={topicPrompt}
                     onChange={(e) => setTopicPrompt(e.target.value)}
-                    className="h-14 px-6 text-base border-0 focus-visible:ring-0 bg-transparent placeholder:text-gray-400"
+                    className="h-14 px-6 text-base border-0 focus-visible:ring-0 bg-transparent text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                     onKeyPress={(e) => e.key === 'Enter' && generateTopics()}
                   />
                 </div>
@@ -621,7 +622,7 @@ export default function AIArticlesPage() {
                   <Button
                     onClick={generateTopics}
                     disabled={!topicPrompt.trim() || isGenerating}
-                    className="h-10 px-6 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="h-10 px-6 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white"
                   >
                     {isGenerating ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -677,23 +678,23 @@ export default function AIArticlesPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       whileHover={{ y: -5 }}
-                      className="group relative bg-white border-2 border-gray-100 rounded-2xl p-6 hover:border-purple-200 hover:shadow-xl transition-all duration-300"
+                      className="group relative bg-white dark:bg-black border-2 border-teal-200 dark:border-teal-800 rounded-2xl p-6 hover:border-teal-500 dark:hover:border-teal-400 hover:shadow-xl transition-all duration-300"
                     >
                       <div className="space-y-4">
                           <div className="flex items-start justify-between">
-                          <h3 className="font-semibold text-lg leading-tight text-gray-900 group-hover:text-purple-600 transition-colors">
+                          <h3 className="font-semibold text-lg leading-tight text-black dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
                             {topic.title}
                           </h3>
-                          <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-200">
+                          <Badge className="bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
                               {topic.viralChance}% viral
                             </Badge>
                           </div>
                           
                           <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          <Badge variant="outline" className="text-xs bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
                             {topic.niche}
                           </Badge>
-                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs">
+                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className={`text-xs ${topic.status === "content-ready" ? "bg-gradient-to-r from-teal-500 to-secondary text-white" : "bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800"}`}>
                             {topic.status === "content-ready" ? "Content Ready" : "Ready to Generate"}
                             </Badge>
                           </div>
@@ -708,7 +709,7 @@ export default function AIArticlesPage() {
                               <Button
                                 onClick={() => generateRecommendedTopicContent(topic)}
                                 size="sm"
-                              className="w-full h-10 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                              className="w-full h-10 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white"
                                 disabled={isGenerating}
                               >
                                 {isGenerating ? (
@@ -730,27 +731,27 @@ export default function AIArticlesPage() {
                           {topic.status === "content-ready" && topic.content && (
                           <div className="space-y-4">
                               <div className="flex items-center gap-2">
-                              <Badge variant="default" className="text-xs bg-green-100 text-green-700">
+                              <Badge variant="default" className="text-xs bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300">
                                 {topic.format}
                               </Badge>
-                              <span className="text-xs text-gray-500">4 variations generated</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">4 variations generated</span>
                               </div>
                               
                               {Array.isArray(topic.content) ? (
                               <div className="grid grid-cols-1 gap-3">
                                   {topic.content.map((content, index) => (
-                                  <div key={index} className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
+                                  <div key={index} className="p-4 border border-teal-200 dark:border-teal-800 rounded-xl bg-teal-50/50 dark:bg-teal-950/20">
                                     <div className="flex items-start justify-between mb-3">
-                                        <Badge variant="outline" className="text-xs">Post {index + 1}</Badge>
+                                        <Badge variant="outline" className="text-xs bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">Post {index + 1}</Badge>
                                       </div>
-                                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
+                                    <p className="text-sm text-black dark:text-white line-clamp-3 leading-relaxed mb-4">
                                         {content}
                                       </p>
                                       <div className="flex gap-2">
                                         <Button 
                                           size="sm"
                                           variant="outline"
-                                        className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
+                                        className="flex-1 text-xs h-8 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300"
                                           onClick={() => {
                                             setPreviewContent(content)
                                             setPreviewingTopicId(topic.id)
@@ -761,7 +762,7 @@ export default function AIArticlesPage() {
                                         </Button>
                                         <Button 
                                           size="sm"
-                                        className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                                        className="flex-1 text-xs h-8 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white"
                                           onClick={() => saveToDraft(content, `${topic.title} - Post ${index + 1}`, "linkedin-post")}
                                         >
                                           <Save className="w-3 h-3 mr-1" />
@@ -772,15 +773,15 @@ export default function AIArticlesPage() {
                                   ))}
                                 </div>
                               ) : (
-                              <div className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
-                                <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
+                              <div className="p-4 border border-teal-200 dark:border-teal-800 rounded-xl bg-teal-50/50 dark:bg-teal-950/20">
+                                <p className="text-sm text-black dark:text-white line-clamp-3 leading-relaxed mb-4">
                                     {getTopicContent(topic)}
                                   </p>
                                   <div className="flex gap-2">
                                     <Button 
                                       size="sm"
                                       variant="outline"
-                                    className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
+                                    className="flex-1 text-xs h-8 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300"
                                       onClick={() => {
                                         setPreviewContent(getTopicContent(topic))
                                         setPreviewingTopicId(topic.id)
@@ -791,7 +792,7 @@ export default function AIArticlesPage() {
                                     </Button>
                                     <Button 
                                       size="sm"
-                                    className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                                    className="flex-1 text-xs h-8 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white"
                                       onClick={() => saveToDraft(getTopicContent(topic), topic.title, "linkedin-post")}
                                     >
                                       <Save className="w-3 h-3 mr-1" />
@@ -819,17 +820,17 @@ export default function AIArticlesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-black/80 backdrop-blur-sm overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-teal-50/50 to-secondary/20 dark:from-teal-950/50 dark:to-secondary/10 border-b border-teal-200/50 dark:border-teal-800/50">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <CardTitle className="flex items-center gap-3 text-xl">
-                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <CardTitle className="flex items-center gap-3 text-xl text-black dark:text-white">
+                      <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-secondary rounded-lg flex items-center justify-center">
                         <Calendar className="w-4 h-4 text-white" />
                       </div>
                       Your Generated Topics
                     </CardTitle>
-                    <CardDescription className="mt-2">
+                    <CardDescription className="mt-2 text-gray-600 dark:text-gray-400">
                       Click on any topic to generate content or customize your preferences
                     </CardDescription>
                   </div>
@@ -837,7 +838,7 @@ export default function AIArticlesPage() {
                     variant="outline" 
                     size="sm" 
                     onClick={clearTopics} 
-                    className="gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    className="gap-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:border-red-300 dark:hover:border-red-700"
                   >
                     <X className="w-4 h-4" />
                     Clear All

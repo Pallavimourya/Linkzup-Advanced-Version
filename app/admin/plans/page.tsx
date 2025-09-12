@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Plus, Edit, Trash2, CheckCircle, XCircle, Package, CreditCard, Calendar, Zap } from "lucide-react"
+import { Plus, Edit, Trash2, CheckCircle, XCircle, Package, CreditCard, Calendar, Zap, Save, X } from "lucide-react"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -28,6 +28,8 @@ export default function AdminPlansPage() {
     recommended: false,
     isActive: true,
   })
+  const [editingPlan, setEditingPlan] = useState<any>(null)
+  const [editDraft, setEditDraft] = useState<any>(null)
 
   // Predefined plans based on requirements
   const predefinedPlans = [
@@ -155,6 +157,54 @@ export default function AdminPlansPage() {
     if (confirm("Are you sure you want to delete this plan? This action cannot be undone.")) {
       await fetch(`/api/admin/plans/${id}`, { method: "DELETE" })
       mutate()
+    }
+  }
+
+  const startEditing = (plan: any) => {
+    setEditingPlan(plan)
+    setEditDraft({
+      name: plan.name,
+      type: plan.type,
+      interval: plan.interval,
+      price: plan.price,
+      credits: plan.credits,
+      features: Array.isArray(plan.features) ? plan.features.join("\n") : "",
+      popular: plan.popular || false,
+      recommended: plan.recommended || false,
+      isActive: plan.isActive !== false,
+    })
+  }
+
+  const cancelEditing = () => {
+    setEditingPlan(null)
+    setEditDraft(null)
+  }
+
+  const saveEdit = async () => {
+    if (!editingPlan || !editDraft) return
+    
+    if (!editDraft.name.trim()) {
+      alert("Plan name is required")
+      return
+    }
+
+    try {
+      await fetch(`/api/admin/plans/${editingPlan._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...editDraft,
+          features: (editDraft.features || "")
+            .split("\n")
+            .map((s: string) => s.trim())
+            .filter(Boolean),
+        }),
+      })
+      setEditingPlan(null)
+      setEditDraft(null)
+      mutate()
+    } catch (error) {
+      alert("Failed to update plan. Please try again.")
     }
   }
 
@@ -409,80 +459,232 @@ export default function AdminPlansPage() {
           ) : (
             data?.plans?.map((p: any) => (
               <div key={p._id} className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 sm:gap-4">
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                      <h3 className="font-semibold text-base sm:text-lg break-words">{p.name}</h3>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant={p.type === 'subscription' ? 'default' : 'secondary'} className="text-xs">
-                          {p.type === 'subscription' ? 'Subscription' : 'Credit Pack'}
-                        </Badge>
-                        {p.popular && <Badge variant="outline" className="text-orange-600 border-orange-600 text-xs">Popular</Badge>}
-                        {p.recommended && <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">Recommended</Badge>}
-                        {p.isActive ? (
-                          <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Active
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-red-600 border-red-600 text-xs">
-                            <XCircle className="h-3 w-3 mr-1" />
-                            Inactive
-                          </Badge>
-                        )}
+                {editingPlan?._id === p._id ? (
+                  // Edit Mode
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-base sm:text-lg">Editing: {p.name}</h3>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={saveEdit} className="text-xs sm:text-sm">
+                          <Save className="h-4 w-4 mr-1" />
+                          Save
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={cancelEditing} className="text-xs sm:text-sm">
+                          <X className="h-4 w-4 mr-1" />
+                          Cancel
+                        </Button>
                       </div>
                     </div>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-3">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="text-xs sm:text-sm font-medium">₹{p.price}</span>
+
+                    {/* Edit Form */}
+                    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-name-${p._id}`} className="text-sm">Plan Name</Label>
+                        <Input 
+                          id={`edit-name-${p._id}`}
+                          value={editDraft?.name || ""} 
+                          onChange={(e) => setEditDraft({ ...editDraft, name: e.target.value })} 
+                          className="text-sm sm:text-base"
+                        />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="text-xs sm:text-sm font-medium">{p.credits} Credits</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="text-xs sm:text-sm font-medium capitalize">{p.interval}</span>
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-type-${p._id}`} className="text-sm">Plan Type</Label>
+                        <Select value={editDraft?.type || "subscription"} onValueChange={(v) => setEditDraft({ ...editDraft, type: v })}>
+                          <SelectTrigger className="text-sm sm:text-base">
+                            <SelectValue placeholder="Select plan type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="subscription">
+                              <div className="flex items-center gap-2">
+                                <CreditCard className="h-4 w-4" />
+                                Subscription
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="credit_pack">
+                              <div className="flex items-center gap-2">
+                                <Package className="h-4 w-4" />
+                                Credit Pack
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                    
-                    {p.features && p.features.length > 0 && (
-                      <div className="mb-3">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Features:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {p.features.map((feature: string, index: number) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {feature}
+
+                    <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-price-${p._id}`} className="text-sm">Price (₹)</Label>
+                        <Input
+                          id={`edit-price-${p._id}`}
+                          type="number"
+                          value={editDraft?.price || 0}
+                          onChange={(e) => setEditDraft({ ...editDraft, price: Number(e.target.value) })}
+                          className="text-sm sm:text-base"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-credits-${p._id}`} className="text-sm">Credits</Label>
+                        <Input
+                          id={`edit-credits-${p._id}`}
+                          type="number"
+                          value={editDraft?.credits || 0}
+                          onChange={(e) => setEditDraft({ ...editDraft, credits: Number(e.target.value) })}
+                          className="text-sm sm:text-base"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`edit-interval-${p._id}`} className="text-sm">Billing Interval</Label>
+                        <Select value={editDraft?.interval || "monthly"} onValueChange={(v) => setEditDraft({ ...editDraft, interval: v })}>
+                          <SelectTrigger className="text-sm sm:text-base">
+                            <SelectValue placeholder="Select interval" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monthly">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4" />
+                                Monthly
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="yearly">
+                              <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4" />
+                                Yearly
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="one_time">
+                              <div className="flex items-center gap-2">
+                                <Package className="h-4 w-4" />
+                                One Time
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor={`edit-features-${p._id}`} className="text-sm">Features (one per line)</Label>
+                      <Textarea
+                        id={`edit-features-${p._id}`}
+                        className="min-h-[100px] text-sm sm:text-base"
+                        value={editDraft?.features || ""}
+                        onChange={(e) => setEditDraft({ ...editDraft, features: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-6">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`edit-popular-${p._id}`}
+                          checked={editDraft?.popular || false}
+                          onCheckedChange={(checked) => setEditDraft({ ...editDraft, popular: checked })}
+                        />
+                        <Label htmlFor={`edit-popular-${p._id}`} className="text-sm">Mark as Popular</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`edit-recommended-${p._id}`}
+                          checked={editDraft?.recommended || false}
+                          onCheckedChange={(checked) => setEditDraft({ ...editDraft, recommended: checked })}
+                        />
+                        <Label htmlFor={`edit-recommended-${p._id}`} className="text-sm">Mark as Recommended</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`edit-active-${p._id}`}
+                          checked={editDraft?.isActive !== false}
+                          onCheckedChange={(checked) => setEditDraft({ ...editDraft, isActive: checked })}
+                        />
+                        <Label htmlFor={`edit-active-${p._id}`} className="text-sm">Active</Label>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // View Mode
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 sm:gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                        <h3 className="font-semibold text-base sm:text-lg break-words">{p.name}</h3>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant={p.type === 'subscription' ? 'default' : 'secondary'} className="text-xs">
+                            {p.type === 'subscription' ? 'Subscription' : 'Credit Pack'}
+                          </Badge>
+                          {p.popular && <Badge variant="outline" className="text-orange-600 border-orange-600 text-xs">Popular</Badge>}
+                          {p.recommended && <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">Recommended</Badge>}
+                          {p.isActive ? (
+                            <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Active
                             </Badge>
-                          ))}
+                          ) : (
+                            <Badge variant="outline" className="text-red-600 border-red-600 text-xs">
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Inactive
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                    )}
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-3">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm font-medium">₹{p.price}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm font-medium">{p.credits} Credits</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm font-medium capitalize">{p.interval}</span>
+                        </div>
+                      </div>
+                      
+                      {p.features && p.features.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Features:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {p.features.map((feature: string, index: number) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {feature}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 lg:ml-4 lg:flex-col lg:items-end">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => startEditing(p)}
+                        className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm"
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => toggleActive(p._id, !p.isActive)}
+                        className={p.isActive ? "text-red-600 hover:text-red-700 text-xs sm:text-sm" : "text-green-600 hover:text-green-700 text-xs sm:text-sm"}
+                      >
+                        {p.isActive ? "Deactivate" : "Activate"}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive" 
+                        onClick={() => removePlan(p._id)}
+                        disabled={!canDeletePlan}
+                        title={!canDeletePlan ? "At least 1 plan must remain" : "Delete plan"}
+                        className="text-xs sm:text-sm"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-2 lg:ml-4 lg:flex-col lg:items-end">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => toggleActive(p._id, !p.isActive)}
-                      className={p.isActive ? "text-red-600 hover:text-red-700 text-xs sm:text-sm" : "text-green-600 hover:text-green-700 text-xs sm:text-sm"}
-                    >
-                      {p.isActive ? "Deactivate" : "Activate"}
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="destructive" 
-                      onClick={() => removePlan(p._id)}
-                      disabled={!canDeletePlan}
-                      title={!canDeletePlan ? "At least 1 plan must remain" : "Delete plan"}
-                      className="text-xs sm:text-sm"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                )}
               </div>
             ))
           )}
