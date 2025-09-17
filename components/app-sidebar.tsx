@@ -110,13 +110,13 @@ export function AppSidebar() {
 
   return (
     <TooltipProvider>
-      <Sidebar variant="inset" collapsible="icon" className="hidden lg:block bg-white/95 dark:bg-black/95 backdrop-blur-sm border-r border-teal-200/50 dark:border-teal-800/50">
-        <SidebarHeader className="px-2 py-3 border-b border-teal-200/30 dark:border-teal-800/30">
+      <Sidebar variant="inset" collapsible="icon" className="hidden lg:block bg-white/95 dark:bg-black/95 backdrop-blur-sm border-r border-blue-200/50 dark:border-blue-800/50">
+        <SidebarHeader className="px-2 py-3 border-b border-blue-200/30 dark:border-blue-800/30">
           <SidebarMenu>
             <SidebarMenuItem>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <SidebarMenuButton size="lg" asChild className="w-full hover:bg-teal-50 dark:hover:bg-teal-950/50">
+                  <SidebarMenuButton size="lg" asChild className="w-full hover:bg-blue-50 dark:hover:bg-blue-950/50">
                     <Link href="/dashboard" className="flex items-center gap-3 w-full px-3 py-2">
                       <Logo size="sm" className="flex-shrink-0" />
                     </Link>
@@ -131,7 +131,7 @@ export function AppSidebar() {
           {menuSections.map((section, sectionIndex) => (
             <SidebarGroup key={section.title}>
               {state === "expanded" && (
-                <SidebarGroupLabel className="text-xs font-medium text-gray-600 dark:text-gray-400 px-3 py-2 bg-teal-50/50 dark:bg-teal-950/30 rounded-lg mx-2 mb-2">
+                <SidebarGroupLabel className="text-xs font-medium text-gray-600 dark:text-gray-400 px-3 py-2 bg-blue-50/50 dark:bg-blue-950/30 rounded-lg mx-2 mb-2">
                   {section.title}
                 </SidebarGroupLabel>
               )}
@@ -146,21 +146,21 @@ export function AppSidebar() {
                             isActive={pathname === item.url}
                             className={`w-full px-3 py-2.5 text-base transition-all duration-200 ${
                               pathname === item.url 
-                                ? 'bg-gradient-to-r from-teal-500 to-secondary text-white shadow-lg' 
-                                : 'hover:bg-teal-50 dark:hover:bg-teal-950/50 text-black dark:text-white hover:text-teal-600 dark:hover:text-teal-400'
+                                ? 'bg-gradient-to-r from-blue-500 to-secondary text-white shadow-lg' 
+                                : 'hover:bg-blue-50 dark:hover:bg-blue-950/50 text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400'
                             }`}
                           >
                             <Link href={item.url} className="flex items-center gap-3 w-full">
                               <item.icon className={`h-5 w-5 flex-shrink-0 ${
                                 pathname === item.url 
                                   ? 'text-white' 
-                                  : 'text-gray-600 dark:text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400'
+                                  : 'text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'
                               }`} />
                               <span className="truncate">{item.title}</span>
                             </Link>
                           </SidebarMenuButton>
                         </TooltipTrigger>
-                        <TooltipContent side="right" className="bg-white dark:bg-black border-teal-200 dark:border-teal-800 text-black dark:text-white">
+                        <TooltipContent side="right" className="bg-white dark:bg-black border-blue-200 dark:border-blue-800 text-black dark:text-white">
                           <p>{item.title}</p>
                         </TooltipContent>
                       </Tooltip>

@@ -242,7 +242,7 @@ export default function BillingPage() {
       <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-green-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-pink-500/5 rounded-full blur-3xl"></div>
         </div>
         <div className="relative z-10 flex items-center justify-center min-h-[400px]">
           <motion.div 
@@ -267,12 +267,12 @@ export default function BillingPage() {
     : 0
 
   return (
-    <div className="flex-1 min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-white via-blue-50/20 to-black/5 dark:from-black dark:via-blue-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-4 lg:p-6">
@@ -284,11 +284,11 @@ export default function BillingPage() {
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-teal-500 to-secondary rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-secondary rounded-xl flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent">
                 Billing & Credits
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400">Manage your credits and subscription</p>
@@ -303,35 +303,35 @@ export default function BillingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-teal-500 dark:border-l-teal-400">
+            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 dark:border-l-blue-400">
               <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="flex items-center gap-3 text-teal-800 dark:text-teal-200 text-lg sm:text-xl">
-                  <div className="w-8 h-8 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
-                    <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <CardTitle className="flex items-center gap-3 text-blue-800 dark:text-blue-200 text-lg sm:text-xl">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
+                    <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   Free Trial Status
                 </CardTitle>
-                <CardDescription className="text-teal-700 dark:text-teal-300 text-sm sm:text-base">
+                <CardDescription className="text-blue-700 dark:text-blue-300 text-sm sm:text-base">
                   You're currently in your free trial period with 10 credits to get started!
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 sm:space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                    <span className="text-sm font-medium text-teal-800 dark:text-teal-200">Trial Credits Remaining</span>
-                    <Badge className="text-base sm:text-lg px-3 py-1 bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-200 border-teal-200 dark:border-teal-800">
-                      {creditData?.credits || 0} credits
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Trial Credits Remaining</span>
+                    <Badge className="text-base sm:text-lg px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
+                      {(creditData?.credits || 0).toFixed(2)} credits
                     </Badge>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                    <span className="text-sm font-medium text-teal-800 dark:text-teal-200">Days Left in Trial</span>
-                    <Badge className="text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/50 border-green-200 dark:border-green-800">
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Days Left in Trial</span>
+                    <Badge className="text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 border-blue-200 dark:border-blue-800">
                       {daysLeft} days left
                     </Badge>
                   </div>
                 </div>
-                <div className="bg-teal-50 dark:bg-teal-950/30 p-4 rounded-xl border border-teal-200 dark:border-teal-800">
-                  <p className="text-sm text-teal-800 dark:text-teal-200 leading-relaxed">
+                <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
                     <strong>What happens after your trial?</strong> Once your trial ends or credits are exhausted, you'll
                     need to purchase credits to continue using our AI-powered content generation features.
                   </p>
@@ -348,7 +348,7 @@ export default function BillingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-red-500 dark:border-l-red-400">
+            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-red-500 dark:border-l-red-400">
               <CardHeader className="pb-4 sm:pb-6">
                 <CardTitle className="flex items-center gap-3 text-red-800 dark:text-red-200 text-lg sm:text-xl">
                   <div className="w-8 h-8 bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900/50 dark:to-red-800/50 rounded-lg flex items-center justify-center">
@@ -378,11 +378,11 @@ export default function BillingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
+          <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-4 sm:pb-6">
               <CardTitle className="flex items-center gap-3 text-lg sm:text-xl text-black dark:text-white">
-                <div className="w-8 h-8 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
-                  <Zap className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
+                  <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 </div>
                 Current Status
               </CardTitle>
@@ -391,20 +391,20 @@ export default function BillingPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <span className="text-sm font-medium text-black dark:text-white">Monthly Credits</span>
-                  <Badge className="text-base sm:text-lg px-3 py-1 bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-200 border-teal-200 dark:border-teal-800">
-                    {creditData?.monthlyCredits || 0} credits
+                  <Badge className="text-base sm:text-lg px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
+                    {(creditData?.monthlyCredits || 0).toFixed(2)} credits
                   </Badge>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <span className="text-sm font-medium text-black dark:text-white">Additional Credits</span>
-                  <Badge className="text-base sm:text-lg px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 border-green-200 dark:border-green-800">
-                    {creditData?.credits || 0} credits
+                  <Badge className="text-base sm:text-lg px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
+                    {(creditData?.credits || 0).toFixed(2)} credits
                   </Badge>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <span className="text-sm font-medium text-black dark:text-white">Total Available</span>
-                  <Badge className="text-base sm:text-lg px-3 py-1 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 text-teal-800 dark:text-teal-200 border-teal-200 dark:border-teal-800">
-                    {(creditData?.monthlyCredits || 0) + (creditData?.credits || 0)} credits
+                  <Badge className="text-base sm:text-lg px-3 py-1 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
+                    {((creditData?.monthlyCredits || 0) + (creditData?.credits || 0)).toFixed(2)} credits
                   </Badge>
                 </div>
                 {creditData?.isTrialActive && (
@@ -413,15 +413,15 @@ export default function BillingPage() {
                       <Clock className="h-4 w-4 flex-shrink-0" />
                       Trial Period
                     </span>
-                    <Badge className="text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/50 border-green-200 dark:border-green-800">
+                    <Badge className="text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 border-blue-200 dark:border-blue-800">
                       {daysLeft} days left
                     </Badge>
                   </div>
                 )}
               </div>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 pt-4 border-t border-teal-200/50 dark:border-teal-800/50">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 pt-4 border-t border-blue-200/50 dark:border-blue-800/50">
                 <span className="text-sm font-medium text-black dark:text-white">Total Credits Purchased</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{creditData?.totalCreditsEver || 0} credits</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{(creditData?.totalCreditsEver || 0).toFixed(2)} credits</span>
               </div>
             </CardContent>
           </Card>
@@ -434,15 +434,15 @@ export default function BillingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-green-500 dark:border-l-green-400">
+            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500 dark:border-l-blue-400">
               <CardHeader className="pb-4 sm:pb-6">
-                <CardTitle className="flex items-center gap-3 text-green-800 dark:text-green-200 text-lg sm:text-xl">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900/50 dark:to-green-800/50 rounded-lg flex items-center justify-center">
-                    <Gift className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <CardTitle className="flex items-center gap-3 text-blue-800 dark:text-blue-200 text-lg sm:text-xl">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 rounded-lg flex items-center justify-center">
+                    <Gift className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   Available Discount Coupons
                 </CardTitle>
-                <CardDescription className="text-green-700 dark:text-green-300 text-sm sm:text-base">
+                <CardDescription className="text-blue-700 dark:text-blue-300 text-sm sm:text-base">
                   Use these coupon codes during checkout to get discounts on your purchase!
                 </CardDescription>
               </CardHeader>
@@ -455,18 +455,18 @@ export default function BillingPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       whileHover={{ y: -5 }}
-                      className="border border-green-200 dark:border-green-800 rounded-xl p-4 bg-white/95 dark:bg-black/95 hover:shadow-lg transition-all duration-300"
+                      className="border border-blue-200 dark:border-blue-800 rounded-xl p-4 bg-white/95 dark:bg-black/95 hover:shadow-lg transition-all duration-300"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-semibold text-base sm:text-lg text-green-900 dark:text-green-100">{coupon.code}</span>
-                          <Badge className={`text-xs ${coupon.type === 'percent' ? 'bg-green-600 text-white' : 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200 border-green-200 dark:border-green-800'}`}>
+                          <span className="font-mono font-semibold text-base sm:text-lg text-blue-900 dark:text-blue-100">{coupon.code}</span>
+                          <Badge className={`text-xs ${coupon.type === 'percent' ? 'bg-blue-600 text-white' : 'bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800'}`}>
                             {coupon.type === 'percent' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`}
                           </Badge>
                         </div>
                       </div>
                       
-                      <div className="space-y-2 text-xs text-green-700 dark:text-green-300">
+                      <div className="space-y-2 text-xs text-blue-700 dark:text-blue-300">
                         <div className="flex items-center gap-2">
                           <Users className="h-3 w-3 flex-shrink-0" />
                           <span>{coupon.maxRedemptions - coupon.uses} uses remaining</span>
@@ -479,7 +479,7 @@ export default function BillingPage() {
                         )}
                       </div>
                       
-                      <div className="mt-3 p-3 bg-green-100 rounded-lg text-xs text-green-800">
+                      <div className="mt-3 p-3 bg-blue-100 rounded-lg text-xs text-blue-800">
                         <strong>How to use:</strong> Enter "{coupon.code}" in the coupon field during checkout
                       </div>
                     </motion.div>
@@ -497,13 +497,13 @@ export default function BillingPage() {
           transition={{ duration: 0.6, delay: 0.8 }}
         >
           <Tabs defaultValue="subscriptions" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 h-12 bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg">
-              <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-secondary data-[state=active]:text-white">
+            <TabsList className="grid w-full grid-cols-2 h-12 bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <TabsTrigger value="subscriptions" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-secondary data-[state=active]:text-white">
                 <Crown className="h-4 w-4" />
                 <span className="hidden sm:inline">Subscription Plans</span>
                 <span className="sm:hidden">Subscriptions</span>
               </TabsTrigger>
-              <TabsTrigger value="credits" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-secondary data-[state=active]:text-white">
+              <TabsTrigger value="credits" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-secondary data-[state=active]:text-white">
                 <CreditCard className="h-4 w-4" />
                 <span className="hidden sm:inline">Credit Packs</span>
                 <span className="sm:hidden">Credits</span>
@@ -513,8 +513,8 @@ export default function BillingPage() {
             <TabsContent value="subscriptions" className="space-y-6">
               <div>
                 <h2 className="text-lg sm:text-xl font-semibold mb-6 flex items-center gap-3 text-black dark:text-white">
-                  <div className="w-8 h-8 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
-                    <Crown className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
+                    <Crown className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                   Choose Your Subscription Plan
                 </h2>
@@ -527,8 +527,8 @@ export default function BillingPage() {
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       whileHover={{ y: -10 }}
                     >
-                      <Card className={`relative h-full bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl transition-all duration-300 ${
-                        plan.popular ? "border-l-4 border-l-teal-500 dark:border-l-teal-400" : plan.recommended ? "border-l-4 border-l-secondary" : ""
+                      <Card className={`relative h-full bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-2xl transition-all duration-300 ${
+                        plan.popular ? "border-l-4 border-l-blue-500 dark:border-l-blue-400" : plan.recommended ? "border-l-4 border-l-secondary" : ""
                       }`}>
                         {plan.popular && (
                           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -549,7 +549,7 @@ export default function BillingPage() {
                         <CardHeader className="pb-4 sm:pb-6">
                           <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-base sm:text-lg text-black dark:text-white">
                             {plan.name}
-                            <Badge className="text-xs sm:text-sm w-fit bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-200 border-teal-200 dark:border-teal-800">₹{plan.price}/month</Badge>
+                            <Badge className="text-xs sm:text-sm w-fit bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">₹{plan.price}/month</Badge>
                           </CardTitle>
                           <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
                             Perfect for{" "}
@@ -561,13 +561,13 @@ export default function BillingPage() {
                           </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4 sm:space-y-6">
-                          <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-secondary bg-clip-text text-transparent">
+                          <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-secondary bg-clip-text text-transparent">
                             {plan.credits} Credits
                           </div>
                           <ul className="space-y-3 text-xs sm:text-sm">
                             {plan.features.map((feature, index) => (
                               <li key={index} className="flex items-center gap-2">
-                                <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+                                <Check className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
                                 {feature}
                               </li>
                             ))}
@@ -593,8 +593,8 @@ export default function BillingPage() {
             <TabsContent value="credits" className="space-y-6">
               <div>
                 <h2 className="text-lg sm:text-xl font-semibold mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-                    <CreditCard className="h-4 w-4 text-green-600" />
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                    <CreditCard className="h-4 w-4 text-blue-600" />
                   </div>
                   Purchase Credit Packs
                 </h2>
@@ -608,11 +608,11 @@ export default function BillingPage() {
                       whileHover={{ y: -10 }}
                     >
                       <Card className={`relative h-full bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 ${
-                        plan.popular ? "border-l-4 border-l-green-500" : ""
+                        plan.popular ? "border-l-4 border-l-blue-500" : ""
                       }`}>
                         {plan.popular && (
                           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                            <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs shadow-lg">
+                            <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs shadow-lg">
                               <Star className="h-3 w-3 mr-1" />
                               Popular
                             </Badge>
@@ -626,13 +626,13 @@ export default function BillingPage() {
                           <CardDescription className="text-sm">One-time purchase</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4 sm:space-y-6">
-                          <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                          <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
                             {plan.credits} Credits
                           </div>
                           <ul className="space-y-3 text-xs sm:text-sm">
                             {plan.features.map((feature, index) => (
                               <li key={index} className="flex items-center gap-2">
-                                <Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+                                <Check className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
                                 {feature}
                               </li>
                             ))}
@@ -640,7 +640,7 @@ export default function BillingPage() {
                           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                             <Button
                               onClick={() => handlePurchaseCredits(plan)}
-                              className="w-full h-12 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                              className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                               variant={plan.popular ? "default" : "outline"}
                             >
                               <CreditCard className="h-4 w-4 mr-2" />

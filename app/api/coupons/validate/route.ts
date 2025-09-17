@@ -12,7 +12,6 @@ export async function GET(req: NextRequest) {
   const coupon = await db.collection("coupons").findOne({ code })
 
   if (!coupon || !coupon.active) return NextResponse.json({ valid: false, reason: "invalid" }, { status: 404 })
-  if (coupon.visible === false) return NextResponse.json({ valid: false, reason: "invalid" }, { status: 404 })
   if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date())
     return NextResponse.json({ valid: false, reason: "expired" }, { status: 400 })
   if (coupon.maxRedemptions && coupon.uses >= coupon.maxRedemptions)

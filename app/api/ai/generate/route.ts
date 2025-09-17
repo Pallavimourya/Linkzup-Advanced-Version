@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
       prompt,
       provider,
       customization,
+      session.user.id,
       session.user.email
     )
 

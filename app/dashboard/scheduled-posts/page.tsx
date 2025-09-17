@@ -217,12 +217,12 @@ export default function ScheduledPostsPage() {
   }
 
   return (
-    <div className="flex-1 min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-white via-blue-50/20 to-black/5 dark:from-black dark:via-blue-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-4 lg:p-6">
@@ -235,11 +235,11 @@ export default function ScheduledPostsPage() {
         >
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-teal-500 to-secondary rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-secondary rounded-xl flex items-center justify-center">
                 <CalendarLucide className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent">
                   Scheduled Posts
                 </h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Manage your scheduled content and track performance</p>
@@ -248,13 +248,13 @@ export default function ScheduledPostsPage() {
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button variant="outline" onClick={handleRefresh} disabled={loading} className="gap-2 h-12 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300">
+              <Button variant="outline" onClick={handleRefresh} disabled={loading} className="gap-2 h-12 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300">
                 <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                 Refresh
               </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button variant="outline" onClick={() => setShowStats(!showStats)} className="gap-2 h-12 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300">
+              <Button variant="outline" onClick={() => setShowStats(!showStats)} className="gap-2 h-12 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300">
                 {showStats ? <EyeOff className="h-4 w-4" /> : <BarChart3 className="h-4 w-4" />}
                 {showStats ? "Hide Stats" : "Show Stats"}
               </Button>
@@ -263,7 +263,7 @@ export default function ScheduledPostsPage() {
               content="Write your post content here..."
               trigger={
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button className="gap-2 h-12 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button className="gap-2 h-12 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                     <Plus className="h-4 w-4" />
                     Schedule Post
                   </Button>
@@ -290,11 +290,11 @@ export default function ScheduledPostsPage() {
               whileHover={{ y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Posts</CardTitle>
-                  <div className="w-8 h-8 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
-                    <CalendarIcon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
+                    <CalendarIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -307,7 +307,7 @@ export default function ScheduledPostsPage() {
               whileHover={{ y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</CardTitle>
                   <div className="w-8 h-8 bg-gradient-to-r from-amber-100 to-amber-200 dark:from-amber-900/50 dark:to-amber-800/50 rounded-lg flex items-center justify-center">
@@ -324,7 +324,7 @@ export default function ScheduledPostsPage() {
               whileHover={{ y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Posted</CardTitle>
                   <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900/50 dark:to-green-800/50 rounded-lg flex items-center justify-center">
@@ -341,11 +341,11 @@ export default function ScheduledPostsPage() {
               whileHover={{ y: -5 }}
               transition={{ duration: 0.2 }}
             >
-              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">Today's Posts</CardTitle>
-                  <div className="w-8 h-8 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -363,11 +363,11 @@ export default function ScheduledPostsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <TabsList className="grid w-full grid-cols-2 h-12 bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg">
-              <TabsTrigger value="list" className="text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-secondary data-[state=active]:text-white">
+            <TabsList className="grid w-full grid-cols-2 h-12 bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <TabsTrigger value="list" className="text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-secondary data-[state=active]:text-white">
                 List View
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">
+              <TabsTrigger value="calendar" className="text-sm font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white">
                 Calendar View
               </TabsTrigger>
             </TabsList>
@@ -386,12 +386,12 @@ export default function ScheduledPostsPage() {
                 placeholder="Search scheduled posts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm"
+                className="pl-12 h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm"
               />
             </div>
             <div className="flex gap-3">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[160px] h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                <SelectTrigger className="w-full sm:w-[160px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4 text-gray-500" />
                     <SelectValue placeholder="Status" />
@@ -407,7 +407,7 @@ export default function ScheduledPostsPage() {
                 </SelectContent>
               </Select>
               <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
                   <SelectValue placeholder="Platform" />
                 </SelectTrigger>
                 <SelectContent>
@@ -418,7 +418,7 @@ export default function ScheduledPostsPage() {
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-green-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -440,7 +440,7 @@ export default function ScheduledPostsPage() {
                 animate={{ opacity: 1 }}
               >
                 <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Loader2 className="h-6 w-6 animate-spin text-white" />
                   </div>
                   <p className="text-gray-600">Loading scheduled posts...</p>
@@ -468,8 +468,8 @@ export default function ScheduledPostsPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                <div className="w-20 h-20 bg-gradient-to-r from-green-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CalendarIcon className="h-10 w-10 text-green-500" />
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CalendarIcon className="h-10 w-10 text-blue-500" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">No scheduled posts found</h3>
                 <p className="text-gray-600 mb-6 leading-relaxed">
@@ -480,7 +480,7 @@ export default function ScheduledPostsPage() {
                 <SchedulePostModal
                   content="Write your post content here..."
                   trigger={
-                    <Button className="gap-2 h-12 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                    <Button className="gap-2 h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                       <Plus className="h-4 w-4" />
                       Schedule Your First Post
                     </Button>
@@ -509,7 +509,7 @@ export default function ScheduledPostsPage() {
                       whileHover={{ y: -5 }}
                     >
                       <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                        <CardHeader className="pb-4 bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+                        <CardHeader className="pb-4 bg-gradient-to-r from-blue-50/50 to-blue-100/50 border-b border-gray-100">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div className="flex-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -543,8 +543,8 @@ export default function ScheduledPostsPage() {
                                 </Button>
                               )}
                               {post.status === "paused" && (
-                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-green-50">
-                                  <Play className="h-4 w-4 text-green-600" />
+                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-blue-50">
+                                  <Play className="h-4 w-4 text-blue-600" />
                                 </Button>
                               )}
                               {post.status === "failed" && (
@@ -630,9 +630,9 @@ export default function ScheduledPostsPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+                <CardHeader className="bg-gradient-to-r from-blue-50/50 to-blue-100/50 border-b border-gray-100">
                   <CardTitle className="flex items-center gap-3 text-lg">
-                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <CalendarLucide className="w-4 h-4 text-white" />
                     </div>
                     Calendar
@@ -651,9 +651,9 @@ export default function ScheduledPostsPage() {
 
               <div className="lg:col-span-2 space-y-4">
                 <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 border-b border-gray-100">
+                  <CardHeader className="bg-gradient-to-r from-blue-50/50 to-blue-100/50 border-b border-gray-100">
                     <CardTitle className="flex items-center gap-3 text-lg">
-                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                         <Clock className="w-4 h-4 text-white" />
                       </div>
                       Posts for {selectedDate ? format(selectedDate, "MMMM dd, yyyy") : "Selected Date"}
@@ -692,8 +692,8 @@ export default function ScheduledPostsPage() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <div className="w-16 h-16 bg-gradient-to-r from-green-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <CalendarIcon className="h-8 w-8 text-green-500" />
+                        <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CalendarIcon className="h-8 w-8 text-blue-500" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled for this date</h3>
                         <p className="text-gray-600 mb-4">Schedule a post for this date to get started</p>

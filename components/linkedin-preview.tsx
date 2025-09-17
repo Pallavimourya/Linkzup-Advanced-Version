@@ -239,7 +239,9 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <Card className={`w-full max-h-[90vh] overflow-y-auto ${
+        previewMode === "mobile" ? "max-w-md" : "max-w-4xl"
+      }`}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>LinkedIn Preview</CardTitle>
@@ -272,7 +274,9 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
           </div>
 
           {/* LinkedIn Post Preview */}
-          <div className={`border border-gray-200 rounded-lg p-4 bg-white shadow-sm ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
+          <div className={`border border-gray-200 rounded-lg bg-white shadow-sm ${
+            previewMode === "mobile" ? "max-w-sm mx-auto p-4" : "p-6"
+          }`}>
             <div className={`flex items-center gap-3 mb-4 ${previewMode === "mobile" ? "gap-2" : ""}`}>
               <div className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center overflow-hidden border border-gray-200 ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}>
                 {session?.user?.image ? (
@@ -314,13 +318,15 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="whitespace-pre-wrap">{content}</div>
+                <div className="space-y-3">
+                  <div className={`whitespace-pre-wrap ${
+                    previewMode === "mobile" ? "text-sm leading-relaxed" : "text-base leading-relaxed"
+                  }`}>{content}</div>
                   <Button 
                     size="sm" 
                     variant="outline" 
                     onClick={handleEdit}
-                    className="mt-2"
+                    className={`mt-2 ${previewMode === "mobile" ? "w-full" : "h-9 px-3"}`}
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Post
@@ -339,50 +345,51 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
               </div>
             )}
 
-x``            <div className={`flex items-center text-gray-500 border-t border-gray-200 pt-3 ${
+            {/* Engagement Stats */}
+            <div className={`flex items-center text-gray-500 border-t border-gray-200 ${
               previewMode === "mobile" 
-                ? "text-xs justify-between" 
-                : "text-sm justify-between"
+                ? "text-xs justify-between pt-3" 
+                : "text-sm justify-between pt-4"
             }`}>
               <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
                 <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
                 }`}>
                   <path d="M19.46 11l-3.91-3.91a7 7 0 0 1-1.69-2.74l-.49-1.47A.82.82 0 0 0 12.65 2a.81.81 0 0 0-.72.57L11 5.09l-1.35.45a1 1 0 0 0-.79.68l-.72 2.19a6.65 6.65 0 0 1-1.28 2.6l-2.32 3.56a1 1 0 0 0-.11.57l.43 4.24a1 1 0 0 0 .9.9l4.24.43a1 1 0 0 0 .57-.11l3.56-2.32a6.65 6.65 0 0 1 2.6-1.28l2.19-.72a1 1 0 0 0 .68-.79l.45-1.35.52-1.93a.81.81 0 0 0-.58-.95z"/>
                 </svg>
-                <span>Like</span>
+                <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Like</span>
               </button>
               <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
                 <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
                 }`}>
                   <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
                 </svg>
-                <span>Comment</span>
+                <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Comment</span>
               </button>
               <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
                 <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
                 }`}>
                   <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
                 </svg>
-                <span>Share</span>
+                <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Share</span>
               </button>
               <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
                 <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
                 }`}>
                   <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                 </svg>
-                <span>Send</span>
+                <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Send</span>
               </button>
             </div>
           </div>
@@ -593,31 +600,60 @@ x``            <div className={`flex items-center text-gray-500 border-t border-
           </div>
 
           {/* Action Buttons */}
-          <div className={`flex ${
+          <div className={`pt-4 border-t ${
             previewMode === "mobile" 
-              ? "flex-col gap-3" 
-              : "gap-2 justify-end"
+              ? "space-y-3" 
+              : ""
           }`}>
-            <Button 
-              variant="outline" 
-              onClick={onClose}
-              className={previewMode === "mobile" ? "w-full h-12 text-base" : ""}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
-              variant="outline"
-              className={previewMode === "mobile" ? "w-full h-12 text-base" : ""}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save to Draft
-            </Button>
-            <LinkedInPostButton 
-              content={content} 
-              images={selectedImage ? [selectedImage] : undefined}
-              className={previewMode === "mobile" ? "w-full h-12 text-base" : ""}
-            />
+            {previewMode === "mobile" ? (
+              // Mobile: Stack buttons vertically
+              <div className="space-y-3">
+                <LinkedInPostButton 
+                  content={content} 
+                  images={selectedImage ? [selectedImage] : undefined}
+                  className="w-full h-12 text-base"
+                />
+                <Button 
+                  onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
+                  variant="outline"
+                  className="w-full h-12 text-base"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save to Draft
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="w-full h-12 text-base"
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              // Desktop: Horizontal layout with improved sizing
+              <div className="flex gap-3 justify-end">
+                <Button 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="h-10 px-4"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
+                  variant="outline"
+                  className="h-10 px-4"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save to Draft
+                </Button>
+                <LinkedInPostButton 
+                  content={content} 
+                  images={selectedImage ? [selectedImage] : undefined}
+                  className="h-10 px-4"
+                />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

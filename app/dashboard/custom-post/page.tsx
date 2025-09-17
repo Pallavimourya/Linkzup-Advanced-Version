@@ -107,7 +107,7 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
       transition={{ duration: 0.3 }}
     >
       <motion.div 
-        className="bg-white dark:bg-black rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-teal-200 dark:border-teal-800"
+        className="bg-white dark:bg-black rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-blue-200 dark:border-blue-800"
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -149,8 +149,8 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
             />
           </div>
           
-          <div className="bg-teal-100 dark:bg-teal-900/50 p-3 rounded-lg">
-            <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400">
+          <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-lg">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
               <Clock className="h-4 w-4" />
               <span className="text-sm font-medium">
                 {scheduledDate && scheduledTime 
@@ -689,12 +689,12 @@ export default function CustomPostPage() {
   }, [postData.content])
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-blue-50/20 to-black/5 dark:from-black dark:via-blue-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       {/* Header */}
@@ -730,7 +730,7 @@ export default function CustomPostPage() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
             <motion.h1 
-              className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent leading-tight"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
@@ -760,7 +760,7 @@ export default function CustomPostPage() {
 
             {/* Content Editor */}
             <motion.div 
-              className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-teal-200/50 dark:border-teal-800/50 p-6 sm:p-8"
+              className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.0, ease: "easeOut" }}
@@ -791,7 +791,7 @@ export default function CustomPostPage() {
 
                 {/* Toolbar */}
                 <motion.div 
-                  className="flex flex-wrap gap-2 bg-teal-50/50 dark:bg-teal-950/30 p-3 rounded-xl border border-teal-200/50 dark:border-teal-800/50"
+                  className="flex flex-wrap gap-2 bg-blue-50/50 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-200/50 dark:border-blue-800/50"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 1.2, ease: "easeOut" }}
@@ -804,7 +804,7 @@ export default function CustomPostPage() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
+                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                         onClick={() => formatText('bold')}
                         title="Bold (Ctrl+B)"
                       >
@@ -818,7 +818,7 @@ export default function CustomPostPage() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
+                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                         onClick={() => formatText('italic')}
                         title="Italic (Ctrl+I)"
                       >
@@ -832,7 +832,7 @@ export default function CustomPostPage() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
+                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                         onClick={() => formatText('underline')}
                         title="Underline (Ctrl+U)"
                       >
@@ -841,7 +841,7 @@ export default function CustomPostPage() {
                     </motion.div>
                   </div>
                   
-                  <div className="w-px bg-teal-300 dark:bg-teal-700 mx-2" />
+                  <div className="w-px bg-blue-300 dark:bg-blue-700 mx-2" />
                   
                   <div className="flex items-center gap-1">
                     <motion.div
@@ -851,7 +851,7 @@ export default function CustomPostPage() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
+                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                         title="Insert Emoji"
                       >
@@ -865,7 +865,7 @@ export default function CustomPostPage() {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="h-9 px-4 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800 gap-2 hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:text-teal-700 dark:hover:text-teal-300 transition-all duration-200"
+                        className="h-9 px-4 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 gap-2 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-200"
                         onClick={() => {
                           setAiPrompt(postData.content.trim())
                           setShowAIAssist(true)
@@ -882,7 +882,7 @@ export default function CustomPostPage() {
                 <AnimatePresence>
                   {showEmojiPicker && (
                     <motion.div 
-                      className="absolute z-50 bg-white dark:bg-black border border-teal-200 dark:border-teal-800 rounded-xl p-4 shadow-2xl max-w-sm"
+                      className="absolute z-50 bg-white dark:bg-black border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-2xl max-w-sm"
                       initial={{ opacity: 0, scale: 0.8, y: -10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.8, y: -10 }}
@@ -905,7 +905,7 @@ export default function CustomPostPage() {
                               insertEmoji(emoji)
                               setShowEmojiPicker(false)
                             }}
-                            className="w-10 h-10 text-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-lg transition-colors flex items-center justify-center"
+                            className="w-10 h-10 text-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors flex items-center justify-center"
                             title={emoji}
                             initial={{ opacity: 0, scale: 0 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -935,7 +935,7 @@ export default function CustomPostPage() {
                         htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent
                       }))
                     }}
-                    className="min-h-[200px] sm:min-h-[250px] resize-none text-base leading-relaxed border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 rounded-xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12 transition-all duration-200"
+                    className="min-h-[200px] sm:min-h-[250px] resize-none text-base leading-relaxed border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-200 dark:focus:ring-blue-800/20 rounded-xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12 transition-all duration-200"
                     maxLength={maxCharacters}
                   />
                   <div className="absolute bottom-4 right-4">
@@ -947,7 +947,7 @@ export default function CustomPostPage() {
                       }))}
                       size="sm"
                       variant="ghost"
-                      className="h-9 w-9 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-lg transition-colors"
+                      className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
                     />
                   </div>
                 </div>
@@ -955,7 +955,7 @@ export default function CustomPostPage() {
             </motion.div>
 
               {/* Tags */}
-              <div className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-teal-200/50 dark:border-teal-800/50 p-6 sm:p-8">
+              <div className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8">
                 <div className="space-y-4 sm:space-y-6">
                   <label className="block text-lg sm:text-xl font-bold text-black dark:text-white">
                     Tags & Hashtags
@@ -966,9 +966,9 @@ export default function CustomPostPage() {
                       value={newTag} 
                       onChange={(e) => setNewTag(e.target.value)} 
                       onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                      className="flex-1 text-base border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 rounded-xl h-12 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                      className="flex-1 text-base border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl h-12 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     />
-                    <Button size="lg" onClick={addTag} className="gap-2 w-full sm:w-auto h-12 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white">
+                    <Button size="lg" onClick={addTag} className="gap-2 w-full sm:w-auto h-12 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white">
                       <Plus className="h-5 w-5" />
                       Add Tag
                     </Button>
@@ -980,7 +980,7 @@ export default function CustomPostPage() {
                         <span 
                           key={tag} 
                           onClick={() => removeTag(tag)} 
-                          className="px-4 py-2 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 rounded-full text-sm font-medium cursor-pointer hover:bg-teal-200 dark:hover:bg-teal-800/50 transition-colors flex items-center gap-2"
+                          className="px-4 py-2 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors flex items-center gap-2"
                         >
                           #{tag}
                           <X className="h-4 w-4" />
@@ -992,7 +992,7 @@ export default function CustomPostPage() {
               </div>
 
               {/* Attachments */}
-              <div className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-teal-200/50 dark:border-teal-800/50 p-6 sm:p-8">
+              <div className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8">
                 <div className="space-y-4 sm:space-y-6">
                   <label className="block text-lg sm:text-xl font-bold text-black dark:text-white">
                     Add Images
@@ -1002,10 +1002,10 @@ export default function CustomPostPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Upload Images */}
                     <div
-                      className="border-2 border-dashed border-teal-300 dark:border-teal-700 rounded-xl p-6 text-center cursor-pointer hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-950/30 transition-all duration-200 group bg-teal-50/30 dark:bg-teal-950/20 transform hover:scale-105"
+                      className="border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all duration-200 group bg-blue-50/30 dark:bg-blue-950/20 transform hover:scale-105"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <Upload className="h-8 w-8 mx-auto mb-3 text-gray-400 dark:text-gray-500 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors" />
+                      <Upload className="h-8 w-8 mx-auto mb-3 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                       <p className="text-base font-semibold text-black dark:text-white mb-1">Upload Images</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">PNG, JPG, GIF up to 10MB</p>
                       <input 
@@ -1020,10 +1020,10 @@ export default function CustomPostPage() {
 
                     {/* Search Images */}
                     <div 
-                      className="border-2 border-dashed border-teal-300 dark:border-teal-700 rounded-xl p-6 text-center cursor-pointer hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50/50 dark:hover:bg-teal-950/30 transition-all duration-200 group bg-teal-50/30 dark:bg-teal-950/20 transform hover:scale-105"
+                      className="border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all duration-200 group bg-blue-50/30 dark:bg-blue-950/20 transform hover:scale-105"
                       onClick={() => setShowImageSearch(true)}
                     >
-                      <Search className="h-8 w-8 mx-auto mb-3 text-gray-400 dark:text-gray-500 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors" />
+                      <Search className="h-8 w-8 mx-auto mb-3 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                       <p className="text-base font-semibold text-black dark:text-white mb-1">Search Images</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Find stock photos & graphics</p>
                     </div>
@@ -1039,7 +1039,7 @@ export default function CustomPostPage() {
                             <img 
                               src={img} 
                               alt="preview" 
-                              className="rounded-xl h-20 sm:h-24 w-full object-cover border-2 border-teal-200 dark:border-teal-800 shadow-sm" 
+                              className="rounded-xl h-20 sm:h-24 w-full object-cover border-2 border-blue-200 dark:border-blue-800 shadow-sm" 
                             />
                             <button 
                               onClick={() => removeImage(i)} 
@@ -1065,7 +1065,7 @@ export default function CustomPostPage() {
             >
               {/* Preview Header */}
               <motion.div 
-                className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-teal-200/50 dark:border-teal-800/50 p-6 sm:p-8"
+                className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1.2, ease: "easeOut" }}
@@ -1078,7 +1078,7 @@ export default function CustomPostPage() {
                   transition={{ duration: 0.6, delay: 1.4, ease: "easeOut" }}
                 >
                   <motion.div 
-                    className="w-10 h-10 bg-gradient-to-br from-teal-500 to-secondary rounded-xl flex items-center justify-center"
+                    className="w-10 h-10 bg-gradient-to-br from-blue-500 to-secondary rounded-xl flex items-center justify-center"
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.6 }}
                   >
@@ -1089,14 +1089,14 @@ export default function CustomPostPage() {
 
                 {/* Preview Content - LinkedIn Style */}
                 <motion.div 
-                  className="bg-white dark:bg-black rounded-2xl shadow-lg border border-teal-200 dark:border-teal-800 overflow-hidden"
+                  className="bg-white dark:bg-black rounded-2xl shadow-lg border border-blue-200 dark:border-blue-800 overflow-hidden"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6, delay: 1.6, ease: "easeOut" }}
                   whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                 >
                   {/* LinkedIn Header */}
-                  <div className="p-6 border-b border-teal-200/30 dark:border-teal-800/30">
+                  <div className="p-6 border-b border-blue-200/30 dark:border-blue-800/30">
                     <div className="flex items-center gap-4">
                       <div className="h-14 w-14 rounded-full overflow-hidden shadow-lg">
                         {session?.user?.image ? (
@@ -1106,7 +1106,7 @@ export default function CustomPostPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="h-full w-full bg-gradient-to-br from-teal-500 to-secondary flex items-center justify-center text-white font-bold text-xl">
+                          <div className="h-full w-full bg-gradient-to-br from-blue-500 to-secondary flex items-center justify-center text-white font-bold text-xl">
                             {session?.user?.name?.charAt(0) || "U"}
                           </div>
                         )}
@@ -1158,7 +1158,7 @@ export default function CustomPostPage() {
                     {postData.tags.length > 0 && (
                       <div className="flex gap-2 flex-wrap mb-6">
                         {postData.tags.map(tag => (
-                          <span key={tag} className="text-teal-600 dark:text-teal-400 text-sm font-medium hover:underline cursor-pointer">
+                          <span key={tag} className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline cursor-pointer">
                             #{tag}
                           </span>
                         ))}
@@ -1167,29 +1167,29 @@ export default function CustomPostPage() {
                   </div>
                   
                   {/* LinkedIn Footer */}
-                  <div className="px-6 py-4 border-t border-teal-200/30 dark:border-teal-800/30">
+                  <div className="px-6 py-4 border-t border-blue-200/30 dark:border-blue-800/30">
                     <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 text-sm">
                       <div className="flex items-center gap-8">
-                        <button className="flex items-center gap-2 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                        <button className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
                           <span>Like</span>
                         </button>
-                        <button className="flex items-center gap-2 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                        <button className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                           </svg>
                           <span>Comment</span>
                         </button>
-                        <button className="flex items-center gap-2 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                        <button className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                           </svg>
                           <span>Share</span>
                         </button>
                       </div>
-                      <button className="hover:text-teal-600 dark:hover:text-teal-400 transition-colors">
+                      <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
@@ -1201,7 +1201,7 @@ export default function CustomPostPage() {
 
               {/* Quick Actions */}
               <motion.div 
-                className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-teal-200/50 dark:border-teal-800/50 p-6 sm:p-8"
+                className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1.8, ease: "easeOut" }}
@@ -1227,7 +1227,7 @@ export default function CustomPostPage() {
                       <Button
                         onClick={handlePostNow}
                         disabled={!isContentValid || isPosting}
-                        className="w-full gap-3 h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white border-0 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+                        className="w-full gap-3 h-12 sm:h-14 text-base sm:text-lg font-semibold bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white border-0 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
                       >
                         {isPosting ? (
                           <>
@@ -1254,7 +1254,7 @@ export default function CustomPostPage() {
                         onClick={() => setShowScheduleModal(true)}
                         disabled={!isContentValid}
                         variant="outline"
-                        className="w-full gap-3 h-12 sm:h-14 text-base sm:text-lg font-semibold border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 rounded-xl transition-all duration-200"
+                        className="w-full gap-3 h-12 sm:h-14 text-base sm:text-lg font-semibold border-2 border-blue-200 dark:border-blue-800 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl transition-all duration-200"
                       >
                         <Calendar className="h-5 w-5" />
                         <span>Schedule Post</span>
@@ -1272,11 +1272,11 @@ export default function CustomPostPage() {
                         onClick={handleSaveDraft}
                         disabled={!isContentValid || isSavingDraft}
                         variant="secondary"
-                        className="w-full gap-3 h-12 sm:h-14 text-base sm:text-lg font-semibold bg-teal-100 dark:bg-teal-900/50 hover:bg-teal-200 dark:hover:bg-teal-800/50 text-teal-700 dark:text-teal-300 rounded-xl transition-all duration-200"
+                        className="w-full gap-3 h-12 sm:h-14 text-base sm:text-lg font-semibold bg-blue-100 dark:bg-blue-900/50 hover:bg-blue-200 dark:hover:bg-blue-800/50 text-blue-700 dark:text-blue-300 rounded-xl transition-all duration-200"
                       >
                         {isSavingDraft ? (
                           <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600" />
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
                             <span>Saving Draft...</span>
                           </>
                         ) : (
@@ -1293,7 +1293,7 @@ export default function CustomPostPage() {
 
               {/* Status Indicators */}
               <motion.div 
-                className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-teal-200/50 dark:border-teal-800/50 p-6 sm:p-8"
+                className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 2.8, ease: "easeOut" }}
@@ -1345,7 +1345,7 @@ export default function CustomPostPage() {
             transition={{ duration: 0.3 }}
           >
             <motion.div 
-              className="bg-white dark:bg-black rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl border border-teal-200 dark:border-teal-800 max-h-[90vh] overflow-hidden"
+              className="bg-white dark:bg-black rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl border border-blue-200 dark:border-blue-800 max-h-[90vh] overflow-hidden"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -1442,7 +1442,7 @@ export default function CustomPostPage() {
                       <img 
                         src={image.url} 
                         alt={image.alt || `Search result ${i + 1}`}
-                        className="aspect-square rounded-lg object-cover border border-teal-200 dark:border-teal-800 hover:scale-105 transition-transform duration-200"
+                        className="aspect-square rounded-lg object-cover border border-blue-200 dark:border-blue-800 hover:scale-105 transition-transform duration-200"
                         onError={(e) => {
                           // Fallback to placeholder if image fails to load
                           const target = e.target as HTMLImageElement
@@ -1452,7 +1452,7 @@ export default function CustomPostPage() {
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                         <Button 
                           size="sm" 
-                          className="bg-teal-500 hover:bg-teal-600 text-xs"
+                          className="bg-blue-500 hover:bg-blue-600 text-xs"
                           onClick={() => handleAddImageFromSearch(image.url)}
                         >
                           <Plus className="h-3 w-3 mr-1" />
@@ -1467,8 +1467,8 @@ export default function CustomPostPage() {
                     // Loading state
                     Array.from({ length: 20 }).map((_, i) => (
                       <div key={i} className="relative group cursor-pointer">
-                        <div className="aspect-square bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center animate-pulse">
-                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-teal-500/20 rounded-full"></div>
+                        <div className="aspect-square bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center animate-pulse">
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500/20 rounded-full"></div>
                         </div>
                       </div>
                     ))
@@ -1493,11 +1493,11 @@ export default function CustomPostPage() {
                     // Initial state - placeholder images
                     Array.from({ length: 20 }).map((_, i) => (
                       <div key={i} className="relative group cursor-pointer">
-                        <div className="aspect-square bg-teal-100 dark:bg-teal-900/30 rounded-lg flex items-center justify-center">
+                        <div className="aspect-square bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                           <ImageIcon className="h-6 w-6 sm:h-8 sm:w-8 text-gray-500 dark:text-gray-400" />
                         </div>
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <Button size="sm" className="bg-teal-500 hover:bg-teal-600 text-xs">
+                          <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-xs">
                             <Plus className="h-3 w-3 mr-1" />
                             Add
                           </Button>
@@ -1527,7 +1527,7 @@ export default function CustomPostPage() {
 
       {/* AI Assist Modal */}
       <Dialog open={showAIAssist} onOpenChange={setShowAIAssist}>
-        <DialogContent className="max-w-2xl bg-white dark:bg-black border-teal-200 dark:border-teal-800">
+        <DialogContent className="max-w-2xl bg-white dark:bg-black border-blue-200 dark:border-blue-800">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -1545,7 +1545,7 @@ export default function CustomPostPage() {
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   >
-                    <Sparkles className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                    <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </motion.div>
                   AI Assist
                 </DialogTitle>
@@ -1584,7 +1584,7 @@ export default function CustomPostPage() {
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 rows={4}
-                className="border border-teal-200 dark:border-teal-800 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                className="border border-blue-200 dark:border-blue-800 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
 
@@ -1632,14 +1632,14 @@ export default function CustomPostPage() {
                 variant="outline" 
                 onClick={() => setShowAIAssist(false)}
                 disabled={isGenerating}
-                className="border-teal-200 dark:border-teal-800 text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50"
+                className="border-blue-200 dark:border-blue-800 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-blue-950/50"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleAIGenerate}
                 disabled={!aiPrompt.trim() || isGenerating}
-                className="gap-2 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white"
+                className="gap-2 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white"
               >
                 {isGenerating ? (
                   <>

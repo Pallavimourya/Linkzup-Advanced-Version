@@ -21,7 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { 
   User, BookOpen, Lightbulb, Target, Calendar, Send, Eye, CheckCircle, Sparkles, Mic, 
   ArrowRight, ArrowLeft, Star, Heart, TrendingUp, Users, Zap, Award, Brain, 
-  PenTool, MessageSquare, Share2, Save, Clock, RefreshCw, Trash2, Plus
+  PenTool, MessageSquare, Share2, Save, Clock, RefreshCw, Trash2, Plus, X
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
@@ -48,6 +48,13 @@ interface GeneratedStory {
   wordCount: number
   createdAt: Date
   variation: number
+  relatedTopics?: string[]
+}
+
+interface GeneratedTopic {
+  id: string
+  title: string
+  status: "pending" | "approved" | "discarded"
 }
 
 const storyQuestions = [
@@ -57,10 +64,10 @@ const storyQuestions = [
     description: "Describe a significant challenge you faced in your career and how you approached it.",
     placeholder: "Tell us about a time when you faced a difficult situation at work, a project that seemed impossible, or a skill you had to develop quickly...",
     icon: Target,
-    color: "from-red-500 to-orange-500",
-    bgColor: "from-red-50 to-orange-50",
-    borderColor: "border-red-200",
-    textColor: "text-red-700"
+    color: "from-blue-500 to-blue-600",
+    bgColor: "from-blue-50 to-blue-100",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-700"
   },
   {
     key: "achievement" as keyof PersonalStoryForm,
@@ -68,10 +75,10 @@ const storyQuestions = [
     description: "Share an accomplishment that you're particularly proud of and what it meant to you.",
     placeholder: "Describe a project you completed, a goal you reached, a team you led, or recognition you received...",
     icon: Award,
-    color: "from-yellow-500 to-amber-500",
-    bgColor: "from-yellow-50 to-amber-50",
-    borderColor: "border-yellow-200",
-    textColor: "text-yellow-700"
+    color: "from-blue-400 to-blue-500",
+    bgColor: "from-blue-50 to-blue-100",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-700"
   },
   {
     key: "failure" as keyof PersonalStoryForm,
@@ -79,10 +86,10 @@ const storyQuestions = [
     description: "Tell us about a time when things didn't go as planned and what you learned from it.",
     placeholder: "Share a mistake you made, a project that failed, or a decision you regret and how it shaped you...",
     icon: Brain,
-    color: "from-purple-500 to-indigo-500",
-    bgColor: "from-purple-50 to-indigo-50",
-    borderColor: "border-purple-200",
-    textColor: "text-purple-700"
+    color: "from-blue-600 to-blue-700",
+    bgColor: "from-blue-50 to-blue-100",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-700"
   },
   {
     key: "mentor" as keyof PersonalStoryForm,
@@ -90,8 +97,8 @@ const storyQuestions = [
     description: "Describe someone who significantly impacted your professional journey.",
     placeholder: "Tell us about a boss, colleague, teacher, or industry leader who influenced your career path...",
     icon: Users,
-    color: "from-blue-500 to-cyan-500",
-    bgColor: "from-blue-50 to-cyan-50",
+    color: "from-blue-500 to-blue-600",
+    bgColor: "from-blue-50 to-blue-100",
     borderColor: "border-blue-200",
     textColor: "text-blue-700"
   },
@@ -101,10 +108,10 @@ const storyQuestions = [
     description: "Share a moment or decision that changed the direction of your career.",
     placeholder: "Describe a job change, industry switch, entrepreneurial leap, or realization that shifted your path...",
     icon: TrendingUp,
-    color: "from-green-500 to-emerald-500",
-    bgColor: "from-green-50 to-emerald-50",
-    borderColor: "border-green-200",
-    textColor: "text-green-700"
+    color: "from-blue-300 to-blue-400",
+    bgColor: "from-blue-50 to-blue-100",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-700"
   },
   {
     key: "lesson" as keyof PersonalStoryForm,
@@ -112,10 +119,10 @@ const storyQuestions = [
     description: "What's the most important lesson you've learned in your professional journey?",
     placeholder: "Share wisdom about leadership, work-life balance, networking, skill development, or career growth...",
     icon: Lightbulb,
-    color: "from-pink-500 to-rose-500",
-    bgColor: "from-pink-50 to-rose-50",
-    borderColor: "border-pink-200",
-    textColor: "text-pink-700"
+    color: "from-blue-700 to-blue-800",
+    bgColor: "from-blue-50 to-blue-100",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-700"
   },
 ]
 
@@ -137,6 +144,13 @@ export default function PersonalStoryPage() {
     lesson: "",
   })
   const [answersSaved, setAnswersSaved] = useState(false)
+  const [generatedTopics, setGeneratedTopics] = useState<GeneratedTopic[]>([])
+  const [showTopicApproval, setShowTopicApproval] = useState(false)
+
+  // Debug useEffect to monitor state changes
+  useEffect(() => {
+    console.log("State changed - showTopicApproval:", showTopicApproval, "generatedTopics length:", generatedTopics.length)
+  }, [showTopicApproval, generatedTopics])
 
   // Load saved form data from database on component mount
   useEffect(() => {
@@ -305,6 +319,268 @@ export default function PersonalStoryPage() {
     }
   }
 
+  const generateRelatedTopics = async (story: GeneratedStory) => {
+    try {
+      console.log("Starting topic generation for story:", story.title)
+      
+      // Create dynamic topic generation prompts with variety
+      const topicPrompts = [
+        `Based on this personal story, generate 3 eye-catching LinkedIn post topics that would go viral. Each topic should have a compelling hook, interesting punchline, and be highly shareable. Make them attention-grabbing and thought-provoking.
+
+Story: ${story.content}
+
+Generate exactly 3 topics with these characteristics:
+- Eye-catching headlines that make people stop scrolling
+- Interesting punchlines or unexpected angles
+- Professional but with personality
+- Highly shareable and engaging
+- Based on the specific themes in the story
+- Each should be unique and different from the others
+
+Format as a simple list, one topic per line.`,
+
+        `Transform this personal story into 3 viral-worthy LinkedIn post topics. Each topic should have a strong hook, compelling narrative angle, and be designed to spark conversations and engagement.
+
+Story: ${story.content}
+
+Create 3 topics that are:
+- Attention-grabbing and scroll-stopping
+- Have interesting twists or unexpected insights
+- Professional yet relatable
+- Designed to generate comments and shares
+- Based on the unique elements of this story
+- Each with a different angle or perspective
+
+Format as a simple list, one topic per line.`,
+
+        `Based on this personal story, create 3 LinkedIn post topics that would make professionals stop, read, and share. Each topic should have a compelling hook and interesting punchline that relates to the story's key themes.
+
+Story: ${story.content}
+
+Generate 3 topics that are:
+- Irresistibly clickable and engaging
+- Have surprising or counterintuitive angles
+- Professional but with emotional appeal
+- Designed to create discussion and engagement
+- Based on the specific challenges and lessons in the story
+- Each offering a different valuable insight
+
+Format as a simple list, one topic per line.`
+      ]
+
+      // Randomly select a prompt for variety
+      const selectedPrompt = topicPrompts[Math.floor(Math.random() * topicPrompts.length)]
+      console.log("Selected prompt variant:", topicPrompts.indexOf(selectedPrompt) + 1)
+
+      console.log("Sending topic generation request...")
+      
+      // Add randomization to customization for variety
+      const randomTones = ["professional", "conversational", "inspirational", "authoritative"]
+      const randomGoals = ["engagement", "viral", "discussion", "shares"]
+      const randomTemperature = 0.8 + Math.random() * 0.2 // 0.8 to 1.0 for more creativity
+      
+      const response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "topics",
+          prompt: selectedPrompt,
+          provider: "openai",
+          customization: {
+            tone: randomTones[Math.floor(Math.random() * randomTones.length)],
+            language: "english",
+            wordCount: 50,
+            targetAudience: "LinkedIn professionals",
+            mainGoal: randomGoals[Math.floor(Math.random() * randomGoals.length)],
+            includeHashtags: false,
+            includeEmojis: false,
+            callToAction: false,
+            temperature: randomTemperature,
+            maxTokens: 600,
+            humanLike: true,
+            ambiguity: 70,
+            randomness: 60,
+            personalTouch: true,
+            storytelling: true,
+            emotionalDepth: 85,
+            conversationalStyle: true,
+          }
+        }),
+      })
+
+      console.log("Topic generation response status:", response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log("Topic generation response data:", data)
+        
+        const topicsContent = data.data?.content || data.content || ""
+        console.log("Topics content:", topicsContent)
+        
+        // Parse topics from the response
+        const topics = topicsContent
+          .split('\n')
+          .map((line: string) => line.trim())
+          .filter((line: string) => line.length > 0)
+          .slice(0, 3) // Take only first 3 topics
+          .map((topic: string, index: number) => ({
+            id: `topic-${Date.now()}-${index}`,
+            title: topic.replace(/^\d+\.\s*/, '').trim(), // Remove numbering
+            status: "pending" as const
+          }))
+
+        console.log("Parsed topics:", topics)
+        
+        // If no topics were parsed, create some fallback topics
+        if (topics.length === 0) {
+          console.log("No topics parsed, creating fallback topics")
+          
+          // Create more diverse fallback topics based on story content
+          const storyText = story.content.toLowerCase()
+          let fallbackTopics = []
+          
+          if (storyText.includes("challenge") || storyText.includes("difficult")) {
+            fallbackTopics.push("The Challenge That Changed Everything: My Unexpected Breakthrough")
+          }
+          if (storyText.includes("failure") || storyText.includes("mistake")) {
+            fallbackTopics.push("Why My Biggest Failure Became My Greatest Success")
+          }
+          if (storyText.includes("mentor") || storyText.includes("advice")) {
+            fallbackTopics.push("The One Piece of Advice That Transformed My Career")
+          }
+          if (storyText.includes("lesson") || storyText.includes("learn")) {
+            fallbackTopics.push("The Hard Lesson That Taught Me Everything")
+          }
+          
+          // Fill remaining slots with generic but engaging topics
+          const genericTopics = [
+            "What I Wish I Knew Before Starting My Career",
+            "The Moment Everything Clicked: My Professional Awakening",
+            "Breaking Through: How I Overcame My Biggest Obstacle"
+          ]
+          
+          while (fallbackTopics.length < 3) {
+            const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
+            if (!fallbackTopics.includes(randomTopic)) {
+              fallbackTopics.push(randomTopic)
+            }
+          }
+          
+          const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
+            id: `fallback-topic-${Date.now()}-${index}`,
+            title,
+            status: "pending" as const
+          }))
+          setGeneratedTopics(finalFallbackTopics)
+        } else {
+          setGeneratedTopics(topics)
+        }
+        
+        setShowTopicApproval(true)
+        console.log("Set showTopicApproval to true, generatedTopics length:", topics.length)
+        
+        toast({
+          title: "Topics Generated",
+          description: `${topics.length > 0 ? topics.length : 3} related topics have been generated for your review.`,
+        })
+      } else {
+        console.error("Topic generation failed with status:", response.status)
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Error data:", errorData)
+        
+        // Create fallback topics even if API fails
+        const storyText = story.content.toLowerCase()
+        let fallbackTopics = []
+        
+        if (storyText.includes("challenge") || storyText.includes("difficult")) {
+          fallbackTopics.push("The Challenge That Changed Everything: My Unexpected Breakthrough")
+        }
+        if (storyText.includes("failure") || storyText.includes("mistake")) {
+          fallbackTopics.push("Why My Biggest Failure Became My Greatest Success")
+        }
+        if (storyText.includes("mentor") || storyText.includes("advice")) {
+          fallbackTopics.push("The One Piece of Advice That Transformed My Career")
+        }
+        if (storyText.includes("lesson") || storyText.includes("learn")) {
+          fallbackTopics.push("The Hard Lesson That Taught Me Everything")
+        }
+        
+        // Fill remaining slots with generic but engaging topics
+        const genericTopics = [
+          "What I Wish I Knew Before Starting My Career",
+          "The Moment Everything Clicked: My Professional Awakening",
+          "Breaking Through: How I Overcame My Biggest Obstacle"
+        ]
+        
+        while (fallbackTopics.length < 3) {
+          const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
+          if (!fallbackTopics.includes(randomTopic)) {
+            fallbackTopics.push(randomTopic)
+          }
+        }
+        
+        const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
+          id: `fallback-topic-${Date.now()}-${index}`,
+          title,
+          status: "pending" as const
+        }))
+        setGeneratedTopics(finalFallbackTopics)
+        setShowTopicApproval(true)
+        
+        toast({
+          title: "Topics Generated (Fallback)",
+          description: "Generated fallback topics for your review.",
+        })
+      }
+    } catch (error) {
+      console.error("Error generating related topics:", error)
+      
+      // Create fallback topics even if there's an error
+      const storyText = story.content.toLowerCase()
+      let fallbackTopics = []
+      
+      if (storyText.includes("challenge") || storyText.includes("difficult")) {
+        fallbackTopics.push("The Challenge That Changed Everything: My Unexpected Breakthrough")
+      }
+      if (storyText.includes("failure") || storyText.includes("mistake")) {
+        fallbackTopics.push("Why My Biggest Failure Became My Greatest Success")
+      }
+      if (storyText.includes("mentor") || storyText.includes("advice")) {
+        fallbackTopics.push("The One Piece of Advice That Transformed My Career")
+      }
+      if (storyText.includes("lesson") || storyText.includes("learn")) {
+        fallbackTopics.push("The Hard Lesson That Taught Me Everything")
+      }
+      
+      // Fill remaining slots with generic but engaging topics
+      const genericTopics = [
+        "What I Wish I Knew Before Starting My Career",
+        "The Moment Everything Clicked: My Professional Awakening",
+        "Breaking Through: How I Overcame My Biggest Obstacle"
+      ]
+      
+      while (fallbackTopics.length < 3) {
+        const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
+        if (!fallbackTopics.includes(randomTopic)) {
+          fallbackTopics.push(randomTopic)
+        }
+      }
+      
+      const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
+        id: `fallback-topic-${Date.now()}-${index}`,
+        title,
+        status: "pending" as const
+      }))
+      setGeneratedTopics(finalFallbackTopics)
+      setShowTopicApproval(true)
+      
+      toast({
+        title: "Topics Generated (Fallback)",
+        description: "Generated fallback topics for your review.",
+      })
+    }
+  }
+
   const generateStory = async () => {
     // Check if all required fields are filled
     const requiredFields = ["challenge", "achievement", "failure", "mentor", "turning_point", "lesson"]
@@ -384,74 +660,51 @@ export default function PersonalStoryPage() {
       console.log("Parsed contents:", contents) // Debug log
       console.log("Number of contents:", contents.length) // Debug log
 
-      // Ensure we have at least 3 distinct variations
-      let storyContents = contents
-      if (contents.length < 3) {
-        // If we don't have enough variations, create distinct variations from the base content
-        const baseContent = contents[0] || "Story content not generated properly"
-        
-        // Create 3 distinct variations with different focuses
-        storyContents = [
-          // Variation 1: Challenge-focused
-          baseContent.includes("challenge") ? baseContent : 
-          `Challenge-Focused Version:\n\n${baseContent}\n\nThis story emphasizes the challenges I faced and how I overcame them through determination and resilience.`,
-          
-          // Variation 2: Achievement-focused  
-          baseContent.includes("achievement") ? baseContent :
-          `Achievement-Focused Version:\n\n${baseContent}\n\nThis story highlights the achievements and successes that shaped my professional journey.`,
-          
-          // Variation 3: Lesson-focused
-          baseContent.includes("lesson") ? baseContent :
-          `Lesson-Focused Version:\n\n${baseContent}\n\nThis story focuses on the key lessons learned and personal growth throughout my career.`
-        ]
-      }
+      // Use the first generated content as the single story
+      let storyContent = contents[0] || "Story content not generated properly"
 
-      // If no content was generated at all, create sample stories
+      // If no content was generated at all, create a single sample story
       if (contents.length === 0 || (contents.length === 1 && contents[0].length < 50)) {
-        storyContents = [
-          `Based on your challenge: "${formData.challenge}", achievement: "${formData.achievement}", and lesson: "${formData.lesson}", here's a story focused on overcoming challenges:\n\nEarly in my career, I faced a significant challenge that tested my resilience and determination. Through perseverance and the support of mentors, I was able to overcome this obstacle and achieve remarkable success. This experience taught me valuable lessons about leadership, teamwork, and personal growth that continue to shape my professional journey today.`,
-          
-          `Here's a story focused on your achievements and what they meant:\n\nOne of my proudest moments was when I achieved "${formData.achievement}". This accomplishment wasn't just about the result itself, but about the journey that led there. It represented years of hard work, dedication, and the culmination of lessons learned from both successes and failures. This achievement taught me that persistence and continuous learning are key to professional growth.`,
-          
-          `Here's a story focused on the lessons learned and personal growth:\n\nThe most valuable lesson I've learned in my career is "${formData.lesson}". This insight came from a combination of experiences, including the challenges I faced and the guidance I received from mentors. This lesson has become a cornerstone of my professional philosophy and continues to guide my decisions and actions in both personal and professional contexts.`
-        ]
+        storyContent = `Based on your personal journey, here's your story:\n\nThroughout my career, I've faced significant challenges like "${formData.challenge}", which tested my resilience and determination. Through perseverance and the support of mentors like "${formData.mentor}", I was able to overcome obstacles and achieve remarkable success, including "${formData.achievement}". \n\nI've also learned valuable lessons from failures, such as when "${formData.failure}", which taught me the importance of continuous learning and growth. A major turning point in my career was when "${formData.turning_point}", which completely changed my perspective and approach.\n\nThe most valuable lesson I've learned is that "${formData.lesson}". This insight has become a cornerstone of my professional philosophy and continues to guide my decisions and actions in both personal and professional contexts.`
       }
 
-      // Create 3 story variations (take only first 3 from the generated)
-      const newStories: GeneratedStory[] = storyContents.slice(0, 3).map((content: string, index: number) => ({
-        id: `story-${Date.now()}-${index}`,
-        title: `My Professional Journey - Variation ${index + 1}`,
-        content: content.trim(),
+      // Create a single story
+      const newStory: GeneratedStory = {
+        id: `story-${Date.now()}`,
+        title: `My Professional Journey`,
+        content: storyContent.trim(),
         tone: customization.tone,
         wordCount: 500,
         createdAt: new Date(),
-        variation: index + 1,
-      }))
+        variation: 1,
+      }
 
-      setGeneratedStories([...newStories, ...generatedStories])
+      setGeneratedStories([newStory, ...generatedStories])
       
       // Check if we got proper content
-      const validStories = newStories.filter(story => story.content && story.content.length > 50)
-      if (validStories.length < 3) {
+      if (newStory.content && newStory.content.length > 50) {
+        // Generate related topics
+        await generateRelatedTopics(newStory)
+        
         toast({
-          title: "Partial Generation",
-          description: `Generated ${validStories.length} story variations. Some content may need regeneration.`,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Stories Generated!",
-          description: "Your 3 personal story variations have been created successfully.",
+          title: "Story Generated!",
+          description: "Your personal story has been created successfully. Please review the related topics below.",
         })
         // Save answers permanently to database after successful generation
         await saveAnswersToDatabase()
         // Clear localStorage backup since data is now in database
         localStorage.removeItem('personalStoryFormData')
+      } else {
+        toast({
+          title: "Generation Issue",
+          description: "Story content may need regeneration. Please try again.",
+          variant: "destructive",
+        })
       }
     } catch (error) {
-      console.error("Error generating stories:", error)
+      console.error("Error generating story:", error)
       
-      let errorMessage = "Failed to generate stories. Please try again."
+      let errorMessage = "Failed to generate story. Please try again."
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           errorMessage = "Request timed out. Please try again."
@@ -540,15 +793,87 @@ export default function PersonalStoryPage() {
     }
   }
 
+  const handleApproveTopic = async (topicId: string) => {
+    const topic = generatedTopics.find(t => t.id === topicId)
+    if (!topic) return
+
+    try {
+      const response = await fetch('/api/approved-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topics: [topic.title],
+          storyId: generatedStories[0]?.id
+        })
+      })
+
+      if (response.ok) {
+        setGeneratedTopics(prev => prev.map(t => 
+          t.id === topicId ? { ...t, status: "approved" } : t
+        ))
+        toast({
+          title: "Topic Approved",
+          description: "Topic has been added to your approved topics.",
+        })
+      }
+    } catch (error) {
+      console.error("Error approving topic:", error)
+      toast({
+        title: "Error",
+        description: "Failed to approve topic. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDiscardTopic = (topicId: string) => {
+    setGeneratedTopics(prev => prev.map(t => 
+      t.id === topicId ? { ...t, status: "discarded" } : t
+    ))
+  }
+
+  const handleApproveAllTopics = async () => {
+    const pendingTopics = generatedTopics.filter(t => t.status === "pending")
+    if (pendingTopics.length === 0) return
+
+    try {
+      const response = await fetch('/api/approved-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topics: pendingTopics.map(t => t.title),
+          storyId: generatedStories[0]?.id
+        })
+      })
+
+      if (response.ok) {
+        setGeneratedTopics(prev => prev.map(t => 
+          t.status === "pending" ? { ...t, status: "approved" } : t
+        ))
+        toast({
+          title: "All Topics Approved",
+          description: "All topics have been added to your approved topics.",
+        })
+      }
+    } catch (error) {
+      console.error("Error approving topics:", error)
+      toast({
+        title: "Error",
+        description: "Failed to approve topics. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
   const currentQuestion = storyQuestions[currentStep]
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-blue-50/20 to-black/5 dark:from-black dark:via-blue-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       {/* Header */}
@@ -585,7 +910,7 @@ export default function PersonalStoryPage() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
             <motion.div 
-              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl mb-4"
+              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-secondary rounded-2xl mb-4"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
@@ -594,7 +919,7 @@ export default function PersonalStoryPage() {
             </motion.div>
             
             <motion.h1 
-              className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent leading-tight"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent leading-tight"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
@@ -614,7 +939,7 @@ export default function PersonalStoryPage() {
 
           {/* Story Journey Preview */}
           <motion.div 
-            className="flex flex-wrap items-center justify-center gap-4 pt-6"
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 pt-4 sm:pt-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.0, ease: "easeOut" }}
@@ -622,16 +947,16 @@ export default function PersonalStoryPage() {
             {storyQuestions.map((question, index) => (
               <motion.div
                 key={question.key}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 sm:gap-2"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 1.2 + index * 0.1, ease: "easeOut" }}
               >
-                <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${question.color} flex items-center justify-center`}>
-                  <question.icon className="w-4 h-4 text-white" />
+                <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r ${question.color} flex items-center justify-center`}>
+                  <question.icon className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 {index < storyQuestions.length - 1 && (
-                  <ArrowRight className="w-4 h-4 text-gray-400" />
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                 )}
               </motion.div>
             ))}
@@ -647,9 +972,9 @@ export default function PersonalStoryPage() {
         transition={{ duration: 0.8, delay: 1.4, ease: "easeOut" }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 lg:gap-12">
             {/* Main Story Form */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-8">
               {/* Enhanced Story Questions Card */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -657,63 +982,63 @@ export default function PersonalStoryPage() {
                 transition={{ duration: 0.6, delay: 1.6, ease: "easeOut" }}
               >
                 <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl overflow-hidden">
-                  <CardHeader className="pb-6 bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-r ${currentQuestion.color} flex items-center justify-center`}>
-                          <currentQuestion.icon className="w-6 h-6 text-white" />
+                  <CardHeader className="pb-4 sm:pb-6 bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-r ${currentQuestion.color} flex items-center justify-center flex-shrink-0`}>
+                          <currentQuestion.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
-                        <div>
-                          <CardTitle className="text-2xl font-bold text-black dark:text-white">
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="text-lg sm:text-2xl font-bold text-black dark:text-white leading-tight">
                             {currentQuestion.title}
                           </CardTitle>
-                          <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
+                          <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
                             Step {currentStep + 1} of {storyQuestions.length} • {currentQuestion.description}
                           </CardDescription>
                         </div>
                       </div>
                       {Object.values(formData).some(value => value.trim() !== "") && (
-                        <Badge variant={answersSaved ? "default" : "secondary"} className="text-sm px-3 py-1">
-                          <CheckCircle className="w-4 h-4 mr-2" />
+                        <Badge variant={answersSaved ? "default" : "secondary"} className="text-xs sm:text-sm px-2 sm:px-3 py-1 self-start sm:self-center">
+                          <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                           {answersSaved ? "Saved" : "Auto-saved"}
                         </Badge>
                       )}
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="p-8 space-y-8">
+                  <CardContent className="p-4 sm:p-8 space-y-4 sm:space-y-8">
                     {/* Enhanced Progress Indicator */}
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Story Progress</span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">{Math.round(((currentStep + 1) / storyQuestions.length) * 100)}% Complete</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Story Progress</span>
+                        <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{Math.round(((currentStep + 1) / storyQuestions.length) * 100)}% Complete</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-2">
                         {storyQuestions.map((question, index) => (
                           <motion.div
                             key={index}
-                            className="flex items-center gap-2"
+                            className="flex items-center gap-1 sm:gap-2 flex-shrink-0"
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3, delay: index * 0.1 }}
                           >
                             <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                              className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
                                 index < currentStep 
                                   ? `bg-gradient-to-r ${question.color} shadow-lg` 
                                   : index === currentStep
-                                  ? `bg-gradient-to-r ${question.color} shadow-lg ring-4 ring-purple-200`
+                                  ? `bg-gradient-to-r ${question.color} shadow-lg ring-2 sm:ring-4 ring-blue-200`
                                   : "bg-gray-200"
                               }`}
                             >
                               {index < currentStep ? (
-                                <CheckCircle className="w-4 h-4 text-white" />
+                                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                               ) : (
-                                <question.icon className={`w-4 h-4 ${index === currentStep ? 'text-white' : 'text-gray-500'}`} />
+                                <question.icon className={`w-3 h-3 sm:w-4 sm:h-4 ${index === currentStep ? 'text-white' : 'text-gray-500'}`} />
                               )}
                             </div>
                             {index < storyQuestions.length - 1 && (
-                              <div className={`w-8 h-0.5 ${index < currentStep ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gray-200'}`} />
+                              <div className={`w-4 sm:w-8 h-0.5 ${index < currentStep ? 'bg-gradient-to-r from-blue-500 to-blue-600' : 'bg-gray-200'}`} />
                             )}
                           </motion.div>
                         ))}
@@ -721,10 +1046,10 @@ export default function PersonalStoryPage() {
                     </div>
 
                     {/* Enhanced Question Input */}
-                    <div className="space-y-6">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                          <Mic className="h-4 w-4" />
+                    <div className="space-y-4 sm:space-y-6">
+                      <div className="space-y-2 sm:space-y-3">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <Mic className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                           <span>Tip: Click the microphone icon to record your answer instead of typing</span>
                         </div>
                       </div>
@@ -734,76 +1059,78 @@ export default function PersonalStoryPage() {
                           placeholder={currentQuestion.placeholder}
                           value={formData[currentQuestion.key]}
                           onChange={(e) => handleInputChange(currentQuestion.key, e.target.value)}
-                          className={`min-h-[200px] text-lg resize-none border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 rounded-2xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-16 transition-all duration-300`}
+                          className={`min-h-[150px] sm:min-h-[200px] text-sm sm:text-lg resize-none border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-200 dark:focus:ring-blue-800/20 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12 sm:pr-16 transition-all duration-300`}
                         />
-                        <div className="absolute bottom-4 right-4">
+                        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
                           <MicrophoneButton
                             onTranscript={(transcript) => handleMicrophoneTranscript(currentQuestion.key, transcript)}
                             size="sm"
                             variant="ghost"
-                            className="h-12 w-12 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-xl transition-colors"
+                            className="h-10 w-10 sm:h-12 sm:w-12 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg sm:rounded-xl transition-colors"
                           />
                         </div>
                       </div>
                     </div>
 
                     {/* Enhanced Navigation */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-6 border-t border-teal-200/50 dark:border-teal-800/50">
-                      <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 sm:pt-6 border-t border-blue-200/50 dark:border-blue-800/50">
+                      <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
                         <Button
                           variant="outline"
                           onClick={prevStep}
                           disabled={currentStep === 0}
-                          className="gap-2 h-12 px-6 rounded-xl border-2 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300"
+                          className="gap-2 h-10 sm:h-12 px-4 sm:px-6 rounded-lg sm:rounded-xl border-2 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-sm sm:text-base flex-1 sm:flex-none"
                         >
-                          <ArrowLeft className="w-4 h-4" />
+                          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                           Previous
                         </Button>
                         <Button
                           variant="outline"
                           onClick={clearFormData}
-                          className="gap-2 h-12 px-6 rounded-xl border-2 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/50 hover:border-red-300 dark:hover:border-red-700 text-red-600 dark:text-red-400"
+                          className="gap-1 sm:gap-2 h-10 sm:h-12 px-3 sm:px-6 rounded-lg sm:rounded-xl border-2 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-300 dark:hover:border-blue-700 text-blue-600 dark:text-blue-400 text-xs sm:text-base flex-1 sm:flex-none"
                         >
-                          <Trash2 className="w-4 h-4" />
-                          Clear All
+                          <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="hidden sm:inline">Clear All</span>
+                          <span className="sm:hidden">Clear</span>
                         </Button>
                         <Button
                           variant="outline"
                           onClick={saveAnswersToDatabase}
                           disabled={Object.values(formData).every(value => value.trim() === "")}
-                          className="gap-2 h-12 px-6 rounded-xl border-2 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-600 dark:text-teal-400"
+                          className="gap-1 sm:gap-2 h-10 sm:h-12 px-3 sm:px-6 rounded-lg sm:rounded-xl border-2 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-blue-300 dark:hover:border-blue-700 text-blue-600 dark:text-blue-400 text-xs sm:text-base flex-1 sm:flex-none"
                         >
-                          <Save className="w-4 h-4" />
-                          Save Progress
+                          <Save className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="hidden sm:inline">Save Progress</span>
+                          <span className="sm:hidden">Save</span>
                         </Button>
                       </div>
                       
                       {currentStep < storyQuestions.length - 1 ? (
                         <Button 
                           onClick={nextStep} 
-                          className="gap-2 h-12 px-8 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                          className="gap-2 h-10 sm:h-12 px-6 sm:px-8 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base"
                         >
                           Next Step
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
                         </Button>
                       ) : (
-                        <Button
-                          onClick={generateStory}
-                          disabled={isGenerating}
-                          className="gap-3 h-12 px-8 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                        >
-                          {isGenerating ? (
-                            <>
-                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                              <span>Generating Stories...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="w-5 h-5" />
-                              <span>Generate My Stories</span>
-                            </>
-                          )}
-                        </Button>
+                            <Button
+                              onClick={generateStory}
+                              disabled={isGenerating}
+                              className="gap-2 sm:gap-3 h-10 sm:h-12 px-6 sm:px-8 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base"
+                            >
+                              {isGenerating ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
+                                  <span>Generating Story...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                                  <span>Generate My Story</span>
+                                </>
+                              )}
+                            </Button>
                       )}
                     </div>
                   </CardContent>
@@ -827,9 +1154,9 @@ export default function PersonalStoryPage() {
                             animate={{ rotate: 360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           >
-                            <div className="w-20 h-20 border-4 border-teal-200 dark:border-teal-800 border-t-teal-500 dark:border-t-teal-400 rounded-full"></div>
+                            <div className="w-20 h-20 border-4 border-blue-200 dark:border-blue-800 border-t-blue-500 dark:border-t-blue-400 rounded-full"></div>
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <Sparkles className="w-8 h-8 text-teal-500 dark:text-teal-400 animate-pulse" />
+                              <Sparkles className="w-8 h-8 text-blue-500 dark:text-blue-400 animate-pulse" />
                             </div>
                           </motion.div>
                           <div className="space-y-2">
@@ -837,9 +1164,9 @@ export default function PersonalStoryPage() {
                             <p className="text-gray-600 dark:text-gray-400">Our AI is weaving your experiences into compelling narratives...</p>
                           </div>
                           <div className="flex justify-center space-x-1">
-                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                           </div>
                         </div>
                       </CardContent>
@@ -855,9 +1182,9 @@ export default function PersonalStoryPage() {
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
                   <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
-                    <CardHeader className="pb-6 bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10">
+                    <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-secondary rounded-2xl flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-secondary rounded-2xl flex items-center justify-center">
                           <BookOpen className="w-6 h-6 text-white" />
                         </div>
                         <div>
@@ -871,36 +1198,36 @@ export default function PersonalStoryPage() {
                       </div>
                     </CardHeader>
                     
-                    <CardContent className="p-8">
-                      <div className="space-y-6">
+                    <CardContent className="p-4 sm:p-8">
+                      <div className="space-y-4 sm:space-y-6">
                         {generatedStories.length > 0 && generatedStories.every(story => !story.content || story.content.length < 50) && (
                           <motion.div 
-                            className="p-6 border-2 border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/30 rounded-2xl"
+                            className="p-4 sm:p-6 border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 rounded-xl sm:rounded-2xl"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
-                                <RefreshCw className="w-4 h-4 text-white" />
+                            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                               </div>
-                              <h4 className="font-semibold text-amber-800 dark:text-amber-200">Regeneration Needed</h4>
+                              <h4 className="font-semibold text-sm sm:text-base text-blue-800 dark:text-blue-200">Regeneration Needed</h4>
                             </div>
-                            <p className="text-amber-700 dark:text-amber-300 mb-4">
-                              Some stories may not have generated properly. Click below to regenerate with fresh content.
+                            <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 mb-3 sm:mb-4">
+                              The story may not have generated properly. Click below to regenerate with fresh content.
                             </p>
                             <Button 
                               onClick={generateStory}
                               disabled={isGenerating}
-                              className="gap-2 bg-amber-500 hover:bg-amber-600 text-white"
+                              className="gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base h-9 sm:h-10"
                             >
-                              <RefreshCw className="w-4 h-4" />
-                              {isGenerating ? "Regenerating..." : "Regenerate Stories"}
+                              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
+                              {isGenerating ? "Regenerating..." : "Regenerate Story"}
                             </Button>
                           </motion.div>
                         )}
                         
-                        <div className="grid gap-6">
+                        <div className="grid gap-4 sm:gap-6">
                           {generatedStories.map((story, index) => (
                             <motion.div
                               key={story.id}
@@ -910,49 +1237,49 @@ export default function PersonalStoryPage() {
                               className="group cursor-pointer"
                               onClick={() => handleSelectStory(story)}
                             >
-                              <Card className="bg-white dark:bg-black border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
-                                <CardContent className="p-6">
-                                  <div className="flex items-start justify-between mb-4">
+                              <Card className="bg-white dark:bg-black border-2 border-blue-200 dark:border-blue-800 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                                <CardContent className="p-4 sm:p-6">
+                                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
                                     <div className="flex flex-wrap items-center gap-2">
-                                      <Badge variant="secondary" className="text-sm px-3 py-1">
+                                      <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
                                         {story.tone}
                                       </Badge>
-                                      <Badge variant="outline" className="text-sm px-3 py-1">
+                                      <Badge variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
                                         {story.wordCount} words
                                       </Badge>
                                       {story.variation && (
-                                        <Badge className="text-sm px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                                        <Badge className="text-xs sm:text-sm px-2 sm:px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                                           Variation {story.variation}
                                         </Badge>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 group-hover:text-teal-500 dark:group-hover:text-teal-400 transition-colors">
-                                      <Eye className="w-5 h-5" />
-                                      <span className="text-sm font-medium">Preview</span>
+                                    <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors self-start">
+                                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                                      <span className="text-xs sm:text-sm font-medium">Preview</span>
                                     </div>
                                   </div>
                                   
-                                  <h3 className="text-xl font-bold text-black dark:text-white mb-3 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                  <h3 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
                                     {story.title}
                                   </h3>
                                   
-                                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-4 mb-4">
+                                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-4 mb-4">
                                     {story.content && story.content.length > 0 
                                       ? story.content 
                                       : "Story content is being generated..."}
                                   </p>
                                   
                                   {story.content && story.content.length > 0 && (
-                                    <div className="flex gap-3 pt-4 border-t border-teal-200/50 dark:border-teal-800/50">
+                                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-blue-200/50 dark:border-blue-800/50">
                                       <LinkedInPostButton 
                                         content={story.content}
-                                        className="flex-1 h-10 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl"
+                                        className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
                                       />
                                       <ScheduleButton
                                         content={story.content}
                                         defaultPlatform="linkedin"
                                         defaultType="text"
-                                        className="flex-1 h-10 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl"
+                                        className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
                                       />
                                     </div>
                                   )}
@@ -966,10 +1293,138 @@ export default function PersonalStoryPage() {
                   </Card>
                 </motion.div>
               )}
+
+              {/* Topic Approval Section */}
+              {showTopicApproval && generatedTopics.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                >
+                  <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
+                    <CardHeader className="pb-4 sm:pb-6 bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-secondary rounded-2xl flex items-center justify-center flex-shrink-0">
+                          <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg sm:text-2xl font-bold text-black dark:text-white leading-tight">
+                            Related Topics
+                          </CardTitle>
+                          <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+                            Review and approve topics generated from your story
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="p-4 sm:p-8">
+                      <div className="space-y-4 sm:space-y-6">
+                        {generatedTopics.map((topic, index) => (
+                          <motion.div
+                            key={topic.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 ${
+                              topic.status === "approved" 
+                                ? "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30" 
+                                : topic.status === "discarded"
+                                ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30"
+                                : "border-blue-200 bg-white dark:border-blue-800 dark:bg-black"
+                            }`}
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                              <div className="flex-1">
+                                <h4 className="text-sm sm:text-base font-semibold text-black dark:text-white mb-2">
+                                  {topic.title}
+                                </h4>
+                                <div className="flex items-center gap-2">
+                                  {topic.status === "approved" && (
+                                    <Badge className="bg-blue-500 text-white text-xs">
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                      Approved
+                                    </Badge>
+                                  )}
+                                  {topic.status === "discarded" && (
+                                    <Badge variant="destructive" className="text-xs">
+                                      <X className="w-3 h-3 mr-1" />
+                                      Discarded
+                                    </Badge>
+                                  )}
+                                  {topic.status === "pending" && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      <Clock className="w-3 h-3 mr-1" />
+                                      Pending Review
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {topic.status === "pending" && (
+                                <div className="flex gap-2 sm:gap-3">
+                                  <Button
+                                    onClick={() => handleApproveTopic(topic.id)}
+                                    size="sm"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+                                  >
+                                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                                    <span className="hidden sm:inline">Approve</span>
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleDiscardTopic(topic.id)}
+                                    variant="outline"
+                                    size="sm"
+                                    className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50 text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+                                  >
+                                    <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                                    <span className="hidden sm:inline">Discard</span>
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        ))}
+                        
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-blue-200/50 dark:border-blue-800/50">
+                          {generatedTopics.some(t => t.status === "pending") && (
+                            <Button
+                              onClick={handleApproveAllTopics}
+                              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white h-10 sm:h-12 text-sm sm:text-base"
+                            >
+                              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                              Approve All Topics
+                            </Button>
+                          )}
+                          <Button
+                            onClick={() => {
+                              if (generatedStories.length > 0) {
+                                generateRelatedTopics(generatedStories[0])
+                              }
+                            }}
+                            variant="outline"
+                            className="flex-1 border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-950/50 h-10 sm:h-12 text-sm sm:text-base"
+                          >
+                            <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                            Regenerate Topics
+                          </Button>
+                          <Button
+                            onClick={() => setShowTopicApproval(false)}
+                            variant="outline"
+                            className="flex-1 border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/50 h-10 sm:h-12 text-sm sm:text-base"
+                          >
+                            Close
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
             </div>
 
             {/* Enhanced Customization Sidebar */}
-            <div className="space-y-8">
+            <div className="space-y-4 sm:space-y-8">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -987,10 +1442,10 @@ export default function PersonalStoryPage() {
 
       {/* Enhanced Preview Modal */}
       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200 dark:border-teal-800">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200 dark:border-blue-800">
           <DialogHeader className="pb-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-secondary rounded-2xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-secondary rounded-2xl flex items-center justify-center">
                 <Eye className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -1010,17 +1465,17 @@ export default function PersonalStoryPage() {
               transition={{ duration: 0.5 }}
             >
               {/* Story Content */}
-              <Card className="bg-gradient-to-br from-teal-50/50 to-secondary/20 dark:from-teal-950/30 dark:to-secondary/10 border-2 border-teal-200 dark:border-teal-800">
+              <Card className="bg-gradient-to-br from-blue-50/50 to-secondary/20 dark:from-blue-950/30 dark:to-secondary/10 border-2 border-blue-200 dark:border-blue-800">
                 <CardContent className="p-8">
                   <div className="flex flex-wrap items-center gap-3 mb-6">
-                    <Badge variant="secondary" className="text-sm px-3 py-1 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300">
+                    <Badge variant="secondary" className="text-sm px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
                       {selectedStory.tone}
                     </Badge>
-                    <Badge variant="outline" className="text-sm px-3 py-1 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300">
+                    <Badge variant="outline" className="text-sm px-3 py-1 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300">
                       {selectedStory.wordCount} words
                     </Badge>
                     {selectedStory.variation && (
-                      <Badge className="text-sm px-3 py-1 bg-gradient-to-r from-teal-500 to-secondary text-white">
+                      <Badge className="text-sm px-3 py-1 bg-gradient-to-r from-blue-500 to-secondary text-white">
                         Variation {selectedStory.variation}
                       </Badge>
                     )}
@@ -1041,7 +1496,7 @@ export default function PersonalStoryPage() {
                 <Button 
                   onClick={handlePostStory}
                   disabled={isPosting}
-                  className="flex-1 h-12 bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="flex-1 h-12 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   {isPosting ? (
                     <>
@@ -1058,7 +1513,7 @@ export default function PersonalStoryPage() {
                 <Button 
                   variant="outline" 
                   onClick={handleSaveDraft} 
-                  className="flex-1 h-12 border-2 border-teal-200 dark:border-teal-800 hover:border-teal-300 dark:hover:border-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300 rounded-xl transition-all duration-300"
+                  className="flex-1 h-12 border-2 border-blue-200 dark:border-blue-800 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300 rounded-xl transition-all duration-300"
                 >
                   <Save className="w-5 h-5 mr-3" />
                   <span>Save to Drafts</span>

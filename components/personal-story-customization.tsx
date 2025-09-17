@@ -47,10 +47,10 @@ export function PersonalStoryCustomizationPanel({
 
   // Simplified tone options
   const toneOptions = [
-    { value: "professional", label: "Professional", icon: Shield, color: "from-blue-500 to-cyan-500" },
-    { value: "casual", label: "Casual", icon: Heart, color: "from-pink-500 to-rose-500" },
-    { value: "inspirational", label: "Inspirational", icon: Sparkles, color: "from-purple-500 to-indigo-500" },
-    { value: "conversational", label: "Conversational", icon: MessageSquare, color: "from-green-500 to-emerald-500" }
+    { value: "professional", label: "Professional", icon: Shield, color: "from-blue-500 to-blue-600" },
+    { value: "casual", label: "Casual", icon: Heart, color: "from-blue-400 to-blue-500" },
+    { value: "inspirational", label: "Inspirational", icon: Sparkles, color: "from-blue-600 to-blue-700" },
+    { value: "conversational", label: "Conversational", icon: MessageSquare, color: "from-blue-300 to-blue-400" }
   ]
 
   // Simplified audience options
@@ -76,10 +76,10 @@ export function PersonalStoryCustomizationPanel({
       transition={{ duration: 0.6 }}
     >
       <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
-        <CardHeader className="pb-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+        <CardHeader className="pb-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                 <Settings className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -95,13 +95,13 @@ export function PersonalStoryCustomizationPanel({
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-8 w-8 p-0 hover:bg-purple-100 rounded-lg"
+              className="h-8 w-8 p-0 hover:bg-blue-100 rounded-lg"
             >
               <motion.div
                 animate={{ rotate: isExpanded ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <ChevronDown className="h-4 w-4 text-purple-600" />
+                <ChevronDown className="h-4 w-4 text-blue-600" />
               </motion.div>
             </Button>
           </div>
@@ -124,7 +124,7 @@ export function PersonalStoryCustomizationPanel({
                     onClick={() => setActiveTab("basic")}
                     className={`flex-1 h-8 text-xs ${
                       activeTab === "basic" 
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-sm" 
+                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" 
                         : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
@@ -136,7 +136,7 @@ export function PersonalStoryCustomizationPanel({
                     onClick={() => setActiveTab("advanced")}
                     className={`flex-1 h-8 text-xs ${
                       activeTab === "advanced" 
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-sm" 
+                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" 
                         : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
@@ -150,7 +150,7 @@ export function PersonalStoryCustomizationPanel({
                     {/* Tone Selection - MCQ Style */}
                     <div className="space-y-3">
                       <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                        <Palette className="w-4 h-4 text-purple-600" />
+                        <Palette className="w-4 h-4 text-blue-600" />
                         What tone best describes your story?
                       </Label>
                       <div className="space-y-2">
@@ -164,8 +164,8 @@ export function PersonalStoryCustomizationPanel({
                           >
                             <div className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
                               customization.tone === tone.value
-                                ? `border-purple-500 bg-gradient-to-r ${tone.color} text-white shadow-md`
-                                : "border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+                                ? `border-blue-500 bg-gradient-to-r ${tone.color} text-white shadow-md`
+                                : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
                             }`}>
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                 customization.tone === tone.value
@@ -173,7 +173,7 @@ export function PersonalStoryCustomizationPanel({
                                   : "border-gray-300"
                               }`}>
                                 {customization.tone === tone.value && (
-                                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                                 )}
                               </div>
                               <tone.icon className={`w-5 h-5 ${customization.tone === tone.value ? 'text-white' : 'text-gray-600'}`} />
@@ -194,7 +194,7 @@ export function PersonalStoryCustomizationPanel({
                           Target Audience
                         </Label>
                         <Select value={customization.targetAudience} onValueChange={(value) => handleChange("targetAudience", value)}>
-                          <SelectTrigger className="h-9 border border-gray-200 focus:border-purple-500 rounded-lg">
+                          <SelectTrigger className="h-9 border border-gray-200 focus:border-blue-500 rounded-lg">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -216,7 +216,7 @@ export function PersonalStoryCustomizationPanel({
                           Main Goal
                         </Label>
                         <Select value={customization.mainGoal} onValueChange={(value) => handleChange("mainGoal", value)}>
-                          <SelectTrigger className="h-9 border border-gray-200 focus:border-purple-500 rounded-lg">
+                          <SelectTrigger className="h-9 border border-gray-200 focus:border-blue-500 rounded-lg">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -258,14 +258,14 @@ export function PersonalStoryCustomizationPanel({
                     {/* Story Length - MCQ Style */}
                     <div className="space-y-3">
                       <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                        <BookOpen className="w-4 h-4 text-purple-600" />
+                        <BookOpen className="w-4 h-4 text-blue-600" />
                         How long should your story be?
                       </Label>
                       <div className="space-y-2">
                         {[
-                          { value: "short", label: "Short Story", description: "300-400 words", icon: "📝", color: "from-green-500 to-emerald-500" },
-                          { value: "medium", label: "Medium Story", description: "500-600 words", icon: "📄", color: "from-blue-500 to-cyan-500" },
-                          { value: "long", label: "Long Story", description: "700-800 words", icon: "📚", color: "from-purple-500 to-indigo-500" }
+                          { value: "short", label: "Short Story", description: "300-400 words", icon: "📝", color: "from-blue-300 to-blue-400" },
+                          { value: "medium", label: "Medium Story", description: "500-600 words", icon: "📄", color: "from-blue-500 to-blue-600" },
+                          { value: "long", label: "Long Story", description: "700-800 words", icon: "📚", color: "from-blue-600 to-blue-700" }
                         ].map((length) => (
                           <motion.div
                             key={length.value}
@@ -276,8 +276,8 @@ export function PersonalStoryCustomizationPanel({
                           >
                             <div className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
                               (customization.storyLength || "medium") === length.value
-                                ? `border-purple-500 bg-gradient-to-r ${length.color} text-white shadow-md`
-                                : "border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+                                ? `border-blue-500 bg-gradient-to-r ${length.color} text-white shadow-md`
+                                : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
                             }`}>
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                 (customization.storyLength || "medium") === length.value
@@ -285,7 +285,7 @@ export function PersonalStoryCustomizationPanel({
                                   : "border-gray-300"
                               }`}>
                                 {(customization.storyLength || "medium") === length.value && (
-                                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                                 )}
                               </div>
                               <span className="text-lg">{length.icon}</span>
@@ -318,7 +318,7 @@ export function PersonalStoryCustomizationPanel({
                         ].map((feature) => (
                           <div key={feature.key} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                             <div className="flex items-center gap-2">
-                              <feature.icon className="w-4 h-4 text-purple-600" />
+                              <feature.icon className="w-4 h-4 text-blue-600" />
                               <span className="text-sm font-medium text-gray-900">{feature.label}</span>
                             </div>
                             <Button
@@ -327,7 +327,7 @@ export function PersonalStoryCustomizationPanel({
                               onClick={() => handleChange(feature.key as keyof PersonalStoryCustomization, !customization[feature.key as keyof PersonalStoryCustomization])}
                               className={`w-10 h-5 p-0 rounded-full ${
                                 customization[feature.key as keyof PersonalStoryCustomization]
-                                  ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                                  ? "bg-gradient-to-r from-blue-500 to-blue-600"
                                   : "bg-gray-300"
                               }`}
                             >
@@ -343,19 +343,19 @@ export function PersonalStoryCustomizationPanel({
                 )}
 
                 {/* Quick Summary */}
-                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm font-semibold text-purple-900">Current Style</span>
+                    <Sparkles className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-semibold text-blue-900">Current Style</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs">
+                    <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs">
                       {toneOptions.find(t => t.value === customization.tone)?.label}
                     </Badge>
-                    <Badge variant="outline" className="border-purple-300 text-purple-700 text-xs">
+                    <Badge variant="outline" className="border-blue-300 text-blue-700 text-xs">
                       {audienceOptions.find(a => a.value === customization.targetAudience)?.label}
                     </Badge>
-                    <Badge variant="outline" className="border-purple-300 text-purple-700 text-xs">
+                    <Badge variant="outline" className="border-blue-300 text-blue-700 text-xs">
                       {goalOptions.find(g => g.value === customization.mainGoal)?.label}
                     </Badge>
                   </div>

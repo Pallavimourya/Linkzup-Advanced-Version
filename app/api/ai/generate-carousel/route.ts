@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
         emotionalDepth: 40,
         conversationalStyle: false,
       },
+      session.user.id,
       session.user.email
     )
 

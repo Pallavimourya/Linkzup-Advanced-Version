@@ -55,11 +55,10 @@ export async function POST(request: NextRequest) {
 
       const now = new Date()
       const isActive = !!coupon?.active
-      const isVisible = coupon?.visible !== false // default visible
       const notExpired = !coupon?.expiresAt || new Date(coupon.expiresAt) >= now
       const notMaxed = !coupon?.maxRedemptions || (coupon?.uses || 0) < coupon.maxRedemptions
 
-      if (coupon && isActive && isVisible && notExpired && notMaxed) {
+      if (coupon && isActive && notExpired && notMaxed) {
         // Store coupon info but don't apply discount yet
         appliedCoupon = { code: coupon.code, type: coupon.type, value: coupon.value }
       } else {

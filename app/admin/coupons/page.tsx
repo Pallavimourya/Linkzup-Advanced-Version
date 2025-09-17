@@ -113,9 +113,9 @@ export default function AdminCouponsPage() {
         <CardContent>
           <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {predefinedCoupons.map((coupon, index) => (
-              <div key={index} className="border border-teal-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow bg-white/50">
+              <div key={index} className="border border-blue-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow bg-white/50">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-base sm:text-lg font-mono text-teal-900 break-words">{coupon.code}</h3>
+                  <h3 className="font-semibold text-base sm:text-lg font-mono text-blue-900 break-words">{coupon.code}</h3>
                   <Badge variant={coupon.type === 'percent' ? 'default' : 'secondary'} className="text-xs">
                     {coupon.type === 'percent' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`}
                   </Badge>
@@ -137,7 +137,7 @@ export default function AdminCouponsPage() {
 
                 <Button 
                   onClick={() => createPredefinedCoupon(coupon)}
-                  className="w-full bg-teal-700 hover:bg-teal-800 text-white text-sm sm:text-base"
+                  className="w-full bg-blue-700 hover:bg-blue-800 text-white text-sm sm:text-base"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create {coupon.code}

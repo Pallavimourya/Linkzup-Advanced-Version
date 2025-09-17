@@ -1,4 +1,5 @@
 import OpenAI from "openai"
+import { PersonalStoryService, type PersonalStoryData } from "./personal-story-service"
 
 // AI Provider Types
 export type AIProvider = "openai" | "perplexity" // OpenAI as primary, Perplexity as fallback
@@ -37,6 +38,7 @@ export interface AIRequest {
   provider: AIProvider
   customization: CustomizationOptions
   userId?: string
+  userEmail?: string
   priority?: "low" | "normal" | "high"
   createdAt: Date
 }
@@ -192,7 +194,7 @@ class AIService {
 
   // Generate content with OpenAI
   private async generateWithOpenAI(request: AIRequest) {
-    const prompt = this.buildPrompt(request)
+    const prompt = await this.buildPrompt(request)
     const { temperature = 0.7, maxTokens = 2000 } = request.customization
 
     // Always use OpenAI with fixed settings for consistency
@@ -219,7 +221,8 @@ class AIService {
         parsedContent = this.parseMultipleContent(content, "article")
         break
       case "story":
-        parsedContent = this.parseMultipleContent(content, "story")
+        // For story, we want a single story, not multiple variations
+        parsedContent = [content]
         break
       case "carousel":
         // For carousel, we want the raw content to parse as JSON, not split into variations
@@ -261,7 +264,7 @@ class AIService {
     const { perplexity } = await import("@ai-sdk/perplexity")
     const { generateText } = await import("ai")
     
-    const prompt = this.buildPrompt(request)
+    const prompt = await this.buildPrompt(request)
 
     const response = await generateText({
       model: perplexity("llama-3.1-sonar-small-128k"),
@@ -293,8 +296,26 @@ class AIService {
   }
 
   // Build prompt based on request type and customization
-  private buildPrompt(request: AIRequest): string {
-    const { type, prompt, customization } = request
+  private async buildPrompt(request: AIRequest): Promise<string> {
+    const { type, prompt, customization, userEmail } = request
+    
+    // Get personal story context if user email is provided
+    let personalStoryContext = ""
+    if (userEmail) {
+      try {
+        const storyData = await PersonalStoryService.getUserStoryData(userEmail)
+        if (storyData) {
+          personalStoryContext = PersonalStoryService.buildStoryContext(storyData)
+        } else {
+          personalStoryContext = PersonalStoryService.buildFallbackContext()
+        }
+      } catch (error) {
+        console.error("Error fetching personal story data:", error)
+        personalStoryContext = PersonalStoryService.buildFallbackContext()
+      }
+    } else {
+      personalStoryContext = PersonalStoryService.buildFallbackContext()
+    }
     const {
       tone = "professional",
       language = "english",
@@ -329,7 +350,7 @@ class AIService {
 
     switch (type) {
       case "linkedin-post":
-        basePrompt = `Generate 2 unique, professional LinkedIn posts that align with these parameters:
+        basePrompt = `${personalStoryContext}Generate 2 unique, professional LinkedIn posts that align with these parameters:
 
 Topic/Subject: ${prompt}
 Tone: ${tone}
@@ -358,7 +379,7 @@ Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---
         break
 
       case "topics":
-        basePrompt = `Generate 2 engaging and viral-worthy topic titles for the "${niche || prompt}" niche. 
+        basePrompt = `${personalStoryContext}Generate 2 engaging and viral-worthy topic titles for the "${niche || prompt}" niche. 
 
 Requirements:
 - Tone: ${tone}
@@ -382,7 +403,7 @@ Example format: ["Title 1", "Title 2"]`
         break
 
       case "article":
-        basePrompt = `Generate 2 unique, comprehensive articles about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 2 unique, comprehensive articles about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
@@ -404,38 +425,39 @@ Format the response as 2 distinct articles, each separated by "---POST_SEPARATOR
         break
 
       case "story":
-        basePrompt = `Generate 2 unique, compelling personal stories about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 1 compelling personal story about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
 - Language: ${language}
-- Word count: approximately ${wordCount} words per story
+- Word count: approximately ${wordCount} words
 - Target audience: ${targetAudience}
 - Main goal: ${mainGoal}
 - Include at least 3 bullet points (•) to make content more engaging and scannable
 ${includeHashtags ? "- Include relevant hashtags" : ""}
 ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
-- Make each story unique with different perspectives and experiences
-- Vary the narrative structure and emotional approach
-- Each story should have a different focus or angle
-- Use different storytelling techniques for each variation
-- Do NOT include "Story 1:", "Story 2:", or any numbering prefixes
+- Create a cohesive, well-structured narrative
+- Use authentic personal experiences and insights
+- Make the story engaging and relatable
+- Include specific details and emotions
+- Connect all story elements naturally
+- Do NOT include "Story:", or any numbering prefixes
 
 ${humanLikeInstructions}
 
-IMPORTANT: Generate exactly 2 distinct stories. Each story must be completely different from the others in terms of:
-- Opening approach
-- Narrative structure
-- Emotional tone
-- Key message focus
-- Conclusion style
+IMPORTANT: Generate exactly 1 comprehensive story that weaves together all the personal elements into a cohesive narrative. The story should:
+- Have a clear beginning, middle, and end
+- Include specific personal details and experiences
+- Show growth and learning throughout the journey
+- Be authentic and relatable to the target audience
+- Maintain the specified tone and style
 
-Format the response as 2 distinct stories, each separated by "---POST_SEPARATOR---". Each story should be complete and ready to publish.`
+Return only the single story content, ready to publish.`
         break
 
       case "carousel":
-        basePrompt = `OpenAI Request Prompt
+        basePrompt = `${personalStoryContext}OpenAI Request Prompt
 Generate carousel content for a website based on these inputs:
 
 Topic: "${prompt}"
@@ -490,7 +512,7 @@ Generate exactly ${wordCount / 50} slides. Format the response as 2 distinct car
         break
 
       case "list":
-        basePrompt = `Generate 2 unique list-based content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 2 unique list-based content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
@@ -510,7 +532,7 @@ Format the response as 2 distinct lists, each separated by "---POST_SEPARATOR---
         break
 
       case "quote":
-        basePrompt = `Generate 2 unique inspirational quote posts about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 2 unique inspirational quote posts about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
@@ -530,7 +552,7 @@ Format the response as 2 distinct quote posts, each separated by "---POST_SEPARA
         break
 
       case "before-after":
-        basePrompt = `Generate 2 unique before/after transformation content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 2 unique before/after transformation content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
@@ -550,7 +572,7 @@ Format the response as 2 distinct transformation stories, each separated by "---
         break
 
       case "tips":
-        basePrompt = `Generate 2 unique tips and advice content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 2 unique tips and advice content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
@@ -570,7 +592,7 @@ Format the response as 2 distinct tips pieces, each separated by "---POST_SEPARA
         break
 
       case "insights":
-        basePrompt = `Generate 2 unique insights and analysis content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 2 unique insights and analysis content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
@@ -590,7 +612,7 @@ Format the response as 2 distinct insights pieces, each separated by "---POST_SE
         break
 
       case "question":
-        basePrompt = `Generate 2 unique question-based content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `${personalStoryContext}Generate 2 unique question-based content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
 - Tone: ${tone}
@@ -963,7 +985,8 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     prompt: string,
     provider: AIProvider = "openai", // Changed default to OpenAI
     customization: CustomizationOptions = {},
-    userId?: string
+    userId?: string,
+    userEmail?: string
   ): Promise<AIResponse> {
     const request: AIRequest = {
       id: this.generateRequestId(),
@@ -972,6 +995,7 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
       provider,
       customization,
       userId,
+      userEmail,
       priority: "normal",
       createdAt: new Date(),
     }

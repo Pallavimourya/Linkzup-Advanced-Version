@@ -290,7 +290,7 @@ export function EnhancedLinkedInPreview({
       >
         <Card 
           className={`w-full max-h-[90vh] overflow-hidden transition-all duration-300 ${
-            deviceView === "mobile" ? "max-w-sm mx-2" : "max-w-4xl"
+            deviceView === "mobile" ? "max-w-md mx-2" : "max-w-4xl"
           }`}
           onClick={(e) => e.stopPropagation()}
         >
@@ -334,7 +334,7 @@ export function EnhancedLinkedInPreview({
             {/* LinkedIn Post Preview */}
             <div className={`border border-gray-200 rounded-lg bg-white shadow-sm transition-all duration-300 ${
               deviceView === "mobile" 
-                ? "max-w-sm mx-auto p-3" 
+                ? "max-w-sm mx-auto p-4" 
                 : "p-5"
             }`}>
               {/* Profile Header */}
@@ -451,19 +451,35 @@ export function EnhancedLinkedInPreview({
               }`}>
                 <div className="flex items-center gap-1">
                   <div className="flex -space-x-1">
-                    <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">👍</span>
+                    <div className={`bg-blue-500 rounded-full flex items-center justify-center ${
+                      deviceView === "mobile" ? "w-6 h-6" : "w-5 h-5"
+                    }`}>
+                      <span className={`text-white ${
+                        deviceView === "mobile" ? "text-xs" : "text-xs"
+                      }`}>👍</span>
                     </div>
-                    <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">👏</span>
+                    <div className={`bg-green-500 rounded-full flex items-center justify-center ${
+                      deviceView === "mobile" ? "w-6 h-6" : "w-5 h-5"
+                    }`}>
+                      <span className={`text-white ${
+                        deviceView === "mobile" ? "text-xs" : "text-xs"
+                      }`}>👏</span>
                     </div>
-                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">❤️</span>
+                    <div className={`bg-red-500 rounded-full flex items-center justify-center ${
+                      deviceView === "mobile" ? "w-6 h-6" : "w-5 h-5"
+                    }`}>
+                      <span className={`text-white ${
+                        deviceView === "mobile" ? "text-xs" : "text-xs"
+                      }`}>❤️</span>
                     </div>
                   </div>
-                  <span className="ml-2">John Doe and 68 others</span>
+                  <span className={`ml-2 ${
+                    deviceView === "mobile" ? "text-xs" : ""
+                  }`}>John Doe and 68 others</span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className={`flex items-center gap-4 ${
+                  deviceView === "mobile" ? "text-xs" : ""
+                }`}>
                   <span>4 comments</span>
                 </div>
               </div>
@@ -474,44 +490,44 @@ export function EnhancedLinkedInPreview({
                   deviceView === "mobile" ? "text-xs" : "text-sm"
                 }`}>
                   <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                    deviceView === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                    deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
                     <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
                     }`}>
                       <path d="M19.46 11l-3.91-3.91a7 7 0 0 1-1.69-2.74l-.49-1.47A.82.82 0 0 0 12.65 2a.81.81 0 0 0-.72.57L11 5.09l-1.35.45a1 1 0 0 0-.79.68l-.72 2.19a6.65 6.65 0 0 1-1.28 2.6l-2.32 3.56a1 1 0 0 0-.11.57l.43 4.24a1 1 0 0 0 .9.9l4.24.43a1 1 0 0 0 .57-.11l3.56-2.32a6.65 6.65 0 0 1 2.6-1.28l2.19-.72a1 1 0 0 0 .68-.79l.45-1.35.52-1.93a.81.81 0 0 0-.58-.95z"/>
                     </svg>
-                    <span>Like</span>
+                    <span className={deviceView === "mobile" ? "text-sm" : ""}>Like</span>
                   </button>
                   <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                    deviceView === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                    deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
                     <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
                     }`}>
                       <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
                     </svg>
-                    <span>Comment</span>
+                    <span className={deviceView === "mobile" ? "text-sm" : ""}>Comment</span>
                   </button>
                   <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                    deviceView === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                    deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
                     <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
                     }`}>
                       <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
                     </svg>
-                    <span>Share</span>
+                    <span className={deviceView === "mobile" ? "text-sm" : ""}>Share</span>
                   </button>
                   <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
-                    deviceView === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+                    deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
                     <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
                     }`}>
                       <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                     </svg>
-                    <span>Send</span>
+                    <span className={deviceView === "mobile" ? "text-sm" : ""}>Send</span>
                   </button>
                 </div>
               </div>
@@ -730,39 +746,74 @@ export function EnhancedLinkedInPreview({
             </div>
 
             {/* Action Buttons */}
-            <div className={`flex pt-4 border-t ${
+            <div className={`pt-4 border-t ${
               deviceView === "mobile" 
-                ? "flex-col gap-3" 
-                : "gap-3 justify-end"
+                ? "space-y-3" 
+                : "flex gap-3 justify-end"
             }`}>
-              <Button 
-                variant="outline" 
-                onClick={onClose}
-                className={deviceView === "mobile" ? "w-full h-12 text-base" : ""}
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
-                variant="outline"
-                className={deviceView === "mobile" ? "w-full h-12 text-base" : ""}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save to Draft
-              </Button>
-              <Button 
-                onClick={handleSchedulePost}
-                variant="outline"
-                className={deviceView === "mobile" ? "w-full h-12 text-base" : ""}
-              >
-                <CalendarIcon className="w-4 h-4 mr-2" />
-                Schedule Post
-              </Button>
-              <LinkedInPostButton 
-                content={content} 
-                images={selectedImage ? [selectedImage] : undefined}
-                className={deviceView === "mobile" ? "w-full h-12 text-base" : ""}
-              />
+              {deviceView === "mobile" ? (
+                // Mobile: Stack buttons vertically
+                <div className="space-y-3">
+                  <LinkedInPostButton 
+                    content={content} 
+                    images={selectedImage ? [selectedImage] : undefined}
+                    className="w-full h-12 text-base"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button 
+                      onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
+                      variant="outline"
+                      className="w-full h-12 text-base"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Draft
+                    </Button>
+                    <Button 
+                      onClick={handleSchedulePost}
+                      variant="outline"
+                      className="w-full h-12 text-base"
+                    >
+                      <CalendarIcon className="w-4 h-4 mr-2" />
+                      Schedule
+                    </Button>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={onClose}
+                    className="w-full h-12 text-base"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                // Desktop: Horizontal layout
+                <>
+                  <Button 
+                    variant="outline" 
+                    onClick={onClose}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
+                    variant="outline"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Save to Draft
+                  </Button>
+                  <Button 
+                    onClick={handleSchedulePost}
+                    variant="outline"
+                  >
+                    <CalendarIcon className="w-4 h-4 mr-2" />
+                    Schedule Post
+                  </Button>
+                  <LinkedInPostButton 
+                    content={content} 
+                    images={selectedImage ? [selectedImage] : undefined}
+                  />
+                </>
+              )}
             </div>
           </CardContent>
         </Card>

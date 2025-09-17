@@ -651,12 +651,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-white via-blue-50/20 to-black/5 dark:from-black dark:via-blue-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
       {/* Header */}
       <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 px-3 sm:px-4 lg:px-6">
@@ -673,9 +673,9 @@ export default function DashboardPage() {
         {/* Show form only when not generating and no content generated */}
         {!isGenerating && generatedPosts.length === 0 && (
           <div className="max-w-5xl mx-auto">
-            <Card className="shadow-2xl bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50">
+            <Card className="shadow-2xl bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50">
               <CardHeader className="pb-6 sm:pb-8 lg:pb-12 text-center px-4 sm:px-6 lg:px-8">
-                <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl sm:rounded-3xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg">
+                <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-secondary rounded-2xl sm:rounded-3xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg">
                   <Wand2 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
                 <CardTitle className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black dark:text-white">
@@ -701,14 +701,14 @@ export default function DashboardPage() {
                       placeholder="e.g., Share insights about remote work productivity, discuss industry trends, celebrate a team achievement..."
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      className="min-h-[120px] sm:min-h-[140px] text-lg resize-none pr-14 border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 transition-all duration-200 rounded-xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                      className="min-h-[120px] sm:min-h-[140px] text-lg resize-none pr-14 border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 rounded-xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     />
                     <div className="absolute bottom-4 right-4">
                       <MicrophoneButton
                         onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
                         size="sm"
                         variant="ghost"
-                        className="h-10 w-10 p-0 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-lg transition-colors"
+                        className="h-10 w-10 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
                       />
                     </div>
                   </div>
@@ -718,7 +718,7 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => setShowCustomizationPanel(true)}
                   disabled={!prompt.trim() || isGenerating}
-                  className="w-full h-14 sm:h-16 text-lg sm:text-xl font-semibold bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white border-0 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+                  className="w-full h-14 sm:h-16 text-lg sm:text-xl font-semibold bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white border-0 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
                   size="lg"
                 >
                   <Sparkles className="w-6 h-6 mr-3" />
@@ -734,7 +734,7 @@ export default function DashboardPage() {
           <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 mt-32 sm:mt-40">
             {/* Section Title */}
             <div className="text-center">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent mb-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent mb-4">
                 Explore AI Tools
               </h2>
               <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
@@ -746,18 +746,18 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {/* Carousel Card */}
               <Card 
-                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/ai-carousel')}
               >
                 <CardContent className="p-6 sm:p-8 relative">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <Layers className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">AI Carousels</h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Create stunning swipe-worthy carousels with AI-generated content and visuals</p>
-                    <div className="mt-6 flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                    <div className="mt-6 flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                       <span>Get Started</span>
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -769,18 +769,18 @@ export default function DashboardPage() {
 
               {/* AI Topics Card */}
               <Card 
-                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/ai-articles')}
               >
                 <CardContent className="p-6 sm:p-8 relative">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full -translate-y-10 translate-x-10"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-secondary to-teal-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="w-16 h-16 bg-gradient-to-br from-secondary to-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <BookOpen className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">Post Ideas</h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Generate compelling post ideas and headlines that capture attention</p>
-                    <div className="mt-6 flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                    <div className="mt-6 flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                       <span>Get Started</span>
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -792,18 +792,18 @@ export default function DashboardPage() {
 
               {/* Personal Story Card */}
               <Card 
-                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
+                className="group cursor-pointer transition-all duration-300 hover:scale-105 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-2xl overflow-hidden"
                 onClick={() => router.push('/dashboard/personal-story')}
               >
                 <CardContent className="p-6 sm:p-8 relative">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10"></div>
                   <div className="relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-secondary rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <User className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">Personal Stories</h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Share your personal journey and experiences in an engaging way</p>
-                    <div className="mt-6 flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
+                    <div className="mt-6 flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                       <span>Get Started</span>
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -822,9 +822,9 @@ export default function DashboardPage() {
             {/* Enhanced Section Header */}
             <div className="text-center space-y-6">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 via-secondary/20 to-teal-400/20 blur-3xl rounded-full"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-secondary/20 to-blue-400/20 blur-3xl rounded-full"></div>
                 <div className="relative">
-                  <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent mb-4">
+                  <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent mb-4">
                     AI Topic Generator
               </h2>
                   <p className="text-xl sm:text-2xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -844,7 +844,7 @@ export default function DashboardPage() {
                       placeholder="Search topics..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4 py-3 bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 rounded-xl shadow-lg focus:shadow-xl transition-all duration-300 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                      className="pl-10 pr-4 py-3 bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl shadow-lg focus:shadow-xl transition-all duration-300 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     />
                   </div>
                   
@@ -858,8 +858,8 @@ export default function DashboardPage() {
                         onClick={() => setSelectedCategory(category.id)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
                           selectedCategory === category.id
-                            ? "bg-teal-500 text-white shadow-lg"
-                            : "bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-teal-200 dark:border-teal-800 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/50"
+                            ? "bg-blue-500 text-white shadow-lg"
+                            : "bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50"
                         }`}
                       >
                         <span className="text-lg">{category.icon}</span>
@@ -888,14 +888,14 @@ export default function DashboardPage() {
                         description: "Fresh topic suggestions have been loaded for you.",
                   })
                 }}
-                    className="bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-teal-200 dark:border-teal-800 hover:border-teal-400 dark:hover:border-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3"
+                    className="bg-white/90 dark:bg-black/90 backdrop-blur-sm border-2 border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 px-8 py-3"
               >
                     <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
                     <span className="font-semibold">Refresh Topics</span>
               </Button>
                   
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full border border-teal-200 dark:border-teal-800">
-                    <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full border border-blue-200 dark:border-blue-800">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                     <span>Live trending data</span>
                   </div>
                 </div>

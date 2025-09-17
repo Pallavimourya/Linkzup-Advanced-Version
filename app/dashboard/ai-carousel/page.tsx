@@ -2126,12 +2126,12 @@ What do you think? Share your thoughts in the comments below.
           font-family: var(--font-poppins), Poppins, sans-serif !important;
         }
       `}</style>
-      <div className={`flex-1 space-y-4 p-2 sm:p-4 pt-4 sm:pt-6 bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 min-h-screen relative overflow-hidden ${openSans.variable} ${montserrat.variable} ${lato.variable} ${poppins.variable} ${roboto.variable} ${inter.variable} ${dancingScript.variable} ${bebasNeue.variable} ${righteous.variable}`}>
+      <div className={`flex-1 space-y-4 p-2 sm:p-4 pt-4 sm:pt-6 bg-gradient-to-br from-white via-blue-50/20 to-black/5 dark:from-black dark:via-blue-950/20 dark:to-white/5 min-h-screen relative overflow-hidden ${openSans.variable} ${montserrat.variable} ${lato.variable} ${poppins.variable} ${roboto.variable} ${inter.variable} ${dancingScript.variable} ${bebasNeue.variable} ${righteous.variable}`}>
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-secondary/5 rounded-full blur-3xl"></div>
         </div>
         {/* Header */}
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -2150,17 +2150,17 @@ What do you think? Share your thoughts in the comments below.
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">AI Carousel Generator</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent">AI Carousel Generator</h2>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Create engaging LinkedIn carousels with AI or design from scratch</p>
           </div>
         </div>
 
       {!currentProject ? (
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-          <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50">
-            <CardHeader className="bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10">
+          <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2 text-black dark:text-white">
-                <Sparkles className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 Generate using AI
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
@@ -2176,7 +2176,7 @@ What do you think? Share your thoughts in the comments below.
                   value={aiForm.topic}
                   onChange={(e) => setAiForm({ ...aiForm, topic: e.target.value })}
                   maxLength={100}
-                  className="border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-teal-200 dark:focus:ring-teal-800/20 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                  className="border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-200 dark:focus:ring-blue-800/20 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 />
                 <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                   <span>Keep it concise for better AI generation</span>
@@ -2187,12 +2187,12 @@ What do you think? Share your thoughts in the comments below.
               <div className="space-y-2">
                 <Label className="text-black dark:text-white">Tone of Content</Label>
                 <Select value={aiForm.tone} onValueChange={(value) => setAiForm({ ...aiForm, tone: value })}>
-                  <SelectTrigger className="border-2 border-teal-200 dark:border-teal-800 focus:border-teal-500 dark:focus:border-teal-400 bg-white dark:bg-black text-black dark:text-white">
+                  <SelectTrigger className="border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-black text-black dark:text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-black border border-teal-200 dark:border-teal-800">
+                  <SelectContent className="bg-white dark:bg-black border border-blue-200 dark:border-blue-800">
                     {toneOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value} className="text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50">
+                      <SelectItem key={option.value} value={option.value} className="text-black dark:text-white hover:bg-blue-50 dark:hover:bg-blue-950/50">
                         {option.label}
                       </SelectItem>
                     ))}
@@ -2209,7 +2209,7 @@ What do you think? Share your thoughts in the comments below.
                     max={10}
                     min={3}
                     step={1}
-                    className="[&_[role=slider]]:bg-teal-500 [&_[role=slider]]:border-teal-500"
+                    className="[&_[role=slider]]:bg-blue-500 [&_[role=slider]]:border-blue-500"
                   />
                   <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                     <span>3</span>
@@ -2222,7 +2222,7 @@ What do you think? Share your thoughts in the comments below.
               {/* Preview of what will be generated */}
             
 
-              <Button onClick={generateAICarousel} disabled={isGenerating} className="w-full bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white" size="lg">
+              <Button onClick={generateAICarousel} disabled={isGenerating} className="w-full bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white" size="lg">
                 {isGenerating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -2240,7 +2240,7 @@ What do you think? Share your thoughts in the comments below.
                 <Button 
                   onClick={generateAICarousel} 
                   variant="outline" 
-                  className="w-full border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300" 
+                  className="w-full border-2 border-teal-200 dark:border-teal-800 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300" 
                   size="sm"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
@@ -2256,7 +2256,7 @@ What do you think? Share your thoughts in the comments below.
                   <Button 
                     onClick={() => setShowRawContent(!showRawContent)} 
                     variant="outline" 
-                    className="w-full border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300" 
+                    className="w-full border-2 border-teal-200 dark:border-teal-800 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300" 
                     size="sm"
                   >
                     {showRawContent ? 'Hide' : 'Show'} Raw AI Content
@@ -2275,10 +2275,10 @@ What do you think? Share your thoughts in the comments below.
             </CardContent>
           </Card>
 
-          <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50">
-            <CardHeader className="bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10">
+          <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2 text-black dark:text-white">
-                <Edit3 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                <Edit3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 Create from Scratch
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
@@ -2286,7 +2286,7 @@ What do you think? Share your thoughts in the comments below.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={createNewProject} className="w-full bg-gradient-to-r from-teal-500 to-secondary hover:from-teal-600 hover:to-secondary/90 text-white" size="lg">
+              <Button onClick={createNewProject} className="w-full bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white" size="lg">
                 <Edit3 className="w-5 h-5 mr-2" />
                 Start Creating
               </Button>
@@ -2297,19 +2297,19 @@ What do you think? Share your thoughts in the comments below.
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Slide Preview */}
           <div className="xl:col-span-2">
-            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50">
-              <CardHeader className="bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10">
+            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50">
+              <CardHeader>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                   <CardTitle className="flex items-center gap-2 text-black dark:text-white">
-                    <Eye className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                    <Eye className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     <span className="truncate">{currentProject.title}</span>
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    <Button onClick={() => setCurrentProject(null)} variant="outline" size="sm" className="flex-shrink-0 border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300">
+                    <Button onClick={() => setCurrentProject(null)} variant="outline" size="sm" className="flex-shrink-0 border-2 border-teal-200 dark:border-teal-800 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300">
                       <ChevronLeft className="w-4 h-4 mr-2" />
                       <span className="hidden sm:inline">Back</span>
                     </Button>
-                    <Button onClick={() => setShowPreviewModal(true)} variant="outline" size="sm" className="flex-shrink-0 border-2 border-teal-200 dark:border-teal-800 hover:border-teal-500 dark:hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 text-teal-700 dark:text-teal-300">
+                    <Button onClick={() => setShowPreviewModal(true)} variant="outline" size="sm" className="flex-shrink-0 border-2 border-teal-200 dark:border-teal-800 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300">
                       <Eye className="w-4 h-4 mr-2" />
                       <span className="hidden sm:inline">Preview All</span>
                     </Button>

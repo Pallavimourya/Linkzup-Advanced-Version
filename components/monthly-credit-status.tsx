@@ -160,9 +160,9 @@ export default function MonthlyCreditStatus() {
         </div>
 
         {/* Additional Credits */}
-        <div className="flex items-center justify-between p-3 bg-green-500/10 rounded-lg border">
+        <div className="flex items-center justify-between p-3 bg-blue-500/10 rounded-lg border">
           <div className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <CreditCard className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <span className="font-medium">Additional Credits</span>
           </div>
           <Badge variant="secondary" className="text-lg">
@@ -203,9 +203,9 @@ export default function MonthlyCreditStatus() {
           )}
 
           {daysUntilReset === 0 && (
-            <div className="flex items-center gap-2 p-2 bg-green-500/10 rounded-lg border">
-              <RefreshCw className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <span className="text-sm text-green-800 dark:text-green-200">
+            <div className="flex items-center gap-2 p-2 bg-blue-500/10 rounded-lg border">
+              <RefreshCw className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm text-blue-800 dark:text-blue-200">
                 Monthly credits can be reset today
               </span>
             </div>

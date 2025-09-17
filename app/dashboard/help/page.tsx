@@ -140,8 +140,8 @@ const features = [
     title: "Drafts",
     description: "Save, edit, and manage your content before publishing.",
     link: "/dashboard/drafts",
-    color: "from-teal-500 to-green-500",
-    bgColor: "from-teal-50 to-green-50",
+    color: "from-blue-500 to-blue-600",
+    bgColor: "from-blue-50 to-blue-100",
   },
 ]
 
@@ -197,12 +197,12 @@ export default function HelpPage() {
   }
 
   return (
-    <div className="flex-1 min-h-screen bg-gradient-to-br from-white via-teal-50/20 to-black/5 dark:from-black dark:via-teal-950/20 dark:to-white/5 relative overflow-hidden">
+    <div className="flex-1 min-h-screen bg-gradient-to-br from-white via-blue-50/20 to-black/5 dark:from-black dark:via-blue-950/20 dark:to-white/5 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-teal-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-teal-400/5 to-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-secondary/10 to-blue-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-secondary/5 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 flex flex-col gap-4 sm:gap-6 lg:gap-8">
@@ -237,13 +237,13 @@ export default function HelpPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <div className="rounded-2xl bg-gradient-to-r from-teal-500/10 to-secondary/10 dark:from-teal-950/20 dark:to-secondary/10 p-8 border border-teal-200/50 dark:border-teal-800/50 backdrop-blur-sm">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10 p-8 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-secondary rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-secondary rounded-xl flex items-center justify-center">
                 <HelpCircle className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent">
                   Help & Support
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400">
@@ -262,20 +262,20 @@ export default function HelpPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <Tabs defaultValue="getting-started" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 h-12 bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg">
-              <TabsTrigger value="getting-started" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-secondary data-[state=active]:text-white">
+            <TabsList className="grid w-full grid-cols-4 h-12 bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+              <TabsTrigger value="getting-started" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-secondary data-[state=active]:text-white">
                 <BookOpen className="w-4 h-4" />
                 Getting Started
               </TabsTrigger>
-              <TabsTrigger value="features" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-secondary data-[state=active]:text-white">
+              <TabsTrigger value="features" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-secondary data-[state=active]:text-white">
                 <Sparkles className="w-4 h-4" />
                 Features
               </TabsTrigger>
-              <TabsTrigger value="faq" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-secondary data-[state=active]:text-white">
+              <TabsTrigger value="faq" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-secondary data-[state=active]:text-white">
                 <HelpCircle className="w-4 h-4" />
                 FAQ
               </TabsTrigger>
-              <TabsTrigger value="contact" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-500 data-[state=active]:to-secondary data-[state=active]:text-white">
+              <TabsTrigger value="contact" className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-secondary data-[state=active]:text-white">
                 <MessageCircle className="w-4 h-4" />
                 Contact
               </TabsTrigger>
@@ -289,11 +289,11 @@ export default function HelpPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}
                 >
-                  <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-3 text-lg text-black dark:text-white">
-                        <div className="w-8 h-8 bg-gradient-to-r from-teal-100 to-secondary/20 dark:from-teal-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
-                          <Video className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 rounded-lg flex items-center justify-center">
+                          <Video className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                         </div>
                         How to Use LinkzUp
                       </CardTitle>
