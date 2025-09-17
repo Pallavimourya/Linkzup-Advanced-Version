@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/auth-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
+import { HelpChatbot } from "@/components/help-chatbot"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
         </ThemeProvider>
         <Toaster />
         <SonnerToaster />
+        <HelpChatbot />
         <script
           src="https://checkout.razorpay.com/v1/checkout.js"
           async
