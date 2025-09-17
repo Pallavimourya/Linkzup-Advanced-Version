@@ -69,7 +69,7 @@ Expected output:
 
 🎯 External cron system is working correctly!
 💡 Make sure to set up cron-job.org to call this endpoint every minute:
-   URL: https://linkzup.in/api/cron/external-auto-post
+   URL: https://www.linkzup.in/api/cron/external-auto-post
    Method: POST
    Headers: Authorization: Bearer your-super-secret-cron-key-here
 \`\`\`

@@ -238,7 +238,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
 
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -248,7 +248,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pb-6">
           {/* Preview Mode Toggle */}
           <div className="flex items-center justify-center gap-2 p-2 bg-muted rounded-lg">
             <Button
@@ -272,17 +272,19 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
           </div>
 
           {/* LinkedIn Post Preview */}
-          <div className={`border rounded-lg p-4 bg-white ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
+          <div className={`border border-gray-200 rounded-lg p-4 bg-white shadow-sm ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
             <div className={`flex items-center gap-3 mb-4 ${previewMode === "mobile" ? "gap-2" : ""}`}>
-              <div className={`bg-gray-300 rounded-full flex items-center justify-center overflow-hidden ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}>
+              <div className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center overflow-hidden border border-gray-200 ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}>
                 {session?.user?.image ? (
                   <img 
                     src={session.user.image} 
                     alt="Profile" 
-                    className={`w-full h-full object-cover ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}
+                    className={`w-full h-full object-cover rounded-full ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}
                   />
                 ) : (
-                  <span className={`font-medium ${previewMode === "mobile" ? "text-xs" : "text-sm"}`}>👤</span>
+                  <span className={`text-white font-semibold ${previewMode === "mobile" ? "text-xs" : "text-sm"}`}>
+                    {session?.user?.name?.charAt(0) || "👤"}
+                  </span>
                 )}
               </div>
               <div>
@@ -337,23 +339,51 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
               </div>
             )}
 
-            <div className={`flex items-center gap-4 text-gray-500 ${previewMode === "mobile" ? "text-xs gap-2" : "text-sm"}`}>
-              <div className="flex items-center gap-1">
-                <span>👍</span>
+x``            <div className={`flex items-center text-gray-500 border-t border-gray-200 pt-3 ${
+              previewMode === "mobile" 
+                ? "text-xs justify-between" 
+                : "text-sm justify-between"
+            }`}>
+              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+              }`}>
+                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
+                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                }`}>
+                  <path d="M19.46 11l-3.91-3.91a7 7 0 0 1-1.69-2.74l-.49-1.47A.82.82 0 0 0 12.65 2a.81.81 0 0 0-.72.57L11 5.09l-1.35.45a1 1 0 0 0-.79.68l-.72 2.19a6.65 6.65 0 0 1-1.28 2.6l-2.32 3.56a1 1 0 0 0-.11.57l.43 4.24a1 1 0 0 0 .9.9l4.24.43a1 1 0 0 0 .57-.11l3.56-2.32a6.65 6.65 0 0 1 2.6-1.28l2.19-.72a1 1 0 0 0 .68-.79l.45-1.35.52-1.93a.81.81 0 0 0-.58-.95z"/>
+                </svg>
                 <span>Like</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span>💬</span>
+              </button>
+              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+              }`}>
+                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
+                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                }`}>
+                  <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                </svg>
                 <span>Comment</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span>🔄</span>
-                <span>Repost</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span>📤</span>
+              </button>
+              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+              }`}>
+                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
+                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                }`}>
+                  <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                </svg>
+                <span>Share</span>
+              </button>
+              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                previewMode === "mobile" ? "py-1 px-2 min-h-[32px]" : "py-2 px-3"
+              }`}>
+                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
+                  previewMode === "mobile" ? "w-4 h-4" : "w-5 h-5"
+                }`}>
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
                 <span>Send</span>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -563,13 +593,22 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={onClose}>
+          <div className={`flex ${
+            previewMode === "mobile" 
+              ? "flex-col gap-3" 
+              : "gap-2 justify-end"
+          }`}>
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              className={previewMode === "mobile" ? "w-full h-12 text-base" : ""}
+            >
               Cancel
             </Button>
             <Button 
               onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
               variant="outline"
+              className={previewMode === "mobile" ? "w-full h-12 text-base" : ""}
             >
               <Save className="w-4 h-4 mr-2" />
               Save to Draft
@@ -577,6 +616,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
             <LinkedInPostButton 
               content={content} 
               images={selectedImage ? [selectedImage] : undefined}
+              className={previewMode === "mobile" ? "w-full h-12 text-base" : ""}
             />
           </div>
         </CardContent>

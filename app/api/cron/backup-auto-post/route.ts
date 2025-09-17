@@ -4,42 +4,54 @@ import { ObjectId } from "mongodb"
 import { utcToIst } from "@/lib/ist-utils"
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  const requestId = `backup-cron-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  
   try {
-    // Check authorization header
+    // Log request details for debugging
+    const userAgent = request.headers.get("user-agent") || "unknown"
     const authHeader = request.headers.get("authorization")
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
     
+    console.log(`[${requestId}] [Backup Cron] Request received from: ${userAgent}`)
+    console.log(`[${requestId}] [Backup Cron] Auth header present: ${!!authHeader}`)
+    console.log(`[${requestId}] [Backup Cron] Auth header matches: ${authHeader === expectedAuth}`)
+    
+    // Check authorization header for cron-job.org
     if (!authHeader || authHeader !== expectedAuth) {
-      console.log("[Backup Cron] Unauthorized request")
+      console.log(`[${requestId}] Unauthorized backup cron request - invalid authorization header`)
+      console.log(`[${requestId}] [Backup Cron] Expected: ${expectedAuth}`)
+      console.log(`[${requestId}] [Backup Cron] Received: ${authHeader}`)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    console.log("[Backup Cron] Backup cron job triggered")
     const { db } = await connectToDatabase()
 
-    // Process overdue posts (more than 5 minutes overdue)
+    // Backup cron processes posts that are overdue by more than 15 minutes
     const now = new Date()
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000)
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
 
-    console.log(`[Backup Cron] Processing overdue posts from ${utcToIst(oneHourAgo).toISOString()} IST to ${utcToIst(fiveMinutesAgo).toISOString()} IST`)
+    console.log(`[${requestId}] [Backup Cron] Processing backup posts overdue between ${utcToIst(oneHourAgo).toISOString()} IST and ${utcToIst(fifteenMinutesAgo).toISOString()} IST`)
 
-    const overduePosts = await db
+    // Find posts that are overdue and haven't been processed
+    const backupPosts = await db
       .collection("scheduled_posts")
       .find({
         scheduledFor: {
           $gte: oneHourAgo,
-          $lte: fiveMinutesAgo,
+          $lte: fifteenMinutesAgo,
         },
         status: "pending",
+        retryCount: { $lt: 3 }, // Only process posts that haven't exceeded max retries
       })
       .toArray()
 
-    console.log(`[Backup Cron] Found ${overduePosts.length} overdue posts to process`)
+    console.log(`[${requestId}] [Backup Cron] Found ${backupPosts.length} backup posts to process`)
 
     const results = []
 
-    for (const post of overduePosts) {
+    for (const post of backupPosts) {
       try {
         // Check if user has enough credits
         const user = await db.collection("users").findOne({ _id: new ObjectId(post.userId) })
@@ -67,7 +79,7 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Get user's LinkedIn credentials
+        // Get user's LinkedIn credentials from database
         const userData = await db.collection("users").findOne({ _id: new ObjectId(post.userId) })
         if (!userData?.linkedinId || !userData?.linkedinAccessToken) {
           await markPostAsFailed(post._id, "LinkedIn account not connected", db)
@@ -79,21 +91,28 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Post to LinkedIn
-        const result = await postToLinkedInDirectly({
-          content: post.content,
-          images: post.images || [],
-          userId: post.userId.toString(),
-          userEmail: post.userEmail,
-          linkedinId: userData.linkedinId,
-          linkedinAccessToken: userData.linkedinAccessToken
-        })
+        // Post directly to LinkedIn using user's stored credentials with timeout
+        console.log(`[${requestId}] [Backup Cron] Attempting to post ${post._id} to LinkedIn`)
+        
+        const result = await Promise.race([
+          postToLinkedInDirectly({
+            content: post.content,
+            images: post.images || [],
+            userId: post.userId.toString(),
+            userEmail: post.userEmail,
+            linkedinId: userData.linkedinId,
+            linkedinAccessToken: userData.linkedinAccessToken
+          }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('LinkedIn API timeout after 45 seconds')), 45000)
+          )
+        ]) as { success: boolean; postId?: string; message: string; error?: string }
 
         if (result.success) {
           // Deduct credits
           await deductCredits(post.userId, db)
 
-          // Update post status
+          // Update post status to posted
           await db.collection("scheduled_posts").updateOne(
             { _id: post._id },
             {
@@ -102,55 +121,104 @@ export async function POST(request: NextRequest) {
                 postedAt: new Date(),
                 linkedInPostId: result.postId,
                 updatedAt: new Date(),
-                recoveryMethod: "backup_cron"
+                processedBy: "backup-cron"
               },
             },
           )
 
-          console.log(`[Backup Cron] Successfully recovered post ${post._id}`)
+          console.log(`[${requestId}] [Backup Cron] Successfully posted post ${post._id} to LinkedIn`)
           results.push({ 
             postId: post._id, 
             status: "success",
             linkedInPostId: result.postId,
-            recoveryMethod: "backup_cron"
+            processedBy: "backup-cron"
           })
         } else {
-          await markPostAsFailed(post._id, result.message, db, result.error)
-          results.push({ 
-            postId: post._id, 
-            status: "failed", 
-            error: result.message,
-            errorCode: result.error 
-          })
+          // Check if we should retry
+          const retryCount = post.retryCount || 0
+          const maxRetries = post.maxRetries || 3
+
+          if (retryCount < maxRetries) {
+            // Retry the post
+            await db.collection("scheduled_posts").updateOne(
+              { _id: post._id },
+              {
+                $set: {
+                  retryCount: retryCount + 1,
+                  updatedAt: new Date(),
+                },
+              },
+            )
+
+            console.log(`[${requestId}] [Backup Cron] Retrying post ${post._id}, attempt ${retryCount + 1}/${maxRetries}`)
+            results.push({
+              postId: post._id,
+              status: "retry",
+              retryCount: retryCount + 1,
+              error: result.message,
+              processedBy: "backup-cron"
+            })
+          } else {
+            // Mark as failed after max retries
+            await markPostAsFailed(post._id, result.message, db, result.error)
+            
+            console.log(`[${requestId}] [Backup Cron] Post ${post._id} failed after ${maxRetries} retries`)
+            results.push({ 
+              postId: post._id, 
+              status: "failed", 
+              error: result.message,
+              errorCode: result.error,
+              processedBy: "backup-cron"
+            })
+          }
         }
       } catch (error) {
+        // Mark as failed due to exception
         await markPostAsFailed(post._id, error instanceof Error ? error.message : "Unknown error", db)
-        console.error(`[Backup Cron] Error processing post ${post._id}:`, error)
+        
+        console.error(`[${requestId}] [Backup Cron] Error processing post ${post._id}:`, error)
         results.push({
           postId: post._id,
           status: "failed",
           error: error instanceof Error ? error.message : "Unknown error",
+          processedBy: "backup-cron"
         })
       }
     }
 
-    console.log(`[Backup Cron] Completed processing ${overduePosts.length} overdue posts. Results:`, results)
+    const executionTime = Date.now() - startTime
+    console.log(`[${requestId}] [Backup Cron] Completed processing ${backupPosts.length} posts in ${executionTime}ms. Results:`, results)
 
-    return NextResponse.json({
-      message: `Backup cron processed ${overduePosts.length} overdue posts`,
+    const response = {
+      message: `Backup processed ${backupPosts.length} scheduled posts`,
       processedAt: new Date().toISOString(),
       results,
-      recoveryMethod: "backup_cron"
-    })
+      userAgent: userAgent,
+      success: true,
+      executionTimeMs: executionTime,
+      requestId: requestId,
+      cronType: "backup"
+    }
+
+    console.log(`[${requestId}] [Backup Cron] Returning response:`, JSON.stringify(response, null, 2))
+    return NextResponse.json(response)
   } catch (error) {
-    console.error("Backup cron job error:", error)
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    )
+    const requestId = `backup-cron-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    console.error(`[${requestId}] Backup cron job error:`, error)
+    console.error(`[${requestId}] Error stack:`, error instanceof Error ? error.stack : "No stack trace")
+    
+    const errorResponse = {
+      error: "Internal server error",
+      message: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+      userAgent: request.headers.get("user-agent") || "unknown",
+      requestId: requestId,
+      cronType: "backup"
+    }
+    
+    console.error(`[${requestId}] Returning error response:`, JSON.stringify(errorResponse, null, 2))
+    
+    return NextResponse.json(errorResponse, { status: 500 })
   }
 }
 
@@ -174,6 +242,7 @@ async function markPostAsFailed(postId: ObjectId, errorMessage: string, db: any,
 
 /**
  * Post directly to LinkedIn without requiring user session
+ * Used by cron jobs and other background processes
  */
 async function postToLinkedInDirectly(postData: {
   content: string
@@ -187,8 +256,10 @@ async function postToLinkedInDirectly(postData: {
     // Handle images if provided
     let mediaAssets = []
     if (postData.images && postData.images.length > 0) {
+      // For LinkedIn, we need to upload images first and get asset URNs
       for (const imageUrl of postData.images) {
         try {
+          // Download the image
           const imageResponse = await fetch(imageUrl)
           if (!imageResponse.ok) {
             console.warn(`Failed to download image: ${imageUrl}`)
@@ -197,6 +268,7 @@ async function postToLinkedInDirectly(postData: {
           
           const imageBuffer = await imageResponse.arrayBuffer()
           
+          // Upload to LinkedIn's asset API
           const assetResponse = await fetch("https://api.linkedin.com/v2/assets?action=registerUpload", {
             method: "POST",
             headers: {
@@ -227,6 +299,7 @@ async function postToLinkedInDirectly(postData: {
           const uploadUrl = assetData.value.uploadMechanism["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"].uploadUrl
           const asset = assetData.value.asset
 
+          // Upload the image
           const uploadResponse = await fetch(uploadUrl, {
             method: "POST",
             body: imageBuffer,
@@ -315,10 +388,13 @@ async function deductCredits(userId: any, db: any) {
   const users = db.collection("users")
   const creditTransactions = db.collection("credit_transactions")
 
+  // Handle both string and ObjectId userId formats for backward compatibility
   let userIdQuery: any
   try {
+    // Try to convert to ObjectId first
     userIdQuery = new ObjectId(userId)
   } catch (error) {
+    // If conversion fails, use string as fallback
     userIdQuery = userId
   }
 
@@ -329,6 +405,7 @@ async function deductCredits(userId: any, db: any) {
   const monthlyCredits = user.monthlyCredits || 0
   const totalAvailableCredits = currentCredits + monthlyCredits
 
+  // Deduct credits (1 credit for LinkedIn posting)
   const deductionFromMonthly = Math.min(monthlyCredits, 1)
   const deductionFromAdditional = 1 - deductionFromMonthly
 
@@ -350,6 +427,7 @@ async function deductCredits(userId: any, db: any) {
 
   await users.updateOne({ _id: userIdQuery }, updateData)
 
+  // Record the credit transaction
   await creditTransactions.insertOne({
     userId: userIdQuery,
     actionType: "text_with_post",
@@ -360,6 +438,30 @@ async function deductCredits(userId: any, db: any) {
   })
 }
 
+/**
+ * GET endpoint for testing the backup cron job manually
+ * This should be disabled in production
+ */
 export async function GET(request: NextRequest) {
-  return POST(request)
+  try {
+    const authHeader = request.headers.get("authorization")
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
+    
+    if (!authHeader || authHeader !== expectedAuth) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Call the POST method to process scheduled posts
+    const response = await POST(request)
+    return response
+  } catch (error) {
+    console.error("Manual backup cron job trigger error:", error)
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
+  }
 }

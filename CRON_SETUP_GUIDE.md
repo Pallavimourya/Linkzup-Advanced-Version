@@ -22,7 +22,7 @@ DEFAULT_TIMEZONE=Asia/Kolkata
 
 ### Basic Settings
 - **Title:** `Linkzup.in`
-- **URL:** `https://linkzup.in/api/cron/external-auto-post`
+- **URL:** `https://www.linkzup.in/api/cron/external-auto-post`
 - **Enable job:** ✅ Checked
 - **Save responses in job history:** ✅ Checked
 
@@ -106,7 +106,7 @@ Add the environment variables above to your `.env.local` file and redeploy.
 
 \`\`\`bash
 # Test the endpoint
-curl -X POST "https://linkzup.in/api/cron/external-auto-post" \
+curl -X POST "https://www.linkzup.in/api/cron/external-auto-post" \
   -H "Authorization: Bearer DdtJyHUa9UqykItg8yKrxj7a+xIRD99iIGjEwJ/+z0Y=" \
   -H "Content-Type: application/json" \
   -v

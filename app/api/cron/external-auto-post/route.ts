@@ -4,21 +4,24 @@ import { ObjectId } from "mongodb"
 import { utcToIst } from "@/lib/ist-utils"
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  const requestId = `cron-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  
   try {
     // Log request details for debugging
     const userAgent = request.headers.get("user-agent") || "unknown"
     const authHeader = request.headers.get("authorization")
     const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
     
-    console.log(`[External Cron] Request received from: ${userAgent}`)
-    console.log(`[External Cron] Auth header present: ${!!authHeader}`)
-    console.log(`[External Cron] Auth header matches: ${authHeader === expectedAuth}`)
+    console.log(`[${requestId}] [External Cron] Request received from: ${userAgent}`)
+    console.log(`[${requestId}] [External Cron] Auth header present: ${!!authHeader}`)
+    console.log(`[${requestId}] [External Cron] Auth header matches: ${authHeader === expectedAuth}`)
     
     // Check authorization header for cron-job.org
     if (!authHeader || authHeader !== expectedAuth) {
-      console.log("Unauthorized cron request - invalid authorization header")
-      console.log(`[External Cron] Expected: ${expectedAuth}`)
-      console.log(`[External Cron] Received: ${authHeader}`)
+      console.log(`[${requestId}] Unauthorized cron request - invalid authorization header`)
+      console.log(`[${requestId}] [External Cron] Expected: ${expectedAuth}`)
+      console.log(`[${requestId}] [External Cron] Received: ${authHeader}`)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -28,8 +31,9 @@ export async function POST(request: NextRequest) {
     const now = new Date()
     const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000)
     const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000)
+    const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000) // Extended recovery window
 
-    console.log(`[External Cron] Processing posts due between ${utcToIst(fiveMinutesAgo).toISOString()} IST and ${utcToIst(now).toISOString()} IST`)
+    console.log(`[${requestId}] [External Cron] Processing posts due between ${utcToIst(fiveMinutesAgo).toISOString()} IST and ${utcToIst(now).toISOString()} IST`)
 
     // First, process normally scheduled posts
     let postsToProcess = await db
@@ -43,24 +47,41 @@ export async function POST(request: NextRequest) {
       })
       .toArray()
 
-    // Auto-recovery: Also process overdue posts (up to 10 minutes overdue)
+    // Auto-recovery: Also process overdue posts (up to 30 minutes overdue for maximum reliability)
     const overduePosts = await db
       .collection("scheduled_posts")
       .find({
         scheduledFor: {
-          $gte: tenMinutesAgo,
+          $gte: thirtyMinutesAgo,
           $lt: fiveMinutesAgo,
         },
         status: "pending",
       })
       .toArray()
 
+    // Also check for stuck posts that might have been missed
+    const stuckPosts = await db
+      .collection("scheduled_posts")
+      .find({
+        scheduledFor: {
+          $lte: thirtyMinutesAgo,
+        },
+        status: "pending",
+        retryCount: { $lt: 3 }, // Only retry posts that haven't exceeded max retries
+      })
+      .toArray()
+
     if (overduePosts.length > 0) {
-      console.log(`[External Cron] Auto-recovery: Found ${overduePosts.length} overdue posts`)
+      console.log(`[${requestId}] [External Cron] Auto-recovery: Found ${overduePosts.length} overdue posts`)
       postsToProcess = [...postsToProcess, ...overduePosts]
     }
 
-    console.log(`[External Cron] Found ${postsToProcess.length} posts to process`)
+    if (stuckPosts.length > 0) {
+      console.log(`[${requestId}] [External Cron] Recovery: Found ${stuckPosts.length} stuck posts`)
+      postsToProcess = [...postsToProcess, ...stuckPosts]
+    }
+
+    console.log(`[${requestId}] [External Cron] Found ${postsToProcess.length} posts to process`)
 
     const results = []
 
@@ -115,15 +136,22 @@ export async function POST(request: NextRequest) {
           continue
         }
 
-        // Post directly to LinkedIn using user's stored credentials
-        const result = await postToLinkedInDirectly({
-          content: post.content,
-          images: post.images || [],
-          userId: post.userId.toString(),
-          userEmail: post.userEmail,
-          linkedinId: userData.linkedinId,
-          linkedinAccessToken: userData.linkedinAccessToken
-        })
+        // Post directly to LinkedIn using user's stored credentials with enhanced timeout and retry
+        console.log(`[${requestId}] [External Cron] Attempting to post ${post._id} to LinkedIn`)
+        
+        const result = await Promise.race([
+          postToLinkedInDirectly({
+            content: post.content,
+            images: post.images || [],
+            userId: post.userId.toString(),
+            userEmail: post.userEmail,
+            linkedinId: userData.linkedinId,
+            linkedinAccessToken: userData.linkedinAccessToken
+          }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('LinkedIn API timeout after 45 seconds')), 45000)
+          )
+        ]) as { success: boolean; postId?: string; message: string; error?: string }
 
         if (result.success) {
           // Deduct credits
@@ -142,7 +170,7 @@ export async function POST(request: NextRequest) {
             },
           )
 
-          console.log(`[External Cron] Successfully posted post ${post._id} to LinkedIn`)
+          console.log(`[${requestId}] [External Cron] Successfully posted post ${post._id} to LinkedIn`)
           results.push({ 
             postId: post._id, 
             status: "success",
@@ -165,7 +193,7 @@ export async function POST(request: NextRequest) {
               },
             )
 
-            console.log(`[External Cron] Retrying post ${post._id}, attempt ${retryCount + 1}/${maxRetries}`)
+            console.log(`[${requestId}] [External Cron] Retrying post ${post._id}, attempt ${retryCount + 1}/${maxRetries}`)
             results.push({
               postId: post._id,
               status: "retry",
@@ -176,7 +204,7 @@ export async function POST(request: NextRequest) {
             // Mark as failed after max retries
             await markPostAsFailed(post._id, result.message, db, result.error)
             
-            console.log(`[External Cron] Post ${post._id} failed after ${maxRetries} retries`)
+            console.log(`[${requestId}] [External Cron] Post ${post._id} failed after ${maxRetries} retries`)
             results.push({ 
               postId: post._id, 
               status: "failed", 
@@ -189,7 +217,7 @@ export async function POST(request: NextRequest) {
         // Mark as failed due to exception
         await markPostAsFailed(post._id, error instanceof Error ? error.message : "Unknown error", db)
         
-        console.error(`[External Cron] Error processing post ${post._id}:`, error)
+        console.error(`[${requestId}] [External Cron] Error processing post ${post._id}:`, error)
         results.push({
           postId: post._id,
           status: "failed",
@@ -198,30 +226,40 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[External Cron] Completed processing ${postsToProcess.length} posts. Results:`, results)
+    const executionTime = Date.now() - startTime
+    console.log(`[${requestId}] [External Cron] Completed processing ${postsToProcess.length} posts in ${executionTime}ms. Results:`, results)
 
     const response = {
       message: `Processed ${postsToProcess.length} scheduled posts`,
       processedAt: new Date().toISOString(),
       results,
       userAgent: userAgent,
-      success: true
+      success: true,
+      executionTimeMs: executionTime,
+      requestId: requestId,
+      recoveryStats: {
+        overduePosts: overduePosts.length,
+        stuckPosts: stuckPosts.length,
+        totalRecovered: overduePosts.length + stuckPosts.length
+      }
     }
 
-    console.log(`[External Cron] Returning response:`, JSON.stringify(response, null, 2))
+    console.log(`[${requestId}] [External Cron] Returning response:`, JSON.stringify(response, null, 2))
     return NextResponse.json(response)
   } catch (error) {
-    console.error("External cron job error:", error)
-    console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace")
+    const requestId = `cron-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    console.error(`[${requestId}] External cron job error:`, error)
+    console.error(`[${requestId}] Error stack:`, error instanceof Error ? error.stack : "No stack trace")
     
     const errorResponse = {
       error: "Internal server error",
       message: error instanceof Error ? error.message : "Unknown error",
       timestamp: new Date().toISOString(),
-      userAgent: request.headers.get("user-agent") || "unknown"
+      userAgent: request.headers.get("user-agent") || "unknown",
+      requestId: requestId
     }
     
-    console.error("Returning error response:", JSON.stringify(errorResponse, null, 2))
+    console.error(`[${requestId}] Returning error response:`, JSON.stringify(errorResponse, null, 2))
     
     return NextResponse.json(errorResponse, { status: 500 })
   }
