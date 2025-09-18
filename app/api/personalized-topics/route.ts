@@ -324,8 +324,12 @@ export async function GET(request: NextRequest) {
         const currentStoryHash = generateStoryHash(storyData.answers)
         const storedStoryHash = storedData.storyHash
         
-        // If story was updated after topics were generated OR content has changed, regenerate topics
-        if (storyUpdatedAt > topicsGeneratedAt || currentStoryHash !== storedStoryHash) {
+        // Check generation counter - update every 4th story generation
+        const generationCount = storedData.generationCount || 0
+        const shouldUpdateByCount = (generationCount + 1) % 4 === 0
+        
+        // If story was updated after topics were generated OR content has changed OR it's the 4th generation, regenerate topics
+        if (storyUpdatedAt > topicsGeneratedAt || currentStoryHash !== storedStoryHash || shouldUpdateByCount) {
           // Delete old topics to force regeneration
           await db.collection("personalizedTopics").deleteOne({ userEmail })
         } else {
@@ -352,26 +356,59 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    const topicPrompt = `${storyContext}
+    // Generate topics using AI service for better quality
+    let topics = []
+    try {
+      const aiService = new AIService()
+      const aiTopics = await aiService.generateContent({
+        type: "topics",
+        prompt: `${storyContext}
 
 Based on the personal story above, generate 20 unique, engaging LinkedIn post topics that would resonate with this person's experiences, expertise, and journey. Each topic should:
 
-1. Be specific to their background and experiences
+1. Be specific to their background and experiences mentioned in the story
 2. Be professional and LinkedIn-appropriate
 3. Have potential for high engagement
 4. Be diverse in format (tips, insights, stories, lessons learned, etc.)
 5. Be between 5-12 words long
 6. Be compelling and click-worthy
+7. Reference specific elements from their story (early life, education, career journey, personal side, current identity, future aspirations)
 
-Return only the topics as a simple list, one per line, without numbering or additional formatting.`
+Return only the topics as a simple list, one per line, without numbering or additional formatting.`,
+        userEmail: userEmail
+      })
 
-    // Generate detailed topics with keywords from answers
-    const topics = generateDetailedTopics(storyData)
+      // Parse AI response and create topic objects
+      if (aiTopics && Array.isArray(aiTopics) && aiTopics.length > 0) {
+        const topicTexts = aiTopics[0].split('\n').filter(line => line.trim().length > 0)
+        
+        topics = topicTexts.slice(0, 20).map((topicText, index) => ({
+          id: `ai-generated-${Date.now()}-${index}`,
+          title: topicText.trim(),
+          viralChance: Math.floor(Math.random() * 30) + 70,
+          niche: "Personalized",
+          status: "generated" as const,
+          isPersonalized: true
+        }))
+      }
+    } catch (error) {
+      console.error("AI topic generation failed, using fallback:", error)
+    }
+
+    // Fallback to detailed topics if AI generation fails
+    if (topics.length === 0) {
+      topics = generateDetailedTopics(storyData)
+    }
     
     // Store the generated topics in database for future use
     try {
       const db = await connectDB()
       const storyHash = generateStoryHash(storyData.answers)
+      
+      // Get current generation count and increment it
+      const existingData = await db.collection("personalizedTopics").findOne({ userEmail })
+      const currentGenerationCount = existingData?.generationCount || 0
+      
       await db.collection("personalizedTopics").updateOne(
         { userEmail },
         { 
@@ -379,7 +416,8 @@ Return only the topics as a simple list, one per line, without numbering or addi
             topics,
             userEmail,
             storyHash,
-            createdAt: new Date(),
+            generationCount: currentGenerationCount + 1,
+            createdAt: existingData?.createdAt || new Date(),
             updatedAt: new Date()
           }
         },

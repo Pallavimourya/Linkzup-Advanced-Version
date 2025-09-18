@@ -70,7 +70,7 @@ export function MobileDashboardNav() {
 
         <SheetContent
           side="left"
-          className="w-80 sm:w-96 p-0 backdrop-blur-xl bg-white/95 dark:bg-black/95 border-r border-teal-200/50 dark:border-teal-800/50"
+          className="w-80 sm:w-96 p-0 backdrop-blur-xl bg-white/95 dark:bg-black/95 border-r border-blue-200/50 dark:border-blue-800/50"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
@@ -80,7 +80,7 @@ export function MobileDashboardNav() {
           {/* <Link href="/dashboard" onClick={closeSheet}>
               <Logo size="lg" className="justify-center" />
             </Link> */}
-          <div className="p-4 sm:p-6 border-b border-teal-200/30 dark:border-teal-800/30">
+          <div className="p-4 sm:p-6 border-b border-blue-200/30 dark:border-blue-800/30">
             <CreditDisplay compact={true} />
           </div>
 
@@ -89,7 +89,7 @@ export function MobileDashboardNav() {
             <div className="space-y-6 sm:space-y-8">
               {menuSections.map((section) => (
                 <div key={section.title} className="space-y-2">
-                  <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider px-2 sm:px-3 bg-teal-50/50 dark:bg-teal-950/30 rounded-lg py-2">
+                  <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider px-2 sm:px-3 bg-blue-50/50 dark:bg-blue-950/30 rounded-lg py-2">
                     {section.title}
                   </div>
                   <div className="space-y-1 sm:space-y-2">
@@ -102,19 +102,19 @@ export function MobileDashboardNav() {
                           onClick={closeSheet}
                           className={`group flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-200 relative ${
                             active
-                              ? "text-white bg-gradient-to-r from-teal-500 to-secondary shadow-lg"
-                              : "text-black dark:text-white hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:text-teal-600 dark:hover:text-teal-400"
+                              ? "text-white bg-gradient-to-r from-blue-500 to-secondary shadow-lg"
+                              : "text-black dark:text-white hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400"
                           }`}
                         >
                           {/* Active indicator bar */}
                           {active && (
-                            <span className="absolute left-0 top-0 bottom-0 w-1 bg-teal-500 rounded-r-md"></span>
+                            <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-md"></span>
                           )}
                           <item.icon
                             className={`h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 ${
                               active
                                 ? "text-white"
-                                : "text-gray-600 dark:text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400"
+                                : "text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
                             }`}
                           />
                           <span className="truncate text-sm sm:text-base">{item.title}</span>

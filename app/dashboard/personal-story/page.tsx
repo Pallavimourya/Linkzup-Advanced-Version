@@ -869,6 +869,17 @@ Format as a simple list, one topic per line.`
         await saveAnswersToDatabase()
         // Clear localStorage backup since data is now in database
         localStorage.removeItem('personalStoryFormData')
+        
+        // Trigger personalized topics regeneration after story generation
+        try {
+          await fetch('/api/personalized-topics/regenerate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          })
+          console.log("Triggered personalized topics regeneration after story generation")
+        } catch (error) {
+          console.error("Failed to trigger topic regeneration:", error)
+        }
       } else {
         toast({
           title: "Generation Issue",
