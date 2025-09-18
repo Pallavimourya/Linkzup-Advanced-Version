@@ -225,12 +225,99 @@ export default function PersonalStoryPage() {
 
   const [provider] = useState<"openai">("openai")
 
+  // Check if all questions are completed
+  const isAllQuestionsCompleted = () => {
+    const requiredFields = ["early_life", "education", "career_journey", "personal_side", "current_identity", "future_aspirations"]
+    return requiredFields.every(field => formData[field as keyof PersonalStoryForm]?.trim())
+  }
+
+  // Generate topics directly from question answers
+  const generateTopicsFromAnswers = (answers: PersonalStoryForm) => {
+    const topics = []
+    
+    // Extract keywords from text
+    const extractKeywords = (text: string) => {
+      return text.toLowerCase()
+        .replace(/[^\w\s]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 3)
+        .slice(0, 2)
+    }
+    
+    // Professional topic templates
+    const topicTemplates = [
+      "The Challenge That Changed Everything: My Unexpected Breakthrough",
+      "How I Turned My Biggest Failure Into My Greatest Success", 
+      "The Moment That Tested Everything I Believed In",
+      "Why My Worst Setback Became My Best Teacher",
+      "The Decision That Almost Broke Me (And How It Made Me Stronger)",
+      "The Breakthrough That Changed My Entire Career Path",
+      "How I Achieved What Everyone Said Was Impossible",
+      "The Success That Surprised Even Me",
+      "Why My Biggest Risk Led to My Greatest Reward",
+      "The Moment I Knew I Had Made It"
+    ]
+    
+    // Generate topics based on question answers
+    if (answers.early_life && answers.early_life.trim().length > 0) {
+      const keywords = extractKeywords(answers.early_life)
+      if (keywords.length > 0) {
+        topics.push(`How My Early Life in ${keywords[0]} Shaped My Professional Success`)
+      } else {
+        topics.push("How My Early Life Shaped My Professional Success")
+      }
+    }
+    
+    if (answers.education && answers.education.trim().length > 0) {
+      const keywords = extractKeywords(answers.education)
+      if (keywords.length > 0) {
+        topics.push(`The ${keywords[0]} Education That Changed My Career Path`)
+      } else {
+        topics.push("The Educational Moment That Changed My Career Path")
+      }
+    }
+    
+    if (answers.career_journey && answers.career_journey.trim().length > 0) {
+      const keywords = extractKeywords(answers.career_journey)
+      if (keywords.length > 0) {
+        topics.push(`My ${keywords[0]} Journey: From Where I Started to Where I Am Now`)
+      } else {
+        topics.push("My Career Journey: From Where I Started to Where I Am Now")
+      }
+    }
+    
+    // Fill remaining slots with professional templates
+    while (topics.length < 3) {
+      const randomTemplate = topicTemplates[Math.floor(Math.random() * topicTemplates.length)]
+      if (!topics.includes(randomTemplate)) {
+        topics.push(randomTemplate)
+      }
+    }
+    
+    return topics.slice(0, 3).map((title, index) => ({
+      id: `topic-${Date.now()}-${index}`,
+      title,
+      status: "pending" as const
+    }))
+  }
+
   const handleInputChange = (field: keyof PersonalStoryForm, value: string) => {
     setCurrentInputValue(value)
+    // Also update formData immediately so validation works
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   const handleMicrophoneTranscript = (field: keyof PersonalStoryForm, transcript: string) => {
-    setCurrentInputValue(prev => prev + (prev ? ' ' : '') + transcript.trim())
+    const newValue = currentInputValue + (currentInputValue ? ' ' : '') + transcript.trim()
+    setCurrentInputValue(newValue)
+    // Also update formData immediately
+    setFormData(prev => ({
+      ...prev,
+      [field]: newValue
+    }))
   }
 
   const saveAnswersToDatabase = async () => {
@@ -371,6 +458,22 @@ export default function PersonalStoryPage() {
         console.log("No answers available for topic generation")
         return
       }
+
+      // Generate topics directly from question answers instead of using AI
+      console.log("Generating topics directly from question answers")
+      const generatedTopics = generateTopicsFromAnswers(formData)
+      
+      if (generatedTopics.length > 0) {
+        console.log("Generated topics from answers:", generatedTopics)
+        setGeneratedTopics(generatedTopics)
+        setShowTopicApproval(true)
+        
+        toast({
+          title: "Topics Generated",
+          description: `${generatedTopics.length} related topics have been generated for your review.`,
+        })
+        return
+      }
       
       // Create dynamic topic generation prompts based on question answers
       const topicPrompts = [
@@ -468,6 +571,7 @@ Format as a simple list, one topic per line.`
         
         const topicsContent = data.data?.content || data.content || ""
         console.log("Topics content:", topicsContent)
+        console.log("Topics content length:", topicsContent.length)
         
         // Parse topics from the response
         const topics = topicsContent
@@ -482,6 +586,7 @@ Format as a simple list, one topic per line.`
           }))
 
         console.log("Parsed topics:", topics)
+        console.log("Number of parsed topics:", topics.length)
         
         // If no topics were parsed, create some fallback topics
         if (topics.length === 0) {
@@ -546,26 +651,26 @@ Format as a simple list, one topic per line.`
         const errorData = await response.json().catch(() => ({}))
         console.error("Error data:", errorData)
         
-        // Create fallback topics even if API fails
-        const storyText = story.content.toLowerCase()
+        // Create fallback topics based on question answers if API fails
         let fallbackTopics = []
         
-        if (storyText.includes("early") || storyText.includes("childhood") || storyText.includes("roots")) {
-          fallbackTopics.push("How My Childhood Shaped My Professional Success")
+        // Check each question answer for content
+        if (formData.early_life && formData.early_life.trim().length > 0) {
+          fallbackTopics.push("How My Early Life Shaped My Professional Success")
         }
-        if (storyText.includes("education") || storyText.includes("school") || storyText.includes("college")) {
+        if (formData.education && formData.education.trim().length > 0) {
           fallbackTopics.push("The Educational Moment That Changed My Career Path")
         }
-        if (storyText.includes("career") || storyText.includes("professional") || storyText.includes("journey")) {
+        if (formData.career_journey && formData.career_journey.trim().length > 0) {
           fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
         }
-        if (storyText.includes("personal") || storyText.includes("hobby") || storyText.includes("passion")) {
+        if (formData.personal_side && formData.personal_side.trim().length > 0) {
           fallbackTopics.push("The Personal Side That Drives My Professional Success")
         }
-        if (storyText.includes("identity") || storyText.includes("positioning") || storyText.includes("brand")) {
+        if (formData.current_identity && formData.current_identity.trim().length > 0) {
           fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
         }
-        if (storyText.includes("future") || storyText.includes("goal") || storyText.includes("aspiration")) {
+        if (formData.future_aspirations && formData.future_aspirations.trim().length > 0) {
           fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
         }
         
@@ -659,7 +764,7 @@ Format as a simple list, one topic per line.`
     if (missingFields.length > 0) {
       toast({
         title: "Missing Information",
-        description: `Please complete all story questions before generating your personal story.`,
+        description: `Please complete all story questions before generating your personal story. Missing: ${missingFields.map(field => field.replace(/_/g, ' ')).join(', ')}`,
         variant: "destructive",
       })
       return
@@ -1186,8 +1291,12 @@ Format as a simple list, one topic per line.`
                       ) : (
                             <Button
                               onClick={generateStory}
-                              disabled={isGenerating}
-                              className="gap-2 sm:gap-3 h-10 sm:h-12 px-6 sm:px-8 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base"
+                              disabled={isGenerating || !isAllQuestionsCompleted()}
+                              className={`gap-2 sm:gap-3 h-10 sm:h-12 px-6 sm:px-8 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-sm sm:text-base ${
+                                isAllQuestionsCompleted() 
+                                  ? "bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white" 
+                                  : "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                              }`}
                             >
                               {isGenerating ? (
                                 <>
@@ -1197,7 +1306,7 @@ Format as a simple list, one topic per line.`
                               ) : (
                                 <>
                                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                                  <span>Generate My Story</span>
+                                  <span>{isAllQuestionsCompleted() ? "Generate My Story" : "Complete All Questions First"}</span>
                                 </>
                               )}
                             </Button>
