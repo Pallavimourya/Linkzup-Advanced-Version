@@ -1,12 +1,12 @@
 import { connectDB } from "./mongodb"
 
 export interface PersonalStoryAnswers {
-  challenge: string
-  achievement: string
-  failure: string
-  mentor: string
-  turning_point: string
-  lesson: string
+  early_life: string
+  education: string
+  career_journey: string
+  personal_side: string
+  current_identity: string
+  future_aspirations: string
 }
 
 export interface PersonalStoryCustomization {
@@ -65,12 +65,12 @@ export class PersonalStoryService {
       const { answers } = storyData
       // Check if all required fields are filled
       return !!(
-        answers.challenge?.trim() &&
-        answers.achievement?.trim() &&
-        answers.failure?.trim() &&
-        answers.mentor?.trim() &&
-        answers.turning_point?.trim() &&
-        answers.lesson?.trim()
+        answers.early_life?.trim() &&
+        answers.education?.trim() &&
+        answers.career_journey?.trim() &&
+        answers.personal_side?.trim() &&
+        answers.current_identity?.trim() &&
+        answers.future_aspirations?.trim()
       )
     } catch (error) {
       console.error("Error checking story completion:", error)
@@ -87,28 +87,28 @@ export class PersonalStoryService {
     let context = "PERSONAL STORY CONTEXT:\n"
     context += "Use the following personal experiences and insights to create authentic, personalized content:\n\n"
     
-    if (answers.challenge) {
-      context += `Professional Challenge: ${answers.challenge}\n\n`
+    if (answers.early_life) {
+      context += `Early Life & Roots: ${answers.early_life}\n\n`
     }
     
-    if (answers.achievement) {
-      context += `Proudest Achievement: ${answers.achievement}\n\n`
+    if (answers.education) {
+      context += `Education & Learning Phase: ${answers.education}\n\n`
     }
     
-    if (answers.failure) {
-      context += `Learning from Failure: ${answers.failure}\n\n`
+    if (answers.career_journey) {
+      context += `Career Journey: ${answers.career_journey}\n\n`
     }
     
-    if (answers.mentor) {
-      context += `Influential Mentor/Role Model: ${answers.mentor}\n\n`
+    if (answers.personal_side) {
+      context += `Personal Side: ${answers.personal_side}\n\n`
     }
     
-    if (answers.turning_point) {
-      context += `Career Turning Point: ${answers.turning_point}\n\n`
+    if (answers.current_identity) {
+      context += `Current Identity & Positioning: ${answers.current_identity}\n\n`
     }
     
-    if (answers.lesson) {
-      context += `Key Life/Career Lesson: ${answers.lesson}\n\n`
+    if (answers.future_aspirations) {
+      context += `Future Aspirations: ${answers.future_aspirations}\n\n`
     }
 
     // Add customization preferences
@@ -135,8 +135,9 @@ export class PersonalStoryService {
    */
   static buildFallbackContext(): string {
     return "PERSONAL STORY CONTEXT:\n" +
-           "No personal story data available. Generate content using general best practices and industry insights.\n" +
-           "Focus on creating valuable, engaging content that resonates with the target audience.\n\n"
+           "No personal story data available. Generate content based entirely on the user's prompt and topic.\n" +
+           "Focus on creating valuable, engaging content that resonates with the target audience.\n" +
+           "Use general best practices and industry insights without personal references.\n\n"
   }
 
   /**
@@ -149,27 +150,27 @@ export class PersonalStoryService {
     // Extract themes based on content
     const allText = Object.values(answers).join(' ').toLowerCase()
     
-    if (allText.includes('leadership') || allText.includes('team') || allText.includes('manage')) {
+    if (allText.includes('leadership') || allText.includes('team') || allText.includes('manage') || allText.includes('career')) {
       themes.push('leadership')
     }
     
-    if (allText.includes('innovation') || allText.includes('creative') || allText.includes('new')) {
+    if (allText.includes('innovation') || allText.includes('creative') || allText.includes('new') || allText.includes('education')) {
       themes.push('innovation')
     }
     
-    if (allText.includes('growth') || allText.includes('learn') || allText.includes('develop')) {
+    if (allText.includes('growth') || allText.includes('learn') || allText.includes('develop') || allText.includes('future')) {
       themes.push('growth')
     }
     
-    if (allText.includes('challenge') || allText.includes('difficult') || allText.includes('overcome')) {
+    if (allText.includes('challenge') || allText.includes('difficult') || allText.includes('overcome') || allText.includes('early')) {
       themes.push('resilience')
     }
     
-    if (allText.includes('success') || allText.includes('achieve') || allText.includes('win')) {
+    if (allText.includes('success') || allText.includes('achieve') || allText.includes('win') || allText.includes('identity')) {
       themes.push('success')
     }
     
-    if (allText.includes('mentor') || allText.includes('help') || allText.includes('support')) {
+    if (allText.includes('mentor') || allText.includes('help') || allText.includes('support') || allText.includes('personal')) {
       themes.push('mentorship')
     }
 

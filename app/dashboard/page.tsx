@@ -905,7 +905,7 @@ export default function DashboardPage() {
             {/* Enhanced Topics Grid */}
             <div className="relative">
               {/* Background Pattern */}
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-secondary/5 rounded-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-secondary/5 rounded-3xl"></div>
               
               <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 p-6 sm:p-8">
                 {randomTopics.length > 0 ? (
@@ -927,32 +927,32 @@ export default function DashboardPage() {
                       whileTap={{ scale: 0.95 }}
                     >
                       <Card 
-                        className={`group cursor-pointer transition-all duration-500 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-800/50 shadow-xl hover:shadow-2xl overflow-hidden relative ${
+                        className={`group cursor-pointer transition-all duration-500 bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-xl hover:shadow-2xl overflow-hidden relative ${
                           clickedTopic === topicData.topic 
-                            ? 'ring-2 ring-teal-500/60 bg-gradient-to-br from-teal-500/10 to-secondary/10 scale-105 shadow-2xl' 
-                            : 'hover:ring-2 hover:ring-teal-500/30 hover:bg-gradient-to-br hover:from-white/90 dark:hover:from-black/90 hover:to-teal-500/5'
+                            ? 'ring-2 ring-blue-500/60 bg-gradient-to-br from-blue-500/10 to-secondary/10 scale-105 shadow-2xl' 
+                            : 'hover:ring-2 hover:ring-blue-500/30 hover:bg-gradient-to-br hover:from-white/90 dark:hover:from-black/90 hover:to-blue-500/5'
                         }`}
                         onClick={() => handleTopicClick(topicData.topic)}
                       >
                         {/* Animated Background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
                         {/* Floating Elements */}
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-500"></div>
-                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-secondary/10 to-teal-500/10 rounded-full translate-y-8 -translate-x-8 group-hover:scale-110 transition-transform duration-500"></div>
+                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full -translate-y-10 translate-x-10 group-hover:scale-110 transition-transform duration-500"></div>
+                        <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-secondary/10 to-blue-500/10 rounded-full translate-y-8 -translate-x-8 group-hover:scale-110 transition-transform duration-500"></div>
                         
                         <CardContent className="p-6 sm:p-8 relative z-10">
                           <div className="space-y-4">
                             {/* Icon Container */}
                             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 ${
                               clickedTopic === topicData.topic 
-                                ? 'bg-gradient-to-br from-teal-500 to-secondary scale-110 shadow-lg' 
-                                : 'bg-gradient-to-br from-teal-500/10 to-secondary/10 group-hover:from-teal-500/20 group-hover:to-secondary/20 group-hover:scale-110 group-hover:shadow-lg'
+                                ? 'bg-gradient-to-br from-blue-500 to-secondary scale-110 shadow-lg' 
+                                : 'bg-gradient-to-br from-blue-500/10 to-secondary/10 group-hover:from-blue-500/20 group-hover:to-secondary/20 group-hover:scale-110 group-hover:shadow-lg'
                             }`}>
                               {clickedTopic === topicData.topic ? (
                                 <Loader2 className="w-8 h-8 text-white animate-spin" />
                               ) : (
-                                <div className="text-teal-600 dark:text-teal-400 group-hover:text-white transition-colors duration-300">
+                                <div className="text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors duration-300">
                                   {getTopicIcon(topicData.category)}
                                 </div>
                         )}
@@ -961,8 +961,8 @@ export default function DashboardPage() {
                             {/* Topic Title */}
                             <h3 className={`text-base sm:text-lg font-bold leading-tight transition-colors duration-300 ${
                               clickedTopic === topicData.topic 
-                          ? 'text-teal-600 dark:text-teal-400' 
-                          : 'text-black dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400'
+                          ? 'text-blue-600 dark:text-blue-400' 
+                          : 'text-black dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'
                       }`}>
                               {topicData.topic}
                       </h3>
@@ -978,8 +978,8 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-between">
                               <div className={`flex items-center text-sm transition-colors duration-300 ${
                                 clickedTopic === topicData.topic 
-                                  ? 'text-teal-600 dark:text-teal-400' 
-                                  : 'text-gray-600 dark:text-gray-400 group-hover:text-teal-600 dark:group-hover:text-teal-400'
+                                  ? 'text-blue-600 dark:text-blue-400' 
+                                  : 'text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'
                               }`}>
                                 <span className="font-medium">Click to generate</span>
                                 <motion.svg 
@@ -995,8 +995,8 @@ export default function DashboardPage() {
                               </div>
                               
                               {/* Trending Badge */}
-                              <div className="flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-900/50 px-2 py-1 rounded-full">
-                                <div className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse"></div>
+                              <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded-full">
+                                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
                                 <span className="font-medium">Trending</span>
                               </div>
                       </div>
@@ -1066,22 +1066,22 @@ export default function DashboardPage() {
         {isGenerating && (
           <div className="flex flex-col items-center justify-center py-16 sm:py-20 space-y-8">
             <div className="relative">
-              <div className="w-20 h-20 border-4 border-teal-200 dark:border-teal-800 border-t-teal-500 rounded-full animate-spin"></div>
+              <div className="w-20 h-20 border-4 border-blue-200 dark:border-blue-800 border-t-blue-500 rounded-full animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-teal-500 animate-pulse" />
+                <Sparkles className="w-8 h-8 text-blue-500 animate-pulse" />
               </div>
             </div>
             <div className="text-center space-y-4 max-w-md mx-auto">
-              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
+              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent">
                 Creating Magic
               </h3>
               <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                 Our AI is crafting engaging content tailored just for you...
               </p>
               <div className="flex justify-center space-x-1">
-                <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
               </div>
             </div>
           </div>
@@ -1091,10 +1091,10 @@ export default function DashboardPage() {
         {generatedPosts.length > 0 && (
           <div className="max-w-6xl mx-auto space-y-8">
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 to-secondary rounded-2xl mb-4 shadow-lg">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-secondary rounded-2xl mb-4 shadow-lg">
                 <Target className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-black via-teal-600 to-secondary dark:from-white dark:via-teal-400 dark:to-secondary bg-clip-text text-transparent">
+              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent">
                 Your Content is Ready!
               </h2>
               <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
@@ -1126,21 +1126,10 @@ export default function DashboardPage() {
                 }}
                 variant="outline"
                 size="lg"
-                className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 shadow-lg hover:shadow-xl transition-all duration-200 px-8"
+                className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 shadow-lg hover:shadow-xl transition-all duration-200 px-8"
               >
                 <Sparkles className="w-5 h-5 mr-2" />
                 Generate More Content
-              </Button>
-              <Button
-                onClick={() => {
-                  setGeneratedPosts([])
-                  setShowAdvanced(false)
-                }}
-                variant="ghost"
-                size="lg"
-                className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors duration-200"
-              >
-                Start Over
               </Button>
             </div>
           </div>
@@ -1150,9 +1139,9 @@ export default function DashboardPage() {
       {/* Customization Panel - Overlay */}
       {showCustomizationPanel && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex justify-end">
-          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[45%] bg-white dark:bg-black h-full shadow-2xl overflow-y-auto border-l border-teal-200/50 dark:border-teal-800/50">
+          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[45%] bg-white dark:bg-black h-full shadow-2xl overflow-y-auto border-l border-blue-200/50 dark:border-blue-800/50">
             {/* Header */}
-            <div className="sticky top-0 bg-white dark:bg-black border-b border-teal-200 dark:border-teal-800 p-4 sm:p-6 flex items-center justify-between">
+            <div className="sticky top-0 bg-white dark:bg-black border-b border-blue-200 dark:border-blue-800 p-4 sm:p-6 flex items-center justify-between">
               <h2 className="text-lg sm:text-xl font-semibold text-black dark:text-white">Customize your post</h2>
               <Button
                 variant="ghost"
@@ -1172,7 +1161,7 @@ export default function DashboardPage() {
                 <Input
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full bg-white dark:bg-black border-teal-200 dark:border-teal-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                  className="w-full bg-white dark:bg-black border-blue-200 dark:border-blue-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   placeholder="Enter your topic..."
                 />
               </div>
@@ -1289,7 +1278,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Content Features */}
-                <div className="space-y-3 pt-4 border-t border-teal-200 dark:border-teal-800">
+                <div className="space-y-3 pt-4 border-t border-blue-200 dark:border-blue-800">
                   <h3 className="text-sm font-medium text-black dark:text-white">Content Features</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">

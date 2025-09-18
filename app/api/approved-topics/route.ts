@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectToDatabase } from "@/lib/mongodb"
+import { ObjectId } from "mongodb"
 
 export async function GET() {
   try {
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       success: true, 
       approvedTopics: approvedTopics.map((topic, index) => ({
         ...topic,
-        id: result.insertedIds[index]
+        _id: result.insertedIds[index]
       }))
     })
   } catch (error) {
@@ -69,16 +70,28 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { topicId } = await request.json()
+    console.log("DELETE request - topicId:", topicId, "userEmail:", session.user.email)
 
     if (!topicId) {
       return NextResponse.json({ error: "Topic ID is required" }, { status: 400 })
     }
 
     const { db } = await connectToDatabase()
-    const result = await db.collection("approved_topics").deleteOne({
-      _id: topicId,
+    
+    // Try to find the topic first to debug
+    const topicToDelete = await db.collection("approved_topics").findOne({
+      _id: new ObjectId(topicId),
       userEmail: session.user.email
     })
+    
+    console.log("Topic found for deletion:", topicToDelete)
+    
+    const result = await db.collection("approved_topics").deleteOne({
+      _id: new ObjectId(topicId),
+      userEmail: session.user.email
+    })
+
+    console.log("Delete result:", result)
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Topic not found" }, { status: 404 })

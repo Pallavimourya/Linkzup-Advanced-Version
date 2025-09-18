@@ -32,12 +32,12 @@ import { ScheduleButton } from "@/components/schedule-button"
 import { MicrophoneButton } from "@/components/ui/microphone-button"
 
 interface PersonalStoryForm {
-  challenge: string
-  achievement: string
-  failure: string
-  mentor: string
-  turning_point: string
-  lesson: string
+  early_life: string
+  education: string
+  career_journey: string
+  personal_side: string
+  current_identity: string
+  future_aspirations: string
 }
 
 interface GeneratedStory {
@@ -59,65 +59,65 @@ interface GeneratedTopic {
 
 const storyQuestions = [
   {
-    key: "challenge" as keyof PersonalStoryForm,
-    title: "Biggest Professional Challenge",
-    description: "Describe a significant challenge you faced in your career and how you approached it.",
-    placeholder: "Tell us about a time when you faced a difficult situation at work, a project that seemed impossible, or a skill you had to develop quickly...",
-    icon: Target,
+    key: "early_life" as keyof PersonalStoryForm,
+    title: "Early Life & Roots",
+    description: "What are some defining childhood experiences or values that shaped who you are today?",
+    placeholder: "Share experiences from your childhood, family values, early influences, or formative moments that helped shape your character and worldview...",
+    icon: Heart,
     color: "from-blue-500 to-blue-600",
     bgColor: "from-blue-50 to-blue-100",
     borderColor: "border-blue-200",
     textColor: "text-blue-700"
   },
   {
-    key: "achievement" as keyof PersonalStoryForm,
-    title: "Proudest Achievement",
-    description: "Share an accomplishment that you're particularly proud of and what it meant to you.",
-    placeholder: "Describe a project you completed, a goal you reached, a team you led, or recognition you received...",
-    icon: Award,
+    key: "education" as keyof PersonalStoryForm,
+    title: "Education & Learning Phase",
+    description: "How did your school/college years influence your interests, skills, or career choices?",
+    placeholder: "Describe your educational journey, key teachers, subjects that inspired you, extracurricular activities, or how your education shaped your career path...",
+    icon: BookOpen,
     color: "from-blue-400 to-blue-500",
     bgColor: "from-blue-50 to-blue-100",
     borderColor: "border-blue-200",
     textColor: "text-blue-700"
   },
   {
-    key: "failure" as keyof PersonalStoryForm,
-    title: "Learning from Failure",
-    description: "Tell us about a time when things didn't go as planned and what you learned from it.",
-    placeholder: "Share a mistake you made, a project that failed, or a decision you regret and how it shaped you...",
-    icon: Brain,
+    key: "career_journey" as keyof PersonalStoryForm,
+    title: "Career Journey",
+    description: "Can you walk me through your professional journey so far — key milestones, challenges, and turning points?",
+    placeholder: "Share your career progression, key roles, major projects, challenges overcome, promotions, or significant career moments...",
+    icon: Target,
     color: "from-blue-600 to-blue-700",
     bgColor: "from-blue-50 to-blue-100",
     borderColor: "border-blue-200",
     textColor: "text-blue-700"
   },
   {
-    key: "mentor" as keyof PersonalStoryForm,
-    title: "Influential Mentor or Role Model",
-    description: "Describe someone who significantly impacted your professional journey.",
-    placeholder: "Tell us about a boss, colleague, teacher, or industry leader who influenced your career path...",
-    icon: Users,
+    key: "personal_side" as keyof PersonalStoryForm,
+    title: "Personal Side",
+    description: "Outside of work, what passions, hobbies, or personal values define you as a person?",
+    placeholder: "Tell us about your hobbies, interests, personal values, family life, community involvement, or what you do for fun and fulfillment...",
+    icon: Star,
     color: "from-blue-500 to-blue-600",
     bgColor: "from-blue-50 to-blue-100",
     borderColor: "border-blue-200",
     textColor: "text-blue-700"
   },
   {
-    key: "turning_point" as keyof PersonalStoryForm,
-    title: "Career Turning Point",
-    description: "Share a moment or decision that changed the direction of your career.",
-    placeholder: "Describe a job change, industry switch, entrepreneurial leap, or realization that shifted your path...",
-    icon: TrendingUp,
+    key: "current_identity" as keyof PersonalStoryForm,
+    title: "Current Identity & Positioning",
+    description: "Right now, what do you want people to know, feel, or remember about you when they come across your profile/content?",
+    placeholder: "Describe how you want to be perceived professionally, your current expertise, unique value proposition, or what makes you stand out...",
+    icon: User,
     color: "from-blue-300 to-blue-400",
     bgColor: "from-blue-50 to-blue-100",
     borderColor: "border-blue-200",
     textColor: "text-blue-700"
   },
   {
-    key: "lesson" as keyof PersonalStoryForm,
-    title: "Key Life/Career Lesson",
-    description: "What's the most important lesson you've learned in your professional journey?",
-    placeholder: "Share wisdom about leadership, work-life balance, networking, skill development, or career growth...",
+    key: "future_aspirations" as keyof PersonalStoryForm,
+    title: "Future Aspirations",
+    description: "What are your short-term and long-term goals (career, personal, impact), and how do you want your personal brand to help you achieve them?",
+    placeholder: "Share your goals for the next 1-5 years, where you want to be, what impact you want to make, or how you want to grow personally and professionally...",
     icon: Lightbulb,
     color: "from-blue-700 to-blue-800",
     bgColor: "from-blue-50 to-blue-100",
@@ -136,21 +136,28 @@ export default function PersonalStoryPage() {
   const [selectedStory, setSelectedStory] = useState<GeneratedStory | null>(null)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [formData, setFormData] = useState<PersonalStoryForm>({
-    challenge: "",
-    achievement: "",
-    failure: "",
-    mentor: "",
-    turning_point: "",
-    lesson: "",
+    early_life: "",
+    education: "",
+    career_journey: "",
+    personal_side: "",
+    current_identity: "",
+    future_aspirations: "",
   })
   const [answersSaved, setAnswersSaved] = useState(false)
   const [generatedTopics, setGeneratedTopics] = useState<GeneratedTopic[]>([])
   const [showTopicApproval, setShowTopicApproval] = useState(false)
+  const [currentInputValue, setCurrentInputValue] = useState("")
 
   // Debug useEffect to monitor state changes
   useEffect(() => {
     console.log("State changed - showTopicApproval:", showTopicApproval, "generatedTopics length:", generatedTopics.length)
   }, [showTopicApproval, generatedTopics])
+
+  // Update current input value when step changes
+  useEffect(() => {
+    const currentQuestion = storyQuestions[currentStep]
+    setCurrentInputValue(formData[currentQuestion.key] || "")
+  }, [currentStep, formData])
 
   // Load saved form data from database on component mount
   useEffect(() => {
@@ -161,6 +168,9 @@ export default function PersonalStoryPage() {
           const data = await response.json()
           if (data.answers) {
             setFormData(data.answers)
+            // Set current input value to the first question's answer
+            const firstQuestion = storyQuestions[0]
+            setCurrentInputValue(data.answers[firstQuestion.key] || "")
             if (data.customization) {
               setCustomization(data.customization)
             }
@@ -179,6 +189,9 @@ export default function PersonalStoryPage() {
           try {
             const parsedData = JSON.parse(savedFormData)
             setFormData(parsedData)
+            // Set current input value to the first question's answer
+            const firstQuestion = storyQuestions[0]
+            setCurrentInputValue(parsedData[firstQuestion.key] || "")
           } catch (error) {
             console.error('Error parsing saved form data:', error)
           }
@@ -213,14 +226,11 @@ export default function PersonalStoryPage() {
   const [provider] = useState<"openai">("openai")
 
   const handleInputChange = (field: keyof PersonalStoryForm, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setCurrentInputValue(value)
   }
 
   const handleMicrophoneTranscript = (field: keyof PersonalStoryForm, transcript: string) => {
-    setFormData((prev) => ({ 
-      ...prev, 
-      [field]: prev[field] + (prev[field] ? ' ' : '') + transcript.trim()
-    }))
+    setCurrentInputValue(prev => prev + (prev ? ' ' : '') + transcript.trim())
   }
 
   const saveAnswersToDatabase = async () => {
@@ -243,6 +253,16 @@ export default function PersonalStoryPage() {
           title: "Answers Saved",
           description: "Your story answers have been saved permanently. You can return anytime to continue.",
         })
+        
+        // Trigger personalized topics refresh in Topic Generator
+        console.log("Personal story saved, triggering topic refresh...")
+        if (typeof (window as any).refreshPersonalizedTopics === 'function') {
+          (window as any).refreshPersonalizedTopics()
+        }
+        if (typeof (window as any).checkTopicGeneratorTab === 'function') {
+          (window as any).checkTopicGeneratorTab()
+        }
+        
         return true
       } else {
         console.error('Failed to save answers to database')
@@ -285,13 +305,14 @@ export default function PersonalStoryPage() {
 
   const clearFormData = async () => {
     setFormData({
-      challenge: "",
-      achievement: "",
-      failure: "",
-      mentor: "",
-      turning_point: "",
-      lesson: "",
+      early_life: "",
+      education: "",
+      career_journey: "",
+      personal_side: "",
+      current_identity: "",
+      future_aspirations: "",
     })
+    setCurrentInputValue("")
     localStorage.removeItem('personalStoryFormData')
     setCurrentStep(0)
     setAnswersSaved(false)
@@ -308,12 +329,26 @@ export default function PersonalStoryPage() {
   }
 
   const nextStep = () => {
+    // Save current answer before moving to next step
+    const currentQuestion = storyQuestions[currentStep]
+    setFormData(prev => ({
+      ...prev,
+      [currentQuestion.key]: currentInputValue
+    }))
+    
     if (currentStep < storyQuestions.length - 1) {
       setCurrentStep(currentStep + 1)
     }
   }
 
   const prevStep = () => {
+    // Save current answer before moving to previous step
+    const currentQuestion = storyQuestions[currentStep]
+    setFormData(prev => ({
+      ...prev,
+      [currentQuestion.key]: currentInputValue
+    }))
+    
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1)
     }
@@ -321,48 +356,65 @@ export default function PersonalStoryPage() {
 
   const generateRelatedTopics = async (story: GeneratedStory) => {
     try {
-      console.log("Starting topic generation for story:", story.title)
+      console.log("Starting topic generation based on personal story answers")
       
-      // Create dynamic topic generation prompts with variety
-      const topicPrompts = [
-        `Based on this personal story, generate 3 eye-catching LinkedIn post topics that would go viral. Each topic should have a compelling hook, interesting punchline, and be highly shareable. Make them attention-grabbing and thought-provoking.
+      // Build context from the actual question answers, not the AI-generated story
+      const answersContext = Object.entries(formData)
+        .filter(([key, value]) => value && value.trim().length > 0)
+        .map(([key, value]) => {
+          const questionName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          return `${questionName}: ${value}`
+        })
+        .join('\n\n')
 
-Story: ${story.content}
+      if (!answersContext.trim()) {
+        console.log("No answers available for topic generation")
+        return
+      }
+      
+      // Create dynamic topic generation prompts based on question answers
+      const topicPrompts = [
+        `Based on these personal story answers, generate 3 eye-catching LinkedIn post topics that would go viral. Each topic should have a compelling hook, interesting punchline, and be highly shareable. Make them attention-grabbing and thought-provoking.
+
+Personal Story Answers:
+${answersContext}
 
 Generate exactly 3 topics with these characteristics:
 - Eye-catching headlines that make people stop scrolling
 - Interesting punchlines or unexpected angles
 - Professional but with personality
 - Highly shareable and engaging
-- Based on the specific themes in the story
+- Based on the specific experiences and insights in the answers
 - Each should be unique and different from the others
 
 Format as a simple list, one topic per line.`,
 
-        `Transform this personal story into 3 viral-worthy LinkedIn post topics. Each topic should have a strong hook, compelling narrative angle, and be designed to spark conversations and engagement.
+        `Transform these personal story answers into 3 viral-worthy LinkedIn post topics. Each topic should have a strong hook, compelling narrative angle, and be designed to spark conversations and engagement.
 
-Story: ${story.content}
+Personal Story Answers:
+${answersContext}
 
 Create 3 topics that are:
 - Attention-grabbing and scroll-stopping
 - Have interesting twists or unexpected insights
 - Professional yet relatable
 - Designed to generate comments and shares
-- Based on the unique elements of this story
+- Based on the unique elements and experiences in the answers
 - Each with a different angle or perspective
 
 Format as a simple list, one topic per line.`,
 
-        `Based on this personal story, create 3 LinkedIn post topics that would make professionals stop, read, and share. Each topic should have a compelling hook and interesting punchline that relates to the story's key themes.
+        `Based on these personal story answers, create 3 LinkedIn post topics that would make professionals stop, read, and share. Each topic should have a compelling hook and interesting punchline that relates to the key themes in the answers.
 
-Story: ${story.content}
+Personal Story Answers:
+${answersContext}
 
 Generate 3 topics that are:
 - Irresistibly clickable and engaging
 - Have surprising or counterintuitive angles
 - Professional but with emotional appeal
 - Designed to create discussion and engagement
-- Based on the specific challenges and lessons in the story
+- Based on the specific challenges and lessons in the answers
 - Each offering a different valuable insight
 
 Format as a simple list, one topic per line.`
@@ -435,21 +487,27 @@ Format as a simple list, one topic per line.`
         if (topics.length === 0) {
           console.log("No topics parsed, creating fallback topics")
           
-          // Create more diverse fallback topics based on story content
-          const storyText = story.content.toLowerCase()
+          // Create fallback topics based on the actual question answers
           let fallbackTopics = []
           
-          if (storyText.includes("challenge") || storyText.includes("difficult")) {
-            fallbackTopics.push("The Challenge That Changed Everything: My Unexpected Breakthrough")
+          // Check each question answer for content
+          if (formData.early_life && formData.early_life.trim().length > 0) {
+            fallbackTopics.push("How My Early Life Shaped My Professional Success")
           }
-          if (storyText.includes("failure") || storyText.includes("mistake")) {
-            fallbackTopics.push("Why My Biggest Failure Became My Greatest Success")
+          if (formData.education && formData.education.trim().length > 0) {
+            fallbackTopics.push("The Educational Moment That Changed My Career Path")
           }
-          if (storyText.includes("mentor") || storyText.includes("advice")) {
-            fallbackTopics.push("The One Piece of Advice That Transformed My Career")
+          if (formData.career_journey && formData.career_journey.trim().length > 0) {
+            fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
           }
-          if (storyText.includes("lesson") || storyText.includes("learn")) {
-            fallbackTopics.push("The Hard Lesson That Taught Me Everything")
+          if (formData.personal_side && formData.personal_side.trim().length > 0) {
+            fallbackTopics.push("The Personal Side That Drives My Professional Success")
+          }
+          if (formData.current_identity && formData.current_identity.trim().length > 0) {
+            fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
+          }
+          if (formData.future_aspirations && formData.future_aspirations.trim().length > 0) {
+            fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
           }
           
           // Fill remaining slots with generic but engaging topics
@@ -492,17 +550,23 @@ Format as a simple list, one topic per line.`
         const storyText = story.content.toLowerCase()
         let fallbackTopics = []
         
-        if (storyText.includes("challenge") || storyText.includes("difficult")) {
-          fallbackTopics.push("The Challenge That Changed Everything: My Unexpected Breakthrough")
+        if (storyText.includes("early") || storyText.includes("childhood") || storyText.includes("roots")) {
+          fallbackTopics.push("How My Childhood Shaped My Professional Success")
         }
-        if (storyText.includes("failure") || storyText.includes("mistake")) {
-          fallbackTopics.push("Why My Biggest Failure Became My Greatest Success")
+        if (storyText.includes("education") || storyText.includes("school") || storyText.includes("college")) {
+          fallbackTopics.push("The Educational Moment That Changed My Career Path")
         }
-        if (storyText.includes("mentor") || storyText.includes("advice")) {
-          fallbackTopics.push("The One Piece of Advice That Transformed My Career")
+        if (storyText.includes("career") || storyText.includes("professional") || storyText.includes("journey")) {
+          fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
         }
-        if (storyText.includes("lesson") || storyText.includes("learn")) {
-          fallbackTopics.push("The Hard Lesson That Taught Me Everything")
+        if (storyText.includes("personal") || storyText.includes("hobby") || storyText.includes("passion")) {
+          fallbackTopics.push("The Personal Side That Drives My Professional Success")
+        }
+        if (storyText.includes("identity") || storyText.includes("positioning") || storyText.includes("brand")) {
+          fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
+        }
+        if (storyText.includes("future") || storyText.includes("goal") || storyText.includes("aspiration")) {
+          fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
         }
         
         // Fill remaining slots with generic but engaging topics
@@ -539,17 +603,23 @@ Format as a simple list, one topic per line.`
       const storyText = story.content.toLowerCase()
       let fallbackTopics = []
       
-      if (storyText.includes("challenge") || storyText.includes("difficult")) {
-        fallbackTopics.push("The Challenge That Changed Everything: My Unexpected Breakthrough")
+      if (storyText.includes("early") || storyText.includes("childhood") || storyText.includes("roots")) {
+        fallbackTopics.push("How My Childhood Shaped My Professional Success")
       }
-      if (storyText.includes("failure") || storyText.includes("mistake")) {
-        fallbackTopics.push("Why My Biggest Failure Became My Greatest Success")
+      if (storyText.includes("education") || storyText.includes("school") || storyText.includes("college")) {
+        fallbackTopics.push("The Educational Moment That Changed My Career Path")
       }
-      if (storyText.includes("mentor") || storyText.includes("advice")) {
-        fallbackTopics.push("The One Piece of Advice That Transformed My Career")
+      if (storyText.includes("career") || storyText.includes("professional") || storyText.includes("journey")) {
+        fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
       }
-      if (storyText.includes("lesson") || storyText.includes("learn")) {
-        fallbackTopics.push("The Hard Lesson That Taught Me Everything")
+      if (storyText.includes("personal") || storyText.includes("hobby") || storyText.includes("passion")) {
+        fallbackTopics.push("The Personal Side That Drives My Professional Success")
+      }
+      if (storyText.includes("identity") || storyText.includes("positioning") || storyText.includes("brand")) {
+        fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
+      }
+      if (storyText.includes("future") || storyText.includes("goal") || storyText.includes("aspiration")) {
+        fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
       }
       
       // Fill remaining slots with generic but engaging topics
@@ -583,7 +653,7 @@ Format as a simple list, one topic per line.`
 
   const generateStory = async () => {
     // Check if all required fields are filled
-    const requiredFields = ["challenge", "achievement", "failure", "mentor", "turning_point", "lesson"]
+    const requiredFields = ["early_life", "education", "career_journey", "personal_side", "current_identity", "future_aspirations"]
     const missingFields = requiredFields.filter(field => !formData[field as keyof PersonalStoryForm]?.trim())
     
     if (missingFields.length > 0) {
@@ -604,7 +674,7 @@ Format as a simple list, one topic per line.`
 
     try {
       // Create a comprehensive prompt from all story elements
-      const storyPrompt = `Personal story about my professional journey: I faced a challenge with ${formData.challenge}, achieved success through ${formData.achievement}, learned from a failure when ${formData.failure}, was mentored by ${formData.mentor}, experienced a turning point when ${formData.turning_point}, and learned the key lesson that ${formData.lesson}.`
+      const storyPrompt = `Personal story about my life journey: My early life and roots were shaped by ${formData.early_life}, my education influenced me through ${formData.education}, my career journey includes ${formData.career_journey}, my personal side is defined by ${formData.personal_side}, my current identity and positioning is ${formData.current_identity}, and my future aspirations are ${formData.future_aspirations}.`
 
       const controller = new AbortController()
       timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
@@ -665,7 +735,7 @@ Format as a simple list, one topic per line.`
 
       // If no content was generated at all, create a single sample story
       if (contents.length === 0 || (contents.length === 1 && contents[0].length < 50)) {
-        storyContent = `Based on your personal journey, here's your story:\n\nThroughout my career, I've faced significant challenges like "${formData.challenge}", which tested my resilience and determination. Through perseverance and the support of mentors like "${formData.mentor}", I was able to overcome obstacles and achieve remarkable success, including "${formData.achievement}". \n\nI've also learned valuable lessons from failures, such as when "${formData.failure}", which taught me the importance of continuous learning and growth. A major turning point in my career was when "${formData.turning_point}", which completely changed my perspective and approach.\n\nThe most valuable lesson I've learned is that "${formData.lesson}". This insight has become a cornerstone of my professional philosophy and continues to guide my decisions and actions in both personal and professional contexts.`
+        storyContent = `Based on your personal journey, here's your story:\n\nMy story begins with my early life and roots, where "${formData.early_life}" shaped the foundation of who I am today. My education journey was marked by "${formData.education}", which influenced my interests and career choices.\n\nMy professional journey has been defined by "${formData.career_journey}", with key milestones and challenges that have shaped my growth. Beyond work, my personal side is enriched by "${formData.personal_side}", which brings balance and fulfillment to my life.\n\nCurrently, I want people to know "${formData.current_identity}" when they encounter my profile and content. Looking ahead, my future aspirations include "${formData.future_aspirations}", and I'm committed to using my personal brand to achieve these goals and make a meaningful impact.`
       }
 
       // Create a single story
@@ -1057,7 +1127,7 @@ Format as a simple list, one topic per line.`
                       <div className="relative group">
                         <Textarea
                           placeholder={currentQuestion.placeholder}
-                          value={formData[currentQuestion.key]}
+                          value={currentInputValue}
                           onChange={(e) => handleInputChange(currentQuestion.key, e.target.value)}
                           className={`min-h-[150px] sm:min-h-[200px] text-sm sm:text-lg resize-none border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-200 dark:focus:ring-blue-800/20 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12 sm:pr-16 transition-all duration-300`}
                         />
@@ -1137,43 +1207,6 @@ Format as a simple list, one topic per line.`
                 </Card>
               </motion.div>
 
-              {/* Enhanced Generated Stories */}
-              <AnimatePresence>
-                {isGenerating && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
-                      <CardContent className="flex items-center justify-center py-16">
-                        <div className="text-center space-y-6">
-                          <motion.div
-                            className="relative"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                          >
-                            <div className="w-20 h-20 border-4 border-blue-200 dark:border-blue-800 border-t-blue-500 dark:border-t-blue-400 rounded-full"></div>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Sparkles className="w-8 h-8 text-blue-500 dark:text-blue-400 animate-pulse" />
-                            </div>
-                          </motion.div>
-                          <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-black dark:text-white">Crafting Your Stories</h3>
-                            <p className="text-gray-600 dark:text-gray-400">Our AI is weaving your experiences into compelling narratives...</p>
-                          </div>
-                          <div className="flex justify-center space-x-1">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-              </AnimatePresence>
               
               {generatedStories.length > 0 && (
                 <motion.div

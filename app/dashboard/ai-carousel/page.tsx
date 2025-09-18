@@ -1602,12 +1602,12 @@ What do you think? Share your thoughts in the comments below.
 
     return (
       <div
-        className="w-full h-full flex flex-col justify-start items-center p-4 sm:p-6 md:p-8 relative"
+        className="w-full h-full flex flex-col justify-start items-center p-2 sm:p-4 md:p-6 lg:p-8 relative"
         style={{
           fontFamily: design.fontFamily,
           color: design.textColor,
-          paddingTop: "60px",
-          paddingBottom: "80px",
+          paddingTop: "40px",
+          paddingBottom: "60px",
           textShadow: design.backgroundType === "image" && overlayOpacity > 0 ? "0 2px 4px rgba(0,0,0,0.8)" : "none",
           transform: `translateY(${slide.position.y}px)`,
           transition: isDragging ? 'none' : 'transform 0.1s ease-out'
@@ -1615,17 +1615,17 @@ What do you think? Share your thoughts in the comments below.
         data-font-family={design.fontFamily}
         onMouseMove={handleDragMove}
       >
-        <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col justify-start pt-8">
+        <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col justify-start pt-2 sm:pt-4 md:pt-6 lg:pt-8">
         {slide.type === "first" && (
-          <div className="w-full space-y-4 text-left">
+          <div className="w-full space-y-2 sm:space-y-4 text-left">
             {content.top_line && (
               <div
-                className={`text-sm opacity-80 mb-2 self-center text-left w-full relative group ${
+                className={`text-xs sm:text-sm opacity-80 mb-1 sm:mb-2 self-center text-left w-full relative group ${
                   draggedContentKey === 'top_line' 
                     ? 'opacity-50 scale-95' 
                     : dragOverContentKey === 'top_line' 
                     ? 'border-t-2 border-white/50 pt-2' 
-                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                    : 'hover:bg-white/5 rounded-lg p-1 sm:p-2 -m-1 sm:-m-2'
                 } transition-all duration-200`}
                 style={{ 
                   fontSize: "clamp(18px, 4vw, 25px)",
@@ -1681,7 +1681,7 @@ What do you think? Share your thoughts in the comments below.
                     : 'hover:bg-white/5 rounded-lg p-2 -m-2'
                 } transition-all duration-200`}
                 style={{ 
-                  fontSize: "clamp(28px, 6vw, 40px)",
+                  fontSize: "clamp(20px, 5vw, 32px)",
                   fontFamily: design.fontFamily,
                 }}
               >
@@ -1727,14 +1727,14 @@ What do you think? Share your thoughts in the comments below.
             )}
             {content.bullet && (
               <div 
-                className={`text-lg self-center text-left w-full break-words relative group ${
+                className={`text-sm sm:text-base self-center text-left w-full break-words relative group ${
                   draggedContentKey === 'bullet' 
                     ? 'opacity-50 scale-95' 
                     : dragOverContentKey === 'bullet' 
                     ? 'border-t-2 border-white/50 pt-2' 
-                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                    : 'hover:bg-white/5 rounded-lg p-1 sm:p-2 -m-1 sm:-m-2'
                 } transition-all duration-200`} 
-                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}
+                style={{ fontSize: "clamp(14px, 3.5vw, 18px)", fontFamily: design.fontFamily }}
               >
                 <div className="flex items-start gap-2">
                   <button
@@ -1778,17 +1778,17 @@ What do you think? Share your thoughts in the comments below.
         )}
 
         {slide.type === "middle" && (
-          <div className="w-full space-y-4 text-left">
+          <div className="w-full space-y-2 sm:space-y-4 text-left">
             {content.heading && (
               <h2
-                className={`font-bold mb-6 leading-tight self-center text-left w-full break-words relative group ${
+                className={`font-bold mb-3 sm:mb-6 leading-tight self-center text-left w-full break-words relative group ${
                   draggedContentKey === 'heading' 
                     ? 'opacity-50 scale-95' 
                     : dragOverContentKey === 'heading' 
                     ? 'border-t-2 border-white/50 pt-2' 
-                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                    : 'hover:bg-white/5 rounded-lg p-1 sm:p-2 -m-1 sm:-m-2'
                 } transition-all duration-200`}
-                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
+                style={{ fontSize: `clamp(18px, 4.5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
               >
                 <div className="flex items-start gap-2">
                   <button
@@ -1841,7 +1841,7 @@ What do you think? Share your thoughts in the comments below.
                           ? 'border-t-2 border-white/50 pt-2' 
                           : 'hover:bg-white/5 rounded-lg p-2 -m-2'
                       } transition-all duration-200`}
-                      style={{ fontSize: "clamp(16px, 3.5vw, 21px)", fontFamily: design.fontFamily }}
+                      style={{ fontSize: "clamp(12px, 3vw, 16px)", fontFamily: design.fontFamily }}
                     >
                       <button
                         className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-white/20 rounded cursor-grab active:cursor-grabbing"
@@ -1896,17 +1896,17 @@ What do you think? Share your thoughts in the comments below.
         )}
 
         {slide.type === "last" && (
-          <div className="w-full space-y-4 text-left">
+          <div className="w-full space-y-2 sm:space-y-4 text-left">
             {content.tagline && (
               <div
-                className={`text-sm opacity-80 mb-2 self-center text-left w-full break-words relative group ${
+                className={`text-xs sm:text-sm opacity-80 mb-1 sm:mb-2 self-center text-left w-full break-words relative group ${
                   draggedContentKey === 'tagline' 
                     ? 'opacity-50 scale-95' 
                     : dragOverContentKey === 'tagline' 
                     ? 'border-t-2 border-white/50 pt-2' 
-                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                    : 'hover:bg-white/5 rounded-lg p-1 sm:p-2 -m-1 sm:-m-2'
                 } transition-all duration-200`}
-                style={{ fontSize: "clamp(16px, 3vw, 19px)", fontFamily: design.fontFamily }}
+                style={{ fontSize: "clamp(12px, 2.5vw, 16px)", fontFamily: design.fontFamily }}
               >
                 <div className="flex items-start gap-2">
                   <button
@@ -1953,7 +1953,7 @@ What do you think? Share your thoughts in the comments below.
                     ? 'border-t-2 border-white/50 pt-2' 
                     : 'hover:bg-white/5 rounded-lg p-2 -m-2'
                 } transition-all duration-200`}
-                style={{ fontSize: `clamp(20px, 5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
+                style={{ fontSize: `clamp(18px, 4.5vw, ${design.fontSize + 5}px)`, fontFamily: design.fontFamily }}
               >
                 <div className="flex items-start gap-2">
                   <button
@@ -1995,14 +1995,14 @@ What do you think? Share your thoughts in the comments below.
             )}
             {content.last_bullet && (
               <div 
-                className={`text-lg self-center text-left w-full break-words relative group ${
+                className={`text-sm sm:text-base self-center text-left w-full break-words relative group ${
                   draggedContentKey === 'last_bullet' 
                     ? 'opacity-50 scale-95' 
                     : dragOverContentKey === 'last_bullet' 
                     ? 'border-t-2 border-white/50 pt-2' 
-                    : 'hover:bg-white/5 rounded-lg p-2 -m-2'
+                    : 'hover:bg-white/5 rounded-lg p-1 sm:p-2 -m-1 sm:-m-2'
                 } transition-all duration-200`} 
-                style={{ fontSize: "clamp(18px, 4vw, 23px)", fontFamily: design.fontFamily }}
+                style={{ fontSize: "clamp(14px, 3.5vw, 18px)", fontFamily: design.fontFamily }}
               >
                 <div className="flex items-start gap-2">
                   <button
@@ -2077,9 +2077,9 @@ What do you think? Share your thoughts in the comments below.
 
         {/* Branding Section - Display at bottom of each slide */}
         {currentProject?.branding && currentProject.branding !== "none" && (
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="absolute bottom-16 sm:bottom-20 left-1/2 transform -translate-x-1/2 z-20">
             <div 
-              className="text-sm opacity-90 text-center px-4 py-2 whitespace-nowrap"
+              className="text-xs sm:text-sm opacity-90 text-center px-2 sm:px-4 py-1 sm:py-2 whitespace-nowrap"
               style={{ 
                 fontFamily: design.fontFamily,
                 color: design.textColor || "#FFFFFF"
@@ -2294,9 +2294,9 @@ What do you think? Share your thoughts in the comments below.
           </Card>
         </div>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="flex flex-col xl:grid xl:grid-cols-3 gap-6">
           {/* Slide Preview */}
-          <div className="xl:col-span-2">
+          <div className="xl:col-span-2 order-1">
             <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50">
               <CardHeader>
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -2464,7 +2464,7 @@ What do you think? Share your thoughts in the comments below.
           </div>
 
           {/* Editing Panel */}
-          <div className="space-y-4 order-first xl:order-last">
+          <div className="space-y-6 order-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -2472,16 +2472,16 @@ What do you think? Share your thoughts in the comments below.
                   Design & Layout
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 space-y-4">
                         <Tabs defaultValue="background" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-            <TabsTrigger value="background" className="text-xs sm:text-sm">Background</TabsTrigger>
-            <TabsTrigger value="layout" className="text-xs sm:text-sm">Layout</TabsTrigger>
-            <TabsTrigger value="fonts" className="text-xs sm:text-sm">Fonts</TabsTrigger>
-            <TabsTrigger value="elements" className="text-xs sm:text-sm">Elements</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 p-2 h-auto">
+            <TabsTrigger value="background" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Background</TabsTrigger>
+            <TabsTrigger value="layout" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Layout</TabsTrigger>
+            <TabsTrigger value="fonts" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Fonts</TabsTrigger>
+            <TabsTrigger value="elements" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Elements</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="fonts" className="mt-4 space-y-3">
+          <TabsContent value="fonts" className="mt-8 space-y-6">
             {designTemplates.map((template) => (
                       <div
                         key={template.id}
@@ -2516,7 +2516,7 @@ What do you think? Share your thoughts in the comments below.
                     ))}
                   </TabsContent>
 
-                  <TabsContent value="background" className="mt-4 space-y-3">
+                  <TabsContent value="background" className="mt-8 space-y-6">
                     <div className="space-y-2">
                       <Label>Background Color</Label>
                       <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
@@ -2661,7 +2661,7 @@ What do you think? Share your thoughts in the comments below.
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="layout" className="mt-4 space-y-3">
+                  <TabsContent value="layout" className="mt-8 space-y-6">
                     <div className="space-y-2">
                       <Label>Aspect Ratio</Label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -2771,7 +2771,7 @@ What do you think? Share your thoughts in the comments below.
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="elements" className="mt-4 space-y-3">
+                  <TabsContent value="elements" className="mt-8 space-y-6">
                       <div className="space-y-2">
                         <Label>Interactive Elements</Label>
                         <p className="text-xs text-muted-foreground">Add interactive elements to guide users through your carousel</p>

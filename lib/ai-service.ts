@@ -304,7 +304,9 @@ class AIService {
     if (userEmail) {
       try {
         const storyData = await PersonalStoryService.getUserStoryData(userEmail)
-        if (storyData) {
+        const isStoryComplete = await PersonalStoryService.hasUserCompletedStory(userEmail)
+        
+        if (storyData && isStoryComplete) {
           personalStoryContext = PersonalStoryService.buildStoryContext(storyData)
         } else {
           personalStoryContext = PersonalStoryService.buildFallbackContext()
