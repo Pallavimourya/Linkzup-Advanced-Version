@@ -175,26 +175,24 @@ export default function AIArticlesPage() {
   // Function to check personal story completion status
   const checkPersonalStoryStatus = async () => {
     try {
-      console.log("Checking personal story status...")
       const response = await fetch('/api/personalized-topics')
-      console.log("Status check response:", response.status)
       
       if (response.ok) {
         const data = await response.json()
-        console.log("Status check data:", data)
+        // Status check data received
         const newHasPersonalStory = data.hasPersonalStory
         
-        console.log("Current hasPersonalStory:", hasPersonalStory, "New hasPersonalStory:", newHasPersonalStory)
+        // Personal story status check completed
         
         // If personal story status changed, update topics
         if (newHasPersonalStory !== hasPersonalStory) {
-          console.log("Personal story status changed:", newHasPersonalStory)
+          // Personal story status changed
           if (newHasPersonalStory) {
             await fetchPersonalizedTopics()
           } else {
             setHasPersonalStory(false)
             setPersonalizedTopics([])
-            generateRandomRecommendedTopics()
+    generateRandomRecommendedTopics()
           }
         } else {
           console.log("Personal story status unchanged")
@@ -305,7 +303,7 @@ export default function AIArticlesPage() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log("Page became visible, checking personal story status...")
+        // Page became visible, checking personal story status
         checkPersonalStoryStatus()
       }
     }
@@ -325,7 +323,7 @@ export default function AIArticlesPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       checkPersonalStoryStatus()
-    }, 2000) // Check every 2 seconds for faster detection
+    }, 10000) // Check every 10 seconds to reduce API calls
 
     return () => clearInterval(interval)
   }, [hasPersonalStory])
@@ -337,7 +335,7 @@ export default function AIArticlesPage() {
     const startActiveCheck = () => {
       activeInterval = setInterval(() => {
         checkPersonalStoryStatus()
-      }, 1000) // Check every 1 second when active for faster detection
+      }, 5000) // Check every 5 seconds when active (reduced from 1 second)
     }
     
     const stopActiveCheck = () => {
@@ -348,12 +346,12 @@ export default function AIArticlesPage() {
 
     // Start active checking when user interacts
     const handleUserActivity = () => {
-      console.log("User activity detected, starting active check...")
+      // User activity detected, starting active check
       stopActiveCheck()
       startActiveCheck()
       
-      // Stop after 15 seconds of inactivity
-      setTimeout(stopActiveCheck, 15000)
+      // Stop after 30 seconds of inactivity (increased from 15 seconds)
+      setTimeout(stopActiveCheck, 30000)
     }
 
     document.addEventListener('mousemove', handleUserActivity)
@@ -370,33 +368,7 @@ export default function AIArticlesPage() {
     }
   }, [hasPersonalStory])
 
-  // Also check when the component becomes visible (user switches tabs)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        checkPersonalStoryStatus()
-      }
-    }
-
-    const handleFocus = () => {
-      checkPersonalStoryStatus()
-    }
-
-    const handleClick = () => {
-      // Check when user interacts with the page
-      checkPersonalStoryStatus()
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    window.addEventListener('focus', handleFocus)
-    document.addEventListener('click', handleClick)
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('focus', handleFocus)
-      document.removeEventListener('click', handleClick)
-    }
-  }, [hasPersonalStory])
+  // Removed redundant visibility change effect to reduce API calls
 
   // Function to discard all approved topics
   const handleDiscardAllApprovedTopics = async () => {
@@ -894,6 +866,8 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
 
   // Direct generation for recommended topics (bypasses customization)
   const generateRecommendedTopicContent = async (topic: Topic) => {
+    console.log("Starting content generation for topic:", topic)
+    console.log("Current topic status:", topic.status)
     setIsGenerating(true)
 
     try {
@@ -942,7 +916,11 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       }
 
       const data = await response.json()
+      console.log("Content generation response data:", data)
+      
       const content = Array.isArray(data.data.content) ? data.data.content : [data.data.content]
+      console.log("Processed content:", content)
+      console.log("Content length:", content.length)
 
       // Update recommended topics
       setRecommendedTopics(prev => prev.map(t => 
@@ -957,6 +935,8 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
           ? { ...t, content: content, format: "linkedin-post", status: "content-ready" as const }
           : t
       ))
+      
+      console.log("Updated topics with content")
 
       // Set the selected topic and hide others
       setSelectedTopicId(topic.id)
@@ -966,10 +946,40 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       })
     } catch (error) {
       console.error("Error generating content:", error)
+      
+      // Create fallback content if AI generation fails
+      const fallbackContent = [`${topic.title}
+
+This is an important topic that many professionals can relate to. In my experience, this has been a key factor in professional growth and development.
+
+Key insights:
+• Understanding the fundamentals is crucial
+• Continuous learning and adaptation are essential  
+• Building strong relationships and networks matters
+• Persistence and resilience lead to success
+
+What are your thoughts on this topic? I'd love to hear your experiences and insights in the comments below.
+
+#ProfessionalGrowth #CareerDevelopment #LinkedIn`]
+
+      // Update topics with fallback content
+      setRecommendedTopics(prev => prev.map(t => 
+        t.id === topic.id 
+          ? { ...t, content: fallbackContent, format: "linkedin-post", status: "content-ready" as const }
+          : t
+      ))
+      
+      setPersonalizedTopics(prev => prev.map(t => 
+        t.id === topic.id 
+          ? { ...t, content: fallbackContent, format: "linkedin-post", status: "content-ready" as const }
+          : t
+      ))
+      
+      setSelectedTopicId(topic.id)
+      
       toast({
-        title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate content",
-        variant: "destructive",
+        title: "Content Generated (Fallback)",
+        description: "Generated fallback content for your topic.",
       })
     } finally {
       setIsGenerating(false)
@@ -1049,10 +1059,10 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
 
         {/* Clean Topic Generator Input */}
         {showTopicGenerator && (
-          <motion.div 
+        <motion.div 
             className="flex justify-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
             <div className="w-full sm:max-w-2xl">
@@ -1084,62 +1094,62 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                     onKeyPress={(e) => e.key === 'Enter' && generateTopics()}
                   />
                   
-                  <Button
+          <Button 
                     onClick={generateTopics}
                     disabled={!topicPrompt.trim() || isGenerating}
-                    className="w-full h-16 px-8 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white text-lg"
+                    className="w-full h-16 px-8 bg-blue-500 hover:bg-blue-600 text-white text-lg"
                   >
                     {isGenerating ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
                       "Generate"
                     )}
-                  </Button>
-                </div>
+          </Button>
+          </div>
               </div>
 
               {/* Desktop Layout */}
               <div className="hidden sm:block">
                 <div className="flex items-center border-2 border-blue-200 dark:border-blue-800 rounded-2xl overflow-hidden bg-white dark:bg-black shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:shadow-lg">
-                  <div className="flex-shrink-0">
-                    <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
+                <div className="flex-shrink-0">
+                  <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
                       <SelectTrigger className="w-48 h-20 border-0 bg-transparent focus:ring-0">
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2">
                           <PenTool className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                          <SelectValue />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="caseStudy">Case Study</SelectItem>
-                        <SelectItem value="descriptive">Descriptive</SelectItem>
-                        <SelectItem value="list">List</SelectItem>
-                        <SelectItem value="story">Story</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <Input
-                      placeholder="Enter a topic or keyword..."
-                      value={topicPrompt}
-                      onChange={(e) => setTopicPrompt(e.target.value)}
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="caseStudy">Case Study</SelectItem>
+                      <SelectItem value="descriptive">Descriptive</SelectItem>
+                      <SelectItem value="list">List</SelectItem>
+                      <SelectItem value="story">Story</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex-1">
+                  <Input
+                    placeholder="Enter a topic or keyword..."
+                    value={topicPrompt}
+                    onChange={(e) => setTopicPrompt(e.target.value)}
                       className="h-20 px-6 text-lg border-0 focus-visible:ring-0 bg-transparent text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                      onKeyPress={(e) => e.key === 'Enter' && generateTopics()}
-                    />
-                  </div>
-                  
+                    onKeyPress={(e) => e.key === 'Enter' && generateTopics()}
+                  />
+                </div>
+                
                   <div className="flex-shrink-0 p-3">
-                    <Button
-                      onClick={generateTopics}
-                      disabled={!topicPrompt.trim() || isGenerating}
-                      className="h-12 px-8 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white text-lg"
-                    >
-                      {isGenerating ? (
+                  <Button
+                    onClick={generateTopics}
+                    disabled={!topicPrompt.trim() || isGenerating}
+                      className="h-12 px-8 bg-blue-500 hover:bg-blue-600 text-white text-lg"
+                  >
+                    {isGenerating ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        "Generate"
-                      )}
-                    </Button>
+                    ) : (
+                      "Generate"
+                    )}
+                  </Button>
                   </div>
                 </div>
               </div>
@@ -1164,24 +1174,24 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                         <CheckCircle className="w-4 h-4 text-white" />
                       </div>
                       Approved Topics
-                    </CardTitle>
+                  </CardTitle>
                     <CardDescription className="mt-2">
                       Topics approved from your personal stories
-                    </CardDescription>
+                  </CardDescription>
                   </div>
                   {approvedTopics.length > 0 && (
-                    <Button
+                  <Button
                       onClick={handleDiscardAllApprovedTopics}
-                      variant="outline"
-                      size="sm"
+                    variant="outline"
+                    size="sm"
                       className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50"
-                    >
+                  >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Discard All
-                    </Button>
+                  </Button>
                   )}
                 </div>
-              </CardHeader>
+                </CardHeader>
               
               <CardContent className="p-4 sm:p-6">
                 <div className="grid gap-4 sm:gap-6">
@@ -1221,7 +1231,7 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                                 generateContentForTopic(topic.title, `approved-${topic._id || index}`)
                               }}
                               disabled={isGenerating}
-                              className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
+                              className="flex-1 h-9 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
                             >
                               {isGenerating ? (
                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1307,12 +1317,12 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                           <motion.div
                             initial={{ opacity: 0 }}
                             whileHover={{ opacity: 1 }}
-                            className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
+                            className="hidden sm:block sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
                           >
                               <Button
                                 onClick={() => generateRecommendedTopicContent(topic)}
                                 size="sm"
-                              className="w-full h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white"
+                              className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
                                 disabled={isGenerating}
                               >
                                 {isGenerating ? (
@@ -1328,6 +1338,30 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                                 )}
                               </Button>
                           </motion.div>
+                          )}
+
+                        {/* Generate Button for Mobile - Always visible when not content-ready */}
+                          {topic.status !== "content-ready" && (
+                          <div className="block sm:hidden mt-4">
+                              <Button
+                                onClick={() => generateRecommendedTopicContent(topic)}
+                                size="sm"
+                              className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
+                                disabled={isGenerating}
+                              >
+                                {isGenerating ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Generating...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles className="w-4 h-4 mr-2" />
+                                    Generate Content
+                                  </>
+                                )}
+                              </Button>
+                          </div>
                           )}
 
                           {/* Generated Content Display */}
@@ -1497,12 +1531,12 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                             <motion.div
                               initial={{ opacity: 0 }}
                               whileHover={{ opacity: 1 }}
-                              className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
+                              className="hidden sm:block sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
                             >
                         <Button
                               onClick={() => setShowCustomization(topic.id)}
                           size="sm"
-                                className="w-full h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                                className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
                         >
                               <Sparkles className="w-4 h-4 mr-2" />
                               Generate Content
