@@ -2329,7 +2329,7 @@ What do you think? Share your thoughts in the comments below.
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
 
-                  <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto px-2">
+                  <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto px-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     {currentProject.slides.map((_, index) => (
                       <button
                         key={index}
@@ -2841,7 +2841,7 @@ What do you think? Share your thoughts in the comments below.
 
         {/* LinkedIn Posting Modal */}
         <Dialog open={showLinkedInModal} onOpenChange={setShowLinkedInModal}>
-          <DialogContent className="max-w-2xl mx-4 sm:mx-auto">
+          <DialogContent className="max-w-4xl mx-4 sm:mx-auto max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Linkedin className="w-5 h-5 text-blue-600" />
@@ -2856,26 +2856,28 @@ What do you think? Share your thoughts in the comments below.
               {/* Carousel Preview */}
               <div className="space-y-2">
                 <Label>Carousel Preview</Label>
-                <div className="flex gap-2 overflow-x-auto p-2 bg-muted/50 rounded-lg">
-                  {currentProject?.slides.map((slide, index) => (
-                    <div
-                      key={slide.id}
-                      className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded border overflow-hidden"
-                      style={{
-                        backgroundColor: slide.design.backgroundType === "color" ? slide.design.backgroundColor : "transparent",
-                        backgroundImage:
-                          slide.design.backgroundType === "image" && slide.design.backgroundImage
-                            ? `url(${slide.design.backgroundImage})`
-                            : undefined,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }}
-                    >
-                      <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white bg-black/50">
-                        {index + 1}
+                <div className="w-full">
+                  <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 p-2 bg-muted/50 rounded-lg">
+                    {currentProject?.slides.map((slide, index) => (
+                      <div
+                        key={slide.id}
+                        className="aspect-square w-full rounded border overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                        style={{
+                          backgroundColor: slide.design.backgroundType === "color" ? slide.design.backgroundColor : "transparent",
+                          backgroundImage:
+                            slide.design.backgroundType === "image" && slide.design.backgroundImage
+                              ? `url(${slide.design.backgroundImage})`
+                              : undefined,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      >
+                        <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white bg-black/50">
+                          {index + 1}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {currentProject?.slides.length} slide{currentProject?.slides.length !== 1 ? 's' : ''} will be posted as images
