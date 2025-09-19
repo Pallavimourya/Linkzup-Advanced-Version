@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Calendar } from "@/components/ui/calendar"
@@ -58,6 +59,7 @@ export function SchedulePostModal({
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
   const [isScheduling, setIsScheduling] = useState(false)
+  const [customContent, setCustomContent] = useState("")
 
   const { schedulePost } = useScheduledPosts()
   const { toast } = useToast()
@@ -68,10 +70,12 @@ export function SchedulePostModal({
       const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
       setSelectedDate(new Date())
       setSelectedTime(format(oneHourLater, "HH:mm"))
+      // Don't set default tags for carousel
       setTags([])
       setNewTag("")
+      setCustomContent("")
     }
-  }, [open])
+  }, [open, type, content])
 
   const getScheduledDateTime = (): Date | null => {
     if (!selectedDate || !selectedTime) return null
@@ -108,7 +112,7 @@ export function SchedulePostModal({
     setIsScheduling(true)
     try {
       const result = await schedulePost({
-        content,
+        content: customContent || content,
         images,
         scheduledFor: scheduledDateTime,
         platform,
@@ -150,12 +154,7 @@ export function SchedulePostModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" className="gap-2">
-            <CalendarIcon className="h-4 w-4" />
-            Schedule Post
-          </Button>
-        )}
+        {trigger}
       </DialogTrigger>
 
       {/* 🔥 Wider canvas (more width, same height cap) */}
@@ -207,16 +206,35 @@ export function SchedulePostModal({
                       </div>
                     </div>
                     <div className="mt-3 whitespace-pre-wrap text-sm leading-6">
-                      {content}
+                      {customContent || content || (type === 'carousel' ? '' : 'Your content will appear here...')}
                     </div>
                   </div>
                   {images.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1 p-1">
-                      {images.map((_, i) => (
-                        <div key={i} className="aspect-video bg-muted/50 border flex items-center justify-center">
-                          <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                    <div className={`grid gap-1 p-1 ${type === 'carousel' ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}>
+                      {images.map((image, i) => (
+                        <div key={i} className="aspect-video bg-muted/50 border flex items-center justify-center overflow-hidden">
+                          {image ? (
+                            <img 
+                              src={image} 
+                              alt={`Slide ${i + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                          )}
                         </div>
                       ))}
+                    </div>
+                  )}
+                  {tags.length > 0 && (
+                    <div className="px-4 py-2 border-t">
+                      <div className="flex flex-wrap gap-1">
+                        {tags.map(tag => (
+                          <span key={tag} className="text-blue-600 dark:text-blue-400 text-xs font-medium">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
                   <div className="px-4 py-3 border-t flex items-center gap-4 text-xs text-muted-foreground">
@@ -253,6 +271,23 @@ export function SchedulePostModal({
                     </div>
                   </div>
                 </div>
+
+                {/* Custom Content for Carousel */}
+                {type === 'carousel' && (
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Post Content (Optional)</Label>
+                    <Textarea
+                      placeholder="Add your custom text for the carousel post..."
+                      value={customContent}
+                      onChange={(e) => setCustomContent(e.target.value)}
+                      rows={4}
+                      className="resize-none"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Leave empty to post only images without any text.
+                    </p>
+                  </div>
+                )}
 
                 {/* Date & Time */}
                 <div className="space-y-3">
@@ -353,3 +388,4 @@ export function SchedulePostModal({
     </Dialog>
   )
 }
+

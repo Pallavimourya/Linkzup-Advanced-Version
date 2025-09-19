@@ -569,6 +569,35 @@ export default function ScheduledPostsPage() {
                         <CardContent className="p-6">
                           <p className="text-sm leading-relaxed mb-4 line-clamp-3 text-gray-700">{post.content}</p>
 
+                          {/* Display images if they exist */}
+                          {post.images && post.images.length > 0 && (
+                            <div className="mb-4">
+                              <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                                {post.images.slice(0, 6).map((image, index) => (
+                                  <div key={index} className="relative aspect-square bg-gray-100 rounded-md overflow-hidden">
+                                    <img 
+                                      src={image} 
+                                      alt={`Slide ${index + 1}`}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement
+                                        target.style.display = 'none'
+                                      }}
+                                    />
+                                  </div>
+                                ))}
+                                {post.images.length > 6 && (
+                                  <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center">
+                                    <span className="text-xs text-gray-500">+{post.images.length - 6}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-2">
+                                {post.images.length} slide{post.images.length > 1 ? 's' : ''} • {post.type === 'carousel' ? 'Carousel' : 'Images'}
+                              </p>
+                            </div>
+                          )}
+
                           {post.tags && post.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
                               {post.tags.map((tag) => (
@@ -676,6 +705,14 @@ export default function ScheduledPostsPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-gray-700 truncate">{post.content}</p>
+                              {post.images && post.images.length > 0 && (
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Monitor className="h-3 w-3 text-gray-400" />
+                                  <span className="text-xs text-gray-500">
+                                    {post.images.length} slide{post.images.length > 1 ? 's' : ''}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                             <div className="flex gap-2">
                               <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">

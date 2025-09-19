@@ -39,6 +39,7 @@ import { useSession } from "next-auth/react"
 import { toast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import { ScheduleButton } from "@/components/schedule-button"
+import { CarouselScheduleButton } from "@/components/carousel-schedule-button"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
 import domtoimage from 'dom-to-image'
@@ -1595,6 +1596,58 @@ What do you think? Share your thoughts in the comments below.
     )
   }
 
+  // Function to capture carousel slide images for scheduling
+  const captureCarouselImagesForScheduling = async (project: CarouselProject | null): Promise<string[]> => {
+    if (!project || !project.slides || project.slides.length === 0) {
+      console.log("No project or slides to capture")
+      return []
+    }
+
+    const images: string[] = []
+    
+    try {
+      console.log(`Starting to capture ${project.slides.length} slides for scheduling`)
+      
+      // Convert all slides to images
+      for (let i = 0; i < project.slides.length; i++) {
+        console.log(`Capturing slide ${i + 1}/${project.slides.length}`)
+        setCurrentSlideIndex(i)
+        await new Promise((resolve) => setTimeout(resolve, 500)) // Give more time for render
+
+        if (slideCanvasRef.current) {
+          console.log(`Slide ${i + 1} canvas ref found, capturing...`)
+          const imageDataUrl = await captureSlideAsImage(slideCanvasRef.current)
+          images.push(imageDataUrl)
+          console.log(`Slide ${i + 1} captured successfully`)
+        } else {
+          console.warn(`Slide ${i + 1} canvas ref not found`)
+        }
+      }
+      
+      console.log(`Successfully captured ${images.length} images for scheduling`)
+    } catch (error) {
+      console.error("Error capturing carousel images for scheduling:", error)
+    }
+
+    return images
+  }
+
+  // Function to format carousel content for scheduling with proper slide separators
+  const formatCarouselContentForScheduling = (project: CarouselProject | null, caption: string) => {
+    if (!project || !project.slides || project.slides.length === 0) {
+      return caption || ""
+    }
+
+    // If user has provided a custom caption, use it
+    if (caption && caption.trim()) {
+      return caption
+    }
+
+    // For carousel posts without custom caption, return empty string
+    // The SchedulePostModal will handle showing default content in preview
+    return ""
+  }
+
   const renderSlideContent = (slide: CarouselSlide) => {
     const { content, design } = slide
     
@@ -2444,18 +2497,19 @@ What do you think? Share your thoughts in the comments below.
                       )}
                     </Button>
                     
-                    <ScheduleButton
-                      content={linkedInCaption || `Check out my latest carousel about ${currentProject?.topic || "this topic"}! 
-
-What do you think? Share your thoughts in the comments below.
-
-#LinkedIn #Content #${currentProject?.topic?.replace(/\s+/g, "") || "Learning"}`}
-                      defaultPlatform="linkedin"
-                      defaultType="carousel"
+                    <CarouselScheduleButton
+                      content={formatCarouselContentForScheduling(currentProject, linkedInCaption)}
+                      onCaptureImages={() => captureCarouselImagesForScheduling(currentProject)}
                       variant="outline"
                       size="sm"
                       className="flex-shrink-0"
                       disabled={!currentProject}
+                      onSuccess={() => {
+                        toast({
+                          title: "Carousel Scheduled!",
+                          description: "Your carousel has been scheduled for posting with slide images.",
+                        })
+                      }}
                     />
                   </div>
                 </div>
