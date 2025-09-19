@@ -1024,5 +1024,6 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
   }
 }
 
-// Export singleton instance
+// Export class and singleton instance
+export { AIService }
 export const aiService = new AIService()

@@ -305,3 +305,35 @@ export async function sendInvoiceEmail(data: InvoiceEmailData) {
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
+
+// Generic email sending function for system alerts and notifications
+export interface EmailData {
+  to: string
+  subject: string
+  html: string
+  text?: string
+}
+
+export async function sendEmail(data: EmailData) {
+  try {
+    const fromEmail = process.env.LINKZUP_EMAIL || process.env.GMAIL_USER
+    const fromName = "LinkzUp"
+    
+    const mailOptions = {
+      from: `"${fromName}" <${fromEmail}>`,
+      replyTo: `"LinkzUp Support" <${process.env.GMAIL_USER}>`,
+      to: data.to,
+      subject: data.subject,
+      html: data.html,
+      text: data.text
+    }
+
+    // Send email
+    await transporter.sendMail(mailOptions)
+    console.log(`Email sent successfully to ${data.to}`)
+    return { success: true }
+  } catch (error) {
+    console.error('Error sending email:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
