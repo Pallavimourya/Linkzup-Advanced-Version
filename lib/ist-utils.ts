@@ -50,6 +50,7 @@ export function formatIstDate(date: Date | string, format: string = 'PPp'): stri
 export function formatIstTime(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return dateObj.toLocaleTimeString('en-IN', {
+    timeZone: 'Asia/Kolkata',
     hour: 'numeric',
     minute: '2-digit',
     hour12: true
@@ -62,6 +63,7 @@ export function formatIstTime(date: Date | string): string {
 export function formatIstDateShort(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return dateObj.toLocaleDateString('en-IN', {
+    timeZone: 'Asia/Kolkata',
     year: 'numeric',
     month: 'short',
     day: 'numeric'

@@ -91,8 +91,12 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
 
   const handleSchedule = () => {
     if (scheduledDate && scheduledTime) {
-      const dateTime = `${scheduledDate}T${scheduledTime}`
-      onSchedule(dateTime)
+      // Create date in local timezone (IST)
+      const localDateTime = new Date(`${scheduledDate}T${scheduledTime}`)
+      
+      // The date is already in the correct timezone context
+      // We just need to ensure it's properly formatted for the API
+      onSchedule(localDateTime.toISOString())
     }
   }
 

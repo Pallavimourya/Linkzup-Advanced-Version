@@ -43,8 +43,11 @@ export async function POST(request: NextRequest) {
     const scheduledDate = new Date(scheduledFor)
     const now = new Date()
     
-    if (scheduledDate <= now) {
-      return NextResponse.json({ error: "Scheduled date must be in the future" }, { status: 400 })
+    // Add a small buffer (2 minutes) to account for timezone conversion and processing time
+    const bufferTime = new Date(now.getTime() + (2 * 60 * 1000)) // 2 minutes buffer
+    
+    if (scheduledDate <= bufferTime) {
+      return NextResponse.json({ error: "Scheduled date must be at least 2 minutes in the future" }, { status: 400 })
     }
 
     const postData: SchedulePostRequest = {
