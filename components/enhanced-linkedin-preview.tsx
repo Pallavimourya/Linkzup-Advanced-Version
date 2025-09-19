@@ -278,6 +278,11 @@ export function EnhancedLinkedInPreview({
     setShowScheduleModal(true)
   }
 
+  const handleScheduleSuccess = () => {
+    setShowScheduleModal(false)
+    onClose()
+  }
+
   return (
     <>
       <div 
@@ -820,16 +825,13 @@ export function EnhancedLinkedInPreview({
       </div>
 
       {/* Schedule Post Modal */}
-      {showScheduleModal && (
-        <SchedulePostModal
-          content={content}
-          images={selectedImage ? [selectedImage] : []}
-          onSuccess={() => {
-            setShowScheduleModal(false)
-            onClose()
-          }}
-        />
-      )}
+      <SchedulePostModal
+        content={editableContent}
+        images={selectedImage ? [selectedImage] : []}
+        onSuccess={handleScheduleSuccess}
+        open={showScheduleModal}
+        onOpenChange={setShowScheduleModal}
+      />
     </>
   )
 }

@@ -30,6 +30,8 @@ interface SchedulePostModalProps {
   onSuccess?: () => void
   defaultPlatform?: "linkedin" | "twitter" | "facebook"
   defaultType?: "text" | "carousel" | "image" | "article"
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export function SchedulePostModal({
@@ -39,8 +41,12 @@ export function SchedulePostModal({
   onSuccess,
   defaultPlatform = "linkedin",
   defaultType = "text",
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange,
 }: SchedulePostModalProps) {
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = externalOpen !== undefined ? externalOpen : internalOpen
+  const setOpen = externalOnOpenChange || setInternalOpen
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [selectedTime, setSelectedTime] = useState<string>(() => {
     const now = new Date()
@@ -112,7 +118,15 @@ export function SchedulePostModal({
       if (result.success) {
         toast({
           title: "Post Scheduled!",
-          description: `Will publish on ${formatIstDate(scheduledDateTime)}`,
+          description: `Will publish on ${scheduledDateTime.toLocaleString('en-IN', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })}`,
         })
         setOpen(false)
         onSuccess?.()
@@ -170,7 +184,15 @@ export function SchedulePostModal({
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="rounded-full">Preview</Badge>
                   {selectedDate && selectedTime ? (
-                    <span className="text-xs text-muted-foreground">{formatIstDate(new Date(new Date(selectedDate).setHours(Number(selectedTime.split(":")[0]), Number(selectedTime.split(":")[1]), 0, 0)))}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(new Date(selectedDate).setHours(Number(selectedTime.split(":")[0]), Number(selectedTime.split(":")[1]), 0, 0)).toLocaleString('en-IN', {
+                      timeZone: 'Asia/Kolkata',
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</span>
                   ) : null}
                 </div>
 

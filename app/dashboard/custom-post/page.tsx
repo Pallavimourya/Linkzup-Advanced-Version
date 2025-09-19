@@ -154,7 +154,15 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
               <Clock className="h-4 w-4" />
               <span className="text-sm font-medium">
                 {scheduledDate && scheduledTime 
-                  ? `Will be posted on ${formatIstDate(new Date(`${scheduledDate}T${scheduledTime}`))}`
+                  ? `Will be posted on ${new Date(`${scheduledDate}T${scheduledTime}`).toLocaleString('en-IN', {
+                      timeZone: 'Asia/Kolkata',
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })}`
                   : "Select date and time"
                 }
               </span>
@@ -347,7 +355,15 @@ export default function CustomPostPage() {
       if (result.success) {
         toast({ 
           title: "Post Scheduled!", 
-          description: `Your post has been scheduled for ${formatIstDate(new Date(scheduledDateTime))}` 
+          description: `Your post has been scheduled for ${new Date(scheduledDateTime).toLocaleString('en-IN', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })}` 
         })
         // Reset form
         setPostData({ 

@@ -1387,8 +1387,7 @@ Format as a simple list, one topic per line.`
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ duration: 0.5, delay: index * 0.1 }}
-                              className="group cursor-pointer"
-                              onClick={() => handleSelectStory(story)}
+                              className="group"
                             >
                               <Card className="bg-white dark:bg-black border-2 border-blue-200 dark:border-blue-800 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
                                 <CardContent className="p-4 sm:p-6">
@@ -1406,24 +1405,38 @@ Format as a simple list, one topic per line.`
                                         </Badge>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors self-start">
+                                    <button 
+                                      className="flex items-center gap-2 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors self-start cursor-pointer"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleSelectStory(story)
+                                      }}
+                                    >
                                       <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                                       <span className="text-xs sm:text-sm font-medium">Preview</span>
-                                    </div>
+                                    </button>
                                   </div>
                                   
-                                  <h3 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
-                                    {story.title}
-                                  </h3>
-                                  
-                                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-4 mb-4">
-                                    {story.content && story.content.length > 0 
-                                      ? story.content 
-                                      : "Story content is being generated..."}
-                                  </p>
+                                  <div 
+                                    className="cursor-pointer"
+                                    onClick={() => handleSelectStory(story)}
+                                  >
+                                    <h3 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
+                                      {story.title}
+                                    </h3>
+                                    
+                                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-4 mb-4">
+                                      {story.content && story.content.length > 0 
+                                        ? story.content 
+                                        : "Story content is being generated..."}
+                                    </p>
+                                  </div>
                                   
                                   {story.content && story.content.length > 0 && (
-                                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-blue-200/50 dark:border-blue-800/50">
+                                    <div 
+                                      className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-blue-200/50 dark:border-blue-800/50"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
                                       <LinkedInPostButton 
                                         content={story.content}
                                         className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"

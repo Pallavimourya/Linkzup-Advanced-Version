@@ -409,9 +409,9 @@ async function registerExternalCronJob(data: CronJobData) {
       return { success: true, cronJobId: null }
     }
 
-    // Convert IST to UTC for cron job scheduling
-    const istScheduledTime = new Date(data.scheduledFor)
-    const utcScheduledTime = new Date(istScheduledTime.getTime() - (5.5 * 60 * 60 * 1000)) // IST is UTC+5:30
+    // The scheduledFor date is already in the correct timezone (IST)
+    // We need to use it as-is for the cron job scheduling
+    const scheduledTime = new Date(data.scheduledFor)
 
     const response = await fetch("https://api.cron-job.org/jobs", {
       method: "POST",
@@ -426,11 +426,11 @@ async function registerExternalCronJob(data: CronJobData) {
           saveResponses: true,
           schedule: {
             timezone: "Asia/Kolkata", // IST timezone
-            expiresAt: Math.floor(utcScheduledTime.getTime() / 1000) + 300, // 5 minutes after scheduled time
-            hours: [utcScheduledTime.getUTCHours()],
-            mdays: [utcScheduledTime.getUTCDate()],
-            minutes: [utcScheduledTime.getUTCMinutes()],
-            months: [utcScheduledTime.getUTCMonth() + 1],
+            expiresAt: Math.floor(scheduledTime.getTime() / 1000) + 300, // 5 minutes after scheduled time
+            hours: [scheduledTime.getHours()],
+            mdays: [scheduledTime.getDate()],
+            minutes: [scheduledTime.getMinutes()],
+            months: [scheduledTime.getMonth() + 1],
             wdays: [-1], // Any day of week
           },
           requestMethod: 1, // POST
@@ -465,9 +465,9 @@ async function updateExternalCronJob(cronJobId: string, newScheduledFor: Date) {
       return { success: true }
     }
 
-    // Convert IST to UTC for cron job scheduling
-    const istScheduledTime = new Date(newScheduledFor)
-    const utcScheduledTime = new Date(istScheduledTime.getTime() - (5.5 * 60 * 60 * 1000)) // IST is UTC+5:30
+    // The newScheduledFor date is already in the correct timezone (IST)
+    // We need to use it as-is for the cron job scheduling
+    const scheduledTime = new Date(newScheduledFor)
 
     const response = await fetch(`https://api.cron-job.org/jobs/${cronJobId}`, {
       method: "PATCH",
@@ -478,11 +478,11 @@ async function updateExternalCronJob(cronJobId: string, newScheduledFor: Date) {
       body: JSON.stringify({
         schedule: {
           timezone: "Asia/Kolkata", // IST timezone
-          expiresAt: Math.floor(utcScheduledTime.getTime() / 1000) + 300,
-          hours: [utcScheduledTime.getUTCHours()],
-          mdays: [utcScheduledTime.getUTCDate()],
-          minutes: [utcScheduledTime.getUTCMinutes()],
-          months: [utcScheduledTime.getUTCMonth() + 1],
+          expiresAt: Math.floor(scheduledTime.getTime() / 1000) + 300,
+          hours: [scheduledTime.getHours()],
+          mdays: [scheduledTime.getDate()],
+          minutes: [scheduledTime.getMinutes()],
+          months: [scheduledTime.getMonth() + 1],
           wdays: [-1],
         },
       }),
