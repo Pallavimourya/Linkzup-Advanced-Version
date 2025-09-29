@@ -299,9 +299,13 @@ class AIService {
   private async buildPrompt(request: AIRequest): Promise<string> {
     const { type, prompt, customization, userEmail } = request
     
-    // Get personal story context if user email is provided
+    // Determine the approach based on whether userEmail is provided
+    const isTopicBasedApproach = !!userEmail
+    const isUniqueContentApproach = !userEmail
+    
+    // Get personal story context ONLY for topic-based approach
     let personalStoryContext = ""
-    if (userEmail) {
+    if (isTopicBasedApproach && userEmail) {
       try {
         const storyData = await PersonalStoryService.getUserStoryData(userEmail)
         if (storyData) {
@@ -345,7 +349,9 @@ class AIService {
 
     switch (type) {
       case "linkedin-post":
-        basePrompt = `Generate 2 unique, natural LinkedIn posts about "${prompt}" with these specifications:
+        if (isTopicBasedApproach) {
+          // Topic-based approach: Use personal story + topic
+          basePrompt = `Generate 2 unique, natural LinkedIn posts about "${prompt}" with these specifications:
 
 Topic: ${prompt}
 Tone: ${tone}
@@ -388,6 +394,53 @@ ${includeEmojis ? "- Use 1-2 minimal emojis where relevant and natural" : ""}
 ${humanLikeInstructions}
 
 Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---". Each post should be complete and ready to publish.`
+        } else {
+          // Unique content approach: Focus purely on user input, NO personal story
+          basePrompt = `Generate 2 unique, natural LinkedIn posts based on this user input: "${prompt}"
+
+APPROACH: UNIQUE CONTENT GENERATION
+- Create completely fresh, unique content based on the user's input
+- Do NOT use any personal story or background information
+- Focus purely on the topic/idea provided by the user
+- Generate original, creative content that stands out
+
+Specifications:
+Tone: ${tone}
+Language: ${language}
+Word count: approximately ${wordCount} words
+Target audience: ${targetAudience}
+Main goal: ${mainGoal}
+
+Requirements:
+- Create content focused entirely on the user's input: "${prompt}"
+- Write posts that are direct, concise, and professional
+- Start with engaging, natural openings - avoid generic phrases like "As professionals" or "We all know"
+- Use the specified tone: ${tone}
+- Write in ${language} language
+- Target the specified audience: ${targetAudience}
+- Align with the main goal: ${mainGoal}
+- Structure content with proper formatting:
+  * Start with an engaging opening paragraph
+  * Include 3-4 bullet points (•) with proper spacing - each bullet point MUST start on a new line with proper spacing
+  * End with a concise conclusion
+  * Ensure proper line breaks and spacing throughout the content
+  * Format exactly like this example: bullet points on separate lines with clean spacing
+- Keep content medium-length and professional (not too short, not too long)
+- Share 1-2 actionable insights or key takeaways related to the user's input
+- Use clean formatting with proper spacing for LinkedIn readability
+- Be direct and professional - avoid fluff and unnecessary conversation starters
+- NO conversation starters, NO engagement prompts like "What do you think?", NO fluff
+- Ensure proper spacing between paragraphs and bullet points
+- Use clear, readable formatting that looks professional
+${includeHashtags ? "- Include 3-5 relevant hashtags on a separate line at the end - NO extra text after hashtags" : ""}
+${includeEmojis ? "- Use 1-2 minimal emojis where relevant and natural" : ""}
+- Do NOT include "Post 1:", "Post 2:", or any numbering prefixes
+- Generate completely unique content based on the user's input
+
+${humanLikeInstructions}
+
+Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---". Each post should be complete and ready to publish.`
+        }
         break
 
       case "topics":
@@ -1182,7 +1235,7 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     return (tokens / 1000) * 0.02
   }
 
-  // Public method to generate content
+  // Public method to generate content (general purpose)
   async generateContent(
     type: ContentType,
     prompt: string,
@@ -1199,6 +1252,53 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
       customization,
       userId,
       userEmail,
+      priority: "normal",
+      createdAt: new Date(),
+    }
+
+    return this.addToQueue(request)
+  }
+
+  // Home tab: Generate unique content based on user input (NO personal story)
+  async generateUniqueContent(
+    type: ContentType,
+    prompt: string,
+    provider: AIProvider = "openai",
+    customization: CustomizationOptions = {},
+    userId?: string
+  ): Promise<AIResponse> {
+    const request: AIRequest = {
+      id: this.generateRequestId(),
+      type,
+      prompt,
+      provider,
+      customization,
+      userId,
+      // NO userEmail - this ensures no personal story integration
+      priority: "normal",
+      createdAt: new Date(),
+    }
+
+    return this.addToQueue(request)
+  }
+
+  // Topic generator: Generate content for approved topics WITH personal story
+  async generateTopicContent(
+    type: ContentType,
+    topicTitle: string,
+    provider: AIProvider = "openai",
+    customization: CustomizationOptions = {},
+    userId?: string,
+    userEmail?: string
+  ): Promise<AIResponse> {
+    const request: AIRequest = {
+      id: this.generateRequestId(),
+      type,
+      prompt: topicTitle,
+      provider,
+      customization,
+      userId,
+      userEmail, // Include userEmail for personal story integration
       priority: "normal",
       createdAt: new Date(),
     }

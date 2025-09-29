@@ -770,15 +770,15 @@ Create medium-length, professional content with actionable insights.`
       console.log("Enhanced prompt:", enhancedPrompt)
       console.log("Enhanced customization:", enhancedCustomization)
       
-      const response = await fetch("/api/ai/generate", {
+      const response = await fetch("/api/ai/generate-topic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: validContentType,
-          prompt: enhancedPrompt,
+          topicTitle: topicTitle, // Use topicTitle instead of prompt
           provider,
           customization: enhancedCustomization,
-          userEmail: session?.user?.email, // Add user email for personal story integration
+          // userEmail is automatically included by the API from session
         }),
       })
 

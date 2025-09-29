@@ -365,8 +365,8 @@ export default function DashboardPage() {
     setIsGenerating(true)
 
     try {
-      // Call the centralized AI API with customization
-      const response = await fetch("/api/ai/generate", {
+      // Call the unique content API (NO personal story integration)
+      const response = await fetch("/api/ai/generate-unique", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
