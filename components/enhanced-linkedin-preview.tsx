@@ -337,7 +337,7 @@ export function EnhancedLinkedInPreview({
             deviceView === "mobile" ? "max-h-[calc(90vh-100px)]" : "max-h-[calc(90vh-120px)]"
           }`}>
             {/* LinkedIn Post Preview */}
-            <div className={`border border-gray-200 rounded-lg bg-white shadow-sm transition-all duration-300 ${
+            <div className={`border border-border rounded-lg bg-card shadow-sm transition-all duration-300 ${
               deviceView === "mobile" 
                 ? "max-w-sm mx-auto p-4" 
                 : "p-5"
@@ -356,10 +356,10 @@ export function EnhancedLinkedInPreview({
                       <img 
                         src={session.user.image} 
                         alt="Profile" 
-                        className="w-full h-full rounded-full object-cover border border-gray-200"
+                        className="w-full h-full rounded-full object-cover border border-border"
                       />
                     ) : (
-                      <div className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center w-full h-full border border-gray-200`}>
+                      <div className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center w-full h-full border border-border`}>
                         <span className={`text-white font-semibold ${
                           deviceView === "mobile" ? "text-sm" : "text-lg"
                         }`}>
@@ -373,12 +373,12 @@ export function EnhancedLinkedInPreview({
                     </div>
                   </div>
                   <div className="flex-1">
-                    <div className={`font-semibold text-gray-900 ${
+                    <div className={`font-semibold text-foreground ${
                       deviceView === "mobile" ? "text-sm" : "text-base"
                     }`}>
                       {session?.user?.name || "Your Name"}
                     </div>
-                    <div className={`text-gray-500 ${
+                    <div className={`text-muted-foreground ${
                       deviceView === "mobile" ? "text-xs" : "text-sm"
                     }`}>
                       {session?.user?.email?.split('@')[0] || "Professional"} • Now • 🌍
@@ -386,7 +386,7 @@ export function EnhancedLinkedInPreview({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="text-gray-500 hover:text-gray-700">
+                  <button className="text-gray-600 dark:text-white hover:text-foreground">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                     </svg>
@@ -422,7 +422,7 @@ export function EnhancedLinkedInPreview({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className={`whitespace-pre-wrap text-gray-800 ${
+                    <div className={`whitespace-pre-wrap text-foreground ${
                       deviceView === "mobile" ? "text-xs leading-relaxed" : ""
                     }`}>{content}</div>
                     <Button 
@@ -451,7 +451,7 @@ export function EnhancedLinkedInPreview({
               )}
 
               {/* Engagement Stats */}
-              <div className={`flex items-center justify-between text-gray-500 mb-3 ${
+              <div className={`flex items-center justify-between text-muted-foreground mb-3 ${
                 deviceView === "mobile" ? "text-xs" : "text-sm"
               }`}>
                 <div className="flex items-center gap-1">
@@ -490,46 +490,38 @@ export function EnhancedLinkedInPreview({
               </div>
 
               {/* Action Buttons */}
-              <div className="border-t border-gray-200 pt-3">
+              <div className="border-t border-border pt-3">
                 <div className={`flex items-center justify-between ${
                   deviceView === "mobile" ? "text-xs" : "text-sm"
                 }`}>
-                  <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                  <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                     deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
-                    <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                    }`}>
+                    <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                       <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
                     </svg>
                     <span className={deviceView === "mobile" ? "text-sm" : ""}>Like</span>
                   </button>
-                  <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                  <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                     deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
-                    <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                    }`}>
+                    <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                       <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
                     </svg>
                     <span className={deviceView === "mobile" ? "text-sm" : ""}>Comment</span>
                   </button>
-                  <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                  <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                     deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
-                    <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                    }`}>
+                    <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                       <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
                     </svg>
                     <span className={deviceView === "mobile" ? "text-sm" : ""}>Share</span>
                   </button>
-                  <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+                  <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                     deviceView === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3"
                   }`}>
-                    <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                      deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                    }`}>
+                    <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                       <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                     </svg>
                     <span className={deviceView === "mobile" ? "text-sm" : ""}>Send</span>

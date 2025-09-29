@@ -1510,11 +1510,11 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-b border-gray-100">
+            <Card className="border-0 shadow-2xl bg-card/80 backdrop-blur-sm overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/50 dark:to-purple-950/50 border-b border-border">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="flex items-center gap-3 text-xl">
+                    <CardTitle className="flex items-center gap-3 text-xl text-foreground">
                       <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                         <Star className="w-4 h-4 text-white" />
                       </div>
@@ -1746,23 +1746,23 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: index * 0.1 }}
                         whileHover={{ y: -5 }}
-                        className="group relative bg-white border-2 border-gray-100 rounded-2xl p-4 sm:p-6 hover:border-blue-200 hover:shadow-xl transition-all duration-300 flex flex-col"
+                        className="group relative bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 rounded-2xl p-4 sm:p-6 hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-xl transition-all duration-300 flex flex-col"
                       >
                         <div className="space-y-3 sm:space-y-4 flex-1">
                         <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold text-base sm:text-lg leading-tight text-gray-900 group-hover:text-blue-600 transition-colors flex-1">
+                            <h3 className="font-semibold text-base sm:text-lg leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex-1">
                               {topic.title}
                             </h3>
-                            <Badge className="bg-gradient-to-r from-blue-100 to-blue-100 text-blue-700 border-blue-200 text-xs flex-shrink-0">
+                            <Badge className="bg-gradient-to-r from-blue-100 to-blue-100 dark:from-blue-900 dark:to-blue-900 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 text-xs flex-shrink-0">
                             {topic.viralChance}% viral
                           </Badge>
                         </div>
                         
                         <div className="flex items-center gap-2 flex-wrap">
-                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700">
                               {topic.niche}
                             </Badge>
-                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs">
+                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600">
                               {topic.status === "content-ready" ? "Content Ready" : "Ready to Generate"}
                             </Badge>
                         </div>
@@ -1789,27 +1789,27 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                         {topic.status === "content-ready" && topic.content && (
                             <div className="space-y-4">
                               <div className="flex items-center gap-2">
-                                <Badge variant="default" className="text-xs bg-blue-100 text-blue-700">
+                                <Badge variant="default" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
                                   {topic.format}
                                 </Badge>
-                                <span className="text-xs text-gray-500">4 variations generated</span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">4 variations generated</span>
                               </div>
                             
                               {Array.isArray(topic.content) ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {topic.content.map((content, index) => (
-                                    <div key={index} className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
+                                    <div key={index} className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50">
                                       <div className="flex items-start justify-between mb-3">
-                                      <Badge variant="outline" className="text-xs">Post {index + 1}</Badge>
+                                      <Badge variant="outline" className="text-xs bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600">Post {index + 1}</Badge>
                                       </div>
-                                      <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
+                                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed mb-4">
                                           {content}
                                         </p>
                                     <div className="flex gap-2">
                                           <Button 
                                             size="sm" 
                                             variant="outline"
-                                          className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
+                                          className="flex-1 text-xs h-8 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300"
                                             onClick={() => {
                                               setPreviewContent(content)
                                               setPreviewingTopicId(topic.id)
@@ -1831,15 +1831,15 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                                   ))}
                                 </div>
                               ) : (
-                                <div className="p-4 border border-gray-200 rounded-xl bg-gray-50/50">
-                                  <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
+                                <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50">
+                                  <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed mb-4">
                                         {getTopicContent(topic)}
                                       </p>
                                 <div className="flex gap-2">
                                         <Button 
                                           size="sm" 
                                           variant="outline"
-                                      className="flex-1 text-xs h-8 border-blue-200 hover:bg-blue-50"
+                                      className="flex-1 text-xs h-8 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300"
                                           onClick={() => {
                                             setPreviewContent(getTopicContent(topic))
                                             setPreviewingTopicId(topic.id)

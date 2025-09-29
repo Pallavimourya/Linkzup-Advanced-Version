@@ -59,6 +59,7 @@ import { getDraftsFromDB, saveDraftToDB, updateDraftInDB, deleteDraftFromDB, typ
 import { useRouter } from "next/navigation"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import { ScheduleButton } from "@/components/schedule-button"
+import { EnhancedLinkedInPreview } from "@/components/enhanced-linkedin-preview"
 
 export default function DraftsPage() {
   const router = useRouter()
@@ -69,6 +70,7 @@ export default function DraftsPage() {
   const [typeFilter, setTypeFilter] = useState("all")
   const [editingDraft, setEditingDraft] = useState<Draft | null>(null)
   const [deletingDraft, setDeletingDraft] = useState<Draft | null>(null)
+  const [previewDraft, setPreviewDraft] = useState<Draft | null>(null)
   const [loading, setLoading] = useState(true)
   const [postingDrafts, setPostingDrafts] = useState<Set<string>>(new Set())
 
@@ -182,6 +184,10 @@ export default function DraftsPage() {
     } else {
       setEditingDraft(draft)
     }
+  }
+
+  const handlePreviewDraft = (draft: Draft) => {
+    setPreviewDraft(draft)
   }
 
   const handleSaveEdit = async () => {
@@ -499,7 +505,16 @@ export default function DraftsPage() {
 
                     {/* Action Buttons */}
                     <div className="space-y-3 pt-2">
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="h-9 text-xs border-teal-200 dark:border-teal-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-700 dark:text-teal-300"
+                          onClick={() => handlePreviewDraft(draft)}
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          Preview
+                        </Button>
                         <ScheduleButton
                           content={draft.content}
                           images={draft.images || []}
@@ -644,6 +659,28 @@ export default function DraftsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Preview Modal */}
+      {previewDraft && (
+        <EnhancedLinkedInPreview
+          content={previewDraft.content}
+          onSaveToDraft={(content, title, format) => {
+            // Handle saving updated content back to draft
+            const updatedDraft = { ...previewDraft, content, title }
+            setDrafts(drafts.map(d => d.id === previewDraft.id ? updatedDraft : d))
+            setPreviewDraft(null)
+            toast({
+              title: "Draft Updated",
+              description: "Your draft has been updated successfully.",
+            })
+          }}
+          onClose={() => setPreviewDraft(null)}
+          onContentUpdate={(newContent) => {
+            // Update the preview draft content in real-time
+            setPreviewDraft({ ...previewDraft, content: newContent })
+          }}
+        />
+      )}
     </div>
   )
 }

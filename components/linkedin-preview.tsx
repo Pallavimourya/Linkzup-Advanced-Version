@@ -274,11 +274,11 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
           </div>
 
           {/* LinkedIn Post Preview */}
-          <div className={`border border-gray-200 rounded-lg bg-white shadow-sm ${
+          <div className={`border border-border rounded-lg bg-card shadow-sm ${
             previewMode === "mobile" ? "max-w-sm mx-auto p-4" : "p-6"
           }`}>
             <div className={`flex items-center gap-3 mb-4 ${previewMode === "mobile" ? "gap-2" : ""}`}>
-              <div className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center overflow-hidden border border-gray-200 ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}>
+              <div className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center overflow-hidden border border-border ${previewMode === "mobile" ? "w-8 h-8" : "w-12 h-12"}`}>
                 {session?.user?.image ? (
                   <img 
                     src={session.user.image} 
@@ -292,8 +292,8 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                 )}
               </div>
               <div>
-                <div className={`font-medium ${previewMode === "mobile" ? "text-sm" : ""}`}>{session?.user?.name || "Your Name"}</div>
-                <div className={`text-gray-500 ${previewMode === "mobile" ? "text-xs" : "text-sm"}`}>Just now • 🌍</div>
+                <div className={`font-medium text-foreground ${previewMode === "mobile" ? "text-sm" : ""}`}>{session?.user?.name || "Your Name"}</div>
+                <div className={`text-muted-foreground ${previewMode === "mobile" ? "text-xs" : "text-sm"}`}>Just now • 🌍</div>
               </div>
             </div>
             
@@ -319,7 +319,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div className={`whitespace-pre-wrap ${
+                  <div className={`whitespace-pre-wrap text-foreground ${
                     previewMode === "mobile" ? "text-sm leading-relaxed" : "text-base leading-relaxed"
                   }`}>{content}</div>
                   <Button 
@@ -346,47 +346,39 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
             )}
 
             {/* Engagement Stats */}
-            <div className={`flex items-center text-gray-500 border-t border-gray-200 ${
+            <div className={`flex items-center text-muted-foreground border-t border-border ${
               previewMode === "mobile" 
                 ? "text-xs justify-between pt-3" 
                 : "text-sm justify-between pt-4"
             }`}>
-              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+              <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                 previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
-                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                }`}>
+                <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                   <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
                 </svg>
                 <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Like</span>
               </button>
-              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+              <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                 previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
-                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                }`}>
+                <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                   <path d="M21.99 4c0-1.1-.89-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
                 </svg>
                 <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Comment</span>
               </button>
-              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+              <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                 previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
-                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                }`}>
+                <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                   <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
                 </svg>
                 <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Share</span>
               </button>
-              <button className={`flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50 ${
+              <button className={`flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-muted ${
                 previewMode === "mobile" ? "py-2 px-3 min-h-[40px] flex-1 justify-center" : "py-2 px-3 min-h-[36px]"
               }`}>
-                <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
-                  previewMode === "mobile" ? "w-5 h-5" : "w-5 h-5"
-                }`}>
+                <svg className={`w-5 h-5 fill-current`} viewBox="0 0 24 24">
                   <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                 </svg>
                 <span className={previewMode === "mobile" ? "text-sm" : "text-sm"}>Send</span>

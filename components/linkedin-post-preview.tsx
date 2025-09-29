@@ -27,7 +27,7 @@ export function LinkedInPostPreview({
 
   return (
     <Card 
-      className={`cursor-pointer hover:shadow-md transition-all duration-200 border-2 hover:border-primary/20 bg-white ${className}`}
+      className={`cursor-pointer hover:shadow-md transition-all duration-200 border-2 hover:border-primary/20 bg-card ${className}`}
       onClick={onClick}
     >
       <CardContent className="p-4">
@@ -53,7 +53,7 @@ export function LinkedInPostPreview({
             </div>
           </div>
           <div className="flex-1">
-            <div className="font-semibold text-sm text-gray-900">
+            <div className="font-semibold text-sm text-foreground">
               {session?.user?.name || "Your Name"}
             </div>
             <div className="text-xs text-muted-foreground">

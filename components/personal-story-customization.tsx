@@ -75,18 +75,18 @@ export function PersonalStoryCustomizationPanel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
-        <CardHeader className="pb-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10">
+      <Card className="bg-card/90 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
+        <CardHeader className="pb-4 bg-gradient-to-r from-blue-500/10 to-blue-600/10 dark:from-blue-950/20 dark:to-blue-900/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                 <Settings className="w-5 h-5 text-white" />
               </div>
               <div>
-                <CardTitle className="text-lg font-bold text-gray-900">
+                <CardTitle className="text-lg font-bold text-foreground">
                   Story Settings
                 </CardTitle>
-                <CardDescription className="text-sm text-gray-600">
+                <CardDescription className="text-sm text-muted-foreground">
                   Customize your story style
                 </CardDescription>
               </div>
@@ -95,13 +95,13 @@ export function PersonalStoryCustomizationPanel({
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-8 w-8 p-0 hover:bg-blue-100 rounded-lg"
+              className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg"
             >
               <motion.div
                 animate={{ rotate: isExpanded ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <ChevronDown className="h-4 w-4 text-blue-600" />
+                <ChevronDown className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </motion.div>
             </Button>
           </div>
@@ -117,7 +117,7 @@ export function PersonalStoryCustomizationPanel({
             >
               <CardContent className="p-6 space-y-6">
                 {/* Tab Navigation */}
-                <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+                <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
                   <Button
                     variant={activeTab === "basic" ? "default" : "ghost"}
                     size="sm"
@@ -125,7 +125,7 @@ export function PersonalStoryCustomizationPanel({
                     className={`flex-1 h-8 text-xs ${
                       activeTab === "basic" 
                         ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" 
-                        : "text-gray-600 hover:text-gray-900"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                     }`}
                   >
                     Basic
@@ -137,7 +137,7 @@ export function PersonalStoryCustomizationPanel({
                     className={`flex-1 h-8 text-xs ${
                       activeTab === "advanced" 
                         ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" 
-                        : "text-gray-600 hover:text-gray-900"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                     }`}
                   >
                     Advanced
@@ -149,7 +149,7 @@ export function PersonalStoryCustomizationPanel({
                   <div className="space-y-5">
                     {/* Tone Selection - MCQ Style */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <Palette className="w-4 h-4 text-blue-600" />
                         What tone best describes your story?
                       </Label>
@@ -165,19 +165,19 @@ export function PersonalStoryCustomizationPanel({
                             <div className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
                               customization.tone === tone.value
                                 ? `border-blue-500 bg-gradient-to-r ${tone.color} text-white shadow-md`
-                                : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                                : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                             }`}>
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                 customization.tone === tone.value
                                   ? "border-white bg-white"
-                                  : "border-gray-300"
+                                  : "border-gray-300 dark:border-gray-600"
                               }`}>
                                 {customization.tone === tone.value && (
                                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                                 )}
                               </div>
                               <tone.icon className={`w-5 h-5 ${customization.tone === tone.value ? 'text-white' : 'text-gray-600'}`} />
-                              <span className={`font-medium ${customization.tone === tone.value ? 'text-white' : 'text-gray-900'}`}>
+                              <span className={`font-medium ${customization.tone === tone.value ? 'text-white' : 'text-foreground'}`}>
                                 {tone.label}
                               </span>
                             </div>
@@ -189,12 +189,12 @@ export function PersonalStoryCustomizationPanel({
                     {/* Audience & Goal - Simple Dropdowns */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
                           <Users className="w-4 h-4 text-green-600" />
                           Target Audience
                         </Label>
                         <Select value={customization.targetAudience} onValueChange={(value) => handleChange("targetAudience", value)}>
-                          <SelectTrigger className="h-9 border border-gray-200 focus:border-blue-500 rounded-lg">
+                          <SelectTrigger className="h-9 border border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 rounded-lg">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -211,12 +211,12 @@ export function PersonalStoryCustomizationPanel({
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
                           <Target className="w-4 h-4 text-orange-600" />
                           Main Goal
                         </Label>
                         <Select value={customization.mainGoal} onValueChange={(value) => handleChange("mainGoal", value)}>
-                          <SelectTrigger className="h-9 border border-gray-200 focus:border-blue-500 rounded-lg">
+                          <SelectTrigger className="h-9 border border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 rounded-lg">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -235,12 +235,12 @@ export function PersonalStoryCustomizationPanel({
 
                     {/* Language - Simple Dropdown */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <Globe className="w-4 h-4 text-blue-600" />
                         Language
                       </Label>
                       <Select value={customization.language} onValueChange={(value) => handleChange("language", value)}>
-                        <SelectTrigger className="h-9 border border-gray-200 focus:border-purple-500 rounded-lg">
+                        <SelectTrigger className="h-9 border border-gray-200 dark:border-gray-700 focus:border-purple-500 dark:focus:border-purple-400 rounded-lg">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -257,7 +257,7 @@ export function PersonalStoryCustomizationPanel({
                   <div className="space-y-5">
                     {/* Story Length - MCQ Style */}
                     <div className="space-y-3">
-                      <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <BookOpen className="w-4 h-4 text-blue-600" />
                         How long should your story be?
                       </Label>
@@ -277,12 +277,12 @@ export function PersonalStoryCustomizationPanel({
                             <div className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
                               (customization.storyLength || "medium") === length.value
                                 ? `border-blue-500 bg-gradient-to-r ${length.color} text-white shadow-md`
-                                : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                                : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                             }`}>
                               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                                 (customization.storyLength || "medium") === length.value
                                   ? "border-white bg-white"
-                                  : "border-gray-300"
+                                  : "border-gray-300 dark:border-gray-600"
                               }`}>
                                 {(customization.storyLength || "medium") === length.value && (
                                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
@@ -290,10 +290,10 @@ export function PersonalStoryCustomizationPanel({
                               </div>
                               <span className="text-lg">{length.icon}</span>
                               <div className="flex-1">
-                                <div className={`font-medium ${(customization.storyLength || "medium") === length.value ? 'text-white' : 'text-gray-900'}`}>
+                                <div className={`font-medium ${(customization.storyLength || "medium") === length.value ? 'text-white' : 'text-foreground'}`}>
                                   {length.label}
                                 </div>
-                                <div className={`text-xs ${(customization.storyLength || "medium") === length.value ? 'text-white/80' : 'text-gray-500'}`}>
+                                <div className={`text-xs ${(customization.storyLength || "medium") === length.value ? 'text-white/80' : 'text-muted-foreground'}`}>
                                   {length.description}
                                 </div>
                               </div>
@@ -305,7 +305,7 @@ export function PersonalStoryCustomizationPanel({
 
                     {/* Content Features - Simple Toggles */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
                         <Zap className="w-4 h-4 text-indigo-600" />
                         Content Features
                       </Label>
@@ -316,10 +316,10 @@ export function PersonalStoryCustomizationPanel({
                           { key: "includeEmojis", label: "Emojis", icon: Sparkles },
                           { key: "personalTouch", label: "Personal Touch", icon: Heart }
                         ].map((feature) => (
-                          <div key={feature.key} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                          <div key={feature.key} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
                             <div className="flex items-center gap-2">
                               <feature.icon className="w-4 h-4 text-blue-600" />
-                              <span className="text-sm font-medium text-gray-900">{feature.label}</span>
+                              <span className="text-sm font-medium text-foreground">{feature.label}</span>
                             </div>
                             <Button
                               variant={customization[feature.key as keyof PersonalStoryCustomization] ? "default" : "outline"}
@@ -328,7 +328,7 @@ export function PersonalStoryCustomizationPanel({
                               className={`w-10 h-5 p-0 rounded-full ${
                                 customization[feature.key as keyof PersonalStoryCustomization]
                                   ? "bg-gradient-to-r from-blue-500 to-blue-600"
-                                  : "bg-gray-300"
+                                  : "bg-gray-300 dark:bg-gray-600"
                               }`}
                             >
                               <div className={`w-3 h-3 rounded-full bg-white transition-transform ${
@@ -343,19 +343,19 @@ export function PersonalStoryCustomizationPanel({
                 )}
 
                 {/* Quick Summary */}
-                <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
                   <div className="flex items-center gap-2 mb-2">
                     <Sparkles className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-900">Current Style</span>
+                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">Current Style</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs">
                       {toneOptions.find(t => t.value === customization.tone)?.label}
                     </Badge>
-                    <Badge variant="outline" className="border-blue-300 text-blue-700 text-xs">
+                    <Badge variant="outline" className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 text-xs">
                       {audienceOptions.find(a => a.value === customization.targetAudience)?.label}
                     </Badge>
-                    <Badge variant="outline" className="border-blue-300 text-blue-700 text-xs">
+                    <Badge variant="outline" className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 text-xs">
                       {goalOptions.find(g => g.value === customization.mainGoal)?.label}
                     </Badge>
                   </div>

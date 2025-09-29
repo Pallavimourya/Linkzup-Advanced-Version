@@ -9,6 +9,7 @@ export interface Draft {
   wordCount: number
   tags: string[]
   source?: string
+  images?: string[]
   carouselData?: {
     slides: Array<{
       id: string
