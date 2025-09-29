@@ -176,9 +176,12 @@ function toast({ variant, ...props }: Toast) {
 }
 
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
+  const [state, setState] = React.useState<State>({ toasts: [] })
+  const [isMounted, setIsMounted] = React.useState(false)
 
   React.useEffect(() => {
+    setIsMounted(true)
+    setState(memoryState)
     listeners.push(setState)
     return () => {
       const index = listeners.indexOf(setState)
@@ -186,7 +189,19 @@ function useToast() {
         listeners.splice(index, 1)
       }
     }
-  }, [state])
+  }, [])
+
+  React.useEffect(() => {
+    if (isMounted) {
+      listeners.push(setState)
+      return () => {
+        const index = listeners.indexOf(setState)
+        if (index > -1) {
+          listeners.splice(index, 1)
+        }
+      }
+    }
+  }, [isMounted, state])
 
   return {
     ...state,

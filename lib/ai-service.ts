@@ -299,25 +299,8 @@ class AIService {
   private async buildPrompt(request: AIRequest): Promise<string> {
     const { type, prompt, customization, userEmail } = request
     
-    // Get personal story context if user email is provided
-    let personalStoryContext = ""
-    if (userEmail) {
-      try {
-        const storyData = await PersonalStoryService.getUserStoryData(userEmail)
-        const isStoryComplete = await PersonalStoryService.hasUserCompletedStory(userEmail)
-        
-        if (storyData && isStoryComplete) {
-          personalStoryContext = PersonalStoryService.buildStoryContext(storyData)
-        } else {
-          personalStoryContext = PersonalStoryService.buildFallbackContext()
-        }
-      } catch (error) {
-        console.error("Error fetching personal story data:", error)
-        personalStoryContext = PersonalStoryService.buildFallbackContext()
-      }
-    } else {
-      personalStoryContext = PersonalStoryService.buildFallbackContext()
-    }
+    // Skip personal story integration for direct topic-based content generation
+    // Focus purely on the topic and customization settings provided by the user
     const {
       tone = "professional",
       language = "english",
@@ -352,9 +335,9 @@ class AIService {
 
     switch (type) {
       case "linkedin-post":
-        basePrompt = `${personalStoryContext}Generate 2 unique, professional LinkedIn posts that align with these parameters:
+        basePrompt = `Generate 2 unique, natural LinkedIn posts about "${prompt}" with these specifications:
 
-Topic/Subject: ${prompt}
+Topic: ${prompt}
 Tone: ${tone}
 Language: ${language}
 Word count: approximately ${wordCount} words
@@ -362,18 +345,30 @@ Target audience: ${targetAudience}
 Main goal: ${mainGoal}
 
 Requirements:
-- Make each post original, engaging, human-like and appropriate for LinkedIn
-- Avoid repetition and generic templates
-- Use the specified tone consistently
+- Create content focused entirely on "${prompt}"
+- Write posts that are direct, concise, and professional
+- Start with engaging, natural openings - avoid generic phrases like "As professionals" or "We all know"
+- Use the specified tone: ${tone}
 - Write in ${language} language
-- Target the specified audience
-- Align with the main goal
-- Include at least 3 bullet points (•) to make content more engaging and scannable
-${includeHashtags ? "- Include 3-5 relevant hashtags only" : ""}
-${includeEmojis ? "- Use 1-2 minimal icons where relevant" : ""}
-${callToAction ? "- Include clear calls-to-action where appropriate" : ""}
-- Make posts shareable and conversation-starting
+- Target the specified audience: ${targetAudience}
+- Align with the main goal: ${mainGoal}
+- Structure content with proper formatting:
+  * Start with an engaging opening paragraph
+  * Include 3-4 bullet points (•) with proper spacing - each bullet point MUST start on a new line with proper spacing
+  * End with a concise conclusion
+  * Ensure proper line breaks and spacing throughout the content
+  * Format exactly like this example: bullet points on separate lines with clean spacing
+- Keep content medium-length and professional (not too short, not too long)
+- Share 1-2 actionable insights or key takeaways related to the topic
+- Use clean formatting with proper spacing for LinkedIn readability
+- Be direct and professional - avoid fluff and unnecessary conversation starters
+- NO conversation starters, NO engagement prompts like "What do you think?", NO fluff
+- Ensure proper spacing between paragraphs and bullet points
+- Use clear, readable formatting that looks professional
+${includeHashtags ? "- Include 3-5 relevant hashtags on a separate line at the end - NO extra text after hashtags" : ""}
+${includeEmojis ? "- Use 1-2 minimal emojis where relevant and natural" : ""}
 - Do NOT include "Post 1:", "Post 2:", or any numbering prefixes
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -381,14 +376,14 @@ Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---
         break
 
       case "topics":
-        basePrompt = `${personalStoryContext}Generate 2 engaging and viral-worthy topic titles for the "${niche || prompt}" niche. 
+        basePrompt = `Generate 2 engaging and viral-worthy topic titles for the "${niche || prompt}" niche.
 
 Requirements:
+- Create compelling, shareable topic titles focused on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Target audience: ${targetAudience}
 - Main goal: ${mainGoal}
-- Create compelling, shareable topic titles
 - Focus on trending and relevant subjects within the niche
 - Make titles engaging and click-worthy
 - Avoid generic or overused topics
@@ -397,6 +392,7 @@ Requirements:
 - Align with the ${tone} tone
 - Target the specified audience: ${targetAudience}
 - Focus on the main goal: ${mainGoal}
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -405,9 +401,10 @@ Example format: ["Title 1", "Title 2"]`
         break
 
       case "article":
-        basePrompt = `${personalStoryContext}Generate 2 unique, comprehensive articles about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 2 unique, comprehensive articles about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per article
@@ -420,6 +417,7 @@ ${callToAction ? "- Include a call-to-action" : ""}
 - Make each article unique and different from the others
 - Vary the approach, angle, and style for each article
 - Do NOT include "Article 1:", "Article 2:", or any numbering prefixes
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -427,9 +425,10 @@ Format the response as 2 distinct articles, each separated by "---POST_SEPARATOR
         break
 
       case "story":
-        basePrompt = `${personalStoryContext}Generate 1 compelling personal story about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 1 compelling story about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words
@@ -440,17 +439,17 @@ ${includeHashtags ? "- Include relevant hashtags" : ""}
 ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Create a cohesive, well-structured narrative
-- Use authentic personal experiences and insights
 - Make the story engaging and relatable
 - Include specific details and emotions
 - Connect all story elements naturally
 - Do NOT include "Story:", or any numbering prefixes
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
-IMPORTANT: Generate exactly 1 comprehensive story that weaves together all the personal elements into a cohesive narrative. The story should:
+IMPORTANT: Generate exactly 1 comprehensive story that focuses on "${prompt}" with these elements:
 - Have a clear beginning, middle, and end
-- Include specific personal details and experiences
+- Include specific details and experiences related to the topic
 - Show growth and learning throughout the journey
 - Be authentic and relatable to the target audience
 - Maintain the specified tone and style
@@ -459,16 +458,17 @@ Return only the single story content, ready to publish.`
         break
 
       case "carousel":
-        basePrompt = `${personalStoryContext}OpenAI Request Prompt
-Generate carousel content for a website based on these inputs:
+        basePrompt = `Generate carousel content for a website based on these inputs:
 
 Topic: "${prompt}"
-
 Tone: "${tone}"
-
 Number of slides: ${wordCount / 50}
 
-The content must be concise, clear, and suitable for display on visual cards.
+Requirements:
+- Create content focused entirely on "${prompt}"
+- The content must be concise, clear, and suitable for display on visual cards
+- All content should relate directly to "${prompt}"
+- Generate content based purely on the topic and customization settings provided
 
 Return ONLY a valid JSON object with this exact structure:
 
@@ -514,9 +514,10 @@ Generate exactly ${wordCount / 50} slides. Format the response as 2 distinct car
         break
 
       case "list":
-        basePrompt = `${personalStoryContext}Generate 2 unique list-based content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 2 unique list-based content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per list
@@ -527,6 +528,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each list unique with different items and approaches
 - Vary the number of items and list structure
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -534,9 +536,10 @@ Format the response as 2 distinct lists, each separated by "---POST_SEPARATOR---
         break
 
       case "quote":
-        basePrompt = `${personalStoryContext}Generate 2 unique inspirational quote posts about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 2 unique inspirational quote posts about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per post
@@ -547,6 +550,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each quote post unique with different quotes and interpretations
 - Vary the quote style and accompanying commentary
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -554,9 +558,10 @@ Format the response as 2 distinct quote posts, each separated by "---POST_SEPARA
         break
 
       case "before-after":
-        basePrompt = `${personalStoryContext}Generate 2 unique before/after transformation content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 2 unique before/after transformation content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -567,6 +572,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each transformation story unique with different scenarios
 - Vary the before/after approach and outcomes
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -574,9 +580,10 @@ Format the response as 2 distinct transformation stories, each separated by "---
         break
 
       case "tips":
-        basePrompt = `${personalStoryContext}Generate 2 unique tips and advice content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 2 unique tips and advice content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -587,6 +594,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each tips piece unique with different advice and approaches
 - Vary the number of tips and presentation style
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -594,9 +602,10 @@ Format the response as 2 distinct tips pieces, each separated by "---POST_SEPARA
         break
 
       case "insights":
-        basePrompt = `${personalStoryContext}Generate 2 unique insights and analysis content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 2 unique insights and analysis content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -607,6 +616,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each insights piece unique with different perspectives and analysis
 - Vary the analytical approach and depth
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -614,9 +624,10 @@ Format the response as 2 distinct insights pieces, each separated by "---POST_SE
         break
 
       case "question":
-        basePrompt = `${personalStoryContext}Generate 2 unique question-based content pieces about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `Generate 2 unique question-based content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -627,6 +638,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each question piece unique with different questions and approaches
 - Vary the question style and discussion points
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -637,6 +649,7 @@ Format the response as 2 distinct question posts, each separated by "---POST_SEP
         basePrompt = `Generate 2 unique, engaging content pieces about "${prompt}" in the ${niche || "general"} niche.
 
 Requirements:
+- Create content focused entirely on "${prompt}"
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -649,6 +662,7 @@ ${callToAction ? "- Include a call-to-action" : ""}
 - Make each content piece unique and different from the others
 - Vary the approach, style, and presentation
 - Do NOT include "Content 1:", "Content 2:", or any numbering prefixes
+- Generate content based purely on the topic and customization settings provided
 
 ${humanLikeInstructions}
 
@@ -872,17 +886,62 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
       .replace(/^###\s*/g, '')
       .trim()
 
+    // Format hashtags to be on a new line
+    cleaned = this.formatHashtags(cleaned)
+    
     // Add bullet points to make content more engaging
     cleaned = this.addBulletPoints(cleaned)
     
+    // Apply comprehensive formatting
+    cleaned = this.applyComprehensiveFormatting(cleaned)
+    
     return cleaned
+  }
+
+  // Format hashtags to be on a new line
+  private formatHashtags(content: string): string {
+    // Find hashtags in the content
+    const hashtagRegex = /#\w+/g
+    const hashtags = content.match(hashtagRegex)
+    
+    if (hashtags && hashtags.length > 0) {
+      // Remove hashtags from the original content
+      let contentWithoutHashtags = content.replace(hashtagRegex, '').trim()
+      
+      // Clean up any extra spaces or punctuation
+      contentWithoutHashtags = contentWithoutHashtags.replace(/\s+/g, ' ').trim()
+      
+      // Add hashtags on a new line
+      const hashtagString = hashtags.join(' ')
+      return `${contentWithoutHashtags}\n\n${hashtagString}`
+    }
+    
+    return content
   }
 
   // Add bullet points to content to make it more engaging
   private addBulletPoints(content: string): string {
     // Check if content already has bullet points
     if (content.includes('•') || content.includes('-') || content.includes('*')) {
-      return content
+      // Ensure proper spacing for existing bullet points - each on new line
+      let formatted = content
+        // Convert all bullet types to • for consistency
+        .replace(/^-\s*/gm, '• ')
+        .replace(/^\*\s*/gm, '• ')
+        // Ensure bullet points start on new lines with proper spacing
+        .replace(/([^\n])(•\s*[^\n]+)/g, '$1\n\n$2')
+        .replace(/([^\n])(-\s*[^\n]+)/g, '$1\n\n• $2'.replace(/^-\s*/, ''))
+        .replace(/([^\n])(\*\s*[^\n]+)/g, '$1\n\n• $2'.replace(/^\*\s*/, ''))
+        // Clean up multiple line breaks
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+      
+      // Ensure bullet points are properly formatted
+      formatted = formatted.replace(/(•\s*[^\n]+)/g, (match) => {
+        return match.trim()
+      })
+      
+      return formatted
     }
 
     // Split content into sentences
@@ -897,7 +956,7 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
         .map(sentence => `• ${sentence.trim()}`)
         .join('\n')
       
-      // Add remaining sentences as regular text
+      // Add remaining sentences as regular text with proper spacing
       if (remainingSentences.length > 0) {
         formattedContent += '\n\n' + remainingSentences.join('. ').trim()
         if (!formattedContent.endsWith('.')) {
@@ -909,6 +968,88 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     }
     
     return content
+  }
+
+  // Apply comprehensive formatting to ensure proper structure
+  private applyComprehensiveFormatting(content: string): string {
+    // Split content into lines
+    let lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+    
+    if (lines.length === 0) return content
+    
+    let formattedLines: string[] = []
+    let i = 0
+    
+    while (i < lines.length) {
+      const line = lines[i]
+      
+      // Handle bullet points - ensure they start on new lines
+      if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
+        // Convert all bullet types to • for consistency
+        const bulletLine = line.replace(/^[-*]/, '•')
+        
+        // Add empty line before bullet points if previous line is not empty and not a bullet
+        if (formattedLines.length > 0 && 
+            !formattedLines[formattedLines.length - 1].startsWith('•') &&
+            !formattedLines[formattedLines.length - 1].startsWith('#') &&
+            formattedLines[formattedLines.length - 1].length > 0) {
+          formattedLines.push('')
+        }
+        
+        formattedLines.push(bulletLine)
+        i++
+        continue
+      }
+      
+      // Handle hashtags (should be at the end)
+      if (line.startsWith('#')) {
+        // Add empty line before hashtags if not already present
+        if (formattedLines.length > 0 && !formattedLines[formattedLines.length - 1].startsWith('#')) {
+          formattedLines.push('')
+        }
+        formattedLines.push(line)
+        i++
+        continue
+      }
+      
+      // Handle regular text
+      if (line.length > 0) {
+        // Add empty line before new paragraph if needed
+        if (formattedLines.length > 0 && 
+            !formattedLines[formattedLines.length - 1].startsWith('•') && 
+            !formattedLines[formattedLines.length - 1].startsWith('#') &&
+            formattedLines[formattedLines.length - 1].length > 0) {
+          formattedLines.push('')
+        }
+        formattedLines.push(line)
+      }
+      
+      i++
+    }
+    
+    // Join lines with proper spacing
+    let result = formattedLines.join('\n')
+    
+    // Clean up multiple empty lines
+    result = result.replace(/\n{3,}/g, '\n\n')
+    
+    // Ensure proper spacing around bullet points - match exact example format
+    result = result.replace(/([^\n])\n(•)/g, '$1\n\n$2')
+    result = result.replace(/(•[^\n]+)\n([^•\n#])/g, '$1\n\n$2')
+    
+    // Ensure bullet points always start on new lines with proper spacing
+    result = result.replace(/([^\n])(•)/g, '$1\n\n$2')
+    
+    // Ensure bullet points are properly formatted
+    result = result.replace(/(•\s*[^\n]+)/g, (match) => {
+      return match.trim()
+    })
+    
+    // Clean up any excessive line breaks but maintain proper spacing
+    result = result.replace(/\n{4,}/g, '\n\n\n')
+    result = result.replace(/\n{3,}/g, '\n\n')
+    
+    return result.trim()
   }
 
   // Parse multiple content variations from response
