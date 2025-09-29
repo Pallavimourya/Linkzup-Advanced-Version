@@ -299,8 +299,18 @@ class AIService {
   private async buildPrompt(request: AIRequest): Promise<string> {
     const { type, prompt, customization, userEmail } = request
     
-    // Skip personal story integration for direct topic-based content generation
-    // Focus purely on the topic and customization settings provided by the user
+    // Get personal story context if user email is provided
+    let personalStoryContext = ""
+    if (userEmail) {
+      try {
+        const storyData = await PersonalStoryService.getUserStoryData(userEmail)
+        if (storyData) {
+          personalStoryContext = PersonalStoryService.buildStoryContext(storyData)
+        }
+      } catch (error) {
+        console.log("Could not fetch personal story data:", error)
+      }
+    }
     const {
       tone = "professional",
       language = "english",
@@ -344,8 +354,13 @@ Word count: approximately ${wordCount} words
 Target audience: ${targetAudience}
 Main goal: ${mainGoal}
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Write posts that are direct, concise, and professional
 - Start with engaging, natural openings - avoid generic phrases like "As professionals" or "We all know"
 - Use the specified tone: ${tone}
@@ -368,7 +383,7 @@ Requirements:
 ${includeHashtags ? "- Include 3-5 relevant hashtags on a separate line at the end - NO extra text after hashtags" : ""}
 ${includeEmojis ? "- Use 1-2 minimal emojis where relevant and natural" : ""}
 - Do NOT include "Post 1:", "Post 2:", or any numbering prefixes
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -403,8 +418,13 @@ Example format: ["Title 1", "Title 2"]`
       case "article":
         basePrompt = `Generate 2 unique, comprehensive articles about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per article
@@ -417,7 +437,7 @@ ${callToAction ? "- Include a call-to-action" : ""}
 - Make each article unique and different from the others
 - Vary the approach, angle, and style for each article
 - Do NOT include "Article 1:", "Article 2:", or any numbering prefixes
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -427,8 +447,13 @@ Format the response as 2 distinct articles, each separated by "---POST_SEPARATOR
       case "story":
         basePrompt = `Generate 1 compelling story about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words
@@ -443,7 +468,7 @@ ${callToAction ? "- Include a call-to-action" : ""}
 - Include specific details and emotions
 - Connect all story elements naturally
 - Do NOT include "Story:", or any numbering prefixes
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -516,8 +541,13 @@ Generate exactly ${wordCount / 50} slides. Format the response as 2 distinct car
       case "list":
         basePrompt = `Generate 2 unique list-based content pieces about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per list
@@ -528,7 +558,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each list unique with different items and approaches
 - Vary the number of items and list structure
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -538,8 +568,13 @@ Format the response as 2 distinct lists, each separated by "---POST_SEPARATOR---
       case "quote":
         basePrompt = `Generate 2 unique inspirational quote posts about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per post
@@ -550,7 +585,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each quote post unique with different quotes and interpretations
 - Vary the quote style and accompanying commentary
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -560,8 +595,13 @@ Format the response as 2 distinct quote posts, each separated by "---POST_SEPARA
       case "before-after":
         basePrompt = `Generate 2 unique before/after transformation content pieces about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -572,7 +612,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each transformation story unique with different scenarios
 - Vary the before/after approach and outcomes
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -582,8 +622,13 @@ Format the response as 2 distinct transformation stories, each separated by "---
       case "tips":
         basePrompt = `Generate 2 unique tips and advice content pieces about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -594,7 +639,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each tips piece unique with different advice and approaches
 - Vary the number of tips and presentation style
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -604,8 +649,13 @@ Format the response as 2 distinct tips pieces, each separated by "---POST_SEPARA
       case "insights":
         basePrompt = `Generate 2 unique insights and analysis content pieces about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -616,7 +666,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each insights piece unique with different perspectives and analysis
 - Vary the analytical approach and depth
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -626,8 +676,13 @@ Format the response as 2 distinct insights pieces, each separated by "---POST_SE
       case "question":
         basePrompt = `Generate 2 unique question-based content pieces about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -638,7 +693,7 @@ ${includeEmojis ? "- Use emojis appropriately" : ""}
 ${callToAction ? "- Include a call-to-action" : ""}
 - Make each question piece unique with different questions and approaches
 - Vary the question style and discussion points
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -648,8 +703,13 @@ Format the response as 2 distinct question posts, each separated by "---POST_SEP
       default:
         basePrompt = `Generate 2 unique, engaging content pieces about "${prompt}" in the ${niche || "general"} niche.
 
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
 Requirements:
-- Create content focused entirely on "${prompt}"
+- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Tone: ${tone}
 - Language: ${language}
 - Word count: approximately ${wordCount} words per piece
@@ -662,7 +722,7 @@ ${callToAction ? "- Include a call-to-action" : ""}
 - Make each content piece unique and different from the others
 - Vary the approach, style, and presentation
 - Do NOT include "Content 1:", "Content 2:", or any numbering prefixes
-- Generate content based purely on the topic and customization settings provided
+- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 

@@ -43,6 +43,7 @@ import { LinkedInPostButton } from "@/components/linkedin-post-button"
 import { ScheduleButton } from "@/components/schedule-button"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
 import { useEffect } from "react"
+import { useSession } from "next-auth/react"
 
 // Predefined recommended topics
 const allRecommendedTopics = [
@@ -85,6 +86,7 @@ interface Topic {
 }
 
 export default function AIArticlesPage() {
+  const { data: session } = useSession()
   const [topicPrompt, setTopicPrompt] = useState("")
   const [contentType, setContentType] = useState<"caseStudy" | "descriptive" | "list" | "story">("caseStudy")
   const [isGenerating, setIsGenerating] = useState(false)
@@ -776,6 +778,7 @@ Create medium-length, professional content with actionable insights.`
           prompt: enhancedPrompt,
           provider,
           customization: enhancedCustomization,
+          userEmail: session?.user?.email, // Add user email for personal story integration
         }),
       })
 
