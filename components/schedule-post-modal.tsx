@@ -355,7 +355,7 @@ export function SchedulePostModal({
               </div>
 
               {/* Simple Actions */}
-              <div className="border-t px-6 py-4 flex justify-end gap-3 bg-gray-50">
+              <div className="border-t px-6 py-4 flex justify-end gap-3 bg-background">
                 <Button 
                   variant="outline" 
                   onClick={() => setOpen(false)}
