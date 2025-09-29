@@ -197,11 +197,11 @@ class AIService {
     const prompt = await this.buildPrompt(request)
     const { temperature = 0.7, maxTokens = 2000 } = request.customization
 
-    // Always use OpenAI with fixed settings for consistency
+    // Use dynamic temperature for variety
     const completion = await this.getOpenAI().chat.completions.create({
       model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.7, // Fixed temperature for consistent quality
+      temperature: temperature, // Use the temperature from customization
       max_tokens: maxTokens,
     })
 
@@ -369,8 +369,8 @@ Requirements:
 - Target the specified audience
 - Align with the main goal
 - Include at least 3 bullet points (•) to make content more engaging and scannable
-${includeHashtags ? "- Include relevant hashtags" : ""}
-${includeEmojis ? "- Use emojis appropriately for LinkedIn" : ""}
+${includeHashtags ? "- Include 3-5 relevant hashtags only" : ""}
+${includeEmojis ? "- Use 1-2 minimal icons where relevant" : ""}
 ${callToAction ? "- Include clear calls-to-action where appropriate" : ""}
 - Make posts shareable and conversation-starting
 - Do NOT include "Post 1:", "Post 2:", or any numbering prefixes

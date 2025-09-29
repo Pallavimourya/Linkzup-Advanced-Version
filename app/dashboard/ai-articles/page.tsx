@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -88,6 +88,8 @@ export default function AIArticlesPage() {
   const [topicPrompt, setTopicPrompt] = useState("")
   const [contentType, setContentType] = useState<"caseStudy" | "descriptive" | "list" | "story">("caseStudy")
   const [isGenerating, setIsGenerating] = useState(false)
+  const [generatingTopicId, setGeneratingTopicId] = useState<string | null>(null)
+  const [contentVariationCounter, setContentVariationCounter] = useState(0)
   const [topics, setTopics] = useState<Topic[]>([])
   const [expandedTopic, setExpandedTopic] = useState<string | null>(null)
   const [previewContent, setPreviewContent] = useState<string | null>(null)
@@ -206,16 +208,16 @@ export default function AIArticlesPage() {
   }
 
   // Force refresh personalized topics (can be called externally)
-  const forceRefreshPersonalizedTopics = async () => {
+  const forceRefreshPersonalizedTopics = useCallback(async () => {
     console.log("Force refreshing personalized topics...")
     await checkPersonalStoryStatus()
-  }
+  }, [])
 
   // Function to check when tab becomes active
-  const handleTabActivation = () => {
+  const handleTabActivation = useCallback(async () => {
     console.log("Topic Generator tab activated, checking personal story...")
-    checkPersonalStoryStatus()
-  }
+    await checkPersonalStoryStatus()
+  }, [])
 
   // Function to shuffle and display new set of 6 topics
   const handleShuffleTopics = () => {
@@ -269,7 +271,9 @@ export default function AIArticlesPage() {
 
   // Expose the function globally for external calls
   useEffect(() => {
+    // @ts-ignore - Global function exposure for external components
     (window as any).refreshPersonalizedTopics = forceRefreshPersonalizedTopics
+    // @ts-ignore - Global function exposure for external components
     (window as any).checkTopicGeneratorTab = handleTabActivation
     return () => {
       delete (window as any).refreshPersonalizedTopics
@@ -528,8 +532,29 @@ export default function AIArticlesPage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || "Failed to generate topics")
+        let errorData: any = {}
+        try {
+          const responseText = await response.text()
+          console.log("Raw error response:", responseText)
+          
+          if (responseText) {
+            try {
+              errorData = JSON.parse(responseText)
+            } catch (jsonError) {
+              console.error("Failed to parse JSON error response:", jsonError)
+              errorData = { error: responseText || `HTTP ${response.status}: ${response.statusText}` }
+            }
+          } else {
+            errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError)
+          errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+        }
+        
+        console.error("Topic generation failed:", errorData)
+        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        throw new Error(`Topic generation failed: ${errorMessage}`)
       }
 
       const data = await response.json()
@@ -610,6 +635,7 @@ export default function AIArticlesPage() {
 
   const generateContentForTopic = async (topicTitle: string, topicId: string) => {
     setIsGenerating(true)
+    setGeneratingTopicId(topicId)
 
     try {
       console.log("Generating content for approved topic:", topicTitle)
@@ -633,66 +659,228 @@ export default function AIArticlesPage() {
         console.error("Failed to fetch credit data")
       }
 
-      // Ensure we have a valid content type, default to "linkedin-post" if not set
-      const validContentType = contentType || "linkedin-post"
+      // Map content types to valid API content types
+      const getValidContentType = (type: string): string => {
+        switch (type) {
+          case "caseStudy":
+            return "story"
+          case "descriptive":
+            return "article"
+          case "list":
+            return "list"
+          case "story":
+            return "story"
+          default:
+            return "linkedin-post"
+        }
+      }
+      
+      const validContentType = getValidContentType(contentType)
+      
+      // Create highly varied, topic-specific prompts for maximum uniqueness
+      const timestamp = Date.now()
+      const randomSeed = Math.random().toString(36).substring(7)
+      const variationStrategies = [
+        "Share a personal experience related to this topic",
+        "Provide actionable insights and practical tips",
+        "Discuss common challenges and solutions",
+        "Share industry trends and future outlook",
+        "Tell a story that illustrates key concepts",
+        "Provide data-driven insights and statistics",
+        "Share lessons learned from real-world scenarios",
+        "Discuss best practices and expert advice"
+      ]
+      
+      const randomStrategy = variationStrategies[Math.floor(Math.random() * variationStrategies.length)]
+      const contentAngles = [
+        "from a beginner's perspective",
+        "from an expert's viewpoint", 
+        "with real-world examples",
+        "focusing on common mistakes",
+        "highlighting success stories",
+        "with actionable takeaways",
+        "using industry insights",
+        "with personal anecdotes"
+      ]
+      
+      const randomAngle = contentAngles[Math.floor(Math.random() * contentAngles.length)]
+      
+      const enhancedPrompt = `Create a medium-length, professional LinkedIn post about: ${topicTitle}
+
+Approach: ${randomStrategy} ${randomAngle}
+
+Requirements:
+- Keep it medium-length and professional (not too short, not too long)
+- Tone must be direct, concise, and professional
+- Share 1-2 actionable insights or key takeaways related to the topic
+- Use clean formatting with proper spacing for LinkedIn readability
+- Add minimal icons (1-2 where relevant) to highlight key points
+- End with relevant hashtags only (3-5 hashtags, no extra text)
+- Make it highly relevant to the topic: ${topicTitle}
+
+FORMATTING RULES:
+- NO conversation starters
+- NO engagement prompts like "What do you think?"
+- NO fluff or unnecessary content
+- NO "Thank you for reading" or similar phrases
+- NO "Join the conversation" or comment requests
+- NO P.S. sections or extra content
+- Just professional content + 3-5 relevant hashtags
+- Keep it clean, direct, and well-formatted
+
+Context ID: ${timestamp}-${randomSeed}
+Variation #${contentVariationCounter + 1}
+Create medium-length, professional content with actionable insights.`
+      
+      // Use more professional tones for better content
+      const tones = ["professional", "authoritative", "direct", "insightful"]
+      const randomTone = tones[Math.floor(Math.random() * tones.length)]
+      
+      // Enhance customization for maximum variety and topic-specific content
+      const enhancedCustomization = {
+        ...customization,
+        temperature: 0.9, // High temperature for creativity (reduced from 1.3)
+        randomness: 80,   // Good randomness for variety
+        humanLike: false,  // More professional, less human-like
+        personalTouch: false, // Less personal touch for professional tone
+        storytelling: false,  // Less storytelling for concise content
+        emotionalDepth: 40,  // Lower emotional depth for professional tone
+        conversationalStyle: false, // Less conversational for professional tone
+        wordCount: 180, // Medium-length content (not too short, not too long)
+        mainGoal: "engagement", // Focus on engagement
+        ambiguity: 30, // Lower ambiguity for more direct, professional content
+        maxTokens: 800, // Medium-length content with adequate tokens
+        tone: randomTone, // Random tone for variety
+        targetAudience: "LinkedIn professionals interested in this specific topic",
+        niche: topicTitle, // Use topic as niche for better relevance
+        includeHashtags: true,
+        includeEmojis: true, // Minimal icons (1-2) where relevant
+        callToAction: false // No call to action for clean professional posts
+      }
       
       console.log("Sending content generation request...")
       console.log("Request payload:", {
         type: validContentType,
-        prompt: topicTitle,
+        prompt: enhancedPrompt,
         provider,
-        customization
+        customization: enhancedCustomization
       })
+      console.log("Enhanced prompt:", enhancedPrompt)
+      console.log("Enhanced customization:", enhancedCustomization)
       
       const response = await fetch("/api/ai/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: validContentType,
-          prompt: topicTitle,
+          prompt: enhancedPrompt,
           provider,
-          customization,
+          customization: enhancedCustomization,
         }),
       })
 
       console.log("Content generation response status:", response.status)
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
+        let errorData: any = {}
+        try {
+          const responseText = await response.text()
+          console.log("Raw error response:", responseText)
+          
+          if (responseText) {
+            try {
+              errorData = JSON.parse(responseText)
+            } catch (jsonError) {
+              console.error("Failed to parse JSON error response:", jsonError)
+              errorData = { error: responseText || `HTTP ${response.status}: ${response.statusText}` }
+            }
+          } else {
+            errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError)
+          errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+        }
+        
         console.error("Content generation failed:", errorData)
-        throw new Error(`Failed to generate content: ${response.status} - ${errorData.error || 'Unknown error'}`)
+        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        throw new Error(`Content generation failed: ${errorMessage}`)
       }
 
       const data = await response.json()
       console.log("Content generation response data:", data)
       
-      const content = data.data?.content || data.content || ""
-      console.log("Generated content:", content)
+      // Better content extraction logic
+      let content = ""
+      if (data.data) {
+        if (Array.isArray(data.data.content)) {
+          content = data.data.content[0] || data.data.content.join("\n\n")
+        } else {
+          content = data.data.content || ""
+        }
+      } else if (data.content) {
+        if (Array.isArray(data.content)) {
+          content = data.content[0] || data.content.join("\n\n")
+        } else {
+          content = data.content || ""
+        }
+      } else if (data.text) {
+        content = data.text
+      }
+      
+      console.log("Extracted content:", content)
+      console.log("Content length:", content.length)
+      
+      // Clean unwanted content endings
+      if (content) {
+        content = content
+          .replace(/\n*Join the conversation\.?\s*/gi, '')
+          .replace(/\n*\[End of story\]\s*/gi, '')
+          .replace(/\n*P\.S\.\s*.*$/gi, '')
+          .replace(/\n*Join the discussion\.?\s*/gi, '')
+          .replace(/\n*What are your thoughts\?.*$/gi, '')
+          .replace(/\n*Let me know your thoughts.*$/gi, '')
+          .replace(/\n*Share your experience.*$/gi, '')
+          .replace(/\n*Thank you for reading!.*$/gi, '')
+          .replace(/\n*If you've experienced something similar.*$/gi, '')
+          .replace(/\n*I'd love to hear it in the comments.*$/gi, '')
+          .replace(/\n*I'd love to hear your thoughts.*$/gi, '')
+          .replace(/\n*Feel free to share your experience.*$/gi, '')
+          .replace(/\n*What's your take on this\?.*$/gi, '')
+          .replace(/\n*Drop your thoughts below.*$/gi, '')
+          .replace(/\n*Let's discuss in the comments.*$/gi, '')
+          .replace(/\n*Share your story below.*$/gi, '')
+          .replace(/\n*I'd love to hear from you.*$/gi, '')
+          .replace(/\n*What do you think\?.*$/gi, '')
+          .replace(/\n*Your thoughts\?.*$/gi, '')
+          .trim()
+        
+        console.log("Cleaned content:", content)
+      }
 
       if (!content || content.length < 10) {
-        console.log("Generated content is too short, creating fallback content")
-        // Create fallback content based on the topic
-        const fallbackContent = `${topicTitle}
+        console.log("Generated content is too short, creating topic-specific fallback content")
+        // Create topic-specific fallback content
+        const fallbackContent = `I've been thinking about ${topicTitle} lately, and it's fascinating how this topic impacts our professional lives.
 
-This is an important topic that many professionals can relate to. In my experience, this has been a key factor in professional growth and development.
+Here are some insights I've gathered:
 
-Key insights:
-• Understanding the fundamentals is crucial
-• Continuous learning and adaptation are essential
-• Building strong relationships and networks matters
-• Persistence and resilience lead to success
+• The key to success in this area is understanding the core principles
+• Many professionals overlook the importance of continuous learning
+• Building expertise takes time, but the results are worth it
+• Sharing knowledge with others accelerates everyone's growth
 
-What are your thoughts on this topic? I'd love to hear your experiences and insights in the comments below.
+The journey of mastering ${topicTitle} is both challenging and rewarding. Every professional's path is unique, but the principles remain constant.
 
-#ProfessionalGrowth #CareerDevelopment #LinkedIn`
+#ProfessionalGrowth #Learning #LinkedIn`
 
         // Create a topic object for the approved topic with fallback content
         const approvedTopic: Topic = {
           id: topicId,
           title: topicTitle,
           content: fallbackContent,
-          category: "approved",
-          description: "Approved topic from personal story (fallback content)",
+          viralChance: 75,
+          niche: "Approved Topic",
           status: "generated"
         }
 
@@ -700,7 +888,7 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
         setTopics(prev => [approvedTopic, ...prev])
         setSelectedTopicId(topicId)
         setPreviewContent(fallbackContent)
-        setShowPreview(true)
+        setPreviewingTopicId(topicId)
 
         toast({
           title: "Content Generated (Fallback)",
@@ -714,8 +902,8 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
         id: topicId,
         title: topicTitle,
         content: content,
-        category: "approved",
-        description: "Approved topic from personal story",
+        viralChance: 75,
+        niche: "Approved Topic",
         status: "generated"
       }
 
@@ -723,38 +911,48 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       setTopics(prev => [approvedTopic, ...prev])
       setSelectedTopicId(topicId)
       setPreviewContent(content)
-      setShowPreview(true)
+      setPreviewingTopicId(topicId)
 
+      // Increment variation counter for next generation
+      setContentVariationCounter(prev => prev + 1)
+      
       toast({
         title: "Content Generated!",
-        description: "Your content has been generated successfully.",
+        description: "Your unique content has been generated successfully.",
       })
     } catch (error) {
       console.error("Error generating content for approved topic:", error)
       
       // Create fallback content even if there's an error
-      console.log("Creating fallback content due to error")
-      const fallbackContent = `${topicTitle}
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      console.log("Creating fallback content due to error:", errorMessage)
+      
+      // Show user-friendly error message
+      toast({
+        title: "Content Generation Failed",
+        description: `Failed to generate content: ${errorMessage}. Using fallback content instead.`,
+        variant: "destructive",
+      })
+      const fallbackContent = `I've been thinking about ${topicTitle} lately, and it's fascinating how this topic impacts our professional lives.
 
-This is an important topic that many professionals can relate to. In my experience, this has been a key factor in professional growth and development.
+Here are some insights I've gathered:
 
-Key insights:
-• Understanding the fundamentals is crucial
-• Continuous learning and adaptation are essential
-• Building strong relationships and networks matters
-• Persistence and resilience lead to success
+• The key to success in this area is understanding the core principles
+• Many professionals overlook the importance of continuous learning
+• Building expertise takes time, but the results are worth it
+• Sharing knowledge with others accelerates everyone's growth
 
-What are your thoughts on this topic? I'd love to hear your experiences and insights in the comments below.
+The journey of mastering ${topicTitle} is both challenging and rewarding. Every professional's path is unique, but the principles remain constant.
 
-#ProfessionalGrowth #CareerDevelopment #LinkedIn`
+#ProfessionalGrowth #Learning #LinkedIn`
 
       // Create a topic object for the approved topic with fallback content
       const approvedTopic: Topic = {
         id: topicId,
         title: topicTitle,
         content: fallbackContent,
-        category: "approved",
-        description: "Approved topic from personal story (fallback content)",
+        viralChance: 75,
+        niche: "Approved Topic",
         status: "generated"
       }
 
@@ -762,7 +960,7 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       setTopics(prev => [approvedTopic, ...prev])
       setSelectedTopicId(topicId)
       setPreviewContent(fallbackContent)
-      setShowPreview(true)
+      setPreviewingTopicId(topicId)
 
       toast({
         title: "Content Generated (Fallback)",
@@ -770,6 +968,7 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       })
     } finally {
       setIsGenerating(false)
+      setGeneratingTopicId(null)
     }
   }
 
@@ -817,8 +1016,29 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || "Failed to generate content")
+        let errorData: any = {}
+        try {
+          const responseText = await response.text()
+          console.log("Raw error response:", responseText)
+          
+          if (responseText) {
+            try {
+              errorData = JSON.parse(responseText)
+            } catch (jsonError) {
+              console.error("Failed to parse JSON error response:", jsonError)
+              errorData = { error: responseText || `HTTP ${response.status}: ${response.statusText}` }
+            }
+          } else {
+            errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError)
+          errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+        }
+        
+        console.error("Content generation failed:", errorData)
+        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        throw new Error(`Content generation failed: ${errorMessage}`)
       }
 
       const data = await response.json()
@@ -911,8 +1131,29 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || "Failed to generate content")
+        let errorData: any = {}
+        try {
+          const responseText = await response.text()
+          console.log("Raw error response:", responseText)
+          
+          if (responseText) {
+            try {
+              errorData = JSON.parse(responseText)
+            } catch (jsonError) {
+              console.error("Failed to parse JSON error response:", jsonError)
+              errorData = { error: responseText || `HTTP ${response.status}: ${response.statusText}` }
+            }
+          } else {
+            errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError)
+          errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
+        }
+        
+        console.error("Content generation failed:", errorData)
+        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        throw new Error(`Content generation failed: ${errorMessage}`)
       }
 
       const data = await response.json()
@@ -1230,10 +1471,10 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                                 console.log("Generating content for approved topic:", topic.title)
                                 generateContentForTopic(topic.title, `approved-${topic._id || index}`)
                               }}
-                              disabled={isGenerating}
+                              disabled={generatingTopicId === `approved-${topic._id || index}`}
                               className="flex-1 h-9 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
                             >
-                              {isGenerating ? (
+                              {generatingTopicId === `approved-${topic._id || index}` ? (
                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
                               ) : (
                                 <Sparkles className="w-4 h-4 mr-2" />

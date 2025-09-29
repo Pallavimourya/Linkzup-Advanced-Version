@@ -500,7 +500,7 @@ export function EnhancedLinkedInPreview({
                     <svg className={`fill="currentColor" viewBox="0 0 24 24" ${
                       deviceView === "mobile" ? "w-5 h-5" : "w-5 h-5"
                     }`}>
-                      <path d="M19.46 11l-3.91-3.91a7 7 0 0 1-1.69-2.74l-.49-1.47A.82.82 0 0 0 12.65 2a.81.81 0 0 0-.72.57L11 5.09l-1.35.45a1 1 0 0 0-.79.68l-.72 2.19a6.65 6.65 0 0 1-1.28 2.6l-2.32 3.56a1 1 0 0 0-.11.57l.43 4.24a1 1 0 0 0 .9.9l4.24.43a1 1 0 0 0 .57-.11l3.56-2.32a6.65 6.65 0 0 1 2.6-1.28l2.19-.72a1 1 0 0 0 .68-.79l.45-1.35.52-1.93a.81.81 0 0 0-.58-.95z"/>
+                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
                     </svg>
                     <span className={deviceView === "mobile" ? "text-sm" : ""}>Like</span>
                   </button>
