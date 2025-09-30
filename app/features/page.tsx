@@ -316,12 +316,12 @@ export default function FeaturesPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card/30 py-12 px-4 sm:px-6 lg:px-8">
+      <footer className="border-t border-border bg-card/30 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Link href="/" className="flex items-center space-x-2">
-                <Logo size="md" />
+                <Logo size="4xl" />
               </Link>
               <p className="text-muted-foreground">
                 Transform your professional identity with AI-powered personal branding.
@@ -393,7 +393,7 @@ export default function FeaturesPage() {
           </div>
 
           <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 LinkZup. All rights reserved.</p>
+            <p>&copy; 2025 LinkZup. All rights reserved.</p>
           </div>
         </div>
       </footer>

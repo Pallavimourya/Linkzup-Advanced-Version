@@ -78,7 +78,7 @@ export function MobileDashboardNav() {
         
           {/* Credit Display */}
           {/* <Link href="/dashboard" onClick={closeSheet}>
-              <Logo size="lg" className="justify-center" />
+              <Logo size="4xl" className="justify-center" />
             </Link> */}
           <div className="p-4 sm:p-6 border-b border-blue-200/30 dark:border-blue-800/30">
             <CreditDisplay compact={true} />

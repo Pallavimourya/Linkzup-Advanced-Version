@@ -130,7 +130,7 @@ export function AppSidebar() {
                       }`}
                     >
                       <Logo 
-                        size={state === "collapsed" ? "sm" : "md"} 
+                        size={state === "collapsed" ? "2xl" : "3xl"} 
                         className="flex-shrink-0" 
                       />
                     </Link>
