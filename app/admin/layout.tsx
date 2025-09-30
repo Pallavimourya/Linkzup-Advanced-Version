@@ -10,6 +10,7 @@ import useSWR from "swr"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
+import { AdminNotificationBell } from "@/components/admin-notification-bell"
 import { 
   LayoutDashboard, 
   Users, 
@@ -23,7 +24,8 @@ import {
   ChevronDown,
   ChevronRight,
   Menu,
-  X
+  X,
+  MessageSquare
 } from "lucide-react"
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -38,6 +40,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   // Fetch summary data for sidebar
   const fetcher = (url: string) => fetch(url).then((r) => r.json())
   const { data: summaryData } = useSWR("/api/admin/analytics/summary", fetcher)
+  const { data: contactData } = useSWR("/api/admin/contact-submissions?limit=1", fetcher)
 
   if (status === "loading") {
     return (
@@ -108,6 +111,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           icon: Tag,
           description: "Discount management",
           badge: summaryData?.coupons?.active || 0
+        },
+        {
+          title: "Contact",
+          href: "/admin/contact",
+          icon: MessageSquare,
+          description: "Contact submissions",
+          badge: contactData?.statusStats?.new || 0
         }
       ]
     },
@@ -194,6 +204,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </p>
               </div>
             </div>
+
+            {/* Notifications */}
+            <AdminNotificationBell />
 
             {/* Theme Toggle - Reduced height on mobile */}
             <div className="bg-gray-100 dark:bg-gray-800 rounded-lg">
