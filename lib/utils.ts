@@ -13,14 +13,22 @@ export function refreshCredits() {
 }
 
 // Utility function to format credits display
-export function formatCredits(credits: number): string {
+export function formatCredits(credits: number | undefined | null): string {
+  // Handle null, undefined, or invalid values
+  if (credits === null || credits === undefined || isNaN(credits)) {
+    return "0 credits"
+  }
   // Limit decimal places to 2 to prevent excessive precision
   const formattedCredits = Number.isInteger(credits) ? credits : parseFloat(credits.toFixed(2))
   return `${formattedCredits} credit${formattedCredits !== 1 ? 's' : ''}`
 }
 
 // Utility function to format credits as number only (no "credit/credits" text)
-export function formatCreditsNumber(credits: number): string {
+export function formatCreditsNumber(credits: number | undefined | null): string {
+  // Handle null, undefined, or invalid values
+  if (credits === null || credits === undefined || isNaN(credits)) {
+    return "0.00"
+  }
   // Always show exactly 2 decimal places
   return credits.toFixed(2)
 }

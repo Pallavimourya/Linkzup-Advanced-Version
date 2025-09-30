@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Crown, Check, X, Zap, CreditCard } from "lucide-react"
 import { getPlanAccessibility, PLAN_LIMITS } from "@/lib/credit-utils"
+import { formatCreditsNumber } from "@/lib/utils"
 
 interface UserData {
   credits: number
@@ -125,7 +126,7 @@ export default function PlanAccessibility() {
             <span className="font-medium">Available Credits</span>
           </div>
           <Badge variant="secondary" className="text-lg">
-            {userData.credits} credits
+            {formatCreditsNumber(userData.credits)} credits
           </Badge>
         </div>
 
@@ -145,7 +146,7 @@ export default function PlanAccessibility() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {usage.textOnly} / {limits.textOnly}
+                    {formatCreditsNumber(usage.textOnly)} / {formatCreditsNumber(limits.textOnly)}
                   </span>
                   <Badge variant="outline" className="text-xs">
                     0.5 credits each
@@ -167,7 +168,7 @@ export default function PlanAccessibility() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {usage.textWithPost} / {limits.textWithPost}
+                    {formatCreditsNumber(usage.textWithPost)} / {formatCreditsNumber(limits.textWithPost)}
                   </span>
                   <Badge variant="outline" className="text-xs">
                     1 credit each
@@ -189,7 +190,7 @@ export default function PlanAccessibility() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {usage.textWithImage} / {limits.textWithImage}
+                    {formatCreditsNumber(usage.textWithImage)} / {formatCreditsNumber(limits.textWithImage)}
                   </span>
                   <Badge variant="outline" className="text-xs">
                     1.5 credits each
@@ -211,7 +212,7 @@ export default function PlanAccessibility() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {usage.textImagePost} / {limits.textImagePost}
+                    {formatCreditsNumber(usage.textImagePost)} / {formatCreditsNumber(limits.textImagePost)}
                   </span>
                   <Badge variant="outline" className="text-xs">
                     2 credits each
@@ -233,7 +234,7 @@ export default function PlanAccessibility() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {usage.imageOnly} / {limits.imageOnly}
+                    {formatCreditsNumber(usage.imageOnly)} / {formatCreditsNumber(limits.imageOnly)}
                   </span>
                   <Badge variant="outline" className="text-xs">
                     1 credit each
@@ -255,7 +256,7 @@ export default function PlanAccessibility() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {usage.autoPost} / {limits.autoPost}
+                    {formatCreditsNumber(usage.autoPost)} / {formatCreditsNumber(limits.autoPost)}
                   </span>
                   <Badge variant="outline" className="text-xs">
                     0.5 credits each

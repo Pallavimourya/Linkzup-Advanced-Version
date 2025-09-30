@@ -2612,11 +2612,11 @@ What do you think? Share your thoughts in the comments below.
               </CardHeader>
               <CardContent className="p-4 sm:p-6 space-y-4">
                         <Tabs defaultValue="background" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 p-2 h-auto">
-            <TabsTrigger value="background" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Background</TabsTrigger>
-            <TabsTrigger value="layout" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Layout</TabsTrigger>
-            <TabsTrigger value="fonts" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Fonts</TabsTrigger>
-            <TabsTrigger value="elements" className="text-xs sm:text-sm px-3 py-3 h-auto whitespace-nowrap">Elements</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2 p-1 sm:p-2 h-auto">
+            <TabsTrigger value="background" className="text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 h-auto text-center truncate">Background</TabsTrigger>
+            <TabsTrigger value="layout" className="text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 h-auto text-center truncate">Layout</TabsTrigger>
+            <TabsTrigger value="fonts" className="text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 h-auto text-center truncate">Fonts</TabsTrigger>
+            <TabsTrigger value="elements" className="text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 h-auto text-center truncate">Elements</TabsTrigger>
           </TabsList>
 
           <TabsContent value="fonts" className="mt-8 space-y-6">

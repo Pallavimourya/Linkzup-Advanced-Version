@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { CreditCard, Calendar, RefreshCw, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
+import { formatCreditsNumber } from "@/lib/utils"
 
 interface MonthlyCreditData {
   monthlyCredits: number
@@ -144,10 +145,10 @@ export default function MonthlyCreditStatus() {
             <span className="text-sm font-medium">Monthly Credits</span>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-primary">
-                {creditData.monthlyCredits}
+                {formatCreditsNumber(creditData.monthlyCredits)}
               </span>
               <span className="text-sm text-muted-foreground">
-                / {planMonthlyCredits}
+                / {formatCreditsNumber(planMonthlyCredits)}
               </span>
             </div>
           </div>
@@ -166,7 +167,7 @@ export default function MonthlyCreditStatus() {
             <span className="font-medium">Additional Credits</span>
           </div>
           <Badge variant="secondary" className="text-lg">
-            {creditData.totalCredits}
+            {formatCreditsNumber(creditData.totalCredits)}
           </Badge>
         </div>
 
@@ -177,7 +178,7 @@ export default function MonthlyCreditStatus() {
             <span className="font-medium">Total Available</span>
           </div>
           <Badge variant="default" className="text-lg">
-            {creditData.monthlyCredits + creditData.totalCredits}
+            {formatCreditsNumber(creditData.monthlyCredits + creditData.totalCredits)}
           </Badge>
         </div>
 
