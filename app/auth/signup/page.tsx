@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { PasswordStrength } from "@/components/ui/password-strength"
-import { Sparkles, Mail, Lock, User, ArrowLeft } from "lucide-react"
+import { Sparkles, Mail, Lock, User, ArrowLeft, Phone, MapPin } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { signIn } from "next-auth/react"
@@ -22,6 +22,8 @@ export default function SignUpPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    contactNo: "",
+    city: "",
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
@@ -33,6 +35,8 @@ export default function SignUpPage() {
   const isFormValid =
     formData.name &&
     formData.email &&
+    formData.contactNo &&
+    formData.city &&
     passwordStrength.isValid &&
     formData.password === formData.confirmPassword &&
     formData.agreeToTerms
@@ -71,6 +75,8 @@ export default function SignUpPage() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          contactNo: formData.contactNo,
+          city: formData.city,
           password: formData.password,
         }),
       })
@@ -164,18 +170,18 @@ export default function SignUpPage() {
       />
 
       <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
           {/* Back to Home */}
           <Link
             href="/"
-            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8 transition-colors"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
 
           <Card className="border-border shadow-lg">
-            <CardHeader className="text-center space-y-4">
+            <CardHeader className="text-center space-y-3">
               <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mx-auto">
                 <Sparkles className="w-6 h-6 text-primary-foreground" />
               </div>
@@ -185,7 +191,7 @@ export default function SignUpPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               {/* Social Sign Up */}
               <div className="space-y-3">
                 <Button
@@ -243,8 +249,8 @@ export default function SignUpPage() {
               </div>
 
               {/* Email Sign Up Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="space-y-1">
                   <Label htmlFor="name">Full Name</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -254,13 +260,13 @@ export default function SignUpPage() {
                       placeholder="Enter your full name"
                       value={formData.name}
                       onChange={(e) => handleInputChange("name", e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -270,13 +276,45 @@ export default function SignUpPage() {
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1">
+                  <Label htmlFor="contactNo">Contact Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="contactNo"
+                      type="tel"
+                      placeholder="Enter your contact number"
+                      value={formData.contactNo}
+                      onChange={(e) => handleInputChange("contactNo", e.target.value)}
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="city">City</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="city"
+                      type="text"
+                      placeholder="Enter your city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange("city", e.target.value)}
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -286,14 +324,14 @@ export default function SignUpPage() {
                       placeholder="Create a strong password"
                       value={formData.password}
                       onChange={(e) => handleInputChange("password", e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required
                     />
                   </div>
                   {formData.password && <PasswordStrength password={formData.password} />}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -303,7 +341,7 @@ export default function SignUpPage() {
                       placeholder="Confirm your password"
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required
                     />
                   </div>
@@ -312,11 +350,12 @@ export default function SignUpPage() {
                   )}
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 p-3 border border-border rounded-md bg-card/50">
                   <Checkbox
                     id="terms"
                     checked={formData.agreeToTerms}
                     onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
+                    className="border-2 border-border data-[state=checked]:border-primary"
                   />
                   <Label htmlFor="terms" className="text-sm text-muted-foreground">
                     I agree to the{" "}

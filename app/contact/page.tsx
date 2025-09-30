@@ -214,6 +214,7 @@ export default function ContactPage() {
                       placeholder="John" 
                       value={formData.firstName}
                       onChange={handleInputChange}
+                      className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required 
                     />
                   </div>
@@ -227,6 +228,7 @@ export default function ContactPage() {
                       placeholder="Doe" 
                       value={formData.lastName}
                       onChange={handleInputChange}
+                      className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required 
                     />
                   </div>
@@ -243,6 +245,7 @@ export default function ContactPage() {
                     placeholder="john@example.com" 
                     value={formData.email}
                     onChange={handleInputChange}
+                    className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                     required 
                   />
                 </div>
@@ -257,6 +260,7 @@ export default function ContactPage() {
                     placeholder="+91 9876543210" 
                     value={formData.phone}
                     onChange={handleInputChange}
+                    className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
@@ -265,15 +269,18 @@ export default function ContactPage() {
                     Service Interest
                   </label>
                   <Select value={formData.service} onValueChange={handleServiceChange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20">
                       <SelectValue placeholder="Select a service" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="profile-revamp">Profile Revamp</SelectItem>
-                      <SelectItem value="content-calendar">Content Calendar</SelectItem>
-                      <SelectItem value="engagement">Engagement & DMs</SelectItem>
-                      <SelectItem value="growth-insights">Growth Insights</SelectItem>
-                      <SelectItem value="complete-package">Complete Package</SelectItem>
+                      <SelectItem value="ai-content-generation">AI Content Generation</SelectItem>
+                      <SelectItem value="linkedin-posting">LinkedIn Posting & Scheduling</SelectItem>
+                      <SelectItem value="carousel-creation">AI Carousel Creation</SelectItem>
+                      <SelectItem value="personal-story">Personal Story Integration</SelectItem>
+                      <SelectItem value="content-optimization">Content Optimization</SelectItem>
+                      <SelectItem value="analytics-insights">Analytics & Insights</SelectItem>
+                      <SelectItem value="custom-features">Custom Features</SelectItem>
+                      <SelectItem value="general-inquiry">General Inquiry</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -290,7 +297,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleInputChange}
                     required 
-                    className="border border-gray-300 dark:border-gray-600"
+                    className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 

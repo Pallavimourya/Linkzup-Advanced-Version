@@ -986,7 +986,7 @@ export default function CustomPostPage() {
                         htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent
                       }))
                     }}
-                    className="min-h-[200px] sm:min-h-[250px] resize-none text-base leading-relaxed border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-200 dark:focus:ring-blue-800/20 rounded-xl bg-white/80 dark:bg-black/80 focus:bg-white dark:focus:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 pr-12 transition-all duration-200"
+                    className="min-h-[200px] sm:min-h-[250px] resize-none text-base leading-relaxed border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl bg-background/80 focus:bg-background text-foreground placeholder-muted-foreground pr-12 transition-all duration-200"
                     maxLength={maxCharacters}
                   />
                   <div className="absolute bottom-4 right-4">
@@ -1684,7 +1684,7 @@ export default function CustomPostPage() {
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 rows={4}
-                className="border border-blue-200 dark:border-blue-800 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 bg-background text-foreground placeholder-muted-foreground"
               />
             </div>
 

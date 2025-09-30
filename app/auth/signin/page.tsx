@@ -200,7 +200,7 @@ function SignInPageContent() {
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required
                     />
                   </div>
@@ -216,7 +216,7 @@ function SignInPageContent() {
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       required
                     />
                   </div>

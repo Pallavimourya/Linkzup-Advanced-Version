@@ -9,9 +9,9 @@ const client = new MongoClient(process.env.MONGODB_URI || "mongodb://localhost:2
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password, deviceFingerprint } = await request.json()
+    const { name, email, contactNo, city, password, deviceFingerprint } = await request.json()
 
-    if (!name || !email || !password) {
+    if (!name || !email || !contactNo || !city || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -71,6 +71,8 @@ export async function POST(request: NextRequest) {
     const result = await users.insertOne({
       name,
       email,
+      contactNo,
+      city,
       password: hashedPassword,
       createdAt: new Date(),
       emailVerified: null,
