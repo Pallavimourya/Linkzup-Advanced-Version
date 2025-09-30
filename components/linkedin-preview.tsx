@@ -20,7 +20,8 @@ import {
   Send,
   Settings,
   Smartphone,
-  Monitor
+  Monitor,
+  Check
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
@@ -38,8 +39,9 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
   const { toast } = useToast()
   const { isLinkedInConnected } = useLinkedInPosting()
   const { data: session } = useSession()
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedImages, setSelectedImages] = useState<string[]>([])
   const [imageSource, setImageSource] = useState<"ai-carousel" | "search" | "ai-generate" | "upload" | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
   
   // Edit functionality state
   const [isEditing, setIsEditing] = useState(false)
@@ -54,7 +56,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
-  const [selectedSource, setSelectedSource] = useState("unsplash")
+  const [selectedSource, setSelectedSource] = useState("google")
   const [aiPrompt, setAiPrompt] = useState("")
   const [aiResults, setAiResults] = useState<any[]>([])
   const [uploadedImages, setUploadedImages] = useState<string[]>([])
@@ -228,10 +230,40 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
   }
 
   const handleImageSelect = (imageUrl: string) => {
-    setSelectedImage(imageUrl)
+    if (selectedImages.includes(imageUrl)) {
+      // If image is already selected, remove it
+      setSelectedImages(prev => prev.filter(img => img !== imageUrl))
+      toast({
+        title: "Image removed",
+        description: "Image has been removed from selection",
+      })
+    } else {
+      // Add new image to selection
+      setSelectedImages(prev => [...prev, imageUrl])
+      toast({
+        title: "Image selected",
+        description: "Image has been added to your selection",
+      })
+    }
+  }
+
+  const handleImagePreview = (imageUrl: string) => {
+    setPreviewImage(imageUrl)
+  }
+
+  const handleRemoveImage = (imageUrl: string) => {
+    setSelectedImages(prev => prev.filter(img => img !== imageUrl))
     toast({
-      title: "Image selected",
-      description: "Image has been selected for your content",
+      title: "Image removed",
+      description: "Image has been removed from selection",
+    })
+  }
+
+  const handleClearAllImages = () => {
+    setSelectedImages([])
+    toast({
+      title: "All images cleared",
+      description: "All selected images have been removed",
     })
   }
 
@@ -335,13 +367,18 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
               )}
             </div>
 
-            {selectedImage && (
+            {selectedImages.length > 0 && (
               <div className="mb-4">
-                <img 
-                  src={selectedImage} 
-                  alt="Post image" 
-                  className={`w-full rounded-lg ${previewMode === "mobile" ? "h-48 object-cover" : ""}`}
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  {selectedImages.map((imageUrl, index) => (
+                    <img 
+                      key={index}
+                      src={imageUrl} 
+                      alt={`Post image ${index + 1}`} 
+                      className={`w-full rounded-lg ${previewMode === "mobile" ? "h-48 object-cover" : "h-32 object-cover"}`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -389,29 +426,48 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
           {/* Image Options */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium">Add Image to Your Post</h3>
-              {selectedImage && (
+              <h3 className="font-medium">Add Images to Your Post</h3>
+              {selectedImages.length > 0 && (
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setSelectedImage(null)}
+                  onClick={handleClearAllImages}
                 >
                   <X className="w-4 h-4 mr-2" />
-                  Remove Image
+                  Clear All
                 </Button>
               )}
             </div>
 
-            {selectedImage && (
-              <div className="relative">
-                <img
-                  src={selectedImage}
-                  alt="Selected for content"
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <Badge className="absolute top-2 left-2">
-                  Selected Image
-                </Badge>
+            {selectedImages.length > 0 && (
+              <div className="space-y-2">
+                <Label>Selected Images ({selectedImages.length})</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {selectedImages.map((imageUrl, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={imageUrl}
+                        alt={`Selected ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => handleImagePreview(imageUrl)}
+                      />
+                      <Badge className="absolute top-2 left-2">
+                        {index + 1}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRemoveImage(imageUrl)
+                        }}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -464,17 +520,29 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                     {uploadedImages.length > 0 && (
                       <div className="space-y-2 mt-4">
                         <Label>Uploaded Images</Label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {uploadedImages.map((url, index) => (
-                            <div key={index} className="relative group">
-                              <img
-                                src={url}
-                                alt={`Uploaded ${index + 1}`}
-                                className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => handleImageSelect(url)}
-                              />
-                            </div>
-                          ))}
+                          <div className="grid grid-cols-3 gap-2">
+                            {uploadedImages.map((url, index) => {
+                              const isSelected = selectedImages.includes(url)
+                              return (
+                                <div key={index} className="relative group">
+                                  <img
+                                    src={url}
+                                    alt={`Uploaded ${index + 1}`}
+                                    className={`w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity ${
+                                      isSelected ? 'ring-2 ring-blue-500' : ''
+                                    }`}
+                                    onClick={() => handleImageSelect(url)}
+                                  />
+                                  {isSelected && (
+                                    <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                      <div className="bg-blue-500 text-white rounded-full p-1">
+                                        <Check className="w-3 h-3" />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
                         </div>
                       </div>
                     )}
@@ -518,20 +586,32 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                     {searchResults.length > 0 && (
                       <div className="space-y-2">
                         <Label>Search Results</Label>
-                        <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                          {searchResults.map((result) => (
-                            <div key={result.id} className="relative group">
-                              <img
-                                src={result.thumbnail}
-                                alt={result.title || 'Search result'}
-                                className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => handleImageSelect(result.url)}
-                              />
-                              <Badge className="absolute top-1 left-1 text-xs">
-                                {result.source}
-                              </Badge>
-                            </div>
-                          ))}
+                          <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                            {searchResults.map((result) => {
+                              const isSelected = selectedImages.includes(result.url)
+                              return (
+                                <div key={result.id} className="relative group">
+                                  <img
+                                    src={result.thumbnail}
+                                    alt={result.title || 'Search result'}
+                                    className={`w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity ${
+                                      isSelected ? 'ring-2 ring-blue-500' : ''
+                                    }`}
+                                    onClick={() => handleImageSelect(result.url)}
+                                  />
+                                  <Badge className="absolute top-1 left-1 text-xs">
+                                    {result.source}
+                                  </Badge>
+                                  {isSelected && (
+                                    <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                      <div className="bg-blue-500 text-white rounded-full p-1">
+                                        <Check className="w-3 h-3" />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
                         </div>
                       </div>
                     )}
@@ -570,19 +650,31 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                       <div className="space-y-2 mt-4">
                         <Label>Generated Images</Label>
                         <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                          {aiResults.map((result) => (
-                            <div key={result.id} className="relative group">
-                              <img
-                                src={result.url}
-                                alt={result.prompt}
-                                className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => handleImageSelect(result.url)}
-                              />
-                              <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded">
-                                {result.prompt.substring(0, 50)}...
+                          {aiResults.map((result) => {
+                            const isSelected = selectedImages.includes(result.url)
+                            return (
+                              <div key={result.id} className="relative group">
+                                <img
+                                  src={result.url}
+                                  alt={result.prompt}
+                                  className={`w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity ${
+                                    isSelected ? 'ring-2 ring-blue-500' : ''
+                                  }`}
+                                  onClick={() => handleImageSelect(result.url)}
+                                />
+                                <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded">
+                                  {result.prompt.substring(0, 50)}...
+                                </div>
+                                {isSelected && (
+                                  <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <div className="bg-blue-500 text-white rounded-full p-1">
+                                      <Check className="w-3 h-3" />
+                                    </div>
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                     )}
@@ -603,7 +695,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
               <div className="space-y-3">
                 <LinkedInPostButton 
                   content={content} 
-                  images={selectedImage ? [selectedImage] : undefined}
+                  images={selectedImages.length > 0 ? selectedImages : undefined}
                   className="w-full h-12 text-base"
                 />
                 <Button 
@@ -642,7 +734,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                 </Button>
                 <LinkedInPostButton 
                   content={content} 
-                  images={selectedImage ? [selectedImage] : undefined}
+                  images={selectedImages.length > 0 ? selectedImages : undefined}
                   className="h-10 px-4"
                 />
               </div>
@@ -650,6 +742,27 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
           </div>
         </CardContent>
       </Card>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="relative max-w-4xl max-h-full">
+            <Button
+              variant="outline"
+              size="sm"
+              className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white"
+              onClick={() => setPreviewImage(null)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

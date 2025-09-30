@@ -47,7 +47,8 @@ import {
   Palette,
   Wand2,
   Loader2,
-  Mic
+  Mic,
+  Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -254,12 +255,13 @@ export default function CustomPostPage() {
   const { generateContent, isGenerating } = useAIGeneration()
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [showImageSearch, setShowImageSearch] = useState(false)
-  const [imageSource, setImageSource] = useState("unsplash")
+  const [imageSource, setImageSource] = useState("google")
   const [searchQuery, setSearchQuery] = useState("car")
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor")
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -274,6 +276,34 @@ export default function CustomPostPage() {
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
     }))
+  }
+
+  const handleImagePreview = (imageUrl: string) => {
+    setPreviewImage(imageUrl)
+  }
+
+  const handleImageSelect = (imageUrl: string) => {
+    if (postData.images.includes(imageUrl)) {
+      // If image is already selected, remove it
+      setPostData(prev => ({
+        ...prev,
+        images: prev.images.filter(img => img !== imageUrl)
+      }))
+      toast({
+        title: "Image removed",
+        description: "Image has been removed from selection",
+      })
+    } else {
+      // Add new image to selection
+      setPostData(prev => ({
+        ...prev,
+        images: [...prev.images, imageUrl]
+      }))
+      toast({
+        title: "Image selected",
+        description: "Image has been added to your selection",
+      })
+    }
   }
 
   const addTag = () => {
@@ -1053,20 +1083,40 @@ export default function CustomPostPage() {
                   {/* Uploaded Images Preview */}
                   {postData.images.length > 0 && (
                     <div className="space-y-4">
-                      <h4 className="text-base font-semibold text-black dark:text-white">Uploaded Images</h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-base font-semibold text-black dark:text-white">
+                          Selected Images ({postData.images.length})
+                        </h4>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setPostData(prev => ({ ...prev, images: [] }))}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Clear All
+                        </Button>
+                      </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {postData.images.map((img, i) => (
                           <div key={i} className="relative group">
                             <img 
                               src={img} 
                               alt="preview" 
-                              className="rounded-xl h-20 sm:h-24 w-full object-cover border-2 border-blue-200 dark:border-blue-800 shadow-sm" 
+                              className="rounded-xl h-20 sm:h-24 w-full object-cover border-2 border-blue-200 dark:border-blue-800 shadow-sm cursor-pointer hover:opacity-80 transition-opacity" 
+                              onClick={() => handleImagePreview(img)}
                             />
+                            <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                              {i + 1}
+                            </div>
                             <button 
-                              onClick={() => removeImage(i)} 
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                removeImage(i)
+                              }} 
                               className="absolute -top-2 -right-2 bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
                             >
-                              ×
+                              <X className="w-3 h-3" />
                             </button>
                           </div>
                         ))}
@@ -1458,30 +1508,59 @@ export default function CustomPostPage() {
               {/* Search Results */}
               <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 max-h-64 sm:max-h-96 overflow-y-auto">
                 {searchResults.length > 0 ? (
-                  searchResults.map((image, i) => (
-                    <div key={image.id || i} className="relative group cursor-pointer">
-                      <img 
-                        src={image.url} 
-                        alt={image.alt || `Search result ${i + 1}`}
-                        className="aspect-square rounded-lg object-cover border border-blue-200 dark:border-blue-800 hover:scale-105 transition-transform duration-200"
-                        onError={(e) => {
-                          // Fallback to placeholder if image fails to load
-                          const target = e.target as HTMLImageElement
-                          target.src = `https://via.placeholder.com/400x400/666666/FFFFFF?text=${encodeURIComponent(searchQuery || 'Image')}`
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-blue-500 hover:bg-blue-600 text-xs"
-                          onClick={() => handleAddImageFromSearch(image.url)}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add
-                        </Button>
+                  searchResults.map((image, i) => {
+                    const isSelected = postData.images.includes(image.url)
+                    return (
+                      <div key={image.id || i} className="relative group cursor-pointer">
+                        <img 
+                          src={image.url} 
+                          alt={image.alt || `Search result ${i + 1}`}
+                          className={`aspect-square rounded-lg object-cover border hover:scale-105 transition-transform duration-200 ${
+                            isSelected ? 'border-blue-500 ring-2 ring-blue-500' : 'border-blue-200 dark:border-blue-800'
+                          }`}
+                          onClick={() => handleImagePreview(image.url)}
+                          onError={(e) => {
+                            // Fallback to placeholder if image fails to load
+                            const target = e.target as HTMLImageElement
+                            target.src = `https://via.placeholder.com/400x400/666666/FFFFFF?text=${encodeURIComponent(searchQuery || 'Image')}`
+                          }}
+                        />
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                            <div className="bg-blue-500 text-white rounded-full p-1">
+                              <Check className="w-3 h-3" />
+                            </div>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                          <Button 
+                            size="sm" 
+                            className={`text-xs ${
+                              isSelected 
+                                ? 'bg-red-500 hover:bg-red-600' 
+                                : 'bg-blue-500 hover:bg-blue-600'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleImageSelect(image.url)
+                            }}
+                          >
+                            {isSelected ? (
+                              <>
+                                <X className="h-3 w-3 mr-1" />
+                                Remove
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="h-3 w-3 mr-1" />
+                                Add
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    )
+                  })
                 ) : (
                   // Show different states based on search status
                   isSearching ? (
@@ -1687,6 +1766,27 @@ export default function CustomPostPage() {
         onSchedule={handleSchedule}
         isScheduling={isScheduling}
       />
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="relative max-w-4xl max-h-full">
+            <Button
+              variant="outline"
+              size="sm"
+              className="absolute top-4 right-4 z-10 bg-white/90 hover:bg-white"
+              onClick={() => setPreviewImage(null)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
