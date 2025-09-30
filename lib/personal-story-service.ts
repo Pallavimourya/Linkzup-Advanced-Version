@@ -131,6 +131,144 @@ export class PersonalStoryService {
   }
 
   /**
+   * Build contextual personal story context based on topic
+   * Only includes story elements that are relevant to the specific topic
+   */
+  static buildContextualStoryContext(storyData: PersonalStoryData, topic: string): string {
+    const { answers, customization } = storyData
+    
+    // Extract relevant story elements based on topic keywords
+    const relevantElements = this.extractRelevantStoryElements(answers, topic)
+    
+    if (relevantElements.length === 0) {
+      return "PERSONAL STORY CONTEXT:\n" +
+             "No directly relevant personal story elements found for this topic. " +
+             "Generate content based on the topic and general professional insights.\n\n"
+    }
+    
+    let context = "PERSONAL STORY CONTEXT (TOPIC-SPECIFIC):\n"
+    context += `Topic: "${topic}"\n`
+    context += "Use ONLY the following relevant personal experiences that connect to this topic:\n\n"
+    
+    relevantElements.forEach(element => {
+      context += `${element.category}: ${element.content}\n\n`
+    })
+
+    // Add customization preferences
+    context += "STORY PREFERENCES:\n"
+    context += `- Preferred tone: ${customization.tone}\n`
+    context += `- Target audience: ${customization.targetAudience}\n`
+    context += `- Main goal: ${customization.mainGoal}\n`
+    context += `- Emotional tone: ${customization.emotionalTone}\n`
+    context += `- Include personal touch: ${customization.personalTouch ? 'Yes' : 'No'}\n\n`
+
+    context += "CRITICAL INSTRUCTIONS:\n"
+    context += "- Use ONLY the relevant story elements provided above\n"
+    context += "- Do NOT include unrelated personal details (like marriage, family, etc. unless directly relevant)\n"
+    context += "- Focus on connecting the topic to the specific relevant experiences\n"
+    context += "- Make the content feel authentic and relatable\n"
+    context += "- Maintain the user's preferred tone and style\n"
+    context += "- If no relevant story elements exist, focus purely on the topic\n\n"
+
+    return context
+  }
+
+  /**
+   * Extract story elements that are relevant to the given topic
+   */
+  static extractRelevantStoryElements(answers: PersonalStoryAnswers, topic: string): Array<{category: string, content: string}> {
+    const relevantElements: Array<{category: string, content: string, score: number}> = []
+    const topicLower = topic.toLowerCase()
+    
+    // Define topic categories and their keywords with weights
+    const topicCategories = {
+      'career': ['career', 'job', 'work', 'professional', 'business', 'leadership', 'management', 'team', 'company', 'industry', 'success', 'achievement', 'promotion', 'skills', 'experience', 'ceo', 'startup', 'entrepreneur'],
+      'education': ['education', 'learning', 'study', 'university', 'college', 'school', 'course', 'training', 'knowledge', 'degree', 'certification', 'skill', 'development', 'programming', 'computer science'],
+      'personal_growth': ['growth', 'development', 'improvement', 'challenge', 'overcome', 'resilience', 'motivation', 'inspiration', 'change', 'transformation', 'journey'],
+      'early_life': ['childhood', 'early', 'beginning', 'start', 'foundation', 'roots', 'background', 'family', 'upbringing', 'origin', 'small town'],
+      'future': ['future', 'goal', 'aspiration', 'dream', 'vision', 'plan', 'ambition', 'target', 'objective', 'next', 'ahead', 'build', 'create'],
+      'personal': ['personal', 'life', 'experience', 'story', 'journey', 'relationship', 'hobby', 'interest', 'passion', 'value', 'belief', 'cricket', 'sports', 'married', 'kids'],
+      'technology': ['technology', 'tech', 'ai', 'artificial intelligence', 'machine learning', 'software', 'programming', 'computer', 'digital', 'innovation']
+    }
+    
+    // Check each answer against topic relevance
+    Object.entries(answers).forEach(([key, content]) => {
+      if (!content || content.trim().length === 0) return
+      
+      const contentLower = content.toLowerCase()
+      let maxRelevanceScore = 0
+      
+      // Calculate relevance score based on keyword matches
+      Object.entries(topicCategories).forEach(([category, keywords]) => {
+        const topicMatches = keywords.filter(keyword => topicLower.includes(keyword)).length
+        const contentMatches = keywords.filter(keyword => contentLower.includes(keyword)).length
+        
+        // Weight topic matches higher than content matches
+        const relevanceScore = (topicMatches * 3) + contentMatches
+        
+        if (relevanceScore > maxRelevanceScore) {
+          maxRelevanceScore = relevanceScore
+        }
+      })
+      
+      // Only add elements with significant relevance (score >= 2)
+      if (maxRelevanceScore >= 2) {
+        const categoryMap = {
+          'early_life': 'Early Life & Roots',
+          'education': 'Education & Learning',
+          'career_journey': 'Career Journey',
+          'personal_side': 'Personal Side',
+          'current_identity': 'Current Identity',
+          'future_aspirations': 'Future Aspirations'
+        }
+        
+        relevantElements.push({
+          category: categoryMap[key as keyof typeof categoryMap] || key,
+          content: content,
+          score: maxRelevanceScore
+        })
+      }
+    })
+    
+    // Sort by relevance score (highest first) and take only top 2-3 most relevant elements
+    relevantElements.sort((a, b) => b.score - a.score)
+    const topElements = relevantElements.slice(0, 3)
+    
+    // If no specific matches found, try broader relevance with lower threshold
+    if (topElements.length === 0) {
+      // Check for general professional relevance
+      const professionalKeywords = ['work', 'career', 'business', 'professional', 'leadership', 'success', 'achievement']
+      const hasProfessionalRelevance = professionalKeywords.some(keyword => topicLower.includes(keyword))
+      
+      if (hasProfessionalRelevance && answers.career_journey) {
+        topElements.push({
+          category: 'Career Journey',
+          content: answers.career_journey,
+          score: 1
+        })
+      }
+      
+      // Check for learning/education relevance
+      const educationKeywords = ['learn', 'education', 'skill', 'development', 'growth', 'improvement']
+      const hasEducationRelevance = educationKeywords.some(keyword => topicLower.includes(keyword))
+      
+      if (hasEducationRelevance && answers.education) {
+        topElements.push({
+          category: 'Education & Learning',
+          content: answers.education,
+          score: 1
+        })
+      }
+    }
+    
+    // Return only the category and content (remove score)
+    return topElements.map(element => ({
+      category: element.category,
+      content: element.content
+    }))
+  }
+
+  /**
    * Build a fallback context when no personal story is available
    */
   static buildFallbackContext(): string {

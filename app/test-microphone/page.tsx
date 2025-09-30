@@ -153,7 +153,7 @@ export default function TestMicrophonePage() {
                 placeholder="Type your text here or use the microphone to record..."
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                className="min-h-[120px] pr-12"
+                className="min-h-[120px] pr-12 border border-gray-300 dark:border-gray-600"
               />
               <div className="absolute bottom-3 right-3">
                 <MicrophoneButton

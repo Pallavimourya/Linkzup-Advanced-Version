@@ -182,6 +182,7 @@ export default function ContactPage() {
                     placeholder="Tell us about your goals and how we can help you..." 
                     rows={6}
                     required 
+                    className="border border-gray-300 dark:border-gray-600"
                   />
                 </div>
 

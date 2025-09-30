@@ -89,14 +89,14 @@ export async function POST(request: NextRequest) {
     // Get queue status for client information
     const queueStatus = aiService.getQueueStatus()
 
-    // Generate unique content using the home tab method (NO personal story)
+    // Generate unique content using the home tab method (WITH contextual personal story)
     const response = await aiService.generateUniqueContent(
       type,
       prompt,
       provider,
       customization,
-      session.user.id
-      // NO userEmail - this ensures no personal story integration
+      session.user.id,
+      session.user.email // Include userEmail for contextual personal story integration
     )
 
     // Return success response with metadata
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       data: response,
       queue: queueStatus,
       message: `Successfully generated unique ${type} content using ${provider}`,
-      approach: "unique_content" // Indicate this is unique content approach
+      approach: "unique_content_with_personal_story" // Indicate this is unique content with contextual personal story
     })
 
   } catch (error) {

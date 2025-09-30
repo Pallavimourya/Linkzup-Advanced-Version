@@ -21,7 +21,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { 
   User, BookOpen, Lightbulb, Target, Calendar, Send, Eye, CheckCircle, Sparkles, Mic, 
   ArrowRight, ArrowLeft, Star, Heart, TrendingUp, Users, Zap, Award, Brain, 
-  PenTool, MessageSquare, Share2, Save, Clock, RefreshCw, Trash2, Plus, X
+  PenTool, MessageSquare, Share2, Save, Clock, RefreshCw, Trash2, Plus, X, Loader2
 } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
@@ -146,6 +146,7 @@ export default function PersonalStoryPage() {
   const [answersSaved, setAnswersSaved] = useState(false)
   const [generatedTopics, setGeneratedTopics] = useState<GeneratedTopic[]>([])
   const [showTopicApproval, setShowTopicApproval] = useState(false)
+  const [isGeneratingTopics, setIsGeneratingTopics] = useState(false)
   const [currentInputValue, setCurrentInputValue] = useState("")
 
   // Debug useEffect to monitor state changes
@@ -217,7 +218,7 @@ export default function PersonalStoryPage() {
     mainGoal: "engagement",
     storyLength: "medium",
     emotionalTone: "uplifting",
-    includeCallToAction: true,
+    includeCallToAction: false,
     includeHashtags: true,
     includeEmojis: true,
     personalTouch: true,
@@ -244,7 +245,7 @@ export default function PersonalStoryPage() {
         .slice(0, 2)
     }
     
-    // Professional topic templates
+    // Expanded professional topic templates for more variety
     const topicTemplates = [
       "The Challenge That Changed Everything: My Unexpected Breakthrough",
       "How I Turned My Biggest Failure Into My Greatest Success", 
@@ -255,47 +256,65 @@ export default function PersonalStoryPage() {
       "How I Achieved What Everyone Said Was Impossible",
       "The Success That Surprised Even Me",
       "Why My Biggest Risk Led to My Greatest Reward",
-      "The Moment I Knew I Had Made It"
+      "The Moment I Knew I Had Made It",
+      "The Lesson That Took Me Years to Learn (But Changed Everything)",
+      "How I Overcame My Biggest Professional Fear",
+      "The Turning Point That Redefined My Success",
+      "Why My Most Difficult Period Became My Greatest Growth",
+      "The Insight That Transformed My Entire Approach",
+      "How I Found Strength in My Weakest Moments",
+      "The Realization That Changed My Career Forever",
+      "Why My Biggest Mistake Became My Best Learning",
+      "The Journey That Taught Me What Success Really Means",
+      "How I Discovered My True Professional Purpose"
     ]
     
-    // Generate topics based on question answers
+    // Shuffle templates to ensure different topics each time
+    const shuffledTemplates = [...topicTemplates].sort(() => Math.random() - 0.5)
+    
+    // Generate topics based on question answers with more variety
     if (answers.early_life && answers.early_life.trim().length > 0) {
       const keywords = extractKeywords(answers.early_life)
-      if (keywords.length > 0) {
-        topics.push(`How My Early Life in ${keywords[0]} Shaped My Professional Success`)
-      } else {
-        topics.push("How My Early Life Shaped My Professional Success")
-      }
+      const variations = [
+        `How My Early Life in ${keywords[0] || 'Childhood'} Shaped My Professional Success`,
+        `The ${keywords[0] || 'Early'} Experience That Defined My Career Path`,
+        `Why My ${keywords[0] || 'Childhood'} Background Became My Greatest Asset`
+      ]
+      topics.push(variations[Math.floor(Math.random() * variations.length)])
     }
     
     if (answers.education && answers.education.trim().length > 0) {
       const keywords = extractKeywords(answers.education)
-      if (keywords.length > 0) {
-        topics.push(`The ${keywords[0]} Education That Changed My Career Path`)
-      } else {
-        topics.push("The Educational Moment That Changed My Career Path")
-      }
+      const variations = [
+        `The ${keywords[0] || 'Educational'} Moment That Changed My Career Path`,
+        `How My ${keywords[0] || 'Education'} Shaped My Professional Identity`,
+        `The ${keywords[0] || 'Learning'} Experience That Made All the Difference`
+      ]
+      topics.push(variations[Math.floor(Math.random() * variations.length)])
     }
     
     if (answers.career_journey && answers.career_journey.trim().length > 0) {
       const keywords = extractKeywords(answers.career_journey)
-      if (keywords.length > 0) {
-        topics.push(`My ${keywords[0]} Journey: From Where I Started to Where I Am Now`)
-      } else {
-        topics.push("My Career Journey: From Where I Started to Where I Am Now")
-      }
+      const variations = [
+        `My ${keywords[0] || 'Career'} Journey: From Where I Started to Where I Am Now`,
+        `The ${keywords[0] || 'Professional'} Path That Led to My Success`,
+        `How My ${keywords[0] || 'Career'} Evolution Taught Me Everything`
+      ]
+      topics.push(variations[Math.floor(Math.random() * variations.length)])
     }
     
-    // Fill remaining slots with professional templates
-    while (topics.length < 3) {
-      const randomTemplate = topicTemplates[Math.floor(Math.random() * topicTemplates.length)]
-      if (!topics.includes(randomTemplate)) {
-        topics.push(randomTemplate)
+    // Fill remaining slots with shuffled professional templates
+    let templateIndex = 0
+    while (topics.length < 3 && templateIndex < shuffledTemplates.length) {
+      const template = shuffledTemplates[templateIndex]
+      if (!topics.includes(template)) {
+        topics.push(template)
       }
+      templateIndex++
     }
     
     return topics.slice(0, 3).map((title, index) => ({
-      id: `topic-${Date.now()}-${index}`,
+      id: `topic-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${index}`,
       title,
       status: "pending" as const
     }))
@@ -443,7 +462,11 @@ export default function PersonalStoryPage() {
 
   const generateRelatedTopics = async (story: GeneratedStory) => {
     try {
+      setIsGeneratingTopics(true)
       console.log("Starting topic generation based on personal story answers")
+      
+      // Clear existing topics to ensure fresh generation
+      setGeneratedTopics([])
       
       // Build context from the actual question answers, not the AI-generated story
       const answersContext = Object.entries(formData)
@@ -460,7 +483,7 @@ export default function PersonalStoryPage() {
       }
 
       // Generate topics directly from question answers instead of using AI
-      console.log("Generating topics directly from question answers")
+      console.log("Generating fresh topics from question answers")
       const generatedTopics = generateTopicsFromAnswers(formData)
       
       if (generatedTopics.length > 0) {
@@ -469,98 +492,21 @@ export default function PersonalStoryPage() {
         setShowTopicApproval(true)
         
         toast({
-          title: "Topics Generated",
-          description: `${generatedTopics.length} related topics have been generated for your review.`,
+          title: "Fresh Topics Generated",
+          description: `${generatedTopics.length} new related topics have been generated for your review.`,
         })
         return
+      } else {
+        console.log("No topics generated from answers, proceeding with AI generation")
       }
       
-      // Create dynamic topic generation prompts based on question answers
-      const topicPrompts = [
-        `Based on these personal story answers, generate 3 eye-catching LinkedIn post topics that would go viral. Each topic should have a compelling hook, interesting punchline, and be highly shareable. Make them attention-grabbing and thought-provoking.
-
-Personal Story Answers:
-${answersContext}
-
-Generate exactly 3 topics with these characteristics:
-- Eye-catching headlines that make people stop scrolling
-- Interesting punchlines or unexpected angles
-- Professional but with personality
-- Highly shareable and engaging
-- Based on the specific experiences and insights in the answers
-- Each should be unique and different from the others
-
-Format as a simple list, one topic per line.`,
-
-        `Transform these personal story answers into 3 viral-worthy LinkedIn post topics. Each topic should have a strong hook, compelling narrative angle, and be designed to spark conversations and engagement.
-
-Personal Story Answers:
-${answersContext}
-
-Create 3 topics that are:
-- Attention-grabbing and scroll-stopping
-- Have interesting twists or unexpected insights
-- Professional yet relatable
-- Designed to generate comments and shares
-- Based on the unique elements and experiences in the answers
-- Each with a different angle or perspective
-
-Format as a simple list, one topic per line.`,
-
-        `Based on these personal story answers, create 3 LinkedIn post topics that would make professionals stop, read, and share. Each topic should have a compelling hook and interesting punchline that relates to the key themes in the answers.
-
-Personal Story Answers:
-${answersContext}
-
-Generate 3 topics that are:
-- Irresistibly clickable and engaging
-- Have surprising or counterintuitive angles
-- Professional but with emotional appeal
-- Designed to create discussion and engagement
-- Based on the specific challenges and lessons in the answers
-- Each offering a different valuable insight
-
-Format as a simple list, one topic per line.`
-      ]
-
-      // Randomly select a prompt for variety
-      const selectedPrompt = topicPrompts[Math.floor(Math.random() * topicPrompts.length)]
-      console.log("Selected prompt variant:", topicPrompts.indexOf(selectedPrompt) + 1)
-
-      console.log("Sending topic generation request...")
+      console.log("Sending topic generation request to personalized topics API...")
       
-      // Add randomization to customization for variety
-      const randomTones = ["professional", "conversational", "inspirational", "authoritative"]
-      const randomGoals = ["engagement", "viral", "discussion", "shares"]
-      const randomTemperature = 0.8 + Math.random() * 0.2 // 0.8 to 1.0 for more creativity
+      // Use the personalized topics API which handles personal story integration
       
-      const response = await fetch("/api/ai/generate", {
-        method: "POST",
+      const response = await fetch("/api/personalized-topics", {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "topics",
-          prompt: selectedPrompt,
-          provider: "openai",
-          customization: {
-            tone: randomTones[Math.floor(Math.random() * randomTones.length)],
-            language: "english",
-            wordCount: 50,
-            targetAudience: "LinkedIn professionals",
-            mainGoal: randomGoals[Math.floor(Math.random() * randomGoals.length)],
-            includeHashtags: false,
-            includeEmojis: false,
-            callToAction: false,
-            temperature: randomTemperature,
-            maxTokens: 600,
-            humanLike: true,
-            ambiguity: 70,
-            randomness: 60,
-            personalTouch: true,
-            storytelling: true,
-            emotionalDepth: 85,
-            conversationalStyle: true,
-          }
-        }),
       })
 
       console.log("Topic generation response status:", response.status)
@@ -569,82 +515,82 @@ Format as a simple list, one topic per line.`
         const data = await response.json()
         console.log("Topic generation response data:", data)
         
-        const topicsContent = data.data?.content || data.content || ""
-        console.log("Topics content:", topicsContent)
-        console.log("Topics content length:", topicsContent.length)
-        
-        // Parse topics from the response
-        const topics = topicsContent
-          .split('\n')
-          .map((line: string) => line.trim())
-          .filter((line: string) => line.length > 0)
-          .slice(0, 3) // Take only first 3 topics
-          .map((topic: string, index: number) => ({
-            id: `topic-${Date.now()}-${index}`,
-            title: topic.replace(/^\d+\.\s*/, '').trim(), // Remove numbering
-            status: "pending" as const
-          }))
+        if (data.topics && Array.isArray(data.topics)) {
+          // Parse topics from the personalized topics API response
+          const topics = data.topics
+            .slice(0, 3) // Take only first 3 topics
+            .map((topic: any, index: number) => ({
+              id: topic.id || `topic-${Date.now()}-${index}`,
+              title: topic.title || topic,
+              status: "pending" as const
+            }))
 
-        console.log("Parsed topics:", topics)
-        console.log("Number of parsed topics:", topics.length)
-        
-        // If no topics were parsed, create some fallback topics
-        if (topics.length === 0) {
-          console.log("No topics parsed, creating fallback topics")
+          console.log("Parsed topics:", topics)
+          console.log("Number of parsed topics:", topics.length)
           
-          // Create fallback topics based on the actual question answers
-          let fallbackTopics = []
-          
-          // Check each question answer for content
-          if (formData.early_life && formData.early_life.trim().length > 0) {
-            fallbackTopics.push("How My Early Life Shaped My Professional Success")
-          }
-          if (formData.education && formData.education.trim().length > 0) {
-            fallbackTopics.push("The Educational Moment That Changed My Career Path")
-          }
-          if (formData.career_journey && formData.career_journey.trim().length > 0) {
-            fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
-          }
-          if (formData.personal_side && formData.personal_side.trim().length > 0) {
-            fallbackTopics.push("The Personal Side That Drives My Professional Success")
-          }
-          if (formData.current_identity && formData.current_identity.trim().length > 0) {
-            fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
-          }
-          if (formData.future_aspirations && formData.future_aspirations.trim().length > 0) {
-            fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
-          }
-          
-          // Fill remaining slots with generic but engaging topics
-          const genericTopics = [
-            "What I Wish I Knew Before Starting My Career",
-            "The Moment Everything Clicked: My Professional Awakening",
-            "Breaking Through: How I Overcame My Biggest Obstacle"
-          ]
-          
-          while (fallbackTopics.length < 3) {
-            const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
-            if (!fallbackTopics.includes(randomTopic)) {
-              fallbackTopics.push(randomTopic)
+          // If no topics were parsed, create some fallback topics
+          if (topics.length === 0) {
+            console.log("No topics parsed, creating fallback topics")
+            
+            // Create fallback topics based on the actual question answers
+            let fallbackTopics = []
+            
+            // Check each question answer for content
+            if (formData.early_life && formData.early_life.trim().length > 0) {
+              fallbackTopics.push("How My Early Life Shaped My Professional Success")
             }
+            if (formData.education && formData.education.trim().length > 0) {
+              fallbackTopics.push("The Educational Moment That Changed My Career Path")
+            }
+            if (formData.career_journey && formData.career_journey.trim().length > 0) {
+              fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
+            }
+            if (formData.personal_side && formData.personal_side.trim().length > 0) {
+              fallbackTopics.push("The Personal Side That Drives My Professional Success")
+            }
+            if (formData.current_identity && formData.current_identity.trim().length > 0) {
+              fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
+            }
+            if (formData.future_aspirations && formData.future_aspirations.trim().length > 0) {
+              fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
+            }
+            
+            // Fill remaining slots with generic but engaging topics
+            const genericTopics = [
+              "What I Wish I Knew Before Starting My Career",
+              "The Moment Everything Clicked: My Professional Awakening",
+              "Breaking Through: How I Overcame My Biggest Obstacle"
+            ]
+            
+            while (fallbackTopics.length < 3) {
+              const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
+              if (!fallbackTopics.includes(randomTopic)) {
+                fallbackTopics.push(randomTopic)
+              }
+            }
+            
+            const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
+              id: `fallback-topic-${Date.now()}-${index}`,
+              title,
+              status: "pending" as const
+            }))
+            setGeneratedTopics(finalFallbackTopics)
+          } else {
+            setGeneratedTopics(topics)
           }
-          
-          const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
-            id: `fallback-topic-${Date.now()}-${index}`,
-            title,
-            status: "pending" as const
-          }))
-          setGeneratedTopics(finalFallbackTopics)
         } else {
-          setGeneratedTopics(topics)
+          console.log("No topics in response, creating fallback topics")
+          // Create fallback topics if no topics in response
+          const fallbackTopics = generateTopicsFromAnswers(formData)
+          setGeneratedTopics(fallbackTopics)
         }
         
         setShowTopicApproval(true)
-        console.log("Set showTopicApproval to true, generatedTopics length:", topics.length)
+        console.log("Set showTopicApproval to true")
         
         toast({
           title: "Topics Generated",
-          description: `${topics.length > 0 ? topics.length : 3} related topics have been generated for your review.`,
+          description: "Related topics have been generated for your review.",
         })
       } else {
         console.error("Topic generation failed with status:", response.status)
@@ -753,6 +699,8 @@ Format as a simple list, one topic per line.`
         title: "Topics Generated (Fallback)",
         description: "Generated fallback topics for your review.",
       })
+    } finally {
+      setIsGeneratingTopics(false)
     }
   }
 
@@ -791,12 +739,12 @@ Format as a simple list, one topic per line.`
         customization: {
           tone: customization.tone,
           language: customization.language,
-          wordCount: 500,
+          wordCount: 400,
           targetAudience: customization.targetAudience,
           mainGoal: customization.mainGoal,
           includeHashtags: true,
           includeEmojis: true,
-          callToAction: true,
+          callToAction: false,
           humanLike: true,
           ambiguity: 60,
           randomness: 40,
@@ -849,7 +797,7 @@ Format as a simple list, one topic per line.`
         title: `My Professional Journey`,
         content: storyContent.trim(),
         tone: customization.tone,
-        wordCount: 500,
+        wordCount: 400,
         createdAt: new Date(),
         variation: 1,
       }
@@ -1344,9 +1292,6 @@ Format as a simple list, one topic per line.`
                           <CardTitle className="text-2xl font-bold text-black dark:text-white">
                             Your Story Collection
                           </CardTitle>
-                          <CardDescription className="text-gray-600 dark:text-gray-400 mt-1">
-                            {generatedStories.length} unique variations • Choose your favorite to share
-                          </CardDescription>
                         </div>
                       </div>
                     </CardHeader>
@@ -1564,15 +1509,35 @@ Format as a simple list, one topic per line.`
                           )}
                           <Button
                             onClick={() => {
+                              console.log("Regenerate topics button clicked")
+                              console.log("Generated stories length:", generatedStories.length)
                               if (generatedStories.length > 0) {
+                                console.log("Calling generateRelatedTopics with story:", generatedStories[0])
                                 generateRelatedTopics(generatedStories[0])
+                              } else {
+                                console.log("No generated stories available")
+                                toast({
+                                  title: "No Story Available",
+                                  description: "Please generate a personal story first before creating topics.",
+                                  variant: "destructive",
+                                })
                               }
                             }}
+                            disabled={isGeneratingTopics}
                             variant="outline"
-                            className="flex-1 border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-950/50 h-10 sm:h-12 text-sm sm:text-base"
+                            className="flex-1 border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-950/50 h-10 sm:h-12 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                            Regenerate Topics
+                            {isGeneratingTopics ? (
+                              <>
+                                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                                Regenerate Topics
+                              </>
+                            )}
                           </Button>
                           <Button
                             onClick={() => setShowTopicApproval(false)}

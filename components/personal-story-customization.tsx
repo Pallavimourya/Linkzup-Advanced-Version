@@ -342,24 +342,6 @@ export function PersonalStoryCustomizationPanel({
                   </div>
                 )}
 
-                {/* Quick Summary */}
-                <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">Current Style</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs">
-                      {toneOptions.find(t => t.value === customization.tone)?.label}
-                    </Badge>
-                    <Badge variant="outline" className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 text-xs">
-                      {audienceOptions.find(a => a.value === customization.targetAudience)?.label}
-                    </Badge>
-                    <Badge variant="outline" className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 text-xs">
-                      {goalOptions.find(g => g.value === customization.mainGoal)?.label}
-                    </Badge>
-                  </div>
-                </div>
               </CardContent>
             </motion.div>
           )}

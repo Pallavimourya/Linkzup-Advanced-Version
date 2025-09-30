@@ -116,12 +116,29 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <SidebarMenuButton size="lg" asChild className="w-full hover:bg-blue-50 dark:hover:bg-blue-950/50">
-                    <Link href="/dashboard" className="flex items-center gap-3 w-full px-3 py-2">
-                      <Logo size="sm" className="flex-shrink-0" />
+                  <SidebarMenuButton 
+                    size="lg" 
+                    asChild 
+                    className={`w-full hover:bg-blue-50 dark:hover:bg-blue-950/50 ${
+                      state === "collapsed" ? "justify-center px-2" : "px-3"
+                    }`}
+                  >
+                    <Link 
+                      href="/dashboard" 
+                      className={`flex items-center w-full py-2 ${
+                        state === "collapsed" ? "justify-center" : "gap-3"
+                      }`}
+                    >
+                      <Logo 
+                        size={state === "collapsed" ? "sm" : "md"} 
+                        className="flex-shrink-0" 
+                      />
                     </Link>
                   </SidebarMenuButton>
                 </TooltipTrigger>
+                <TooltipContent side="right" className="bg-white dark:bg-black border-blue-200 dark:border-blue-800 text-black dark:text-white">
+                  <p>LinkzUp Dashboard</p>
+                </TooltipContent>
               </Tooltip>
             </SidebarMenuItem>
           </SidebarMenu>

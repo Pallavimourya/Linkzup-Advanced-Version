@@ -46,6 +46,7 @@ import SubscriptionManager from "@/components/subscription-manager"
 import CreditTransactions from "@/components/credit-transactions"
 import PlanAccessibility from "@/components/plan-accessibility"
 import MonthlyCreditStatus from "@/components/monthly-credit-status"
+import { formatCreditsNumber } from "@/lib/utils"
 
 interface CreditData {
   credits: number
@@ -320,7 +321,7 @@ export default function BillingPage() {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                     <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Trial Credits Remaining</span>
                     <Badge className="text-base sm:text-lg px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
-                      {(creditData?.credits || 0).toFixed(2)} credits
+                      {formatCreditsNumber(creditData?.credits || 0)} credits
                     </Badge>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
@@ -392,19 +393,19 @@ export default function BillingPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <span className="text-sm font-medium text-black dark:text-white">Monthly Credits</span>
                   <Badge className="text-base sm:text-lg px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
-                    {(creditData?.monthlyCredits || 0).toFixed(2)} credits
+                    {formatCreditsNumber(creditData?.monthlyCredits || 0)} credits
                   </Badge>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <span className="text-sm font-medium text-black dark:text-white">Additional Credits</span>
                   <Badge className="text-base sm:text-lg px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
-                    {(creditData?.credits || 0).toFixed(2)} credits
+                    {formatCreditsNumber(creditData?.credits || 0)} credits
                   </Badge>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   <span className="text-sm font-medium text-black dark:text-white">Total Available</span>
                   <Badge className="text-base sm:text-lg px-3 py-1 bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-800">
-                    {((creditData?.monthlyCredits || 0) + (creditData?.credits || 0)).toFixed(2)} credits
+                    {formatCreditsNumber((creditData?.monthlyCredits || 0) + (creditData?.credits || 0))} credits
                   </Badge>
                 </div>
                 {creditData?.isTrialActive && (
@@ -421,7 +422,7 @@ export default function BillingPage() {
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 pt-4 border-t border-blue-200/50 dark:border-blue-800/50">
                 <span className="text-sm font-medium text-black dark:text-white">Total Credits Purchased</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{(creditData?.totalCreditsEver || 0).toFixed(2)} credits</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{formatCreditsNumber(creditData?.totalCreditsEver || 0)} credits</span>
               </div>
             </CardContent>
           </Card>

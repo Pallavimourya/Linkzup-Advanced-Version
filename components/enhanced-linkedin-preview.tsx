@@ -402,7 +402,7 @@ export function EnhancedLinkedInPreview({
                     <Textarea
                       value={editableContent}
                       onChange={(e) => setEditableContent(e.target.value)}
-                      className={`resize-none ${
+                      className={`resize-none border border-gray-300 dark:border-gray-600 ${
                         deviceView === "mobile" ? "min-h-[100px] text-xs" : "min-h-[150px]"
                       }`}
                       placeholder="Edit your post content..."
@@ -701,6 +701,7 @@ export function EnhancedLinkedInPreview({
                           value={aiPrompt}
                           onChange={(e) => setAiPrompt(e.target.value)}
                           rows={3}
+                          className="border border-gray-300 dark:border-gray-600"
                         />
                         <Button 
                           onClick={generateAIImage} 

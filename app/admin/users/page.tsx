@@ -582,7 +582,7 @@ export default function AdminUsersPage() {
                   onChange={(e) => setEditingUser({ ...editingUser, notes: e.target.value })}
                   placeholder="Add notes about this user..."
                   rows={3}
-                  className="text-sm sm:text-base"
+                  className="text-sm sm:text-base border border-gray-300 dark:border-gray-600"
                 />
               </div>
               

@@ -532,7 +532,8 @@ export default function CustomPostPage() {
       type: aiContentType,
       prompt: aiPrompt.trim(),
       provider: "openai",
-      customization: aiCustomization
+      customization: aiCustomization,
+      userEmail: session?.user?.email || undefined // Include userEmail for contextual personal story integration
     })
 
     if (response && response.content) {
@@ -1000,7 +1001,7 @@ export default function CustomPostPage() {
                         <span 
                           key={tag} 
                           onClick={() => removeTag(tag)} 
-                          className="px-4 py-2 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors flex items-center gap-2"
+                          className="px-4 py-2 border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium cursor-pointer hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2"
                         >
                           #{tag}
                           <X className="h-4 w-4" />
@@ -1178,7 +1179,7 @@ export default function CustomPostPage() {
                     {postData.tags.length > 0 && (
                       <div className="flex gap-2 flex-wrap mb-6">
                         {postData.tags.map(tag => (
-                          <span key={tag} className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline cursor-pointer">
+                          <span key={tag} className="px-3 py-1 border border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer">
                             #{tag}
                           </span>
                         ))}

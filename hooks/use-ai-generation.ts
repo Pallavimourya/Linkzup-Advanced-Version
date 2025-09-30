@@ -9,6 +9,7 @@ interface GenerationRequest {
   provider?: AIProvider
   customization?: CustomizationOptions
   priority?: "low" | "normal" | "high"
+  userEmail?: string
 }
 
 interface GenerationState {
@@ -202,7 +203,7 @@ export function useAIGeneration() {
     try {
       startProgressSimulation()
 
-      const response = await fetch("/api/ai/generate", {
+      const response = await fetch("/api/ai/generate-unique", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),

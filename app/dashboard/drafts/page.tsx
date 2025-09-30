@@ -471,7 +471,7 @@ export default function DraftsPage() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="p-6 space-y-4">
+                  <CardContent className="p-6 space-y-4 min-w-0">
                     {/* Content Preview */}
                     <div className="space-y-3">
                       <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
@@ -505,15 +505,15 @@ export default function DraftsPage() {
 
                     {/* Action Buttons */}
                     <div className="space-y-3 pt-2">
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 min-w-0 w-full">
                         <Button 
                           size="sm" 
                           variant="outline"
-                          className="h-9 text-xs border-teal-200 dark:border-teal-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-700 dark:text-teal-300"
+                          className="h-9 text-xs border-teal-200 dark:border-teal-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1 w-full"
                           onClick={() => handlePreviewDraft(draft)}
                         >
-                          <Eye className="h-3 w-3 mr-1" />
-                          Preview
+                          <Eye className="h-3 w-3" />
+                          <span className="truncate">Preview</span>
                         </Button>
                         <ScheduleButton
                           content={draft.content}
@@ -522,7 +522,17 @@ export default function DraftsPage() {
                           defaultType={draft.type === "carousel" ? "carousel" : "text"}
                           variant="outline"
                           size="sm"
-                          className="h-9 text-xs border-teal-200 dark:border-teal-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-700 dark:text-teal-300"
+                          className="h-9 text-xs border-teal-200 dark:border-teal-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1"
+                          trigger={
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-9 text-xs border-teal-200 dark:border-teal-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:border-teal-300 dark:hover:border-teal-700 text-teal-700 dark:text-teal-300 flex items-center justify-center gap-1 w-full"
+                            >
+                              <Calendar className="h-3 w-3" />
+                              <span className="truncate">Schedule</span>
+                            </Button>
+                          }
                           onSuccess={() => {
                             toast({
                               title: "Scheduled!",
@@ -532,19 +542,19 @@ export default function DraftsPage() {
                         />
                         <Button 
                           size="sm" 
-                          className="h-9 text-xs bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white border-0"
+                          className="h-9 text-xs bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white border-0 flex items-center justify-center gap-1 w-full"
                           onClick={() => handlePostToLinkedIn(draft)}
                           disabled={postingDrafts.has(draft.id)}
                         >
                           {postingDrafts.has(draft.id) ? (
                             <>
-                              <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-1" />
-                              Posting...
+                              <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                              <span className="truncate">Posting...</span>
                             </>
                           ) : (
                             <>
-                              <Send className="h-3 w-3 mr-1" />
-                              Post Now
+                              <Send className="h-3 w-3" />
+                              <span className="truncate">Post Now</span>
                             </>
                           )}
                         </Button>

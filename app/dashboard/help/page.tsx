@@ -300,18 +300,18 @@ export default function HelpPage() {
                       <CardDescription>Watch our comprehensive tutorial to get started quickly</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mb-4 border border-gray-200">
+                      <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-xl flex items-center justify-center mb-4 border border-gray-200 dark:border-gray-700">
                         <div className="text-center">
                           <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Play className="w-8 h-8 text-white" />
                           </div>
-                          <p className="text-gray-600 font-medium">Tutorial video coming soon!</p>
-                          <p className="text-sm text-gray-500 mt-2">
+                          <p className="text-gray-600 dark:text-gray-400 font-medium">Tutorial video coming soon!</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                             We're preparing a comprehensive video guide to help you master LinkzUp.
                           </p>
                         </div>
                       </div>
-                      <Badge className="mb-4 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-blue-200">
+                      <Badge className="mb-4 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-700">
                         Coming Soon
                       </Badge>
                     </CardContent>
@@ -323,11 +323,11 @@ export default function HelpPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.8 }}
                 >
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Card className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-lg">
-                        <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-                          <Rocket className="w-4 h-4 text-green-600" />
+                      <CardTitle className="flex items-center gap-3 text-lg text-black dark:text-white">
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/50 dark:to-blue-900/50 rounded-lg flex items-center justify-center">
+                          <Rocket className="w-4 h-4 text-green-600 dark:text-green-400" />
                         </div>
                         Quick Start Guide
                       </CardTitle>
@@ -348,10 +348,10 @@ export default function HelpPage() {
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <step.icon className="w-4 h-4 text-gray-600" />
-                                <h4 className="font-semibold text-gray-900">{step.title}</h4>
+                                <step.icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                <h4 className="font-semibold text-gray-900 dark:text-gray-100">{step.title}</h4>
                               </div>
-                              <p className="text-sm text-gray-600 leading-relaxed">
+                              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                                 {step.description}
                               </p>
                             </div>
@@ -380,22 +380,22 @@ export default function HelpPage() {
                     transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
                     whileHover={{ y: -5 }}
                   >
-                    <Card className="h-full bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
+                    <Card className="h-full bg-white/80 dark:bg-black/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-3">
-                          <div className={`w-10 h-10 bg-gradient-to-r ${feature.bgColor} rounded-lg flex items-center justify-center`}>
+                        <CardTitle className="flex items-center gap-3 text-black dark:text-white">
+                          <div className={`w-10 h-10 bg-gradient-to-r ${feature.bgColor} dark:from-gray-800 dark:to-gray-700 rounded-lg flex items-center justify-center`}>
                             <feature.icon className={`w-5 h-5 bg-gradient-to-r ${feature.color} bg-clip-text text-transparent`} />
                           </div>
                           {feature.title}
                         </CardTitle>
-                        <CardDescription>{feature.description}</CardDescription>
+                        <CardDescription className="text-gray-600 dark:text-gray-400">{feature.description}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                           <Button 
                             variant="outline" 
                             asChild 
-                            className="w-full bg-transparent border-gray-200 hover:bg-gray-50"
+                            className="w-full bg-transparent border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
                           >
                             <a href={feature.link} className="flex items-center gap-2">
                               Learn More
@@ -426,17 +426,17 @@ export default function HelpPage() {
                     transition={{ duration: 0.4, delay: 0.8 + index * 0.1 }}
                     whileHover={{ y: -2 }}
                   >
-                    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <Card className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-3 text-lg">
-                          <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                            <HelpCircle className="w-4 h-4 text-blue-600" />
+                        <CardTitle className="flex items-center gap-3 text-lg text-black dark:text-white">
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-lg flex items-center justify-center">
+                            <HelpCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                           </div>
                           {faq.question}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
+                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{faq.answer}</p>
                       </CardContent>
                     </Card>
                   </motion.div>
@@ -452,15 +452,15 @@ export default function HelpPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}
                 >
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Card className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-lg">
-                        <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg flex items-center justify-center">
-                          <Clock className="w-4 h-4 text-green-600" />
+                      <CardTitle className="flex items-center gap-3 text-lg text-black dark:text-white">
+                        <div className="w-8 h-8 bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/50 dark:to-blue-900/50 rounded-lg flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-green-600 dark:text-green-400" />
                         </div>
                         24/7 Support Available
                       </CardTitle>
-                      <CardDescription>We're here to help you succeed with LinkzUp</CardDescription>
+                      <CardDescription className="text-gray-600 dark:text-gray-400">We're here to help you succeed with LinkzUp</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-6 md:grid-cols-3">
@@ -468,15 +468,15 @@ export default function HelpPage() {
                           whileHover={{ y: -5 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 backdrop-blur-sm">
+                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 dark:bg-black/50 backdrop-blur-sm">
                             <CardContent className="p-6 text-center" onClick={handleEmailSupport}>
-                              <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Mail className="w-6 h-6 text-blue-600" />
+                              <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Mail className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                               </div>
-                              <h4 className="font-semibold mb-2 text-gray-900">Email Support</h4>
-                              <p className="text-sm text-gray-600 mb-3">Get detailed help via email</p>
-                              <p className="text-sm font-medium text-blue-600 mb-4">techzuperstudio@gmail.com</p>
-                              <Button variant="outline" className="w-full bg-transparent border-gray-200 hover:bg-gray-50">
+                              <h4 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Email Support</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Get detailed help via email</p>
+                              <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-4">techzuperstudio@gmail.com</p>
+                              <Button variant="outline" className="w-full bg-transparent border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">
                                 Send Email
                               </Button>
                             </CardContent>
@@ -487,15 +487,15 @@ export default function HelpPage() {
                           whileHover={{ y: -5 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 backdrop-blur-sm">
+                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 dark:bg-black/50 backdrop-blur-sm">
                             <CardContent className="p-6 text-center" onClick={handlePhoneSupport}>
-                              <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Phone className="w-6 h-6 text-green-600" />
+                              <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900/50 dark:to-green-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Phone className="w-6 h-6 text-green-600 dark:text-green-400" />
                               </div>
-                              <h4 className="font-semibold mb-2 text-gray-900">Phone Support</h4>
-                              <p className="text-sm text-gray-600 mb-3">Speak directly with our team</p>
-                              <p className="text-sm font-medium text-green-600 mb-4">+91 7697624256</p>
-                              <Button variant="outline" className="w-full bg-transparent border-gray-200 hover:bg-gray-50">
+                              <h4 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Phone Support</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Speak directly with our team</p>
+                              <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-4">+91 7697624256</p>
+                              <Button variant="outline" className="w-full bg-transparent border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">
                                 Call Now
                               </Button>
                             </CardContent>
@@ -506,14 +506,14 @@ export default function HelpPage() {
                           whileHover={{ y: -5 }}
                           transition={{ duration: 0.2 }}
                         >
-                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 backdrop-blur-sm">
+                          <Card className="h-full border-2 hover:border-green-500/50 transition-all duration-300 cursor-pointer bg-white/50 dark:bg-black/50 backdrop-blur-sm">
                             <CardContent className="p-6 text-center" onClick={handleWhatsAppSupport}>
-                              <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <MessageCircle className="w-6 h-6 text-green-600" />
+                              <div className="w-12 h-12 bg-gradient-to-r from-green-100 to-green-200 dark:from-green-900/50 dark:to-green-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <MessageCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
                               </div>
-                              <h4 className="font-semibold mb-2 text-gray-900">WhatsApp Chat</h4>
-                              <p className="text-sm text-gray-600 mb-3">Quick chat support</p>
-                              <p className="text-sm font-medium text-green-600 mb-4">+91 7697624256</p>
+                              <h4 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">WhatsApp Chat</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Quick chat support</p>
+                              <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-4">+91 7697624256</p>
                               <Button className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                                 <MessageCircle className="w-4 h-4 mr-2" />
                                 Chat on WhatsApp
@@ -531,29 +531,29 @@ export default function HelpPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.8 }}
                 >
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Card className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-3 text-lg">
-                        <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                          <Clock className="w-4 h-4 text-purple-600" />
+                      <CardTitle className="flex items-center gap-3 text-lg text-black dark:text-white">
+                        <div className="w-8 h-8 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-lg flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                         </div>
                         Support Hours
                       </CardTitle>
-                      <CardDescription>Our team is available to help you</CardDescription>
+                      <CardDescription className="text-gray-600 dark:text-gray-400">Our team is available to help you</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                          <span className="font-medium text-gray-900">Email Support:</span>
-                          <span className="text-blue-600 font-medium">24/7 (Response within 24 hours)</span>
+                        <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <span className="font-medium text-gray-900 dark:text-gray-100">Email Support:</span>
+                          <span className="text-blue-600 dark:text-blue-400 font-medium">24/7 (Response within 24 hours)</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
-                          <span className="font-medium text-gray-900">Phone Support:</span>
-                          <span className="text-green-600 font-medium">24/7 Available</span>
+                        <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                          <span className="font-medium text-gray-900 dark:text-gray-100">Phone Support:</span>
+                          <span className="text-green-600 dark:text-green-400 font-medium">24/7 Available</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
-                          <span className="font-medium text-gray-900">WhatsApp Chat:</span>
-                          <span className="text-purple-600 font-medium">24/7 Instant Response</span>
+                        <div className="flex justify-between items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <span className="font-medium text-gray-900 dark:text-gray-100">WhatsApp Chat:</span>
+                          <span className="text-purple-600 dark:text-purple-400 font-medium">24/7 Instant Response</span>
                         </div>
                       </div>
                     </CardContent>

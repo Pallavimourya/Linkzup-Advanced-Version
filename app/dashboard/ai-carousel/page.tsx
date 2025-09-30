@@ -303,6 +303,7 @@ export default function AICarouselPage() {
   const [showRawContent, setShowRawContent] = useState(false)
   const [lastGeneratedContent, setLastGeneratedContent] = useState<string>("")
   const [isPostingToLinkedIn, setIsPostingToLinkedIn] = useState(false)
+  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false)
   const slideCanvasRef = useRef<HTMLDivElement>(null)
   
   // Drag functionality state
@@ -1648,6 +1649,89 @@ What do you think? Share your thoughts in the comments below.
     return ""
   }
 
+  // Function to generate AI-assisted caption
+  const generateAICaption = async () => {
+    if (!currentProject || !currentProject.topic) {
+      toast({
+        title: "No Topic Available",
+        description: "Please ensure your carousel has a topic before generating a caption.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      setIsGeneratingCaption(true)
+      
+      // Get the first slide content to understand the carousel better
+      const firstSlide = currentProject.slides[0]
+      const slideContent = firstSlide ? 
+        `${firstSlide.topLine || ''} ${firstSlide.mainHeading || ''} ${firstSlide.bullet || ''}`.trim() : 
+        ''
+
+      const response = await fetch("/api/ai/generate-unique", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: currentProject.topic,
+          type: "post",
+          wordCount: 20, // 20 words as requested
+          tone: "professional",
+          language: "english",
+          targetAudience: "LinkedIn professionals",
+          mainGoal: "engagement",
+          includeHashtags: true,
+          includeEmojis: true,
+          callToAction: false,
+          humanLike: true,
+          personalTouch: false,
+          storytelling: false,
+          conversationalStyle: true,
+          temperature: 0.8,
+          // Add context about the carousel
+          additionalContext: slideContent ? `This is for a carousel about: ${slideContent}` : undefined
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to generate caption")
+      }
+
+      const data = await response.json()
+      
+      if (data.content && data.content.length > 0) {
+        // Take the first generated content and ensure it's around 20 words
+        let generatedCaption = data.content[0]
+        
+        // If it's too long, truncate to approximately 20 words
+        const words = generatedCaption.split(' ')
+        if (words.length > 25) {
+          generatedCaption = words.slice(0, 20).join(' ') + '...'
+        }
+        
+        setLinkedInCaption(generatedCaption)
+        
+        toast({
+          title: "Caption Generated",
+          description: "AI has generated a suitable caption for your carousel.",
+        })
+      } else {
+        throw new Error("No content generated")
+      }
+    } catch (error) {
+      console.error("Error generating AI caption:", error)
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate AI caption. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGeneratingCaption(false)
+    }
+  }
+
   const renderSlideContent = (slide: CarouselSlide) => {
     const { content, design } = slide
     
@@ -2614,7 +2698,8 @@ What do you think? Share your thoughts in the comments below.
                         ))}
                       </div>
                       <div className="mt-2 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-                        Background images will be applied to all slides. 1:1 crops to fit, 9:16 shows full image.
+                        <div>Background images will be applied to all slides.</div>
+                        <div>1:1 crops to fit, 9:16 shows full image.</div>
                       </div>
                       
                       <div className="space-y-2">
@@ -2940,7 +3025,29 @@ What do you think? Share your thoughts in the comments below.
 
               {/* Caption Input */}
               <div className="space-y-2">
-                <Label htmlFor="linkedin-caption">Caption</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="linkedin-caption">Caption</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={generateAICaption}
+                    disabled={isGeneratingCaption || !currentProject?.topic}
+                    className="flex items-center gap-2"
+                  >
+                    {isGeneratingCaption ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        AI Assist
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <Textarea
                   id="linkedin-caption"
                   value={linkedInCaption}

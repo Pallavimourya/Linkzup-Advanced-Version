@@ -19,6 +19,12 @@ export function formatCredits(credits: number): string {
   return `${formattedCredits} credit${formattedCredits !== 1 ? 's' : ''}`
 }
 
+// Utility function to format credits as number only (no "credit/credits" text)
+export function formatCreditsNumber(credits: number): string {
+  // Always show exactly 2 decimal places
+  return credits.toFixed(2)
+}
+
 // Utility function to check if user has sufficient credits
 export function hasSufficientCredits(currentCredits: number, requiredCredits: number): boolean {
   return currentCredits >= requiredCredits

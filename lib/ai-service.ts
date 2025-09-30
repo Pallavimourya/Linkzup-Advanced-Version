@@ -303,13 +303,19 @@ class AIService {
     const isTopicBasedApproach = !!userEmail
     const isUniqueContentApproach = !userEmail
     
-    // Get personal story context ONLY for topic-based approach
+    // Get personal story context for both approaches when userEmail is provided
     let personalStoryContext = ""
-    if (isTopicBasedApproach && userEmail) {
+    if (userEmail) {
       try {
         const storyData = await PersonalStoryService.getUserStoryData(userEmail)
         if (storyData) {
-          personalStoryContext = PersonalStoryService.buildStoryContext(storyData)
+          if (isTopicBasedApproach) {
+            // For topic-based approach, use full story context
+            personalStoryContext = PersonalStoryService.buildStoryContext(storyData)
+          } else {
+            // For custom posts, use contextual story selection
+            personalStoryContext = PersonalStoryService.buildContextualStoryContext(storyData, prompt)
+          }
         }
       } catch (error) {
         console.log("Could not fetch personal story data:", error)
@@ -395,14 +401,19 @@ ${humanLikeInstructions}
 
 Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---". Each post should be complete and ready to publish.`
         } else {
-          // Unique content approach: Focus purely on user input, NO personal story
+          // Custom content approach: Use contextual personal story if available
           basePrompt = `Generate 2 unique, natural LinkedIn posts based on this user input: "${prompt}"
 
-APPROACH: UNIQUE CONTENT GENERATION
-- Create completely fresh, unique content based on the user's input
-- Do NOT use any personal story or background information
-- Focus purely on the topic/idea provided by the user
+${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext}
+
+IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the user's input "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+
+APPROACH: CUSTOM CONTENT GENERATION WITH PERSONAL TOUCH
+- Create fresh, unique content based on the user's input
+${personalStoryContext ? '- Incorporate relevant personal story elements that connect to the topic' : '- Focus purely on the topic/idea provided by the user'}
 - Generate original, creative content that stands out
+- Make the content feel authentic and personal
 
 Specifications:
 Tone: ${tone}
@@ -412,7 +423,7 @@ Target audience: ${targetAudience}
 Main goal: ${mainGoal}
 
 Requirements:
-- Create content focused entirely on the user's input: "${prompt}"
+- Create content focused on the user's input: "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
 - Write posts that are direct, concise, and professional
 - Start with engaging, natural openings - avoid generic phrases like "As professionals" or "We all know"
 - Use the specified tone: ${tone}
@@ -435,7 +446,7 @@ Requirements:
 ${includeHashtags ? "- Include 3-5 relevant hashtags on a separate line at the end - NO extra text after hashtags" : ""}
 ${includeEmojis ? "- Use 1-2 minimal emojis where relevant and natural" : ""}
 - Do NOT include "Post 1:", "Post 2:", or any numbering prefixes
-- Generate completely unique content based on the user's input
+- Generate content based on the user's input${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
 
 ${humanLikeInstructions}
 
@@ -531,6 +542,9 @@ IMPORTANT: Generate exactly 1 comprehensive story that focuses on "${prompt}" wi
 - Show growth and learning throughout the journey
 - Be authentic and relatable to the target audience
 - Maintain the specified tone and style
+- Do NOT include any call-to-action text, requests for comments, or prompts for engagement
+- Do NOT end with phrases like "share your stories" or "let's empower each other"
+- End the story naturally without asking for interaction
 
 Return only the single story content, ready to publish.`
         break
@@ -1259,13 +1273,14 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     return this.addToQueue(request)
   }
 
-  // Home tab: Generate unique content based on user input (NO personal story)
+  // Home tab: Generate unique content based on user input (WITH contextual personal story)
   async generateUniqueContent(
     type: ContentType,
     prompt: string,
     provider: AIProvider = "openai",
     customization: CustomizationOptions = {},
-    userId?: string
+    userId?: string,
+    userEmail?: string
   ): Promise<AIResponse> {
     const request: AIRequest = {
       id: this.generateRequestId(),
@@ -1274,7 +1289,7 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
       provider,
       customization,
       userId,
-      // NO userEmail - this ensures no personal story integration
+      userEmail, // Include userEmail for contextual personal story integration
       priority: "normal",
       createdAt: new Date(),
     }

@@ -53,7 +53,7 @@ import { formatIstTime, formatIstDateShort } from "@/lib/ist-utils"
 
 export default function ScheduledPostsPage() {
   const { data: session } = useSession()
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [platformFilter, setPlatformFilter] = useState("all")
@@ -380,18 +380,37 @@ export default function ScheduledPostsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
+            {!selectedDate ? (
+              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+                <Globe className="h-4 w-4" />
+                <span>Showing all scheduled posts</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300">
+                <CalendarIcon className="h-4 w-4" />
+                <span>Filtered by {format(selectedDate, "MMM dd, yyyy")}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedDate(undefined)}
+                  className="h-6 w-6 p-0 hover:bg-green-100 dark:hover:bg-green-800/50"
+                >
+                  <XCircle className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 placeholder="Search scheduled posts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm"
+                className="pl-12 h-12 border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-gray-100"
               />
             </div>
             <div className="flex gap-3">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[160px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                <SelectTrigger className="w-full sm:w-[160px] h-12 border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-gray-100">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4 text-gray-500" />
                     <SelectValue placeholder="Status" />
@@ -407,7 +426,7 @@ export default function ScheduledPostsPage() {
                 </SelectContent>
               </Select>
               <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-gray-100">
                   <SelectValue placeholder="Platform" />
                 </SelectTrigger>
                 <SelectContent>
@@ -418,7 +437,7 @@ export default function ScheduledPostsPage() {
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm">
+                <SelectTrigger className="w-full sm:w-[140px] h-12 border-2 border-gray-200 dark:border-gray-700 focus:border-blue-500 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-gray-100">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -508,8 +527,8 @@ export default function ScheduledPostsPage() {
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       whileHover={{ y: -5 }}
                     >
-                      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                        <CardHeader className="pb-4 bg-gradient-to-r from-blue-50/50 to-blue-100/50 border-b border-gray-100">
+                      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                        <CardHeader className="pb-4 bg-gradient-to-r from-blue-50/50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/20 border-b border-gray-100 dark:border-gray-700">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div className="flex-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -517,49 +536,49 @@ export default function ScheduledPostsPage() {
                                   {getStatusIcon(post.status)}
                                   <span className="ml-1 capitalize text-xs font-medium">{post.status}</span>
                                 </Badge>
-                                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700">
                                   {getTypeIcon(post.type)}
                                   <span className="ml-1 capitalize">{post.type}</span>
                                 </Badge>
-                                <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                                <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700">
                                   {getPlatformIcon(post.platform)}
                                   <span className="ml-1 capitalize">{post.platform}</span>
                                 </Badge>
                                 {post.retryCount && post.retryCount > 0 && (
-                                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                                  <Badge variant="outline" className="text-xs bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700">
                                     Retry {post.retryCount}/{post.maxRetries || 3}
                                   </Badge>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 text-sm text-gray-500">
+                              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                 <CalendarIcon className="h-4 w-4" />
                                 <span>Scheduled for {formatIstDateShort(post.scheduledFor)} at {formatIstTime(post.scheduledFor)}</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
                               {post.status === "pending" && (
-                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-yellow-50">
+                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-yellow-50 dark:hover:bg-yellow-900/30">
                                   <Pause className="h-4 w-4 text-yellow-600" />
                                 </Button>
                               )}
                               {post.status === "paused" && (
-                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-blue-50">
+                                <Button variant="ghost" size="sm" onClick={() => handleToggleStatus(post._id, post.status)} className="h-8 w-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/30">
                                   <Play className="h-4 w-4 text-blue-600" />
                                 </Button>
                               )}
                               {post.status === "failed" && (
-                                <Button variant="ghost" size="sm" onClick={() => handleRetryPost(post._id)} className="h-8 w-8 p-0 hover:bg-blue-50">
+                                <Button variant="ghost" size="sm" onClick={() => handleRetryPost(post._id)} className="h-8 w-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900/30">
                                   <RefreshCw className="h-4 w-4 text-blue-600" />
                                 </Button>
                               )}
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-50">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <Edit3 className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeletePost(post._id)}
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="h-8 w-8 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -567,14 +586,14 @@ export default function ScheduledPostsPage() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-6">
-                          <p className="text-sm leading-relaxed mb-4 line-clamp-3 text-gray-700">{post.content}</p>
+                          <p className="text-sm leading-relaxed mb-4 line-clamp-3 text-gray-700 dark:text-gray-300">{post.content}</p>
 
                           {/* Display images if they exist */}
                           {post.images && post.images.length > 0 && (
                             <div className="mb-4">
                               <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
                                 {post.images.slice(0, 6).map((image, index) => (
-                                  <div key={index} className="relative aspect-square bg-gray-100 rounded-md overflow-hidden">
+                                  <div key={index} className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden">
                                     <img 
                                       src={image} 
                                       alt={`Slide ${index + 1}`}
@@ -587,12 +606,12 @@ export default function ScheduledPostsPage() {
                                   </div>
                                 ))}
                                 {post.images.length > 6 && (
-                                  <div className="aspect-square bg-gray-100 rounded-md flex items-center justify-center">
-                                    <span className="text-xs text-gray-500">+{post.images.length - 6}</span>
+                                  <div className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-md flex items-center justify-center">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">+{post.images.length - 6}</span>
                                   </div>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-500 mt-2">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                                 {post.images.length} slide{post.images.length > 1 ? 's' : ''} • {post.type === 'carousel' ? 'Carousel' : 'Images'}
                               </p>
                             </div>
@@ -601,7 +620,7 @@ export default function ScheduledPostsPage() {
                           {post.tags && post.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
                               {post.tags.map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-xs bg-gray-50 text-gray-600">
+                                <Badge key={tag} variant="secondary" className="text-xs bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                                   {tag}
                                 </Badge>
                               ))}
@@ -609,7 +628,7 @@ export default function ScheduledPostsPage() {
                           )}
 
                           {post.engagement && (
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 pt-4 border-t border-gray-100">
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-gray-700">
                               <span className="flex items-center gap-1">
                                 <Heart className="h-3 w-3" />
                                 {post.engagement.likes} likes
@@ -626,7 +645,7 @@ export default function ScheduledPostsPage() {
                           )}
 
                           {post.errorMessage && (
-                            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+                            <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-700 dark:text-red-300">
                               <strong>Error:</strong> {post.errorMessage}
                             </div>
                           )}
@@ -642,7 +661,7 @@ export default function ScheduledPostsPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <Button onClick={handleLoadMore} variant="outline" className="gap-2 h-12 border-gray-200 hover:bg-gray-50">
+                    <Button onClick={handleLoadMore} variant="outline" className="gap-2 h-12 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                       Load More Posts
                     </Button>
                   </motion.div>
@@ -658,15 +677,15 @@ export default function ScheduledPostsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-blue-50/50 to-blue-100/50 border-b border-gray-100">
+              <Card className="lg:col-span-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
+                <CardHeader className="bg-gradient-to-r from-blue-50/50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/20 border-b border-gray-100 dark:border-gray-700">
                   <CardTitle className="flex items-center gap-3 text-lg">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                       <CalendarLucide className="w-4 h-4 text-white" />
                     </div>
                     Calendar
                   </CardTitle>
-                  <CardDescription>Select a date to view scheduled posts</CardDescription>
+                  <CardDescription>Select a date to filter posts or leave empty to view all</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
                   <Calendar
@@ -675,17 +694,30 @@ export default function ScheduledPostsPage() {
                     onSelect={setSelectedDate}
                     className="rounded-xl border-0"
                   />
+                  {selectedDate && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setSelectedDate(undefined)}
+                        className="w-full gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Show All Posts
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
               <div className="lg:col-span-2 space-y-4">
-                <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-blue-50/50 to-blue-100/50 border-b border-gray-100">
+                <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-blue-50/50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/20 border-b border-gray-100 dark:border-gray-700">
                     <CardTitle className="flex items-center gap-3 text-lg">
                       <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                         <Clock className="w-4 h-4 text-white" />
                       </div>
-                      Posts for {selectedDate ? format(selectedDate, "MMMM dd, yyyy") : "Selected Date"}
+                      Posts {selectedDate ? `for ${format(selectedDate, "MMMM dd, yyyy")}` : "All Scheduled Posts"}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
@@ -697,29 +729,29 @@ export default function ScheduledPostsPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.4, delay: index * 0.1 }}
-                            className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50/50 transition-colors"
+                            className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors"
                           >
                             <div className="flex items-center gap-3">
                               {getStatusIcon(post.status)}
-                              <span className="text-sm font-medium text-gray-900">{formatIstTime(post.scheduledFor)}</span>
+                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatIstTime(post.scheduledFor)}</span>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm text-gray-700 truncate">{post.content}</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{post.content}</p>
                               {post.images && post.images.length > 0 && (
                                 <div className="flex items-center gap-1 mt-1">
                                   <Monitor className="h-3 w-3 text-gray-400" />
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">
                                     {post.images.length} slide{post.images.length > 1 ? 's' : ''}
                                   </span>
                                 </div>
                               )}
                             </div>
                             <div className="flex gap-2">
-                              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                              <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700">
                                 {getTypeIcon(post.type)}
                                 <span className="ml-1 capitalize">{post.type}</span>
                               </Badge>
-                              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                              <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700">
                                 {getPlatformIcon(post.platform)}
                                 <span className="ml-1 capitalize">{post.platform}</span>
                               </Badge>
@@ -732,12 +764,16 @@ export default function ScheduledPostsPage() {
                         <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4">
                           <CalendarIcon className="h-8 w-8 text-blue-500" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No posts scheduled for this date</h3>
-                        <p className="text-gray-600 mb-4">Schedule a post for this date to get started</p>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                          {selectedDate ? "No posts scheduled for this date" : "No posts found"}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                          {selectedDate ? "Schedule a post for this date to get started" : "Select a date to view posts or schedule a new post"}
+                        </p>
                         <SchedulePostModal
                           content="Write your post content here..."
                           trigger={
-                            <Button variant="outline" className="gap-2 border-gray-200 hover:bg-gray-50">
+                            <Button variant="outline" className="gap-2 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                               <Plus className="h-4 w-4" />
                               Schedule for this date
                             </Button>

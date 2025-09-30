@@ -403,7 +403,7 @@ export default function AdminPlansPage() {
             <Textarea
               id="plan-features"
               placeholder="AI Content Generation&#10;LinkedIn Posting&#10;Priority Support&#10;Advanced Analytics"
-              className="min-h-[100px] text-sm sm:text-base"
+              className="min-h-[100px] text-sm sm:text-base border border-gray-300 dark:border-gray-600"
               value={draft.features}
               onChange={(e) => setDraft({ ...draft, features: e.target.value })}
             />
@@ -566,7 +566,7 @@ export default function AdminPlansPage() {
                       <Label htmlFor={`edit-features-${p._id}`} className="text-sm">Features (one per line)</Label>
                       <Textarea
                         id={`edit-features-${p._id}`}
-                        className="min-h-[100px] text-sm sm:text-base"
+                        className="min-h-[100px] text-sm sm:text-base border border-gray-300 dark:border-gray-600"
                         value={editDraft?.features || ""}
                         onChange={(e) => setEditDraft({ ...editDraft, features: e.target.value })}
                       />

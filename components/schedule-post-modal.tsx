@@ -281,7 +281,7 @@ export function SchedulePostModal({
                       value={customContent}
                       onChange={(e) => setCustomContent(e.target.value)}
                       rows={4}
-                      className="resize-none"
+                      className="resize-none border border-gray-300 dark:border-gray-600"
                     />
                     <p className="text-xs text-muted-foreground">
                       Leave empty to post only images without any text.

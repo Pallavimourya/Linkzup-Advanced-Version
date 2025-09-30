@@ -11,9 +11,9 @@ interface LogoProps {
 
 export function Logo({ size = "md", showText = true, className = "" }: LogoProps) {
   const sizeClasses = {
-    sm: "h-28 w-28",
-    md: "h-30 w-30", 
-    lg: "h-32 w-32"
+    sm: "h-8 w-8",
+    md: "h-10 w-10", 
+    lg: "h-12 w-12"
   }
 
   const textSizes = {
@@ -23,7 +23,7 @@ export function Logo({ size = "md", showText = true, className = "" }: LogoProps
   }
 
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className={`flex items-center justify-center ${className}`}>
       {/* Logo Image */}
       <div className={`relative ${sizeClasses[size]}`}>
         <Image

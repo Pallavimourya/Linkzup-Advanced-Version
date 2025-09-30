@@ -383,6 +383,7 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
                     rows={3}
+                    className="border border-gray-300 dark:border-gray-600"
                   />
                   <Button 
                     onClick={generateAIImage} 

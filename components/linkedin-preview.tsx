@@ -303,7 +303,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                   <Textarea
                     value={editableContent}
                     onChange={(e) => setEditableContent(e.target.value)}
-                    className="min-h-[120px] resize-none"
+                    className="min-h-[120px] resize-none border border-gray-300 dark:border-gray-600"
                     placeholder="Edit your post content..."
                   />
                   <div className="flex gap-2">
@@ -550,6 +550,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                         value={aiPrompt}
                         onChange={(e) => setAiPrompt(e.target.value)}
                         rows={3}
+                        className="border border-gray-300 dark:border-gray-600"
                       />
                       <Button 
                         onClick={generateAIImage} 
