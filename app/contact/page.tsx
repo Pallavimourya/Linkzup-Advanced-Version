@@ -297,7 +297,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleInputChange}
                     required 
-                    className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 

@@ -32,7 +32,9 @@ import {
   MoreHorizontal,
   Filter,
   Download,
-  RefreshCw
+  RefreshCw,
+  MapPin,
+  Phone
 } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -296,9 +298,27 @@ export default function AdminUsersPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-base sm:text-lg text-teal-900 break-words">{u.name || "Unnamed User"}</h3>
-                      <div className="flex items-center gap-2 text-xs sm:text-sm text-teal-600 mt-1">
-                        <Mail className="h-3 w-3 flex-shrink-0" />
-                        <span className="break-all">{u.email}</span>
+                      <div className="flex flex-col gap-1 mt-1">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-teal-600">
+                          <Mail className="h-3 w-3 flex-shrink-0" />
+                          <span className="break-all">{u.email}</span>
+                        </div>
+                        {(u.city || u.mobile) && (
+                          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-teal-500">
+                            {u.city && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3 flex-shrink-0" />
+                                <span>{u.city}</span>
+                              </div>
+                            )}
+                            {u.mobile && (
+                              <div className="flex items-center gap-1">
+                                <Phone className="h-3 w-3 flex-shrink-0" />
+                                <span>{u.mobile}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">

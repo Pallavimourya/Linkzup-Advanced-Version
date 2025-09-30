@@ -33,6 +33,8 @@ export async function GET(req: NextRequest) {
         plan: 1,
         accountStatus: 1,
         subscriptionStatus: 1,
+        city: 1,
+        mobile: 1,
       },
     })
     .sort({ createdAt: -1 })

@@ -32,6 +32,8 @@ interface UserProfile {
   email: string
   bio: string
   profilePicture: string
+  city: string
+  mobile: string
 }
 
 interface PasswordForm {
@@ -47,6 +49,8 @@ export default function ProfilePage() {
     email: "",
     bio: "",
     profilePicture: "",
+    city: "",
+    mobile: "",
   })
   const [passwordForm, setPasswordForm] = useState<PasswordForm>({
     currentPassword: "",
@@ -74,6 +78,8 @@ export default function ProfilePage() {
               email: userData.email || session.user.email || "",
               bio: userData.bio || "",
               profilePicture: userData.profilePicture || session.user.image || "",
+              city: userData.city || "",
+              mobile: userData.mobile || "",
             })
           } else {
             // Fallback to session data
@@ -82,6 +88,8 @@ export default function ProfilePage() {
               email: session.user.email || "",
               bio: "",
               profilePicture: session.user.image || "",
+              city: "",
+              mobile: "",
             })
           }
         } catch (error) {
@@ -92,6 +100,8 @@ export default function ProfilePage() {
             email: session.user.email || "",
             bio: "",
             profilePicture: session.user.image || "",
+            city: "",
+            mobile: "",
           })
         }
       }
@@ -309,6 +319,7 @@ export default function ProfilePage() {
                         value={profile.name}
                         onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                         placeholder="Enter your full name"
+                        className="border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
                     <div className="space-y-2">
@@ -319,6 +330,30 @@ export default function ProfilePage() {
                         value={profile.email}
                         onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                         placeholder="Enter your email"
+                        className="border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        value={profile.city}
+                        onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                        placeholder="Enter your city"
+                        className="border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="mobile">Mobile Number</Label>
+                      <Input
+                        id="mobile"
+                        type="tel"
+                        value={profile.mobile}
+                        onChange={(e) => setProfile({ ...profile, mobile: e.target.value })}
+                        placeholder="Enter your mobile number"
+                        className="border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
                   </div>
@@ -329,7 +364,7 @@ export default function ProfilePage() {
                       value={profile.bio}
                       onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                       placeholder="Tell us about yourself..."
-                      className="min-h-[100px] border border-black"
+                      className="min-h-[100px] border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                     />
                     <p className="text-sm text-muted-foreground">
                       Brief description for your profile. Maximum 500 characters.

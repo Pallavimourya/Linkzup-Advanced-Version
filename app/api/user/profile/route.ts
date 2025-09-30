@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     const user = await users.findOne(
       { _id: new ObjectId(session.user.id) },
-      { projection: { name: 1, email: 1, bio: 1, image: 1, profilePicture: 1 } }
+      { projection: { name: 1, email: 1, bio: 1, image: 1, profilePicture: 1, city: 1, mobile: 1 } }
     )
 
     if (!user) {
@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
       email: user.email,
       bio: user.bio || "",
       profilePicture: user.profilePicture || user.image || "",
+      city: user.city || "",
+      mobile: user.mobile || "",
     })
   } catch (error) {
     console.error("Profile fetch error:", error)
@@ -47,7 +49,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { name, email, bio } = await request.json()
+    const { name, email, bio, city, mobile } = await request.json()
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 })
@@ -63,6 +65,8 @@ export async function PUT(request: NextRequest) {
           name,
           email,
           bio: bio || null,
+          city: city || null,
+          mobile: mobile || null,
           updatedAt: new Date(),
         },
       },
