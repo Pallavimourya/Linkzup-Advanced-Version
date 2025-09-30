@@ -52,7 +52,7 @@ export default function HomePage() {
       </section>
 
       {/* Problem Statement */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-card/30">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
@@ -100,71 +100,90 @@ export default function HomePage() {
             </div>
           </div>
           
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              We make you a thought leader, while you focus on business.
-            </h3>
-          </div>
         </div>
       </section>
 
-      {/* Services Section */}
+
+      {/* LinkedIn & LinkZup Collaboration Section */}
       <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Award className="w-6 h-6 text-primary" />
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <div className="relative order-2 lg:order-1">
+              <div className="rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src="https://instore.ba/wp-content/uploads/2021/03/linkdin2.jpg" 
+                  alt="LinkedIn Network & Revenue Generation" 
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+            
+            <div className="order-1 lg:order-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                Why LinkZup is Important for LinkedIn
+              </h2>
+              <p className="text-xl text-muted-foreground mb-8">
+                Our AI-powered automation platform transforms LinkedIn from a time-consuming task into a profit-generating machine.
+              </p>
+              
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">AI Content Generation</h3>
+                    <p className="text-muted-foreground">Automatically create engaging LinkedIn posts, carousels, and articles tailored to your industry and audience.</p>
+                  </div>
                 </div>
-                <CardTitle className="text-lg sm:text-xl">Profile Revamp</CardTitle>
-                <CardDescription>
-                  Authority-driven design & copy.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Calendar className="w-6 h-6 text-primary" />
+                
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <Calendar className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Smart Post Scheduling</h3>
+                    <p className="text-muted-foreground">Automatically schedule posts at optimal times for maximum engagement without manual intervention.</p>
+                  </div>
                 </div>
-                <CardTitle className="text-lg sm:text-xl">Content Calendar</CardTitle>
-                <CardDescription>
-                  Weekly posts crafted for visibility.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-primary" />
+                
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <Users className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Automated Connection Requests</h3>
+                    <p className="text-muted-foreground">AI identifies and sends personalized connection requests to your ideal prospects automatically.</p>
+                  </div>
                 </div>
-                <CardTitle className="text-lg sm:text-xl">Engagement & DMs</CardTitle>
-                <CardDescription>
-                  Daily interactions that build trust.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <BarChart3 className="w-6 h-6 text-primary" />
+                
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <Zap className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Auto-Engagement</h3>
+                    <p className="text-muted-foreground">Automatically like, comment, and share relevant posts to boost your visibility and engagement.</p>
+                  </div>
                 </div>
-                <CardTitle className="text-lg sm:text-xl">Growth Insights</CardTitle>
-                <CardDescription>
-                  Monthly analytics & strategy tweaks.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+                
+                <div className="flex items-start space-x-4">
+                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <BarChart3 className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Performance Analytics</h3>
+                    <p className="text-muted-foreground">Track your LinkedIn growth with detailed analytics and automated reporting on your content performance.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Why LinkedIn Section */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-6 sm:mb-8">
             Try LinkZup Today
@@ -205,6 +224,49 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+          
+          <div className="text-center mt-16">
+            <h3 className="text-2xl font-bold text-foreground mb-8">
+              We make you a thought leader, while you focus on business.
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              <Card className="border-border hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                    <Award className="w-6 h-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg sm:text-xl">Profile Revamp</CardTitle>
+                  <CardDescription>
+                    Authority-driven design & copy.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="border-border hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                    <Calendar className="w-6 h-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg sm:text-xl">Content Calendar</CardTitle>
+                  <CardDescription>
+                    Weekly posts crafted for visibility.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="border-border hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                    <Users className="w-6 h-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg sm:text-xl">Engagement & DMs</CardTitle>
+                  <CardDescription>
+                    Daily interactions that build trust.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -226,8 +288,100 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* LinkedIn Software Features Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              LinkZup Software: Your Complete LinkedIn Solution
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Our AI-powered platform automates every aspect of your LinkedIn presence, from profile optimization to content creation and engagement.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+            <div>
+              <h3 className="text-2xl font-bold text-foreground mb-6">LinkedIn Profile Optimization</h3>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-foreground">AI-Powered Headline Generator</h4>
+                    <p className="text-muted-foreground">Creates compelling headlines that increase profile views by 300%</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-foreground">Smart About Section</h4>
+                    <p className="text-muted-foreground">Writes professional summaries that convert visitors to connections</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-foreground">Keyword Optimization</h4>
+                    <p className="text-muted-foreground">Ensures your profile appears in relevant searches</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                <img 
+                  src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600&h=400&fit=crop&crop=center" 
+                  alt="LinkedIn Profile Optimization" 
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+            <div className="order-2 lg:order-1">
+              <div className="relative">
+                <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                  <img 
+                    src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop&crop=center" 
+                    alt="LinkedIn Content Creation" 
+                    className="w-full h-auto"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2">
+              <h3 className="text-2xl font-bold text-foreground mb-6">Automated Content Creation</h3>
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-foreground">AI Content Generator</h4>
+                    <p className="text-muted-foreground">Creates engaging posts based on your industry and expertise</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-foreground">Smart Scheduling</h4>
+                    <p className="text-muted-foreground">Posts at optimal times for maximum engagement</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-foreground">Content Calendar</h4>
+                    <p className="text-muted-foreground">Plans your content strategy weeks in advance</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t border-border bg-card/30 py-8 px-4 sm:px-6 lg:px-8">
+      <footer className="border-t border-border py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-3">
