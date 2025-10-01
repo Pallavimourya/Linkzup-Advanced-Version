@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, Users, Target, Award, Zap, CheckCircle, Calendar, BarChart3, MessageSquare, TrendingUp, Star, Shield } from "lucide-react"
+import { ArrowRight, Users, Target, Award, Zap, CheckCircle, Calendar, BarChart3, MessageSquare, TrendingUp, Star, Shield, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Logo } from "@/components/logo"
 import { MainNavbar } from "@/components/main-navbar"
@@ -37,7 +37,7 @@ export default function FeaturesPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               Our Core Services
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -45,158 +45,60 @@ export default function FeaturesPage() {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Profile Revamp */}
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Award className="w-8 h-8 text-primary" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* AI Content Generation */}
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">AI Content Generation</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Automatically create engaging LinkedIn posts, carousels, and articles tailored to your industry and audience.</p>
                   </div>
-                  <div>
-                    <CardTitle className="text-2xl">Profile Revamp</CardTitle>
-                    <CardDescription className="text-lg">Authority-driven design & copy</CardDescription>
+            
+            {/* Smart Post Scheduling */}
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                   </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">Smart Post Scheduling</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Automatically schedule posts at optimal times for maximum engagement without manual intervention.</p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Transform your LinkedIn profile into a compelling personal brand that attracts your ideal clients and establishes you as an industry authority.
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Professional headshot and banner design</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Compelling headline and summary</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Keyword optimization for visibility</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Featured section optimization</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Content Calendar */}
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-8 h-8 text-primary" />
+            
+            {/* AI Carousel */}
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">AI Carousel</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Create engaging carousel posts with AI-generated content and visuals that drive maximum engagement.</p>
                   </div>
-                  <div>
-                    <CardTitle className="text-2xl">Content Calendar</CardTitle>
-                    <CardDescription className="text-lg">Weekly posts crafted for visibility</CardDescription>
+            
+            {/* Your Personal Story */}
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                   </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">Your Personal Story</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Craft compelling personal narratives that connect with your audience and build authentic relationships.</p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Consistent, engaging content that positions you as a thought leader and drives meaningful engagement with your target audience.
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">3-5 posts per week</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Industry-relevant content</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Optimal posting times</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Engagement-driving captions</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Engagement & DMs */}
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <MessageSquare className="w-8 h-8 text-primary" />
+            
+            {/* AI Topics Generator */}
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Target className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                   </div>
-                  <div>
-                    <CardTitle className="text-2xl">Engagement & DMs</CardTitle>
-                    <CardDescription className="text-lg">Daily interactions that build trust</CardDescription>
-                  </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">AI Topics Generator</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Generate trending and relevant topics tailored to your industry and audience interests automatically.</p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Active engagement with your network and strategic outreach to prospects that converts connections into clients.
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Daily comment engagement</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Strategic connection requests</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Personalized DM sequences</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Lead nurturing campaigns</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Growth Insights */}
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <BarChart3 className="w-8 h-8 text-primary" />
+            
+            {/* Create Your Next LinkedIn Post with One Click */}
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                   </div>
-                  <div>
-                    <CardTitle className="text-2xl">Growth Insights</CardTitle>
-                    <CardDescription className="text-lg">Monthly analytics & strategy tweaks</CardDescription>
-                  </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">Create Your Next LinkedIn Post with One Click</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Generate professional LinkedIn posts instantly with AI-powered content creation that matches your brand voice and industry expertise.</p>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Data-driven insights and strategic recommendations to continuously optimize your LinkedIn performance and maximize ROI.
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Monthly performance reports</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Content performance analysis</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Audience growth tracking</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                    <span className="text-muted-foreground">Strategy optimization recommendations</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
@@ -205,7 +107,7 @@ export default function FeaturesPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               Additional Features
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -292,7 +194,7 @@ export default function FeaturesPage() {
       {/* Results Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-8">
             What You Can Expect
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -307,9 +209,9 @@ export default function FeaturesPage() {
               <div className="text-muted-foreground">More visibility in your industry</div>
             </div>
             <div className="space-y-4">
-              <div className="text-3xl font-bold text-primary">₹3.5L+</div>
-              <div className="text-lg font-semibold text-foreground">Revenue Generated</div>
-              <div className="text-muted-foreground">Average client closed via LinkedIn</div>
+              <div className="text-3xl font-bold text-primary">500+</div>
+              <div className="text-lg font-semibold text-foreground">Content Templates</div>
+              <div className="text-muted-foreground">Pre-built posts, carousels, and articles ready to use</div>
             </div>
           </div>
         </div>

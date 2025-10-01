@@ -116,7 +116,7 @@ export default function ContactPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               Choose Your Preferred Contact Method
             </h2>
             <p className="text-xl text-muted-foreground">
@@ -192,7 +192,7 @@ export default function ContactPage() {
       <section id="contact-form" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               Send us a Message
             </h2>
             <p className="text-xl text-muted-foreground">
@@ -318,7 +318,7 @@ export default function ContactPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               Frequently Asked Questions
             </h2>
             <p className="text-xl text-muted-foreground">

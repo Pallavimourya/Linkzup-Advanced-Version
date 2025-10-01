@@ -18,9 +18,9 @@ export default function AboutPage() {
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
               About <span className="text-primary">LinkZup</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-8 leading-relaxed">
               Our Mission
-            </p>
+            </h2>
             <p className="text-2xl font-semibold text-foreground mb-8">
               At LinkZup, we believe every entrepreneur deserves a powerful LinkedIn presence.
             </p>
@@ -41,7 +41,7 @@ export default function AboutPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               Who We Are
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -49,54 +49,38 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Target className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle>LinkedIn Growth Strategists</CardTitle>
-                <CardDescription>
-                  Who know the algorithm inside out
-                </CardDescription>
-              </CardHeader>
-            </Card>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Target className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300 text-center">LinkedIn Growth Strategists</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center">Who know the algorithm inside out</p>
+            </div>
 
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle>Content Creators</CardTitle>
-                <CardDescription>
-                  Who craft posts that drive engagement and leads
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300 text-center">Content Creators</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center">Who craft posts that drive engagement and leads</p>
+            </div>
 
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Award className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle>Personal Branding Experts</CardTitle>
-                <CardDescription>
-                  Who position you as a thought leader
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Award className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300 text-center">Personal Branding Experts</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center">Who position you as a thought leader</p>
+            </div>
 
-            <Card className="border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-primary" />
-                </div>
-                <CardTitle>Tech & Analytics Specialists</CardTitle>
-                <CardDescription>
-                  Who ensure your growth is measurable
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300 text-center">Tech & Analytics Specialists</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center">Who ensure your growth is measurable</p>
+            </div>
           </div>
 
           <div className="text-center mt-12">
@@ -111,7 +95,7 @@ export default function AboutPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               The Founder's Story
             </h2>
           </div>
@@ -157,31 +141,36 @@ export default function AboutPage() {
       {/* Vision Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-8">
             Our Vision
           </h2>
           <p className="text-xl text-muted-foreground mb-12">
             To become the #1 LinkedIn management system globally, empowering professionals to:
           </p>
           
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Award className="w-8 h-8 text-primary" />
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 mb-12">
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Award className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Build authority</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300 text-center">Build Authority</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center">Establish yourself as a thought leader in your industry through strategic content and positioning</p>
             </div>
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Target className="w-8 h-8 text-primary" />
+            
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Target className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Attract clients</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300 text-center">Attract Clients</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center">Generate high-quality leads and convert prospects into paying customers through LinkedIn</p>
             </div>
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Zap className="w-8 h-8 text-primary" />
+            
+            <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Unlock new opportunities</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300 text-center">Unlock New Opportunities</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed text-center">Discover partnerships, collaborations, and business opportunities through strategic networking</p>
             </div>
           </div>
           
@@ -195,7 +184,7 @@ export default function AboutPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
               Why Choose LinkZup?
             </h2>
           </div>
@@ -239,9 +228,9 @@ export default function AboutPage() {
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-xl font-semibold text-foreground">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary">
               We're not just managing LinkedIn — we're building personal brands that last.
-            </p>
+            </h2>
           </div>
         </div>
       </section>

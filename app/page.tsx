@@ -7,175 +7,211 @@ import { Logo } from "@/components/logo"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-card to-muted">
-      {/* Navigation */}
-      <MainNavbar />
-
-      {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+    <div className="min-h-screen bg-white">
+      {/* Hero Section with Video Background */}
+      <section className="relative min-h-screen px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Video Background - covers entire viewport including navbar area */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/111.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/80 z-10"></div>
+        
+        {/* Floating decorative elements */}
+        <div className="absolute inset-0 z-5 overflow-hidden">
+          {/* Floating blue circle 1 - Hidden on mobile */}
+          <div className="hidden sm:block absolute top-20 left-10 w-8 sm:w-12 h-8 sm:h-12 bg-primary rounded-full animate-bounce opacity-80" style={{ animationDuration: '3s', animationDelay: '0s' }}></div>
+          
+          {/* Floating blue circle 2 - Smaller on mobile */}
+          <div className="absolute top-40 right-4 sm:right-20 w-8 sm:w-12 md:w-16 h-8 sm:h-12 md:h-16 bg-primary rounded-full animate-bounce opacity-70" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
+          
+          {/* Floating blue square 1 - Hidden on mobile */}
+          <div className="hidden sm:block absolute top-60 left-1/4 w-10 sm:w-14 h-10 sm:h-14 bg-primary animate-bounce opacity-75" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }}></div>
+          
+          {/* Floating blue square 2 - Smaller on mobile */}
+          <div className="absolute bottom-40 right-1/3 w-6 sm:w-8 md:w-10 h-6 sm:h-8 md:h-10 bg-primary animate-bounce opacity-80" style={{ animationDuration: '2.5s', animationDelay: '1.5s' }}></div>
+          
+          {/* Rotating hollow square - Smaller on mobile */}
+          <div className="absolute top-1/3 right-4 sm:right-10 w-12 sm:w-16 md:w-20 h-12 sm:h-16 md:h-20 border-2 sm:border-4 border-primary animate-spin opacity-90" style={{ animationDuration: '8s' }}></div>
+          
+          {/* Additional floating elements - Hidden on mobile */}
+          <div className="hidden sm:block absolute bottom-20 left-1/3 w-6 sm:w-8 h-6 sm:h-8 bg-primary rounded-full animate-bounce opacity-70" style={{ animationDuration: '2s', animationDelay: '2s' }}></div>
+          
+          <div className="hidden md:block absolute top-1/2 left-20 w-8 sm:w-12 h-8 sm:h-12 bg-primary animate-bounce opacity-75" style={{ animationDuration: '3.2s', animationDelay: '0.8s' }}></div>
+          
+          <div className="absolute bottom-1/3 right-1/4 w-6 sm:w-8 md:w-10 h-6 sm:h-8 md:h-10 bg-primary rounded-full animate-bounce opacity-80" style={{ animationDuration: '2.8s', animationDelay: '1.2s' }}></div>
+          
+          {/* Extra large elements - Hidden on mobile */}
+          <div className="hidden lg:block absolute top-10 right-1/2 w-16 lg:w-18 h-16 lg:h-18 bg-primary rounded-full animate-bounce opacity-60" style={{ animationDuration: '5s', animationDelay: '0.3s' }}></div>
+          
+          <div className="hidden lg:block absolute bottom-10 left-1/2 w-12 lg:w-16 h-12 lg:h-16 bg-primary animate-bounce opacity-65" style={{ animationDuration: '4.5s', animationDelay: '1.8s' }}></div>
+        </div>
+        
+        {/* Navigation */}
+        <div className="relative z-20">
+          <MainNavbar />
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-20 max-w-7xl mx-auto pt-16 sm:pt-20">
+          <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
+            <div className="text-center max-w-4xl px-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 sm:mb-8 leading-tight" style={{ fontFamily: 'Roboto, sans-serif' }}>
                 Grow on LinkedIn.<br />
                 <span className="text-primary">Without the hassle.</span>
               </h1>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+              <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-12 leading-relaxed">
                 Your profile, content, engagement — managed end-to-end so you can focus on business.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex justify-center">
                 <Link href="/auth/signup">
-                  <Button size="lg" className="text-lg px-8 py-6">
-                    👉 Get Started Now <ArrowRight className="ml-2 w-5 h-5" />
+                  <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 md:px-12 py-4 sm:py-6 md:py-8">
+                    👉 Get Started Now <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   </Button>
                 </Link>
               </div>
             </div>
             
-            <div className="relative">
+          </div>
+        </div>
+      </section>
+
+      {/* Who We Are */}
+      <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Floating shapes for Who We Are section */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-10 right-10 w-6 h-6 bg-primary rounded-full animate-bounce opacity-60" style={{ animationDuration: '3s', animationDelay: '0s' }}></div>
+          <div className="absolute bottom-20 left-8 w-8 h-8 bg-primary animate-bounce opacity-70" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 right-1/4 w-4 h-4 bg-primary rounded-full animate-bounce opacity-50" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }}></div>
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left side - Video */}
+            <div className="order-2 lg:order-1">
               <div className="rounded-2xl overflow-hidden shadow-2xl">
                 <video 
                   autoPlay 
                   loop 
                   muted 
                   playsInline
-                  className="w-full h-auto"
-                  poster="/placeholder.jpg"
+                  className="w-full h-64 sm:h-80 lg:h-96 object-cover"
                 >
                   <source src="/video.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Problem Statement */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Most professionals are invisible on LinkedIn.
+            
+            {/* Right side - Content */}
+            <div className="order-1 lg:order-2">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
+                Who We Are
             </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              1 Billion users, but less than 3% post content.
-            </p>
+              <p className="text-lg sm:text-xl text-muted-foreground mb-6">
+                LinkZup is a done-for-you LinkedIn management system built by entrepreneurs, for entrepreneurs.
+              </p>
+              
+              <div className="space-y-4 mb-6">
+                <div className="space-y-1">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">LinkedIn Growth Strategists</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Who know the algorithm inside out</p>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Content Creators</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Who craft posts that drive engagement and leads</p>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Personal Branding Experts</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Who position you as a thought leader</p>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Tech & Analytics Specialists</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Who ensure your growth is measurable</p>
+                </div>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-foreground">Founders & CXOs don't have the time to:</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start space-x-3">
-                  <Clock className="w-5 h-5 text-muted-foreground mt-0.5" />
-                  <span className="text-muted-foreground">Write content consistently</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <Users className="w-5 h-5 text-muted-foreground mt-0.5" />
-                  <span className="text-muted-foreground">Engage with prospects daily</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <Target className="w-5 h-5 text-muted-foreground mt-0.5" />
-                  <span className="text-muted-foreground">Optimize their profile for visibility</span>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-destructive">Result:</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start space-x-3">
-                  <X className="w-5 h-5 text-destructive mt-0.5" />
-                  <span className="text-muted-foreground">Missed leads</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <X className="w-5 h-5 text-destructive mt-0.5" />
-                  <span className="text-muted-foreground">Poor visibility</span>
-                </li>
-                <li className="flex items-start space-x-3">
-                  <X className="w-5 h-5 text-destructive mt-0.5" />
-                  <span className="text-muted-foreground">Weak personal brand</span>
-                </li>
-              </ul>
+              <p className="text-base sm:text-lg text-muted-foreground">
+                Together, we bring the perfect blend of AI + human creativity to scale your LinkedIn presence.
+              </p>
             </div>
           </div>
-          
         </div>
       </section>
 
 
       {/* LinkedIn & LinkZup Collaboration Section */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
-            <div className="relative order-2 lg:order-1">
-              <div className="rounded-2xl overflow-hidden shadow-2xl">
-                <img 
-                  src="https://instore.ba/wp-content/uploads/2021/03/linkdin2.jpg" 
-                  alt="LinkedIn Network & Revenue Generation" 
-                  className="w-full h-auto"
-                />
-              </div>
-            </div>
-            
-            <div className="order-1 lg:order-2">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+      <section className="relative py-16 sm:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Floating shapes for Why LinkZup section */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-16 left-12 w-10 h-10 bg-primary rounded-full animate-bounce opacity-65" style={{ animationDuration: '3.5s', animationDelay: '0.2s' }}></div>
+          <div className="absolute bottom-32 right-16 w-6 h-6 bg-primary animate-bounce opacity-75" style={{ animationDuration: '2.8s', animationDelay: '1.3s' }}></div>
+          <div className="absolute top-1/3 left-1/3 w-8 h-8 bg-primary rounded-full animate-bounce opacity-60" style={{ animationDuration: '4.2s', animationDelay: '0.8s' }}></div>
+          <div className="absolute bottom-1/4 right-1/3 w-5 h-5 bg-primary animate-bounce opacity-70" style={{ animationDuration: '3.1s', animationDelay: '1.7s' }}></div>
+        </div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">
                 Why LinkZup is Important for LinkedIn
               </h2>
-              <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-xl text-muted-foreground mb-12">
                 Our AI-powered automation platform transforms LinkedIn from a time-consuming task into a profit-generating machine.
               </p>
               
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">AI Content Generation</h3>
-                    <p className="text-muted-foreground">Automatically create engaging LinkedIn posts, carousels, and articles tailored to your industry and audience.</p>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">AI Content Generation</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Automatically create engaging LinkedIn posts, carousels, and articles tailored to your industry and audience.</p>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <Calendar className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Smart Post Scheduling</h3>
-                    <p className="text-muted-foreground">Automatically schedule posts at optimal times for maximum engagement without manual intervention.</p>
-                  </div>
+              <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Calendar className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">Smart Post Scheduling</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Automatically schedule posts at optimal times for maximum engagement without manual intervention.</p>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <Users className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Automated Connection Requests</h3>
-                    <p className="text-muted-foreground">AI identifies and sends personalized connection requests to your ideal prospects automatically.</p>
-                  </div>
+              <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">AI Carousel</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Create engaging carousel posts with AI-generated content and visuals that drive maximum engagement.</p>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <Zap className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Auto-Engagement</h3>
-                    <p className="text-muted-foreground">Automatically like, comment, and share relevant posts to boost your visibility and engagement.</p>
-                  </div>
+              <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">Your Personal Story</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Craft compelling personal narratives that connect with your audience and build authentic relationships.</p>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <BarChart3 className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Performance Analytics</h3>
-                    <p className="text-muted-foreground">Track your LinkedIn growth with detailed analytics and automated reporting on your content performance.</p>
-                  </div>
+              <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Target className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                 </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">AI Topics Generator</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Generate trending and relevant topics tailored to your industry and audience interests automatically.</p>
+              </div>
+                
+              <div className="group bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 group-hover:text-primary transition-colors duration-300">Create Your Next LinkedIn Post with One Click</h3>
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">Generate professional LinkedIn posts instantly with AI-powered content creation that matches your brand voice and industry expertise.</p>
               </div>
             </div>
           </div>
@@ -183,97 +219,74 @@ export default function HomePage() {
       </section>
 
       {/* Why LinkedIn Section */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-6 sm:mb-8">
+      <section className="relative py-16 sm:py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Floating shapes for Why LinkedIn section */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-20 right-8 w-7 h-7 bg-primary rounded-full animate-bounce opacity-70" style={{ animationDuration: '3.2s', animationDelay: '0.4s' }}></div>
+          <div className="absolute bottom-24 left-20 w-9 h-9 bg-primary animate-bounce opacity-65" style={{ animationDuration: '4.1s', animationDelay: '1.1s' }}></div>
+          <div className="absolute top-1/2 left-1/4 w-5 h-5 bg-primary rounded-full animate-bounce opacity-60" style={{ animationDuration: '2.7s', animationDelay: '0.9s' }}></div>
+          <div className="absolute bottom-1/3 right-1/4 w-6 h-6 bg-primary animate-bounce opacity-75" style={{ animationDuration: '3.8s', animationDelay: '1.5s' }}></div>
+        </div>
+        <div className="max-w-6xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-12">
             Try LinkZup Today
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
-            <div className="space-y-4">
-              <h3 className="text-lg sm:text-xl font-semibold text-foreground">LinkedIn is the #1 platform for professionals.</h3>
-              <ul className="space-y-3 text-left">
-                <li className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">Organic reach on LinkedIn is 10x higher than other platforms</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-12">
+            <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-3xl p-6 sm:p-8 border border-primary/20">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">LinkedIn is the #1 platform for professionals.</h3>
+              <ul className="space-y-3 sm:space-y-4 text-left">
+                <li className="flex items-start space-x-3 sm:space-x-4">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  </div>
+                  <span className="text-muted-foreground text-base sm:text-lg">Organic reach on LinkedIn is 10x higher than other platforms</span>
                 </li>
-                <li className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">CXOs & founders are shifting to personal brand-led growth</span>
+                <li className="flex items-start space-x-3 sm:space-x-4">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  </div>
+                  <span className="text-muted-foreground text-base sm:text-lg">CXOs & founders are shifting to personal brand-led growth</span>
                 </li>
-                <li className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">Early movers in LinkedIn management will dominate</span>
+                <li className="flex items-start space-x-3 sm:space-x-4">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  </div>
+                  <span className="text-muted-foreground text-base sm:text-lg">Early movers in LinkedIn management will dominate</span>
                 </li>
               </ul>
             </div>
-            <div className="space-y-4">
-              <h3 className="text-lg sm:text-xl font-semibold text-foreground">From invisible to industry leader.</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">120+</div>
-                  <div className="text-sm text-muted-foreground">entrepreneurs on our waitlist</div>
+            <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-3xl p-6 sm:p-8 border border-primary/20">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">What Our Portal Provides</h3>
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">24/7</div>
+                  <div className="text-sm sm:text-base text-muted-foreground">AI-powered content creation and scheduling</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">3x</div>
-                  <div className="text-sm text-muted-foreground">engagement in 30 days for early clients</div>
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">500+</div>
+                  <div className="text-sm sm:text-base text-muted-foreground">pre-built templates and carousel designs</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">₹3.5L</div>
-                  <div className="text-sm text-muted-foreground">client closed via LinkedIn in 2 months</div>
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+                  <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">10x</div>
+                  <div className="text-sm sm:text-base text-muted-foreground">faster content creation with AI assistance</div>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="text-center mt-16">
-            <h3 className="text-2xl font-bold text-foreground mb-8">
-              We make you a thought leader, while you focus on business.
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              <Card className="border-border hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Award className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg sm:text-xl">Profile Revamp</CardTitle>
-                  <CardDescription>
-                    Authority-driven design & copy.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="border-border hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Calendar className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg sm:text-xl">Content Calendar</CardTitle>
-                  <CardDescription>
-                    Weekly posts crafted for visibility.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="border-border hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                    <Users className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg sm:text-xl">Engagement & DMs</CardTitle>
-                  <CardDescription>
-                    Daily interactions that build trust.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* About Founder Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Floating shapes for About Founder section */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-12 left-16 w-8 h-8 bg-primary rounded-full animate-bounce opacity-60" style={{ animationDuration: '3.7s', animationDelay: '0.3s' }}></div>
+          <div className="absolute bottom-16 right-12 w-6 h-6 bg-primary animate-bounce opacity-70" style={{ animationDuration: '2.9s', animationDelay: '1.2s' }}></div>
+          <div className="absolute top-1/3 right-1/3 w-7 h-7 bg-primary rounded-full animate-bounce opacity-65" style={{ animationDuration: '4.3s', animationDelay: '0.7s' }}></div>
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">
             Built by entrepreneurs, for entrepreneurs.
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
@@ -289,10 +302,17 @@ export default function HomePage() {
       </section>
 
       {/* LinkedIn Software Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Floating shapes for LinkedIn Software Features section */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-24 left-8 w-9 h-9 bg-primary rounded-full animate-bounce opacity-65" style={{ animationDuration: '3.4s', animationDelay: '0.6s' }}></div>
+          <div className="absolute bottom-20 right-20 w-5 h-5 bg-primary animate-bounce opacity-70" style={{ animationDuration: '2.6s', animationDelay: '1.4s' }}></div>
+          <div className="absolute top-1/2 left-1/4 w-7 h-7 bg-primary rounded-full animate-bounce opacity-60" style={{ animationDuration: '4.0s', animationDelay: '0.2s' }}></div>
+          <div className="absolute bottom-1/3 right-1/3 w-6 h-6 bg-primary animate-bounce opacity-75" style={{ animationDuration: '3.3s', animationDelay: '1.0s' }}></div>
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6">
               LinkZup Software: Your Complete LinkedIn Solution
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -302,27 +322,27 @@ export default function HomePage() {
 
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
             <div>
-              <h3 className="text-2xl font-bold text-foreground mb-6">LinkedIn Profile Optimization</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">LinkedIn Growth Portal</h3>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-foreground">AI-Powered Headline Generator</h4>
-                    <p className="text-muted-foreground">Creates compelling headlines that increase profile views by 300%</p>
+                    <h4 className="font-semibold text-gray-900">AI Content Engine</h4>
+                    <p className="text-muted-foreground">Generate viral LinkedIn posts, carousels, and articles that drive engagement and leads</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-foreground">Smart About Section</h4>
-                    <p className="text-muted-foreground">Writes professional summaries that convert visitors to connections</p>
+                    <h4 className="font-semibold text-gray-900">Smart Posting Schedule</h4>
+                    <p className="text-muted-foreground">Automatically schedule content at optimal times for maximum reach and engagement</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-foreground">Keyword Optimization</h4>
-                    <p className="text-muted-foreground">Ensures your profile appears in relevant searches</p>
+                    <h4 className="font-semibold text-gray-900">Lead Generation Hub</h4>
+                    <p className="text-muted-foreground">Connect with prospects, send personalized messages, and track conversion metrics</p>
                   </div>
                 </div>
               </div>
@@ -330,7 +350,7 @@ export default function HomePage() {
             <div className="relative">
               <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
                 <img 
-                  src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600&h=400&fit=crop&crop=center" 
+                  src="/linkedin_image.webp" 
                   alt="LinkedIn Profile Optimization" 
                   className="w-full h-auto"
                 />
@@ -343,7 +363,7 @@ export default function HomePage() {
               <div className="relative">
                 <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
                   <img 
-                    src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop&crop=center" 
+                    src="/ailinkedin.png" 
                     alt="LinkedIn Content Creation" 
                     className="w-full h-auto"
                   />
@@ -351,26 +371,26 @@ export default function HomePage() {
               </div>
             </div>
             <div className="order-1 lg:order-2">
-              <h3 className="text-2xl font-bold text-foreground mb-6">Automated Content Creation</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Automated Content Creation</h3>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-foreground">AI Content Generator</h4>
+                    <h4 className="font-semibold text-gray-900">AI Content Generator</h4>
                     <p className="text-muted-foreground">Creates engaging posts based on your industry and expertise</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-foreground">Smart Scheduling</h4>
+                    <h4 className="font-semibold text-gray-900">Smart Scheduling</h4>
                     <p className="text-muted-foreground">Posts at optimal times for maximum engagement</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-foreground">Content Calendar</h4>
+                    <h4 className="font-semibold text-gray-900">Content Calendar</h4>
                     <p className="text-muted-foreground">Plans your content strategy weeks in advance</p>
                   </div>
                 </div>
@@ -381,20 +401,26 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
+      <footer className="relative border-t border-border py-8 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Floating shapes for Footer section */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute top-8 left-12 w-6 h-6 bg-primary rounded-full animate-bounce opacity-60" style={{ animationDuration: '3.1s', animationDelay: '0.5s' }}></div>
+          <div className="absolute bottom-8 right-16 w-8 h-8 bg-primary animate-bounce opacity-70" style={{ animationDuration: '2.8s', animationDelay: '1.3s' }}></div>
+          <div className="absolute top-1/2 right-1/4 w-5 h-5 bg-primary rounded-full animate-bounce opacity-65" style={{ animationDuration: '3.9s', animationDelay: '0.8s' }}></div>
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div className="space-y-3">
               <Link href="/" className="flex items-center space-x-2">
                 <Logo size="4xl" />
               </Link>
-              <p className="text-muted-foreground">
+              <p className="text-gray-600">
                 Transform your professional identity with AI-powered personal branding.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Company</h3>
+              <h3 className="font-semibold text-primary mb-4">Company</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
                   <Link href="/about" className="hover:text-foreground transition-colors">
@@ -415,7 +441,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Services</h3>
+              <h3 className="font-semibold text-primary mb-4">Services</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
                   <Link href="/features" className="hover:text-foreground transition-colors">
@@ -441,7 +467,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Resources</h3>
+              <h3 className="font-semibold text-primary mb-4">Resources</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
                   <Link href="/features" className="hover:text-foreground transition-colors">

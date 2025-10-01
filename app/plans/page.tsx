@@ -39,7 +39,7 @@ export default async function PlansPage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 sm:mb-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">App Subscription Plans</h2>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-2">App Subscription Plans</h2>
             <p className="text-muted-foreground">These plans power your credits and in-app features</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -98,7 +98,7 @@ export default async function PlansPage() {
 
           {/* Credit Packs */}
           <div className="text-center mt-16 sm:mt-20 mb-8 sm:mb-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">Credit Packs</h2>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-2">Credit Packs</h2>
             <p className="text-muted-foreground">One-time packs to top-up your credits</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -148,7 +148,7 @@ export default async function PlansPage() {
        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">What's Included in Each Plan</h2>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">What's Included in Each Plan</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Detailed breakdown of features and services included in each package
             </p>
@@ -160,30 +160,30 @@ export default async function PlansPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Award className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Profile Optimization</CardTitle>
-                <CardDescription>Complete profile makeover with professional design</CardDescription>
+                <CardTitle>AI Content Generation</CardTitle>
+                <CardDescription>Automated content creation with AI-powered tools</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Professional Headshot</span>
+                    <span>One-Click Post Creation</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Banner Design</span>
+                    <span>Industry-Specific Content</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Compelling Headline</span>
+                    <span>Brand Voice Matching</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>About Section</span>
+                    <span>Trending Topic Integration</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Featured Section</span>
+                    <span>Engagement-Optimized Copy</span>
                   </li>
                 </ul>
               </CardContent>
@@ -194,30 +194,30 @@ export default async function PlansPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <Calendar className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Content Creation</CardTitle>
-                <CardDescription>Engaging posts that drive engagement and leads</CardDescription>
+                <CardTitle>Carousel Generation</CardTitle>
+                <CardDescription>AI-powered carousel posts with visuals</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>AI-Powered Content</span>
+                    <span>Auto-Generated Carousels</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Industry Research</span>
+                    <span>Visual Content Creation</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Trending Topics</span>
+                    <span>Template Library</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Optimal Posting Times</span>
+                    <span>Custom Branding</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Engagement Captions</span>
+                    <span>High-Engagement Formats</span>
                   </li>
                 </ul>
               </CardContent>
@@ -228,30 +228,30 @@ export default async function PlansPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <MessageSquare className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Engagement & DMs</CardTitle>
-                <CardDescription>Active networking and lead generation</CardDescription>
+                <CardTitle>Smart Scheduling</CardTitle>
+                <CardDescription>Automated posting at optimal times</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Daily Comments</span>
+                    <span>Optimal Time Detection</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Strategic Connections</span>
+                    <span>Auto-Posting</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Personalized DMs</span>
+                    <span>Content Calendar</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Lead Nurturing</span>
+                    <span>Audience Activity Analysis</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Response Management</span>
+                    <span>Performance-Based Timing</span>
                   </li>
                 </ul>
               </CardContent>
@@ -262,14 +262,14 @@ export default async function PlansPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <BarChart3 className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Analytics & Support</CardTitle>
-                <CardDescription>Data-driven insights and expert support</CardDescription>
+                <CardTitle>Analytics Dashboard</CardTitle>
+                <CardDescription>Real-time performance tracking and insights</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Performance Reports</span>
+                    <span>Live Engagement Metrics</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
@@ -277,15 +277,15 @@ export default async function PlansPage() {
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Strategy Calls</span>
+                    <span>Content Performance</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Account Manager</span>
+                    <span>Lead Conversion Data</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Priority Support</span>
+                    <span>Automated Reports</span>
                   </li>
                 </ul>
               </CardContent>
@@ -297,7 +297,7 @@ export default async function PlansPage() {
       {/* Results Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">Expected Results</h2>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-8">Expected Results</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <div className="text-3xl font-bold text-primary">3-5x</div>
@@ -322,7 +322,7 @@ export default async function PlansPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">Frequently Asked Questions</h2>
             <p className="text-xl text-muted-foreground">Everything you need to know about our plans</p>
           </div>
 
