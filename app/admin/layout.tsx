@@ -120,6 +120,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           badge: contactData?.statusStats?.new || 0
         },
         {
+          title: "Bulk Communication",
+          href: "/admin/bulk-communication",
+          icon: MessageSquare,
+          description: "Bulk email & WhatsApp messaging"
+        },
+        {
           title: "Test WhatsApp",
           href: "/admin/test-whatsapp",
           icon: MessageSquare,
