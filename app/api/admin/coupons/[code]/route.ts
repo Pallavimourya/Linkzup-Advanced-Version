@@ -1,18 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server"
-import { getServerSession } from "next-auth"
+import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { connectToDatabase } from "@/lib/mongodb"
 
-export async function GET(req: NextRequest, { params }: { params: { code: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const { db } = await connectToDatabase()
-  const coupon = await db.collection("coupons").findOne({ code: params.code.toUpperCase() })
+  const { code } = await params
+  const coupon = await db.collection("coupons").findOne({ code: code.toUpperCase() })
   return NextResponse.json({ coupon })
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { code: string } }) {
-  console.log("PUT request received for coupon:", params.code)
-  const session = await getServerSession(authOptions)
-  if (!session?.user || !(session.user as any).isAdmin) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params
+  console.log("PUT request received for coupon:", code)
+  const session = await getServerSession(authOptions) as any
+  if (!session?.user || !session.user.isAdmin) {
     console.log("Unauthorized access attempt")
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
   }
@@ -55,7 +57,7 @@ export async function PUT(req: NextRequest, { params }: { params: { code: string
     }
     
     // If code is being changed, check for duplicates
-    if (payload.code && payload.code.toUpperCase() !== params.code.toUpperCase()) {
+    if (payload.code && payload.code.toUpperCase() !== code.toUpperCase()) {
       const existingCoupon = await db.collection("coupons").findOne({ 
         code: payload.code.toUpperCase() 
       })
@@ -68,25 +70,25 @@ export async function PUT(req: NextRequest, { params }: { params: { code: string
     
     // First check if coupon exists
     const existingCoupon = await db.collection("coupons").findOne({ 
-      code: params.code.toUpperCase() 
+      code: code.toUpperCase() 
     })
     console.log("Existing coupon found:", existingCoupon)
     
     if (!existingCoupon) {
-      console.log("Coupon not found in database:", params.code)
+      console.log("Coupon not found in database:", code)
       return NextResponse.json({ error: "Coupon not found" }, { status: 404 })
     }
     
     // Update the coupon
     const result = await db.collection("coupons").updateOne(
-      { code: params.code.toUpperCase() },
+      { code: code.toUpperCase() },
       { $set: updateData }
     )
     
     console.log("Update result:", result)
     
     if (result.matchedCount === 0) {
-      console.log("Coupon not found:", params.code)
+      console.log("Coupon not found:", code)
       return NextResponse.json({ error: "Coupon not found" }, { status: 404 })
     }
     
@@ -98,15 +100,16 @@ export async function PUT(req: NextRequest, { params }: { params: { code: string
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { code: string } }) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user || !(session.user as any).isAdmin) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params
+  const session = await getServerSession(authOptions) as any
+  if (!session?.user || !session.user.isAdmin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
   }
   
   try {
     const { db } = await connectToDatabase()
-    const result = await db.collection("coupons").deleteOne({ code: params.code.toUpperCase() })
+    const result = await db.collection("coupons").deleteOne({ code: code.toUpperCase() })
     
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Coupon not found" }, { status: 404 })
