@@ -77,10 +77,6 @@ export default async function PlansPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <ul className="space-y-3">
-                    <li className="flex items-start space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-muted-foreground">{plan.credits} monthly credits</span>
-                    </li>
                     {(plan.features || []).map((f: string, idx: number) => (
                       <li key={idx} className="flex items-start space-x-3">
                         <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
@@ -96,51 +92,48 @@ export default async function PlansPage() {
             ))}
           </div>
 
-          {/* Credit Packs */}
-          <div className="text-center mt-16 sm:mt-20 mb-8 sm:mb-10">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-2">Credit Packs</h2>
-            <p className="text-muted-foreground">One-time packs to top-up your credits</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {creditPlans.length === 0 && (
-              <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-muted-foreground">No credit packs available.</div>
-            )}
-            {creditPlans.map((plan: any) => (
-              <Card key={plan._id} className={`relative ${plan.popular ? "border-blue-200 bg-blue-50/50" : ""}`}>
-                {plan.popular && (
-                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-blue-600 text-white">Popular</Badge>
-                  </div>
-                )}
-                <CardHeader className="text-center">
-                  <CardTitle className="text-xl sm:text-2xl">{plan.name}</CardTitle>
-                  <CardDescription className="text-base sm:text-lg">One-time purchase</CardDescription>
-                  <div className="mt-6">
-                    <span className="text-3xl sm:text-4xl font-bold text-foreground">₹{plan.price}</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <ul className="space-y-3">
-                    <li className="flex items-start space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-muted-foreground">{plan.credits} credits</span>
-                    </li>
-                    {(plan.features || []).map((f: string, idx: number) => (
-                      <li key={idx} className="flex items-start space-x-3">
-                        <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-muted-foreground">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/dashboard/billing" className="block">
-                    <Button className="w-full bg-transparent" variant="outline">
-                      Buy Credits
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {/* Credit Packs - Only show if credit packs are available */}
+          {creditPlans.length > 0 && (
+            <>
+              <div className="text-center mt-16 sm:mt-20 mb-8 sm:mb-10">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-2">Credit Packs</h2>
+                <p className="text-muted-foreground">One-time packs to top-up your credits</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {creditPlans.map((plan: any) => (
+                  <Card key={plan._id} className={`relative ${plan.popular ? "border-blue-200 bg-blue-50/50" : ""}`}>
+                    {plan.popular && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                        <Badge className="bg-blue-600 text-white">Popular</Badge>
+                      </div>
+                    )}
+                    <CardHeader className="text-center">
+                      <CardTitle className="text-xl sm:text-2xl">{plan.name}</CardTitle>
+                      <CardDescription className="text-base sm:text-lg">One-time purchase</CardDescription>
+                      <div className="mt-6">
+                        <span className="text-3xl sm:text-4xl font-bold text-foreground">₹{plan.price}</span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <ul className="space-y-3">
+                        {(plan.features || []).map((f: string, idx: number) => (
+                          <li key={idx} className="flex items-start space-x-3">
+                            <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-muted-foreground">{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link href="/dashboard/billing" className="block">
+                        <Button className="w-full bg-transparent" variant="outline">
+                          Buy Credits
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
 

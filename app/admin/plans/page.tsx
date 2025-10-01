@@ -33,27 +33,38 @@ export default function AdminPlansPage() {
 
   // Predefined plans based on requirements
   const predefinedPlans = [
-    // Credit Packs
+    // Credit Packs - Matching subscription plan credits
     {
-      name: "Starter Pack",
+      name: "Zuper 20 Pack",
       type: "credit_pack",
       interval: "one_time",
-      price: 500,
-      credits: 50,
-      features: "Text generation: 100 posts\nWith posting: 50 posts\nImage generation: 50 images\nValid for 6 months",
+      price: 399,
+      credits: 20,
+      features: "Text generation: 10 posts\nImage Generation: 5 images\nAI Carousel Creation: 5 Carousels\nPriority support\nAdvanced analytics\nValid for 6 months",
       popular: false,
       recommended: false,
       isActive: true,
     },
     {
-      name: "Pro Pack",
+      name: "Zuper 50 Pack",
       type: "credit_pack",
       interval: "one_time",
-      price: 1000,
-      credits: 120,
-      features: "Text generation: 240 posts\nWith posting: 120 posts\nImage generation: 120 images\nValid for 12 months\n20% bonus credits!",
+      price: 699,
+      credits: 50,
+      features: "Text generation: 30 posts\nImage Generation: 10 images\nAI Carousel Creation: 10 Carousels\nPriority support\nAdvanced analytics\nValid for 12 months\n20% bonus credits!",
       popular: true,
       recommended: false,
+      isActive: true,
+    },
+    {
+      name: "Zuper 600 Pack",
+      type: "credit_pack",
+      interval: "one_time",
+      price: 3999,
+      credits: 600,
+      features: "Text generation: 400 posts\nImage Generation: 100 images\nAI Carousel Creation: 100 Carousels\nPriority support\nAdvanced analytics\nFree Onboarding call\nValid for 12 months\n25% bonus credits!",
+      popular: false,
+      recommended: true,
       isActive: true,
     },
     // Subscription Plans
@@ -92,13 +103,27 @@ export default function AdminPlansPage() {
     }
   ]
 
-  const currentPlansCount = data?.plans?.length || 0
-  const canAddPlan = currentPlansCount < 3
-  const canDeletePlan = currentPlansCount > 1
+  // Separate counts for subscription and credit plans
+  const subscriptionPlans = data?.plans?.filter((p: any) => p.type === 'subscription') || []
+  const creditPlans = data?.plans?.filter((p: any) => p.type === 'credit_pack') || []
+  
+  const subscriptionCount = subscriptionPlans.length
+  const creditCount = creditPlans.length
+  
+  // Separate limits for each plan type
+  const canAddSubscription = subscriptionCount < 3
+  const canAddCredit = creditCount < 3
+  const canDeleteSubscription = subscriptionCount > 1
+  const canDeleteCredit = creditCount > 1
 
   const savePlan = async () => {
-    if (!canAddPlan) {
-      alert("Maximum 3 plans allowed. Please delete an existing plan first.")
+    // Check limits based on plan type
+    if (draft.type === 'subscription' && !canAddSubscription) {
+      alert("Maximum 3 subscription plans allowed. Please delete an existing subscription plan first.")
+      return
+    }
+    if (draft.type === 'credit_pack' && !canAddCredit) {
+      alert("Maximum 3 credit plans allowed. Please delete an existing credit plan first.")
       return
     }
     
@@ -123,8 +148,13 @@ export default function AdminPlansPage() {
   }
 
   const createPredefinedPlan = async (plan: any) => {
-    if (!canAddPlan) {
-      alert("Maximum 3 plans allowed. Please delete an existing plan first.")
+    // Check limits based on plan type
+    if (plan.type === 'subscription' && !canAddSubscription) {
+      alert("Maximum 3 subscription plans allowed. Please delete an existing subscription plan first.")
+      return
+    }
+    if (plan.type === 'credit_pack' && !canAddCredit) {
+      alert("Maximum 3 credit plans allowed. Please delete an existing credit plan first.")
       return
     }
 
@@ -149,8 +179,17 @@ export default function AdminPlansPage() {
   }
 
   const removePlan = async (id: string) => {
-    if (!canDeletePlan) {
-      alert("At least 1 plan must remain. Cannot delete the last plan.")
+    // Find the plan to check its type
+    const plan = data?.plans?.find((p: any) => p._id === id)
+    if (!plan) return
+    
+    // Check limits based on plan type
+    if (plan.type === 'subscription' && !canDeleteSubscription) {
+      alert("At least 1 subscription plan must remain. Cannot delete the last subscription plan.")
+      return
+    }
+    if (plan.type === 'credit_pack' && !canDeleteCredit) {
+      alert("At least 1 credit plan must remain. Cannot delete the last credit plan.")
       return
     }
     
@@ -285,7 +324,7 @@ export default function AdminPlansPage() {
                 <Button 
                   onClick={() => createPredefinedPlan(plan)}
                   className="w-full bg-teal-700 hover:bg-teal-800 text-white text-sm sm:text-base"
-                  disabled={!canAddPlan}
+                  disabled={plan.type === 'subscription' ? !canAddSubscription : !canAddCredit}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create {plan.name}
@@ -301,9 +340,14 @@ export default function AdminPlansPage() {
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             Create New Plan
-            <Badge variant="outline" className="ml-2 text-xs">
-              {currentPlansCount}/3 Plans
-            </Badge>
+            <div className="flex gap-2 ml-2">
+              <Badge variant="outline" className="text-xs">
+                {subscriptionCount}/3 Subscriptions
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {creditCount}/3 Credit Packs
+              </Badge>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6">
@@ -434,10 +478,13 @@ export default function AdminPlansPage() {
           <Button 
             onClick={savePlan} 
             className="w-full sm:w-auto text-sm sm:text-base"
-            disabled={!canAddPlan}
+            disabled={draft.type === 'subscription' ? !canAddSubscription : !canAddCredit}
           >
             <Plus className="h-4 w-4 mr-2" />
-            {canAddPlan ? "Create Plan" : "Maximum Plans Reached"}
+            {draft.type === 'subscription' 
+              ? (canAddSubscription ? "Create Subscription Plan" : "Maximum Subscription Plans Reached")
+              : (canAddCredit ? "Create Credit Plan" : "Maximum Credit Plans Reached")
+            }
           </Button>
         </CardContent>
       </Card>
@@ -676,8 +723,11 @@ export default function AdminPlansPage() {
                         size="sm" 
                         variant="destructive" 
                         onClick={() => removePlan(p._id)}
-                        disabled={!canDeletePlan}
-                        title={!canDeletePlan ? "At least 1 plan must remain" : "Delete plan"}
+                        disabled={p.type === 'subscription' ? !canDeleteSubscription : !canDeleteCredit}
+                        title={p.type === 'subscription' 
+                          ? (!canDeleteSubscription ? "At least 1 subscription plan must remain" : "Delete subscription plan")
+                          : (!canDeleteCredit ? "At least 1 credit plan must remain" : "Delete credit plan")
+                        }
                         className="text-xs sm:text-sm"
                       >
                         <Trash2 className="h-4 w-4" />
