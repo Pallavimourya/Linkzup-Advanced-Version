@@ -991,11 +991,26 @@ export default function CustomPostPage() {
                   />
                   <div className="absolute bottom-4 right-4">
                     <MicrophoneButton
-                      onTranscript={(transcript) => setPostData(prev => ({ 
-                        ...prev, 
-                        content: prev.content + (prev.content ? ' ' : '') + transcript.trim(),
-                        htmlContent: prev.htmlContent + (prev.htmlContent ? ' ' : '') + transcript.trim()
-                      }))}
+                      onTranscript={(transcript) => {
+                        const trimmedTranscript = transcript.trim()
+                        if (trimmedTranscript) {
+                          setPostData(prev => {
+                            const newContent = prev.content + (prev.content ? ' ' : '') + trimmedTranscript
+                            const newHtmlContent = prev.htmlContent + (prev.htmlContent ? ' ' : '') + trimmedTranscript
+                            
+                            // Prevent duplicates by checking if the transcript is already at the end
+                            if (prev.content.endsWith(trimmedTranscript)) {
+                              return prev
+                            }
+                            
+                            return { 
+                              ...prev, 
+                              content: newContent,
+                              htmlContent: newHtmlContent
+                            }
+                          })
+                        }
+                      }}
                       size="sm"
                       variant="ghost"
                       className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"

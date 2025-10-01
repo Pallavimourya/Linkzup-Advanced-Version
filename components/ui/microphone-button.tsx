@@ -27,20 +27,37 @@ export function MicrophoneButton({
     isSupported, 
     transcript, 
     error, 
+    audioLevel,
+    isListening,
     startRecording, 
     pauseRecording,
     resumeRecording,
     stopRecording, 
-    clearTranscript 
+    clearTranscript,
+    checkMicrophonePermission
   } = useMicrophone()
 
   const [showError, setShowError] = useState(false)
+  const [permissionStatus, setPermissionStatus] = useState<string>('unknown')
+
+  // Check microphone permission on mount
+  useEffect(() => {
+    const checkPermission = async () => {
+      const status = await checkMicrophonePermission()
+      setPermissionStatus(status)
+    }
+    checkPermission()
+  }, [checkMicrophonePermission])
 
   // Handle transcript updates - only when recording stops and we have new transcript
   useEffect(() => {
     if (transcript && !isRecording) {
-      onTranscript(transcript)
-      clearTranscript()
+      // Only add transcript if it's not empty and not already added
+      const trimmedTranscript = transcript.trim()
+      if (trimmedTranscript) {
+        onTranscript(trimmedTranscript)
+        clearTranscript()
+      }
     }
   }, [transcript, isRecording, onTranscript, clearTranscript])
 
@@ -48,7 +65,7 @@ export function MicrophoneButton({
   useEffect(() => {
     if (error) {
       setShowError(true)
-      const timer = setTimeout(() => setShowError(false), 5000)
+      const timer = setTimeout(() => setShowError(false), 8000) // Show error longer
       return () => clearTimeout(timer)
     }
   }, [error])
@@ -64,7 +81,8 @@ export function MicrophoneButton({
   }
 
   const handlePauseClick = () => {
-    if (isRecording) {
+    console.log('Pause button clicked, isRecording:', isRecording, 'isPaused:', isPaused)
+    if (isRecording && !isPaused) {
       pauseRecording()
     }
   }
@@ -80,12 +98,15 @@ export function MicrophoneButton({
         size={size}
         disabled
         className={cn("opacity-50 cursor-not-allowed", className)}
-        title="Speech recognition not supported in this browser"
+        title="Speech recognition not supported in this browser. Please use Chrome, Edge, or Safari."
       >
         <MicOff className="h-4 w-4" />
       </Button>
     )
   }
+
+  // Check if microphone is disabled due to permissions
+  const isMicrophoneDisabled = disabled || permissionStatus === 'denied'
 
   return (
     <div className="relative">
@@ -96,12 +117,13 @@ export function MicrophoneButton({
             variant="ghost"
             size={size}
             onClick={handlePauseClick}
-            disabled={disabled}
+            disabled={isMicrophoneDisabled || !isRecording || isPaused}
             className={cn(
               "h-8 w-8 p-0 hover:bg-yellow-100 text-yellow-600",
+              (!isRecording || isPaused) && "opacity-50 cursor-not-allowed",
               className
             )}
-            title="Pause recording"
+            title={isPaused ? "Already paused" : "Pause recording"}
           >
             <Pause className="h-4 w-4" />
           </Button>
@@ -109,7 +131,7 @@ export function MicrophoneButton({
             variant="ghost"
             size={size}
             onClick={handleStopClick}
-            disabled={disabled}
+            disabled={isMicrophoneDisabled}
             className={cn(
               "h-8 w-8 p-0 hover:bg-red-100 text-red-600",
               className
@@ -125,13 +147,20 @@ export function MicrophoneButton({
           variant={variant}
           size={size}
           onClick={handleClick}
-          disabled={disabled}
+          disabled={isMicrophoneDisabled}
           className={cn(
             "transition-all duration-200",
             isPaused && "bg-yellow-500 hover:bg-yellow-600 text-white",
+            permissionStatus === 'denied' && "opacity-50 cursor-not-allowed",
             className
           )}
-          title={isPaused ? "Click to resume recording" : "Click to start recording"}
+          title={
+            permissionStatus === 'denied' 
+              ? "Microphone permission denied. Please allow microphone access in browser settings."
+              : isPaused 
+                ? "Click to resume recording" 
+                : "Click to start recording"
+          }
         >
           {isPaused ? (
             <Play className="h-4 w-4" />
@@ -152,9 +181,20 @@ export function MicrophoneButton({
         </div>
       )}
       
-      {/* Recording indicator */}
+      {/* Recording indicator with audio level */}
       {isRecording && (
         <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+      )}
+      
+      {/* Audio level indicator */}
+      {isRecording && (
+        <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-green-500 rounded-full transition-all duration-100"
+             style={{
+               transform: `scale(${1 + audioLevel * 2})`,
+               opacity: isListening ? 1 : 0.3
+             }}
+             title={`Audio level: ${Math.round(audioLevel * 100)}%`}
+        ></div>
       )}
     </div>
   )

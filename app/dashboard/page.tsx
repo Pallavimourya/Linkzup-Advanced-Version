@@ -775,7 +775,19 @@ export default function DashboardPage() {
                     />
                     <div className="absolute bottom-4 right-4">
                       <MicrophoneButton
-                        onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
+                        onTranscript={(transcript) => {
+                          const trimmedTranscript = transcript.trim()
+                          if (trimmedTranscript) {
+                            setPrompt(prev => {
+                              const newPrompt = prev + (prev ? ' ' : '') + trimmedTranscript
+                              // Prevent duplicates by checking if the transcript is already at the end
+                              if (prev.endsWith(trimmedTranscript)) {
+                                return prev
+                              }
+                              return newPrompt
+                            })
+                          }
+                        }}
                         size="sm"
                         variant="ghost"
                         className="h-10 w-10 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"

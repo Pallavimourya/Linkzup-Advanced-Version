@@ -247,7 +247,19 @@ export default function AIGeneratorPage() {
                   />
                   <div className="absolute bottom-3 right-3">
                     <MicrophoneButton
-                      onTranscript={(transcript) => setPrompt(prev => prev + (prev ? ' ' : '') + transcript.trim())}
+                      onTranscript={(transcript) => {
+                        const trimmedTranscript = transcript.trim()
+                        if (trimmedTranscript) {
+                          setPrompt(prev => {
+                            const newPrompt = prev + (prev ? ' ' : '') + trimmedTranscript
+                            // Prevent duplicates by checking if the transcript is already at the end
+                            if (prev.endsWith(trimmedTranscript)) {
+                              return prev
+                            }
+                            return newPrompt
+                          })
+                        }
+                      }}
                       size="sm"
                       variant="ghost"
                       className="h-8 w-8 p-0 hover:bg-muted"

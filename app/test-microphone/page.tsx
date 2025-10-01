@@ -15,6 +15,8 @@ export default function TestMicrophonePage() {
     isPaused,
     isSupported, 
     error, 
+    audioLevel,
+    isListening,
     startRecording, 
     pauseRecording,
     resumeRecording,
@@ -23,7 +25,17 @@ export default function TestMicrophonePage() {
   } = useMicrophone()
 
   const handleTranscript = (newTranscript: string) => {
-    setTranscript(prev => prev + (prev ? ' ' : '') + newTranscript.trim())
+    const trimmedTranscript = newTranscript.trim()
+    if (trimmedTranscript) {
+      setTranscript(prev => {
+        const newText = prev + (prev ? ' ' : '') + trimmedTranscript
+        // Prevent duplicates by checking if the transcript is already at the end
+        if (prev.endsWith(trimmedTranscript)) {
+          return prev
+        }
+        return newText
+      })
+    }
   }
 
   const handleClear = () => {
@@ -65,7 +77,7 @@ export default function TestMicrophonePage() {
           {/* Recording Status */}
           <div className="p-4 border rounded-lg">
             <h3 className="font-medium mb-2">Recording Status</h3>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-2">
               {isRecording ? (
                 <>
                   <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
@@ -83,6 +95,25 @@ export default function TestMicrophonePage() {
                 </>
               )}
             </div>
+            
+            {/* Audio Level Indicator */}
+            {isRecording && (
+              <div className="mt-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-gray-600">
+                    Audio Level: {Math.round(audioLevel * 100)}% 
+                    {isListening ? ' (Listening)' : ' (No sound detected)'}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full transition-all duration-100"
+                    style={{ width: `${audioLevel * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Error Display */}
@@ -110,12 +141,12 @@ export default function TestMicrophonePage() {
               </Button>
               <Button
                 onClick={pauseRecording}
-                disabled={!isRecording}
+                disabled={!isRecording || isPaused}
                 variant="outline"
                 size="sm"
               >
                 <Pause className="h-4 w-4 mr-2" />
-                Pause
+                {isPaused ? "Already Paused" : "Pause"}
               </Button>
               <Button
                 onClick={resumeRecording}

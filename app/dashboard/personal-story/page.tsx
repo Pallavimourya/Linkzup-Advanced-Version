@@ -330,13 +330,31 @@ export default function PersonalStoryPage() {
   }
 
   const handleMicrophoneTranscript = (field: keyof PersonalStoryForm, transcript: string) => {
-    const newValue = currentInputValue + (currentInputValue ? ' ' : '') + transcript.trim()
-    setCurrentInputValue(newValue)
-    // Also update formData immediately
-    setFormData(prev => ({
-      ...prev,
-      [field]: newValue
-    }))
+    const trimmedTranscript = transcript.trim()
+    if (trimmedTranscript) {
+      setCurrentInputValue(prev => {
+        const newValue = prev + (prev ? ' ' : '') + trimmedTranscript
+        // Prevent duplicates by checking if the transcript is already at the end
+        if (prev.endsWith(trimmedTranscript)) {
+          return prev
+        }
+        return newValue
+      })
+      
+      // Also update formData immediately
+      setFormData(prev => {
+        const currentValue = prev[field] || ''
+        const newValue = currentValue + (currentValue ? ' ' : '') + trimmedTranscript
+        // Prevent duplicates in formData as well
+        if (currentValue.endsWith(trimmedTranscript)) {
+          return prev
+        }
+        return {
+          ...prev,
+          [field]: newValue
+        }
+      })
+    }
   }
 
   const saveAnswersToDatabase = async () => {
