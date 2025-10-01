@@ -191,7 +191,7 @@ export default function DashboardPage() {
   // State declarations first
   const [clickedTopic, setClickedTopic] = useState<string | null>(null)
   
-  // Content generation states
+  // Content generation states (kept for backward compatibility)
   const [activeContentType, setActiveContentType] = useState<string | null>(null)
   const [generatedContentCards, setGeneratedContentCards] = useState<any[]>([])
   const [isGeneratingContent, setIsGeneratingContent] = useState(false)
@@ -247,10 +247,22 @@ export default function DashboardPage() {
     }, 200)
   }
 
-  // Handle AI content generator card click
+  // Handle AI content generator card click - Navigate to respective pages
   const handleContentGeneratorClick = (contentType: string) => {
-    setActiveContentType(contentType)
-    setGeneratedContentCards([])
+    switch (contentType) {
+      case 'ai-carousel':
+        router.push('/dashboard/ai-carousel')
+        break
+      case 'ai-articles':
+        router.push('/dashboard/ai-articles')
+        break
+      case 'personal-story':
+        router.push('/dashboard/personal-story')
+        break
+      default:
+        setActiveContentType(contentType)
+        setGeneratedContentCards([])
+    }
   }
 
   // Generate more content for the active content type
@@ -788,7 +800,7 @@ export default function DashboardPage() {
         )}
 
         {/* Feature Cards */}
-        {!isGenerating && generatedPosts.length === 0 && !activeContentType && (
+        {!isGenerating && generatedPosts.length === 0 && (
           <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 mt-32 sm:mt-40">
             {/* Section Title */}
             <div className="text-center">
@@ -836,7 +848,7 @@ export default function DashboardPage() {
                     <div className="w-16 h-16 bg-gradient-to-br from-secondary to-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <BookOpen className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">Post Ideas</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-black dark:text-white mb-3">Topic Generator</h3>
                     <p className="text-gray-700 dark:text-gray-300 leading-relaxed">Generate compelling post ideas and headlines that capture attention</p>
                     <div className="mt-6 flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                       <span>Get Started</span>
@@ -985,7 +997,7 @@ export default function DashboardPage() {
         )}
 
         {/* Enhanced Topic Generator Section */}
-        {!isGenerating && generatedPosts.length === 0 && !activeContentType && (
+        {!isGenerating && generatedPosts.length === 0 && (
           <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12 mt-20 sm:mt-32">
             {/* Enhanced Section Header */}
             <div className="text-center space-y-6">
