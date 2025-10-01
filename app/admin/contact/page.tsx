@@ -20,6 +20,7 @@ import {
   Search,
   Trash2
 } from "lucide-react"
+import { AdminReplyInterface } from "@/components/admin-reply-interface"
 import { useState } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
@@ -164,18 +165,18 @@ export default function ContactSubmissionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Contact Submissions</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Contact Submissions</h1>
           <p className="text-muted-foreground mt-1">Manage and respond to contact form submissions</p>
         </div>
-        <Badge variant="outline" className="text-sm">
+        <Badge variant="outline" className="text-sm w-fit">
           {data?.pagination?.total || 0} total submissions
         </Badge>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-400">
@@ -247,7 +248,7 @@ export default function ContactSubmissionsPage() {
                 />
               </div>
             </div>
-            <div className="sm:w-48">
+            <div className="w-full sm:w-48">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
@@ -279,7 +280,7 @@ export default function ContactSubmissionsPage() {
           filteredSubmissions.map((submission: any) => (
             <Card key={submission._id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-4">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-primary/10 rounded-full">
                       <User className="h-5 w-5 text-primary" />
@@ -288,8 +289,8 @@ export default function ContactSubmissionsPage() {
                       <h3 className="font-semibold text-lg">
                         {submission.firstName} {submission.lastName}
                       </h3>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge className={`${getStatusColor(submission.status)} flex items-center space-x-1`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 mt-1">
+                        <Badge className={`${getStatusColor(submission.status)} flex items-center space-x-1 w-fit`}>
                           {getStatusIcon(submission.status)}
                           <span className="capitalize">{submission.status}</span>
                         </Badge>
@@ -301,15 +302,17 @@ export default function ContactSubmissionsPage() {
                     </div>
                   </div>
                   
-                  <div className="flex space-x-2">
+                  <div className="flex flex-wrap gap-2">
                     {submission.status === 'new' && (
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleStatusUpdate(submission._id, 'read')}
+                        className="text-xs sm:text-sm"
                       >
                         <Eye className="h-4 w-4 mr-1" />
-                        Mark as Read
+                        <span className="hidden sm:inline">Mark as Read</span>
+                        <span className="sm:hidden">Read</span>
                       </Button>
                     )}
                     {submission.status === 'read' && (
@@ -317,40 +320,50 @@ export default function ContactSubmissionsPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleStatusUpdate(submission._id, 'replied')}
+                        className="text-xs sm:text-sm"
                       >
                         <Reply className="h-4 w-4 mr-1" />
-                        Mark as Replied
+                        <span className="hidden sm:inline">Mark as Replied</span>
+                        <span className="sm:hidden">Replied</span>
                       </Button>
                     )}
                     <Button
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDelete(submission._id)}
+                      className="text-xs sm:text-sm"
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
+                      <span className="hidden sm:inline">Delete</span>
+                      <span className="sm:hidden">Del</span>
                     </Button>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Email:</span>
-                      <span className="text-muted-foreground">{submission.email}</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 text-sm">
+                      <div className="flex items-center space-x-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Email:</span>
+                      </div>
+                      <span className="text-muted-foreground break-all">{submission.email}</span>
                     </div>
                     {submission.phone && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Phone:</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">Phone:</span>
+                        </div>
                         <span className="text-muted-foreground">{submission.phone}</span>
                       </div>
                     )}
                     {submission.service && (
-                      <div className="flex items-center space-x-2 text-sm">
-                        <Target className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Service:</span>
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Target className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">Service:</span>
+                        </div>
                         <span className="text-muted-foreground capitalize">
                           {submission.service.replace('-', ' ')}
                         </span>
@@ -363,6 +376,14 @@ export default function ContactSubmissionsPage() {
                   <h4 className="font-medium mb-2">Message:</h4>
                   <p className="text-muted-foreground leading-relaxed">{submission.message}</p>
                 </div>
+
+                {/* Reply Interface */}
+                <div className="border-t pt-4 mt-4">
+                  <AdminReplyInterface 
+                    submission={submission} 
+                    onReplySent={() => mutate()} 
+                  />
+                </div>
               </CardContent>
             </Card>
           ))
@@ -373,11 +394,11 @@ export default function ContactSubmissionsPage() {
       {data?.pagination && data.pagination.totalPages > 1 && (
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <p className="text-sm text-muted-foreground text-center sm:text-left">
                 Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, data.pagination.total)} of {data.pagination.total} submissions
               </p>
-              <div className="flex space-x-2">
+              <div className="flex justify-center sm:justify-end space-x-2">
                 <Button
                   variant="outline"
                   size="sm"

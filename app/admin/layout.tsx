@@ -118,6 +118,30 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           icon: MessageSquare,
           description: "Contact submissions",
           badge: contactData?.statusStats?.new || 0
+        },
+        {
+          title: "Test WhatsApp",
+          href: "/admin/test-whatsapp",
+          icon: MessageSquare,
+          description: "Test WhatsApp integration"
+        },
+        {
+          title: "Debug Reply System",
+          href: "/admin/debug-reply-system",
+          icon: MessageSquare,
+          description: "Debug reply system issues"
+        },
+        {
+          title: "Test Gmail",
+          href: "/admin/test-gmail",
+          icon: MessageSquare,
+          description: "Test Gmail configuration"
+        },
+        {
+          title: "Debug Session",
+          href: "/admin/debug-session",
+          icon: MessageSquare,
+          description: "Debug admin session"
         }
       ]
     },
