@@ -179,18 +179,30 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     signUp: "/auth/signup",
+    error: "/auth/signin", // Redirect errors back to signin page
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
+      console.log("NextAuth redirect callback - url:", url, "baseUrl:", baseUrl)
+      
       // If it's a callback URL, redirect to dashboard
       if (url.includes("/api/auth/callback") || url.includes("/auth/linkedin-callback")) {
+        console.log("Redirecting to dashboard after OAuth callback")
         return `${baseUrl}/dashboard`
       }
+      
+      // If URL is the sign-in page, redirect to dashboard (successful auth)
+      if (url.includes("/auth/signin") || url.includes("/auth/signup")) {
+        console.log("Redirecting to dashboard after successful auth")
+        return `${baseUrl}/dashboard`
+      }
+      
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`
       // Allows callback URLs on the same origin
       else if (new URL(url).origin === baseUrl) return url
       // Default redirect to dashboard for successful authentication
+      console.log("Default redirect to dashboard")
       return `${baseUrl}/dashboard`
     },
     async jwt({ token, user, account }: any) {

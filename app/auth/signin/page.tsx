@@ -85,12 +85,8 @@ function SignInPageContent() {
         }
       } else {
         console.log("Initiating Google sign-in...")
-        const result = await signIn(provider, {
-          callbackUrl: "/dashboard",
-          redirect: true, // Changed to true for proper redirect handling
-        })
-
-        console.log("Google sign-in result:", result)
+        // Use window.location.href to ensure proper OAuth redirect
+        window.location.href = `/api/auth/signin/google?callbackUrl=${encodeURIComponent("/dashboard")}`
       }
     } catch (error) {
       console.error("Social sign-in error:", error)

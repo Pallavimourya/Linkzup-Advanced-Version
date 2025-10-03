@@ -143,12 +143,8 @@ export default function SignUpPage() {
         }
       } else {
         console.log("Initiating Google sign-up...")
-        const result = await signIn(provider, {
-          callbackUrl: "/dashboard",
-          redirect: true, // Changed to true for proper redirect handling
-        })
-
-        console.log("Google sign-up result:", result)
+        // Use window.location.href to ensure proper OAuth redirect
+        window.location.href = `/api/auth/signin/google?callbackUrl=${encodeURIComponent("/dashboard")}`
       }
     } catch (error) {
       console.error("Social sign-up error:", error)
