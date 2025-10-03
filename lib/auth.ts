@@ -191,9 +191,9 @@ export const authOptions: NextAuthOptions = {
         return `${baseUrl}/dashboard`
       }
       
-      // If URL is the sign-in page, redirect to dashboard (successful auth)
-      if (url.includes("/auth/signin") || url.includes("/auth/signup")) {
-        console.log("Redirecting to dashboard after successful auth")
+      // If the URL is the sign-in page and we're coming from a successful auth, redirect to dashboard
+      if (url === `${baseUrl}/auth/signin` || url === `${baseUrl}/auth/signup`) {
+        console.log("Redirecting from auth page to dashboard after successful authentication")
         return `${baseUrl}/dashboard`
       }
       
