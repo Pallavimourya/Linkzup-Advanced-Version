@@ -36,6 +36,7 @@ export const authOptions: NextAuthOptions = {
         },
       },
       profile(profile) {
+        console.log("Google profile received:", profile)
         return {
           id: profile.sub,
           name: profile.name,
@@ -178,7 +179,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
     error: "/auth/signin", // Redirect errors back to signin page
   },
   callbacks: {
@@ -188,12 +188,6 @@ export const authOptions: NextAuthOptions = {
       // If it's a callback URL, redirect to dashboard
       if (url.includes("/api/auth/callback") || url.includes("/auth/linkedin-callback")) {
         console.log("Redirecting to dashboard after OAuth callback")
-        return `${baseUrl}/dashboard`
-      }
-      
-      // If the URL is the sign-in page and we're coming from a successful auth, redirect to dashboard
-      if (url === `${baseUrl}/auth/signin` || url === `${baseUrl}/auth/signup`) {
-        console.log("Redirecting from auth page to dashboard after successful authentication")
         return `${baseUrl}/dashboard`
       }
       
@@ -374,6 +368,14 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async signIn({ user, account, isNewUser }: any) {
+      console.log("NextAuth signIn event triggered:", {
+        userId: user.id,
+        userEmail: user.email,
+        provider: account?.provider,
+        isNewUser,
+        accountId: account?.providerAccountId
+      })
+      
       if (isNewUser && user.id !== "admin-fixed") {
         try {
           const client = await clientPromise

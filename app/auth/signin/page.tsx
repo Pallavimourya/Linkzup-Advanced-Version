@@ -85,21 +85,11 @@ function SignInPageContent() {
         }
       } else {
         console.log("Initiating Google sign-in...")
-        console.log("Provider:", provider)
-        console.log("Callback URL:", "/dashboard")
-        
-        const result = await signIn(provider, {
+        // Use the simplest approach - let NextAuth handle everything
+        await signIn(provider, {
           callbackUrl: "/dashboard",
           redirect: true,
         })
-
-        console.log("Google sign-in result:", result)
-        
-        // If we get here, something went wrong with the redirect
-        if (result?.error) {
-          console.error("Google sign-in error:", result.error)
-          throw new Error(result.error)
-        }
       }
     } catch (error) {
       console.error("Social sign-in error:", error)
