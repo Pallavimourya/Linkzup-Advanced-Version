@@ -15,13 +15,15 @@ export async function GET(req: NextRequest) {
 
   const { db } = await connectToDatabase()
   const users = db.collection("users")
+  const subscriptions = db.collection("subscriptions")
+  const payments = db.collection("payments")
 
   const filter: any = {}
   if (q) {
     filter.$or = [{ email: { $regex: q, $options: "i" } }, { name: { $regex: q, $options: "i" } }]
   }
 
-  const list = await users
+  const allUsers = await users
     .find(filter, {
       projection: {
         email: 1,
@@ -35,13 +37,113 @@ export async function GET(req: NextRequest) {
         subscriptionStatus: 1,
         city: 1,
         mobile: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        trialStartDate: 1,
+        trialEndDate: 1,
+        lastLoginDate: 1,
+        totalLogins: 1,
+        profileCompleted: 1,
+        emailVerified: 1,
+        mobileVerified: 1,
       },
     })
     .sort({ createdAt: -1 })
     .limit(200)
     .toArray()
 
-  return NextResponse.json({ users: list })
+  // Get subscription and payment data for detailed information
+  const allSubscriptions = await subscriptions.find({}).toArray()
+  const allPayments = await payments.find({}).toArray()
+  
+  // Create maps for purchase information
+  const hasEverPurchasedMap = new Map()
+  const lastPurchaseInfoMap = new Map()
+  
+  // Check subscription history
+  allSubscriptions.forEach(sub => {
+    hasEverPurchasedMap.set(sub.userId.toString(), true)
+    
+    const userId = sub.userId.toString()
+    const currentInfo = lastPurchaseInfoMap.get(userId)
+    const purchaseDate = new Date(sub.createdAt)
+    
+    if (!currentInfo || purchaseDate > new Date(currentInfo.date)) {
+      lastPurchaseInfoMap.set(userId, {
+        date: sub.createdAt,
+        planType: sub.planType,
+        type: 'subscription'
+      })
+    }
+  })
+  
+  // Check payment history
+  allPayments.forEach(payment => {
+    hasEverPurchasedMap.set(payment.userId.toString(), true)
+    
+    const userId = payment.userId.toString()
+    const currentInfo = lastPurchaseInfoMap.get(userId)
+    const purchaseDate = new Date(payment.createdAt)
+    
+    if (!currentInfo || purchaseDate > new Date(currentInfo.date)) {
+      lastPurchaseInfoMap.set(userId, {
+        date: payment.createdAt,
+        planType: payment.planType,
+        type: 'payment'
+      })
+    }
+  })
+
+  // Enrich users with detailed information
+  const enrichedUsers = allUsers.map(user => {
+    const hasEverPurchased = hasEverPurchasedMap.get(user._id.toString()) || false
+    const lastPurchaseInfo = lastPurchaseInfoMap.get(user._id.toString())
+    
+    // Calculate trial information
+    const joinDate = user.createdAt
+    const trialStartDate = user.trialStartDate || user.createdAt
+    const trialEndDate = user.trialEndDate
+    const isTrialActive = user.isTrialActive || false
+    
+    // Calculate trial duration and status
+    let trialStatus = "not_started"
+    let trialDaysRemaining = 0
+    let trialDaysUsed = 0
+    
+    if (trialStartDate) {
+      const now = new Date()
+      const startDate = new Date(trialStartDate)
+      const endDate = trialEndDate ? new Date(trialEndDate) : new Date(startDate.getTime() + (14 * 24 * 60 * 60 * 1000)) // 14 days default
+      
+      if (isTrialActive) {
+        trialStatus = "active"
+        trialDaysRemaining = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)))
+        trialDaysUsed = Math.min(14, Math.ceil((now.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)))
+      } else if (now > endDate) {
+        trialStatus = "expired"
+        trialDaysUsed = 14
+      } else {
+        trialStatus = "ended"
+        trialDaysUsed = Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000))
+      }
+    }
+    
+    return {
+      ...user,
+      hasEverPurchased: hasEverPurchased,
+      lastPurchaseDate: lastPurchaseInfo?.date || null,
+      lastPurchasePlan: lastPurchaseInfo?.planType || null,
+      lastPurchaseType: lastPurchaseInfo?.type || null,
+      joinDate: joinDate,
+      trialStartDate: trialStartDate,
+      trialEndDate: trialEndDate,
+      trialStatus: trialStatus,
+      trialDaysRemaining: trialDaysRemaining,
+      trialDaysUsed: trialDaysUsed,
+    }
+  })
+
+  return NextResponse.json({ users: enrichedUsers })
 }
 
 export async function PATCH(req: NextRequest) {

@@ -34,12 +34,29 @@ import {
   Download,
   RefreshCw,
   MapPin,
-  Phone
+  Phone,
+  Info,
+  Timer,
+  Clock,
+  LogIn,
+  CheckCircle2,
+  ShoppingBag,
+  History
 } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+// Helper function to format date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-IN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
 
 export default function AdminUsersPage() {
   const [q, setQ] = useState("")
@@ -48,6 +65,8 @@ export default function AdminUsersPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [deletingUser, setDeletingUser] = useState<any>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [selectedUserDetails, setSelectedUserDetails] = useState<any>(null)
+  const [isUserDetailsOpen, setIsUserDetailsOpen] = useState(false)
   const { data, mutate, isLoading } = useSWR(`/api/admin/users?q=${encodeURIComponent(q)}`, fetcher)
 
   const updateUser = async (id: string, updates: any) => {
@@ -79,6 +98,11 @@ export default function AdminUsersPage() {
   const handleDeleteUser = async (user: any) => {
     setDeletingUser(user)
     setIsDeleteDialogOpen(true)
+  }
+
+  const handleViewUserDetails = (user: any) => {
+    setSelectedUserDetails(user)
+    setIsUserDetailsOpen(true)
   }
 
   const confirmDeleteUser = async () => {
@@ -369,6 +393,22 @@ export default function AdminUsersPage() {
                         <Button 
                           size="sm" 
                           variant="outline"
+                          onClick={() => handleViewUserDetails(u)}
+                          className="h-8 w-8 p-0 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-500"
+                        >
+                          <Info className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View Details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
                           onClick={() => handleEditUser(u)}
                           className="h-8 w-8 p-0 border-teal-300 text-teal-700 hover:bg-teal-50 hover:border-teal-500"
                         >
@@ -647,6 +687,233 @@ export default function AdminUsersPage() {
               </div>
         </div>
       )}
+        </DialogContent>
+      </Dialog>
+
+      {/* User Details Modal */}
+      <Dialog open={isUserDetailsOpen} onOpenChange={setIsUserDetailsOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <User className="h-5 w-5" />
+              User Details
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedUserDetails && (
+            <div className="space-y-4 sm:space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Basic Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start sm:items-center gap-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <User className="h-5 w-5 sm:h-6 sm:w-6 text-teal-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-base sm:text-lg truncate">{selectedUserDetails.name || "Unnamed User"}</h3>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">{selectedUserDetails.email}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {selectedUserDetails.mobile && (
+                        <div className="flex items-center gap-2 text-xs sm:text-sm">
+                          <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
+                          <span className="truncate">{selectedUserDetails.mobile}</span>
+                        </div>
+                      )}
+                      {selectedUserDetails.city && (
+                        <div className="flex items-center gap-2 text-xs sm:text-sm">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
+                          <span className="truncate">{selectedUserDetails.city}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-xs sm:text-sm">
+                        <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500 flex-shrink-0" />
+                        <span className="truncate">{Math.round(selectedUserDetails.credits || 0)} credits</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Account Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-gray-600">Status:</span>
+                      <Badge className={`text-xs ${selectedUserDetails.accountStatus === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {selectedUserDetails.accountStatus}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-gray-600">Role:</span>
+                      <Badge className={`text-xs ${selectedUserDetails.isAdmin ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {selectedUserDetails.isAdmin ? 'Admin' : 'User'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-gray-600">Plan:</span>
+                      <span className="text-xs sm:text-sm font-medium truncate">{selectedUserDetails.plan || "No Plan"}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="text-gray-600">Subscription:</span>
+                      <Badge className={`text-xs ${selectedUserDetails.subscriptionStatus === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                        {selectedUserDetails.subscriptionStatus || 'inactive'}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Trial Information */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <Timer className="h-4 w-4" />
+                    Trial Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="text-center p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {selectedUserDetails.trialStatus === 'active' ? selectedUserDetails.trialDaysRemaining : selectedUserDetails.trialDaysUsed || 0}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                        {selectedUserDetails.trialStatus === 'active' ? 'Days Remaining' : 'Days Used'}
+                      </div>
+                    </div>
+                    <div className="text-center p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                        {selectedUserDetails.trialStatus || 'not_started'}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Trial Status</div>
+                    </div>
+                    <div className="text-center p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg sm:col-span-2 lg:col-span-1">
+                      <div className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {selectedUserDetails.isTrialActive ? 'Yes' : 'No'}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Trial Active</div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <span className="text-gray-600">Join Date:</span>
+                      <span className="font-medium">{formatDate(selectedUserDetails.createdAt || selectedUserDetails.joinDate)}</span>
+                    </div>
+                    {selectedUserDetails.trialStartDate && (
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                        <span className="text-gray-600">Trial Start:</span>
+                        <span className="font-medium">{formatDate(selectedUserDetails.trialStartDate)}</span>
+                      </div>
+                    )}
+                    {selectedUserDetails.trialEndDate && (
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                        <span className="text-gray-600">Trial End:</span>
+                        <span className="font-medium">{formatDate(selectedUserDetails.trialEndDate)}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Purchase Information */}
+              {selectedUserDetails.hasEverPurchased && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                      <ShoppingBag className="h-4 w-4" />
+                      Purchase Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <span className="text-gray-600">Last Purchase Date:</span>
+                      <span className="font-medium">{selectedUserDetails.lastPurchaseDate ? formatDate(selectedUserDetails.lastPurchaseDate) : 'N/A'}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <span className="text-gray-600">Last Purchase Plan:</span>
+                      <span className="font-medium truncate">{selectedUserDetails.lastPurchasePlan || 'N/A'}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <span className="text-gray-600">Purchase Type:</span>
+                      <Badge className="bg-blue-100 text-blue-700 text-xs w-fit">
+                        {selectedUserDetails.lastPurchaseType || 'N/A'}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Activity Information */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                    <LogIn className="h-4 w-4" />
+                    Activity Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                    <span className="text-gray-600">Total Logins:</span>
+                    <span className="font-medium">{selectedUserDetails.totalLogins || 0}</span>
+                  </div>
+                  {selectedUserDetails.lastLoginDate && (
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <span className="text-gray-600">Last Login:</span>
+                      <span className="font-medium">{formatDate(selectedUserDetails.lastLoginDate)}</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                    <span className="text-gray-600">Profile Completed:</span>
+                    <div className="flex items-center gap-1">
+                      {selectedUserDetails.profileCompleted ? (
+                        <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                      ) : (
+                        <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                      )}
+                      <span className="font-medium text-xs sm:text-sm">{selectedUserDetails.profileCompleted ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                    <span className="text-gray-600">Email Verified:</span>
+                    <div className="flex items-center gap-1">
+                      {selectedUserDetails.emailVerified ? (
+                        <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                      ) : (
+                        <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                      )}
+                      <span className="font-medium text-xs sm:text-sm">{selectedUserDetails.emailVerified ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 text-xs sm:text-sm">
+                    <span className="text-gray-600">Mobile Verified:</span>
+                    <div className="flex items-center gap-1">
+                      {selectedUserDetails.mobileVerified ? (
+                        <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                      ) : (
+                        <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                      )}
+                      <span className="font-medium text-xs sm:text-sm">{selectedUserDetails.mobileVerified ? 'Yes' : 'No'}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -160,17 +160,18 @@ export default function BulkMessageHistory() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
-            Bulk Message History
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <History className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+            <span className="truncate">Bulk Message History</span>
           </CardTitle>
           {data?.messages && data.messages.length > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleSelectAllMessages}
+                className="w-full sm:w-auto text-xs sm:text-sm"
               >
                 {selectedMessages.length === data.messages.length ? "Deselect All" : "Select All"}
               </Button>
@@ -180,17 +181,19 @@ export default function BulkMessageHistory() {
                   size="sm"
                   onClick={handleBulkDelete}
                   disabled={isBulkDeleting}
-                  className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-500"
+                  className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-500 w-full sm:w-auto text-xs sm:text-sm"
                 >
                   {isBulkDeleting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent mr-2"></div>
-                      Deleting...
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-2 border-red-600 border-t-transparent mr-1 sm:mr-2"></div>
+                      <span className="hidden sm:inline">Deleting...</span>
+                      <span className="sm:hidden">Deleting</span>
                     </>
                   ) : (
                     <>
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Selected ({selectedMessages.length})
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Delete Selected ({selectedMessages.length})</span>
+                      <span className="sm:hidden">Delete ({selectedMessages.length})</span>
                     </>
                   )}
                 </Button>
@@ -211,54 +214,54 @@ export default function BulkMessageHistory() {
             <p className="text-gray-500">Your bulk communication history will appear here</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {data.messages.map((message: BulkMessage) => (
               <div
                 key={message._id}
-                className={`border-2 rounded-lg p-4 hover:shadow-md transition-shadow ${
+                className={`border-2 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow ${
                   selectedMessages.includes(message._id) 
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20' 
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
                     <Checkbox
                       checked={selectedMessages.includes(message._id)}
                       onCheckedChange={() => handleSelectMessage(message._id)}
-                      className="mt-1 border-2 border-gray-300 dark:border-gray-600 data-[state=checked]:border-teal-500 dark:data-[state=checked]:border-teal-400"
+                      className="mt-1 border-2 border-gray-300 dark:border-gray-600 data-[state=checked]:border-teal-500 dark:data-[state=checked]:border-teal-400 flex-shrink-0"
                     />
-                    <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className={`p-2 rounded-lg ${message.type === 'email' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-start sm:items-center gap-3 mb-2">
+                          <div className={`p-2 rounded-lg flex-shrink-0 ${message.type === 'email' ? 'bg-blue-100' : 'bg-green-100'}`}>
                             {getTypeIcon(message.type)}
                           </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">{message.subject}</h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate">{message.subject}</h3>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                               <span className="capitalize">{message.userType} users</span>
-                              <span>•</span>
+                              <span className="hidden sm:inline">•</span>
                               <span>{new Date(message.createdAt).toLocaleDateString()}</span>
                             </div>
                           </div>
                         </div>
                         
-                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
+                        <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-3 line-clamp-2">
                           {message.content}
                         </p>
                         
-                        <div className="flex items-center gap-4 text-sm">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                           <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
-                            <Users className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                             <span>{message.totalRecipients} recipients</span>
                           </div>
                           <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                            <CheckCircle className="h-4 w-4" />
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             <span>{message.sentCount} sent</span>
                           </div>
                           {message.failedCount > 0 && (
                             <div className="flex items-center gap-1 text-red-600 dark:text-red-400">
-                              <XCircle className="h-4 w-4" />
+                              <XCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                               <span>{message.failedCount} failed</span>
                             </div>
                           )}
@@ -266,25 +269,32 @@ export default function BulkMessageHistory() {
                       </div>
                     </div>
                   
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(message.status)}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewDetails(message)}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Details
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteMessage(message)}
-                      className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-500"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
-                    </Button>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+                    <div className="flex justify-center sm:justify-end">
+                      {getStatusBadge(message.status)}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewDetails(message)}
+                        className="flex-1 sm:flex-none text-xs sm:text-sm"
+                      >
+                        <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Details</span>
+                        <span className="sm:hidden">View</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteMessage(message)}
+                        className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-500 flex-1 sm:flex-none text-xs sm:text-sm"
+                      >
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Delete</span>
+                        <span className="sm:hidden">Del</span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
