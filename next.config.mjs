@@ -9,6 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Enable compression for better performance
+  compress: true,
 }
 
 export default nextConfig

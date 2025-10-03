@@ -4,6 +4,7 @@ import { ArrowRight, Sparkles, Target, Zap, Users, BarChart3, Calendar, CheckCir
 import Link from "next/link"
 import { MainNavbar } from "@/components/main-navbar"
 import { Logo } from "@/components/logo"
+import { OptimizedVideo } from "@/components/optimized-video"
 
 export default function HomePage() {
   return (
@@ -11,16 +12,15 @@ export default function HomePage() {
       {/* Hero Section with Video Background */}
       <section className="relative min-h-screen px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Video Background - covers entire viewport including navbar area */}
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline
+        <OptimizedVideo
+          src="/111.mp4"
+          poster="/111-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover z-0"
-        >
-          <source src="/111.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+          autoPlay={true}
+          loop={true}
+          muted={true}
+          playsInline={true}
+        />
         
         {/* Overlay for better text readability */}
         <div className="absolute inset-0 bg-black/80 z-10"></div>
@@ -97,16 +97,15 @@ export default function HomePage() {
             {/* Left side - Video */}
             <div className="order-2 lg:order-1">
               <div className="rounded-2xl overflow-hidden shadow-2xl">
-                <video 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline
+                <OptimizedVideo
+                  src="/video.mp4"
+                  poster="/video-poster.jpg"
                   className="w-full h-64 sm:h-80 lg:h-96 object-cover"
-                >
-                  <source src="/video.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                  autoPlay={true}
+                  loop={true}
+                  muted={true}
+                  playsInline={true}
+                />
               </div>
             </div>
             
