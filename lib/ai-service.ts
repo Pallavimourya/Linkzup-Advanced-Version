@@ -1048,16 +1048,14 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
 
   // Add bullet points to content to make it more engaging
   private addBulletPoints(content: string): string {
-    // Check if content already has bullet points
-    if (content.includes('•') || content.includes('-') || content.includes('*')) {
+    // Check if content already has bullet points (excluding dashes)
+    if (content.includes('•') || content.includes('*')) {
       // Ensure proper spacing for existing bullet points - each on new line
       let formatted = content
-        // Convert all bullet types to • for consistency
-        .replace(/^-\s*/gm, '• ')
+        // Convert only asterisk bullet types to • for consistency, but keep dashes as dashes
         .replace(/^\*\s*/gm, '• ')
         // Ensure bullet points start on new lines with proper spacing
         .replace(/([^\n])(•\s*[^\n]+)/g, '$1\n\n$2')
-        .replace(/([^\n])(-\s*[^\n]+)/g, '$1\n\n• $2'.replace(/^-\s*/, ''))
         .replace(/([^\n])(\*\s*[^\n]+)/g, '$1\n\n• $2'.replace(/^\*\s*/, ''))
         // Clean up multiple line breaks
         .replace(/\n{3,}/g, '\n\n')
@@ -1111,9 +1109,9 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
       const line = lines[i]
       
       // Handle bullet points - ensure they start on new lines
-      if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
-        // Convert all bullet types to • for consistency
-        const bulletLine = line.replace(/^[-*]/, '•')
+      if (line.startsWith('•') || line.startsWith('*')) {
+        // Convert only asterisk bullet types to • for consistency, but keep dashes as dashes
+        const bulletLine = line.replace(/^\*/, '•')
         
         // Add empty line before bullet points if previous line is not empty and not a bullet
         if (formattedLines.length > 0 && 
@@ -1273,14 +1271,14 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     return this.addToQueue(request)
   }
 
-  // Home tab: Generate unique content based on user input (WITH contextual personal story)
+  // Home tab: Generate unique content based on user input (NO personal story integration)
   async generateUniqueContent(
     type: ContentType,
     prompt: string,
     provider: AIProvider = "openai",
     customization: CustomizationOptions = {},
-    userId?: string,
-    userEmail?: string
+    userId?: string
+    // userEmail parameter removed to disable personal story integration for home page
   ): Promise<AIResponse> {
     const request: AIRequest = {
       id: this.generateRequestId(),
@@ -1289,7 +1287,7 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
       provider,
       customization,
       userId,
-      userEmail, // Include userEmail for contextual personal story integration
+      // userEmail removed to disable personal story integration for home page
       priority: "normal",
       createdAt: new Date(),
     }
