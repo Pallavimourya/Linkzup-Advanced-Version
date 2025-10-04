@@ -1,17 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { aiService } from "@/lib/ai-service"
 import { PersonalStoryService } from "@/lib/personal-story-service"
 import { PersonalStoryContentService } from "@/lib/personal-story-content-service"
-// @ts-ignore
+import { aiService } from "@/lib/ai-service"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
 export async function POST(request: NextRequest) {
   try {
-    const { topic, format, niche, ensureUniqueness = true } = await request.json()
+    const { 
+      topic, 
+      contentType = 'linkedin-post',
+      ensureUniqueness = true,
+      count = 2
+    } = await request.json()
 
-    if (!topic || !format || !niche) {
-      return NextResponse.json({ error: "Topic, format, and niche are required" }, { status: 400 })
+    if (!topic) {
+      return NextResponse.json({ error: "Topic is required" }, { status: 400 })
     }
 
     // Get user session for authentication
@@ -42,19 +46,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Map format to content type
-    const contentTypeMap: { [key: string]: any } = {
-      "linkedin-post": "linkedin-post",
-      "article": "article",
-      "story": "story",
-      "list": "list",
-      "quote": "quote",
-      "tips": "tips",
-      "insights": "insights"
-    }
-
-    const contentType = contentTypeMap[format] || "linkedin-post"
-
     // Build contextual personal story context based on topic
     const storyContext = PersonalStoryService.buildContextualStoryContext(storyData, topic)
     
@@ -62,11 +53,11 @@ export async function POST(request: NextRequest) {
     const enhancedPrompt = `${storyContext}
 
 Topic: "${topic}"
-Format: ${format}
-Niche: ${niche}
+Content Type: ${contentType}
 
 CRITICAL REQUIREMENTS:
-- Generate content that is directly inspired by elements from ALL 6 personal story sections:
+- Generate ${count} unique pieces of content
+- Each content piece MUST be directly inspired by elements from ALL 6 personal story sections:
   * Early Life & Roots
   * Education & Learning Phase
   * Career Journey
@@ -80,9 +71,11 @@ CRITICAL REQUIREMENTS:
 - Weave together elements from different life phases to create a rich, comprehensive narrative
 - Maintain professional tone while being authentic and personal
 - Avoid generic content that could apply to anyone
+- Each content piece should be complete and ready to publish
+- Vary the approach, angle, and style for each content piece
 - Show the complete personal journey from early life to future aspirations`
 
-    // Generate content using the centralized AI service with personal story integration
+    // Generate content using the centralized AI service
     const response = await aiService.generateContent(
       contentType,
       enhancedPrompt,
@@ -91,7 +84,6 @@ CRITICAL REQUIREMENTS:
         tone: "professional",
         targetAudience: "LinkedIn professionals",
         mainGoal: "engagement",
-        niche: niche,
         includeHashtags: true,
         includeEmojis: true,
         callToAction: true,
@@ -132,12 +124,14 @@ CRITICAL REQUIREMENTS:
       cost: response.metadata.cost,
       isPersonalized: true,
       uniquenessEnsured: ensureUniqueness,
-      personalStoryElements: extractPersonalStoryElements(storyContext)
+      personalStoryElements: extractPersonalStoryElements(storyContext),
+      topic: topic,
+      contentType: contentType
     })
   } catch (error) {
-    console.error("Error in generate-content API:", error)
+    console.error("Error in personal-story content API:", error)
     return NextResponse.json({ 
-      error: "Failed to generate content",
+      error: "Failed to generate personalized content",
       details: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 })
   }
@@ -213,7 +207,8 @@ async function storeGeneratedContent(
       content: item,
       storyContext,
       generatedAt: new Date(),
-      isPersonalized: true
+      isPersonalized: true,
+      source: 'personal-story-content-api'
     }))
     
     await db.collection("generatedContent").insertMany(contentRecords)
@@ -261,4 +256,40 @@ function calculateSimilarity(str1: string, str2: string): number {
   const union = new Set([...set1, ...set2])
   
   return intersection.size / union.size
+}
+
+/**
+ * GET endpoint to retrieve user's content generation history
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const contentType = searchParams.get('type')
+
+    // Get user's content generation history
+    const history = await PersonalStoryContentService.getUserContentHistory(session.user.email, limit)
+    
+    // Filter by content type if specified
+    const filteredHistory = contentType 
+      ? history.filter(item => item.type === contentType)
+      : history
+
+    return NextResponse.json({
+      success: true,
+      history: filteredHistory,
+      total: filteredHistory.length
+    })
+  } catch (error) {
+    console.error("Error getting content history:", error)
+    return NextResponse.json({ 
+      error: "Failed to retrieve content history",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+  }
 }

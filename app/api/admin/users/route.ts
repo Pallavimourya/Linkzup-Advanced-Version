@@ -5,8 +5,8 @@ import { connectToDatabase } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user || !(session.user as any).isAdmin) {
+  const session = await getServerSession(authOptions) as any
+  if (!session?.user || !session.user.isAdmin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
   }
 
@@ -51,6 +51,8 @@ export async function GET(req: NextRequest) {
     .sort({ createdAt: -1 })
     .limit(200)
     .toArray()
+
+  console.log(`Found ${allUsers.length} users, sorted by createdAt descending`)
 
   // Get subscription and payment data for detailed information
   const allSubscriptions = await subscriptions.find({}).toArray()
@@ -100,8 +102,14 @@ export async function GET(req: NextRequest) {
     const lastPurchaseInfo = lastPurchaseInfoMap.get(user._id.toString())
     
     // Calculate trial information
-    const joinDate = user.createdAt
-    const trialStartDate = user.trialStartDate || user.createdAt
+    // Handle cases where createdAt might be missing or invalid
+    let joinDate = user.createdAt
+    if (!joinDate || isNaN(new Date(joinDate).getTime())) {
+      // Fallback to trialStartDate or updatedAt if createdAt is invalid
+      joinDate = user.trialStartDate || user.updatedAt || new Date()
+    }
+    
+    const trialStartDate = user.trialStartDate || joinDate
     const trialEndDate = user.trialEndDate
     const isTrialActive = user.isTrialActive || false
     
@@ -140,15 +148,27 @@ export async function GET(req: NextRequest) {
       trialStatus: trialStatus,
       trialDaysRemaining: trialDaysRemaining,
       trialDaysUsed: trialDaysUsed,
+      // Ensure these fields have proper default values
+      totalLogins: user.totalLogins || 0,
+      profileCompleted: user.profileCompleted || false,
+      emailVerified: user.emailVerified || false,
+      mobileVerified: user.mobileVerified || false,
+      lastLoginDate: user.lastLoginDate || null,
     }
+  })
+
+  // Log first few users to verify sorting
+  console.log("First 3 users (should be newest first):")
+  enrichedUsers.slice(0, 3).forEach((user: any, index) => {
+    console.log(`${index + 1}. ${user.email} - createdAt: ${user.createdAt} - joinDate: ${user.joinDate}`)
   })
 
   return NextResponse.json({ users: enrichedUsers })
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user || !(session.user as any).isAdmin) {
+  const session = await getServerSession(authOptions) as any
+  if (!session?.user || !session.user.isAdmin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
   }
 

@@ -49,8 +49,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 // Helper function to format date
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | Date | null | undefined) => {
+  if (!dateString) return "Not Available"
+  
   const date = new Date(dateString)
+  
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    console.warn("Invalid date received:", dateString)
+    return "Invalid Date"
+  }
+  
   return date.toLocaleDateString('en-IN', {
     year: 'numeric',
     month: 'short',

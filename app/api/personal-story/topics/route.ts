@@ -1,19 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { aiService } from "@/lib/ai-service"
 import { PersonalStoryService } from "@/lib/personal-story-service"
 import { PersonalStoryContentService } from "@/lib/personal-story-content-service"
 import { getRelevantTopicPrompt, getAllTopicPrompts } from "@/lib/prompts/personal-story-topics"
-// @ts-ignore
+import { aiService } from "@/lib/ai-service"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
 export async function POST(request: NextRequest) {
   try {
-    const { niche, count = 20, ensureUniqueness = true } = await request.json()
-
-    if (!niche) {
-      return NextResponse.json({ error: "Niche is required" }, { status: 400 })
-    }
+    const { 
+      category, 
+      count = 20, 
+      ensureUniqueness = true,
+      includeAllCategories = false 
+    } = await request.json()
 
     // Get user session for authentication
     const session = await getServerSession(authOptions)
@@ -46,12 +46,82 @@ export async function POST(request: NextRequest) {
     // Extract themes from personal story
     const storyThemes = PersonalStoryService.extractStoryThemes(storyData)
     
-    // Get relevant topic prompt based on themes
-    const topicPrompt = getRelevantTopicPrompt(storyThemes)
-    
     // Build personal story context
     const storyContext = PersonalStoryService.buildStoryContext(storyData)
     
+    let allTopics: string[] = []
+    let topicCategories: string[] = []
+    
+    if (includeAllCategories) {
+      // Generate topics for all categories
+      const allPrompts = getAllTopicPrompts()
+      const topicsPerCategory = Math.ceil(count / allPrompts.length)
+      
+      for (const prompt of allPrompts) {
+        const categoryTopics = await generateTopicsForCategory(
+          storyContext, 
+          prompt, 
+          topicsPerCategory, 
+          session.user.email
+        )
+        allTopics.push(...categoryTopics)
+        topicCategories.push(prompt.category)
+      }
+    } else {
+      // Generate topics for specific category or most relevant category
+      const topicPrompt = category 
+        ? getAllTopicPrompts().find(p => p.category === category) || getRelevantTopicPrompt(storyThemes)
+        : getRelevantTopicPrompt(storyThemes)
+      
+      allTopics = await generateTopicsForCategory(
+        storyContext, 
+        topicPrompt, 
+        count, 
+        session.user.email
+      )
+      topicCategories = [topicPrompt.category]
+    }
+
+    // Ensure uniqueness if requested
+    if (ensureUniqueness && allTopics.length > 0) {
+      allTopics = await ensureTopicUniqueness(allTopics, session.user.email)
+    }
+
+    // Limit to requested count
+    allTopics = allTopics.slice(0, count)
+
+    // Store generated topics for future reference
+    await storeGeneratedTopics(session.user.email, allTopics, storyThemes, topicCategories)
+
+    return NextResponse.json({ 
+      success: true,
+      topics: allTopics,
+      personalStoryThemes: storyThemes,
+      topicCategories: topicCategories,
+      isPersonalized: true,
+      uniquenessEnsured: ensureUniqueness,
+      totalGenerated: allTopics.length,
+      storyCompletionPercentage: storyValidation.completionPercentage
+    })
+  } catch (error) {
+    console.error("Error in personal-story topics API:", error)
+    return NextResponse.json({ 
+      error: "Failed to generate personalized topics",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+  }
+}
+
+/**
+ * Generate topics for a specific category
+ */
+async function generateTopicsForCategory(
+  storyContext: string,
+  topicPrompt: any,
+  count: number,
+  userEmail: string
+): Promise<string[]> {
+  try {
     // Create enhanced prompt with personal story context
     const enhancedPrompt = `${storyContext}
 
@@ -61,7 +131,7 @@ CRITICAL REQUIREMENTS:
 - Generate exactly ${count} unique topics
 - Each topic MUST be directly inspired by elements from ALL 6 personal story sections:
   * Early Life & Roots
-  * Education & Learning Phase  
+  * Education & Learning Phase
   * Career Journey
   * Personal Side
   * Current Identity & Positioning
@@ -75,7 +145,7 @@ CRITICAL REQUIREMENTS:
 - Connect different life phases to create compelling narratives
 - Return only the topics as a simple list, one per line, without numbering or additional formatting`
 
-    // Generate topics using the centralized AI service with personal story integration
+    // Generate topics using the centralized AI service
     const response = await aiService.generateContent(
       "topics",
       enhancedPrompt,
@@ -84,7 +154,6 @@ CRITICAL REQUIREMENTS:
         tone: "professional",
         targetAudience: "LinkedIn professionals",
         mainGoal: "engagement",
-        niche: niche,
         includeHashtags: false,
         includeEmojis: false,
         callToAction: false,
@@ -93,8 +162,8 @@ CRITICAL REQUIREMENTS:
         personalTouch: true,
         storytelling: true
       },
-      session.user.id,
-      session.user.email
+      undefined,
+      userEmail
     )
 
     // Parse the generated topics
@@ -109,32 +178,10 @@ CRITICAL REQUIREMENTS:
         .slice(0, count)
     }
 
-    // Ensure uniqueness if requested
-    if (ensureUniqueness && topics.length > 0) {
-      const uniqueTopics = await ensureTopicUniqueness(topics, session.user.email)
-      topics = uniqueTopics
-    }
-
-    // Store generated topics for future reference
-    await storeGeneratedTopics(session.user.email, topics, storyThemes, topicPrompt.category)
-
-    return NextResponse.json({ 
-      success: true,
-      topics: topics,
-      model: response.metadata.model,
-      tokensUsed: response.metadata.tokensUsed,
-      cost: response.metadata.cost,
-      personalStoryThemes: storyThemes,
-      topicCategory: topicPrompt.category,
-      isPersonalized: true,
-      uniquenessEnsured: ensureUniqueness
-    })
+    return topics
   } catch (error) {
-    console.error("Error in generate-topics API:", error)
-    return NextResponse.json({ 
-      error: "Failed to generate topics",
-      details: error instanceof Error ? error.message : "Unknown error"
-    }, { status: 500 })
+    console.error("Error generating topics for category:", error)
+    return []
   }
 }
 
@@ -178,7 +225,7 @@ async function storeGeneratedTopics(
   userEmail: string, 
   topics: string[], 
   themes: string[], 
-  category: string
+  categories: string[]
 ): Promise<void> {
   try {
     const { connectDB } = await import("@/lib/mongodb")
@@ -188,9 +235,10 @@ async function storeGeneratedTopics(
       userEmail,
       topic,
       themes,
-      category,
+      categories,
       generatedAt: new Date(),
-      isPersonalized: true
+      isPersonalized: true,
+      source: 'personal-story-api'
     }))
     
     await db.collection("generatedTopics").insertMany(topicRecords)
@@ -213,4 +261,40 @@ function calculateSimilarity(str1: string, str2: string): number {
   const union = new Set([...set1, ...set2])
   
   return intersection.size / union.size
+}
+
+/**
+ * GET endpoint to retrieve user's topic generation history
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const category = searchParams.get('category')
+
+    // Get user's topic generation history
+    const history = await PersonalStoryContentService.getUserContentHistory(session.user.email, limit)
+    
+    // Filter by category if specified
+    const filteredHistory = category 
+      ? history.filter(item => item.category === category)
+      : history
+
+    return NextResponse.json({
+      success: true,
+      history: filteredHistory,
+      total: filteredHistory.length
+    })
+  } catch (error) {
+    console.error("Error getting topic history:", error)
+    return NextResponse.json({ 
+      error: "Failed to retrieve topic history",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
+  }
 }

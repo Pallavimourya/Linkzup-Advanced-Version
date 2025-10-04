@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     const subscriptions = db.collection("subscriptions")
     const payments = db.collection("payments")
 
-    // Get all users with their subscription status
-    const allUsers = await users.find({}).toArray()
+    // Get all users with their subscription status, sorted by newest first
+    const allUsers = await users.find({}).sort({ createdAt: -1 }).toArray()
     
     // Get active subscriptions
     const activeSubscriptions = await subscriptions.find({ 
@@ -89,8 +89,14 @@ export async function GET(request: NextRequest) {
       const lastPurchaseInfo = lastPurchaseInfoMap.get(user._id.toString())
       
       // Calculate trial information
-      const joinDate = user.createdAt
-      const trialStartDate = user.trialStartDate || user.createdAt
+      // Handle cases where createdAt might be missing or invalid
+      let joinDate = user.createdAt
+      if (!joinDate || isNaN(new Date(joinDate).getTime())) {
+        // Fallback to trialStartDate or updatedAt if createdAt is invalid
+        joinDate = user.trialStartDate || user.updatedAt || new Date()
+      }
+      
+      const trialStartDate = user.trialStartDate || joinDate
       const trialEndDate = user.trialEndDate
       const isTrialActive = user.isTrialActive || false
       

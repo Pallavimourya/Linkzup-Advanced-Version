@@ -984,10 +984,31 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     // Fallback: extract titles from text response
     const lines = content.split('\n').filter(line => line.trim().length > 0)
     const titles = lines
-      .map(line => line.replace(/^\d+\.\s*/, '').replace(/^[-*]\s*/, '').trim())
-      .filter(title => title.length > 0 && title.length < 100)
+      .map(line => {
+        // Remove various prefixes and formatting
+        return line
+          .replace(/^\d+\.\s*/, '') // Remove "1. " prefix
+          .replace(/^[-*]\s*/, '') // Remove "- " or "* " prefix
+          .replace(/^•\s*/, '') // Remove "• " prefix
+          .replace(/^"([^"]*)"$/, '$1') // Remove surrounding quotes
+          .replace(/^'([^']*)'$/, '$1') // Remove surrounding single quotes
+          .trim()
+      })
+      .filter(title => {
+        // Filter out empty titles and titles that are too long or too short
+        return title.length > 0 && 
+               title.length >= 5 && 
+               title.length <= 100 &&
+               !title.toLowerCase().includes('topic') &&
+               !title.toLowerCase().includes('title') &&
+               !title.toLowerCase().includes('here are') &&
+               !title.toLowerCase().includes('generated topics')
+      })
 
-    return titles
+    // Remove duplicates
+    const uniqueTitles = [...new Set(titles)]
+    
+    return uniqueTitles
   }
 
   // Clean post content by removing prefixes and improving formatting

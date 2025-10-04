@@ -132,7 +132,7 @@ export class PersonalStoryService {
 
   /**
    * Build contextual personal story context based on topic
-   * Only includes story elements that are relevant to the specific topic
+   * Includes ALL personal story sections with emphasis on relevant ones
    */
   static buildContextualStoryContext(storyData: PersonalStoryData, topic: string): string {
     const { answers, customization } = storyData
@@ -140,18 +140,33 @@ export class PersonalStoryService {
     // Extract relevant story elements based on topic keywords
     const relevantElements = this.extractRelevantStoryElements(answers, topic)
     
-    if (relevantElements.length === 0) {
-      return "PERSONAL STORY CONTEXT:\n" +
-             "No directly relevant personal story elements found for this topic. " +
-             "Generate content based on the topic and general professional insights.\n\n"
-    }
-    
-    let context = "PERSONAL STORY CONTEXT (TOPIC-SPECIFIC):\n"
+    let context = "PERSONAL STORY CONTEXT (COMPREHENSIVE):\n"
     context += `Topic: "${topic}"\n`
-    context += "Use ONLY the following relevant personal experiences that connect to this topic:\n\n"
+    context += "Use the following personal experiences to create authentic, personalized content. ALL sections should be considered for potential connections:\n\n"
     
-    relevantElements.forEach(element => {
-      context += `${element.category}: ${element.content}\n\n`
+    // Include ALL personal story sections with emphasis on relevant ones
+    const allSections = [
+      { key: 'early_life', label: 'Early Life & Roots', content: answers.early_life },
+      { key: 'education', label: 'Education & Learning Phase', content: answers.education },
+      { key: 'career_journey', label: 'Career Journey', content: answers.career_journey },
+      { key: 'personal_side', label: 'Personal Side', content: answers.personal_side },
+      { key: 'current_identity', label: 'Current Identity & Positioning', content: answers.current_identity },
+      { key: 'future_aspirations', label: 'Future Aspirations', content: answers.future_aspirations }
+    ]
+    
+    allSections.forEach(section => {
+      if (section.content && section.content.trim().length > 0) {
+        // Check if this section is highly relevant to the topic
+        const isHighlyRelevant = relevantElements.some(element => 
+          element.category === section.label
+        )
+        
+        if (isHighlyRelevant) {
+          context += `🎯 ${section.label} (HIGHLY RELEVANT): ${section.content}\n\n`
+        } else {
+          context += `${section.label}: ${section.content}\n\n`
+        }
+      }
     })
 
     // Add customization preferences
@@ -163,12 +178,13 @@ export class PersonalStoryService {
     context += `- Include personal touch: ${customization.personalTouch ? 'Yes' : 'No'}\n\n`
 
     context += "CRITICAL INSTRUCTIONS:\n"
-    context += "- Use ONLY the relevant story elements provided above\n"
-    context += "- Do NOT include unrelated personal details (like marriage, family, etc. unless directly relevant)\n"
-    context += "- Focus on connecting the topic to the specific relevant experiences\n"
-    context += "- Make the content feel authentic and relatable\n"
+    context += "- Use ALL personal story sections provided above to create comprehensive, authentic content\n"
+    context += "- Prioritize sections marked as 'HIGHLY RELEVANT' but don't ignore other sections\n"
+    context += "- Find creative ways to connect the topic to different aspects of the personal story\n"
+    context += "- Weave together elements from multiple sections to create a rich, personal narrative\n"
+    context += "- Make the content feel authentic and relatable by using specific details from the story\n"
     context += "- Maintain the user's preferred tone and style\n"
-    context += "- If no relevant story elements exist, focus purely on the topic\n\n"
+    context += "- Ensure the content reflects the complete personal journey, not just one aspect\n\n"
 
     return context
   }
