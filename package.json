@@ -60,6 +60,7 @@
     "fs": "latest",
     "gcp-metadata": "latest",
     "geist": "latest",
+    "googleapis": "^161.0.0",
     "html2canvas": "latest",
     "http": "latest",
     "https": "latest",

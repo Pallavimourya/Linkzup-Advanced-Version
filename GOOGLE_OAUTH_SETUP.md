@@ -22,6 +22,8 @@ Add these URLs to your Google OAuth 2.0 Client:
 \`\`\`
 http://localhost:3000/api/auth/callback/google
 https://www.linkzup.in/api/auth/callback/google
+http://localhost:3000/api/google-drive/callback
+https://www.linkzup.in/api/google-drive/callback
 \`\`\`
 
 ## How to Fix Google Sign-In Issues
@@ -113,7 +115,8 @@ The error you're seeing is because the redirect URI `https://www.linkzup.in/api/
 3. Find your OAuth 2.0 Client ID and click "Edit"
 4. In the "Authorized redirect URIs" section, add:
    \`\`\`
-   https://linkzup-advanced-version.vercel.app/api/auth/callback/google
+   https://www.linkzup.in/api/auth/callback/google
+   https://www.linkzup.in/api/google-drive/callback
    \`\`\`
 5. Click "Save"
 6. Wait a few minutes for the changes to propagate

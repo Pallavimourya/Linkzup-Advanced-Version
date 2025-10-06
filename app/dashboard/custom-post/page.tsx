@@ -48,6 +48,9 @@ import {
   Wand2,
   Loader2,
   Mic,
+  HardDrive,
+  ExternalLink,
+  Copy,
   Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -259,6 +262,15 @@ export default function CustomPostPage() {
   const [searchQuery, setSearchQuery] = useState("car")
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<any[]>([])
+  
+  // Google Drive state
+  const [googleDriveResults, setGoogleDriveResults] = useState<any[]>([])
+  const [googleDriveConnected, setGoogleDriveConnected] = useState(false)
+  const [googleDriveQuery, setGoogleDriveQuery] = useState("")
+  const [googleDrivePageToken, setGoogleDrivePageToken] = useState("")
+  
+  // Upload options state
+  const [showUploadOptions, setShowUploadOptions] = useState(false)
   const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor")
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
@@ -546,6 +558,92 @@ export default function CustomPostPage() {
       title: "Image Added", 
       description: "Image has been added to your post" 
     })
+  }
+
+  // Google Drive functions
+  const checkGoogleDriveConnection = async () => {
+    try {
+      const response = await fetch('/api/google-drive/auth?action=check')
+      if (response.ok) {
+        const data = await response.json()
+        setGoogleDriveConnected(data.connected)
+      }
+    } catch (error) {
+      console.error('Failed to check Google Drive connection:', error)
+    }
+  }
+
+  const connectGoogleDrive = async () => {
+    try {
+      const response = await fetch('/api/google-drive/auth?action=connect')
+      if (response.ok) {
+        const data = await response.json()
+        window.open(data.authUrl, '_blank')
+        toast({
+          title: "Google Drive Authorization",
+          description: "Please complete the authorization in the new window.",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Connection failed",
+        description: "Failed to connect to Google Drive. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const searchGoogleDriveImages = async () => {
+    if (!googleDriveConnected) {
+      toast({
+        title: "Not connected",
+        description: "Please connect your Google Drive account first.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      const action = googleDriveQuery.trim() ? 'search' : 'list'
+      const params = new URLSearchParams({
+        action,
+        ...(googleDriveQuery.trim() && { query: googleDriveQuery }),
+      })
+
+      const response = await fetch(`/api/google-drive?${params}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.images && data.images.length > 0) {
+          setGoogleDriveResults(data.images)
+          setGoogleDrivePageToken(data.nextPageToken || '')
+          
+          toast({
+            title: "Search Complete",
+            description: `Found ${data.images.length} images from Google Drive`,
+          })
+        } else {
+          setGoogleDriveResults([])
+          toast({
+            title: "No Images Found",
+            description: "No images found in your Google Drive. Try a different search term.",
+            variant: "destructive"
+          })
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Google Drive search failed")
+      }
+    } catch (error) {
+      toast({
+        title: "Search failed",
+        description: "Failed to search Google Drive. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   const handleAIGenerate = async () => {
@@ -1067,13 +1165,99 @@ export default function CustomPostPage() {
                   {/* Attachment Options */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Upload Images */}
-                    <div
-                      className="border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all duration-200 group bg-blue-50/30 dark:bg-blue-950/20 transform hover:scale-105"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Upload className="h-8 w-8 mx-auto mb-3 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-                      <p className="text-base font-semibold text-black dark:text-white mb-1">Upload Images</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                    <div className="space-y-2">
+                      <div
+                        className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all duration-200 group bg-gray-50/50 dark:bg-gray-900/50"
+                        onClick={() => setShowUploadOptions(true)}
+                      >
+                        <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+                          <Upload className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Upload Images</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">From computer or Google Drive</p>
+                        <div className="mt-3 flex items-center justify-center space-x-4 text-xs text-gray-400 dark:text-gray-500">
+                          <span className="flex items-center">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            Local Files
+                          </span>
+                          <span className="flex items-center">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                            Google Drive
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Upload Options Modal */}
+                      {showUploadOptions && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-700">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-6">
+                              <div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Add Images</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Choose how you want to add images</p>
+                              </div>
+                              <button
+                                onClick={() => setShowUploadOptions(false)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                              >
+                                <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                              </button>
+                            </div>
+                            
+                            {/* Options */}
+                            <div className="space-y-3">
+                              {/* Upload from Local */}
+                              <div
+                                className="flex items-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 transition-all duration-200 group"
+                                onClick={() => {
+                                  fileInputRef.current?.click()
+                                  setShowUploadOptions(false)
+                                }}
+                              >
+                                <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-4 group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors">
+                                  <Upload className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-900 dark:text-white">Upload from Computer</h4>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 10MB</p>
+                                </div>
+                                <div className="flex-shrink-0">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                </div>
+                              </div>
+                              
+                              {/* Upload from Google Drive */}
+                              <div
+                                className="flex items-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all duration-200 group"
+                                onClick={() => {
+                                  setShowUploadOptions(false)
+                                  connectGoogleDrive()
+                                }}
+                              >
+                                <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+                                  <HardDrive className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-gray-900 dark:text-white">Upload from Google Drive</h4>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">Access your cloud storage</p>
+                                </div>
+                                <div className="flex-shrink-0">
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Footer */}
+                            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                              <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+                                You can also search for stock photos using the "Search Images" option
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
                       <input 
                         ref={fileInputRef} 
                         type="file" 
@@ -1086,12 +1270,21 @@ export default function CustomPostPage() {
 
                     {/* Search Images */}
                     <div 
-                      className="border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all duration-200 group bg-blue-50/30 dark:bg-blue-950/20 transform hover:scale-105"
+                      className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center cursor-pointer hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 transition-all duration-200 group bg-gray-50/50 dark:bg-gray-900/50"
                       onClick={() => setShowImageSearch(true)}
                     >
-                      <Search className="h-8 w-8 mx-auto mb-3 text-gray-400 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-                      <p className="text-base font-semibold text-black dark:text-white mb-1">Search Images</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Find stock photos & graphics</p>
+                      <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
+                        <Search className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Search Images</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Find stock photos & graphics</p>
+                      <div className="mt-3 flex items-center justify-center space-x-2 text-xs text-gray-400 dark:text-gray-500">
+                        <span>Unsplash</span>
+                        <span>•</span>
+                        <span>Pexels</span>
+                        <span>•</span>
+                        <span>Pixabay</span>
+                      </div>
                     </div>
                   </div>
               
