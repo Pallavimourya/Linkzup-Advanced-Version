@@ -284,7 +284,10 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
 
   // Search Google Drive images
   const searchGoogleDriveImages = async (loadMore = false) => {
+    console.log('searchGoogleDriveImages called', { googleDriveConnected, loadMore })
+    
     if (!googleDriveConnected) {
+      console.log('Google Drive not connected, showing error')
       toast({
         title: "Not connected",
         description: "Please connect your Google Drive account first.",
@@ -293,6 +296,7 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
       return
     }
 
+    console.log('Starting to load Google Drive images...')
     setIsLoading(true)
     try {
       const action = googleDriveQuery.trim() ? 'search' : 'list'
@@ -303,9 +307,11 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
       })
 
       const response = await fetch(`/api/google-drive?${params}`)
+      console.log('Google Drive API response:', response.status, response.ok)
       
       if (response.ok) {
         const data = await response.json()
+        console.log('Google Drive API data:', data)
         if (data.success && data.images && data.images.length > 0) {
           if (loadMore) {
             setGoogleDriveResults(prev => [...prev, ...data.images])
@@ -358,6 +364,51 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
       checkGoogleDriveConnection()
     }
   }, [activeTab])
+
+  // Check for Google Drive connection success from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('google_drive_connected') === 'true') {
+      // Connection was successful, check status and load images
+      setTimeout(() => {
+        checkGoogleDriveConnection()
+      }, 1000) // Small delay to ensure connection is fully established
+    }
+  }, [])
+
+  // Auto-load Google Drive images when connection is established
+  useEffect(() => {
+    if (googleDriveConnected && googleDriveResults.length === 0) {
+      // Automatically load all images when Google Drive is connected
+      console.log('Auto-loading Google Drive images...')
+      // Add a small delay to ensure the connection is fully established
+      setTimeout(() => {
+        searchGoogleDriveImages()
+      }, 1000)
+    }
+  }, [googleDriveConnected])
+
+  // Also auto-load when the component mounts and Google Drive is already connected
+  useEffect(() => {
+    if (googleDriveConnected && googleDriveResults.length === 0) {
+      console.log('Component mounted with Google Drive connected, auto-loading images...')
+      setTimeout(() => {
+        searchGoogleDriveImages()
+      }, 500)
+    }
+  }, [])
+
+  // Check for connection status changes (e.g., after successful OAuth callback)
+  useEffect(() => {
+    const checkConnectionPeriodically = setInterval(() => {
+      if (!googleDriveConnected) {
+        console.log('Checking Google Drive connection status...')
+        checkGoogleDriveConnection()
+      }
+    }, 2000) // Check every 2 seconds
+
+    return () => clearInterval(checkConnectionPeriodically)
+  }, [googleDriveConnected])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -570,6 +621,77 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
                   </div>
                 ) : (
                   <>
+                    {isLoading && googleDriveResults.length === 0 && (
+                      <div className="text-center py-8 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                        <Loader2 className="w-12 h-12 mx-auto mb-4 text-blue-600 dark:text-blue-400 animate-spin" />
+                        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                          Loading Your Google Drive Images...
+                        </h3>
+                        <p className="text-sm text-blue-700 dark:text-blue-300">
+                          Please wait while we fetch your images from Google Drive.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {!isLoading && googleDriveResults.length === 0 && (
+                      <div className="text-center py-6 bg-green-50 dark:bg-green-950 rounded-lg border-2 border-green-200 dark:border-green-800">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                          <HardDrive className="h-8 w-8 text-green-600 dark:text-green-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-2">
+                          🎉 Google Drive Connected!
+                        </h3>
+                        <p className="text-sm text-green-700 dark:text-green-300 mb-4">
+                          Your Google Drive is now connected. Click below to load all your images.
+                        </p>
+                        <Button 
+                          onClick={() => searchGoogleDriveImages()} 
+                          disabled={isLoading}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          size="lg"
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Loading Your Images...
+                            </>
+                          ) : (
+                            <>
+                              <HardDrive className="w-5 h-5 mr-2" />
+                              Load All My Google Drive Images
+                            </>
+                          )}
+                        </Button>
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                          This will load up to 50 images from your Google Drive
+                        </p>
+                        <div className="mt-3 flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              console.log('Current state:', { googleDriveConnected, googleDriveResults: googleDriveResults.length, isLoading })
+                              checkGoogleDriveConnection()
+                            }}
+                            className="text-xs"
+                          >
+                            Debug Connection
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              console.log('Manual load triggered')
+                              searchGoogleDriveImages()
+                            }}
+                            className="text-xs"
+                          >
+                            Manual Load
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex gap-2">
                       <Input
                         placeholder="Search your Google Drive images..."
@@ -592,7 +714,15 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
 
                     {googleDriveResults.length > 0 && (
                       <div className="space-y-2">
-                        <Label>Google Drive Images</Label>
+                        <div className="flex items-center justify-between">
+                          <Label>Google Drive Images ({googleDriveResults.length})</Label>
+                          {isLoading && (
+                            <div className="flex items-center text-sm text-blue-600 dark:text-blue-400">
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Loading more...
+                            </div>
+                          )}
+                        </div>
                         <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
                           {googleDriveResults.map((result) => (
                             <div key={result.id} className="relative group">

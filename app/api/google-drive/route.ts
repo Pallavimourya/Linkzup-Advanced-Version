@@ -71,7 +71,7 @@ async function searchImages(drive: any, query: string, pageToken: string) {
     const response = await drive.files.list({
       q: `name contains '${query}' and mimeType contains 'image/' and trashed=false`,
       fields: 'nextPageToken, files(id, name, thumbnailLink, webViewLink, size, modifiedTime)',
-      pageSize: 20,
+      pageSize: 50,
       pageToken: pageToken || undefined,
       orderBy: 'modifiedTime desc'
     })
@@ -105,7 +105,7 @@ async function listImages(drive: any, pageToken: string) {
     const response = await drive.files.list({
       q: "mimeType contains 'image/' and trashed=false",
       fields: 'nextPageToken, files(id, name, thumbnailLink, webViewLink, size, modifiedTime)',
-      pageSize: 20,
+      pageSize: 50,
       pageToken: pageToken || undefined,
       orderBy: 'modifiedTime desc'
     })

@@ -60,6 +60,36 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
   React.useEffect(() => {
     setEditableContent(content)
   }, [content])
+
+  // Check for Google Drive connection success from URL parameters
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('google_drive_connected') === 'true') {
+      // Connection was successful, check status and load images
+      setTimeout(() => {
+        checkGoogleDriveConnection()
+      }, 1000) // Small delay to ensure connection is fully established
+    }
+  }, [])
+
+  // Auto-load Google Drive images when connection is established
+  React.useEffect(() => {
+    if (googleDriveConnected && googleDriveResults.length === 0) {
+      // Automatically load all images when Google Drive is connected
+      searchGoogleDriveImages()
+    }
+  }, [googleDriveConnected])
+
+  // Check for connection status changes periodically
+  React.useEffect(() => {
+    const checkConnectionPeriodically = setInterval(() => {
+      if (!googleDriveConnected) {
+        checkGoogleDriveConnection()
+      }
+    }, 3000) // Check every 3 seconds
+
+    return () => clearInterval(checkConnectionPeriodically)
+  }, [googleDriveConnected])
   
   // Image Management State
   const [isLoading, setIsLoading] = useState(false)

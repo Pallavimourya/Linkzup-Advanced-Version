@@ -28,6 +28,7 @@ import {
   Bookmark,
   Eye,
   Bold,
+  Check,
   Italic,
   Underline,
   Smile,
@@ -50,8 +51,7 @@ import {
   Mic,
   HardDrive,
   ExternalLink,
-  Copy,
-  Check
+  Copy
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -812,6 +812,38 @@ export default function CustomPostPage() {
     })
   }
 
+  // Check for Google Drive connection success from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('google_drive_connected') === 'true') {
+      // Connection was successful, check status and load images
+      setTimeout(() => {
+        checkGoogleDriveConnection()
+      }, 1000) // Small delay to ensure connection is fully established
+    }
+  }, [])
+
+  // Auto-load Google Drive images when connection is established
+  useEffect(() => {
+    if (googleDriveConnected && googleDriveResults.length === 0) {
+      // Automatically load all images when Google Drive is connected
+      console.log('Auto-loading Google Drive images...')
+      searchGoogleDriveImages()
+    }
+  }, [googleDriveConnected])
+
+  // Check for connection status changes periodically
+  useEffect(() => {
+    const checkConnectionPeriodically = setInterval(() => {
+      if (!googleDriveConnected) {
+        console.log('Checking Google Drive connection status...')
+        checkGoogleDriveConnection()
+      }
+    }, 2000) // Check every 2 seconds
+
+    return () => clearInterval(checkConnectionPeriodically)
+  }, [googleDriveConnected])
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1266,6 +1298,76 @@ export default function CustomPostPage() {
                         onChange={handleImageUpload} 
                         className="hidden" 
                       />
+
+                      {/* Google Drive Images Section */}
+                      {googleDriveConnected && (
+                        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center">
+                              <HardDrive className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+                              <h3 className="font-semibold text-blue-900 dark:text-blue-100">Google Drive Images</h3>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              {googleDriveResults.length === 0 && (
+                                <Button 
+                                  onClick={() => searchGoogleDriveImages()} 
+                                  disabled={isSearching}
+                                  size="sm"
+                                  variant="outline"
+                                >
+                                  {isSearching ? (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <Search className="w-4 h-4 mr-2" />
+                                  )}
+                                  Load Images
+                                </Button>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setGoogleDriveConnected(false)
+                                  setGoogleDriveResults([])
+                                }}
+                              >
+                                Disconnect
+                              </Button>
+                            </div>
+                          </div>
+
+                          {googleDriveResults.length > 0 ? (
+                            <div className="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto">
+                              {googleDriveResults.map((result) => (
+                                <div key={result.id} className="relative group">
+                                  <img
+                                    src={result.url}
+                                    alt={result.name}
+                                    className="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => handleImageSelect(result.downloadUrl)}
+                                  />
+                                  <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded truncate">
+                                    {result.name}
+                                  </div>
+                                  {postData.images.includes(result.downloadUrl) && (
+                                    <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                      <div className="bg-blue-500 text-white rounded-full p-1">
+                                        <Check className="w-3 h-3" />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4">
+                              <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                                {isSearching ? 'Loading your Google Drive images...' : 'Click "Load Images" to see your Google Drive photos'}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Search Images */}
