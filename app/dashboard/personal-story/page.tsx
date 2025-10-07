@@ -48,6 +48,7 @@ import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import { LinkedInPostButton } from "@/components/linkedin-post-button"
 import { ScheduleButton } from "@/components/schedule-button"
 import { MicrophoneButton } from "@/components/ui/microphone-button"
+import { ProcessingOverlay } from "@/components/processing-overlay"
 
 interface PersonalStoryForm {
   early_life: string
@@ -1757,6 +1758,21 @@ export default function PersonalStoryPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Processing Overlays */}
+      <ProcessingOverlay 
+        isVisible={isGenerating} 
+        type="story"
+        title="Generating Story..."
+        description="Building your personal story with AI..."
+      />
+      
+      <ProcessingOverlay 
+        isVisible={isGeneratingTopics} 
+        type="topics"
+        title="Generating Topics..."
+        description="Creating related topics from your story..."
+      />
     </div>
   )
 }

@@ -13,6 +13,7 @@ import { LinkedInPreview } from "@/components/linkedin-preview"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
 import { useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { ProcessingOverlay } from "@/components/processing-overlay"
 
 // Predefined recommended topics
 // const allRecommendedTopics = [
@@ -1918,6 +1919,28 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
           </div>
         </div>
       )}
+
+      {/* Processing Overlays */}
+      <ProcessingOverlay 
+        isVisible={isGenerating} 
+        type="topics"
+        title="Generating Topics..."
+        description="Creating personalized topics from your story..."
+      />
+      
+      <ProcessingOverlay 
+        isVisible={isRefreshingTopics} 
+        type="topics"
+        title="Refreshing Topics..."
+        description="Loading fresh topics from your personal story..."
+      />
+      
+      <ProcessingOverlay 
+        isVisible={Object.values(isGeneratingContent).some(Boolean)} 
+        type="content"
+        title="Creating Content..."
+        description="Generating engaging content for your selected topic..."
+      />
     </div>
   )
 }

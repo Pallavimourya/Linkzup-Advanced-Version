@@ -6,7 +6,6 @@ import { PersonalStoryService } from "@/lib/personal-story-service"
 import { AIService } from "@/lib/ai-service"
 
 const REQUEST_TIMEOUT = 60000 // 60 seconds
-
 export async function POST(request: NextRequest) {
   try {
     const timeoutPromise = new Promise((_, reject) => {
@@ -32,13 +31,13 @@ async function handlePostRequest(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { action, storyId } = await request.json()
+  const { action, storyId, count = 3, context = "default" } = await request.json()
   const userEmail = session.user.email
 
   if (action === "generate") {
-    return await generateTopicsFromStory(userEmail, storyId)
+    return await generateTopicsFromStory(userEmail, storyId, count, context)
   } else if (action === "regenerate") {
-    return await regenerateTopicsFromStory(userEmail, storyId)
+    return await regenerateTopicsFromStory(userEmail, storyId, count, context)
   } else {
     return NextResponse.json({ error: "Invalid action" }, { status: 400 })
   }
@@ -62,23 +61,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function generateTopicsFromStory(userEmail: string, storyId?: string) {
+async function generateTopicsFromStory(userEmail: string, storyId?: string, count = 3, context = "default") {
   try {
     const db = await connectDB()
 
-    // Get personal story data
     const storyData = await PersonalStoryService.getUserStoryData(userEmail)
-    if (!storyData) {
-      return NextResponse.json(
-        { error: "No personal story data found. Please complete your personal story first." },
-        { status: 400 },
-      )
+
+    if (!storyData || !storyData.answers) {
+      return NextResponse.json({ error: "No personal story found" }, { status: 404 })
     }
 
-    // Build story context
     const storyContext = PersonalStoryService.buildStoryContext(storyData)
 
-    const topicPrompt = `Analyze this personal story and generate 3 unique, specific blog topics based on real events mentioned:
+    // Enhanced prompt for better personal story-based topics
+    const topicPrompt = `Analyze this personal story and generate ${count} unique, specific blog topics based on real events mentioned:
 
 Story:
 ${storyContext}
@@ -92,13 +88,19 @@ Requirements:
 - Make topics sound like professional blog post titles
 - Output only the topic titles, one per line
 - No numbering, no JSON format
+- Focus on specific experiences, challenges, and achievements mentioned in the story
+- Make topics relatable and actionable for LinkedIn audience
+
+${context === "dashboard" ? "- Focus on broader career and life themes from the story" : "- Focus on specific actionable insights from the story"}
 
 Examples of good format:
 - "How My Early Life Shaped My Professional Success"
 - "Building Resilience Through Taekwondo Training"
 - "From Classroom Debates to Leadership Development"
+- "The Career Decision That Changed Everything"
+- "What My Education Taught Me About Success"
 
-Generate 3 topics now:`
+Generate ${count} topics now:`
 
     const aiService = new AIService()
     const response = await aiService.generateContent(
@@ -108,7 +110,7 @@ Generate 3 topics now:`
       {
         tone: "professional",
         wordCount: 50,
-        temperature: 0.7,
+        temperature: 0.8, // Increased for more creativity
       },
       undefined,
       userEmail,
@@ -121,38 +123,45 @@ Generate 3 topics now:`
     } else if (typeof response.content === "string") {
       topics = response.content
         .split("\n")
-        .map((line) => line.trim().replace(/^\d+[.)]\s*/, "")) // Remove numbering if present
+        .map((line) => line.trim().replace(/^\d+[.)]\s*/, ""))
         .filter((line) => line.length > 0)
-        .slice(0, 3)
+        .slice(0, count) // Use dynamic count
     }
 
-    if (topics.length < 3) {
+    // Ensure we have enough topics
+    if (topics.length < count) {
       const fallbackTopics = generateFallbackTopics(storyData)
-      topics = [...topics, ...fallbackTopics].slice(0, 3)
+      topics = [...topics, ...fallbackTopics].slice(0, count)
     }
 
+    // Check for existing topics across all contexts to ensure uniqueness
     const existingTopics = await db
       .collection("storyTopics")
       .find({ userEmail }, { projection: { topicText: 1 } })
       .toArray()
 
-    const existingTexts = new Set(existingTopics.map((t) => t.topicText.toLowerCase()))
-    topics = topics.filter((topic) => !existingTexts.has(topic.toLowerCase()))
-
-    // If all topics are duplicates, use fallback
-    if (topics.length === 0) {
-      topics = generateFallbackTopics(storyData).slice(0, 3)
+    const existingTexts = new Set(existingTopics.map((t: any) => t.topicText.toLowerCase()))
+    
+    // Filter out duplicates and ensure uniqueness
+    const uniqueTopics = await ensureTopicUniqueness(topics, userEmail)
+    
+    // If we don't have enough unique topics, generate more
+    if (uniqueTopics.length < count) {
+      const additionalTopics = generateFallbackTopics(storyData)
+      const additionalUnique = await ensureTopicUniqueness(additionalTopics, userEmail)
+      topics = [...uniqueTopics, ...additionalUnique].slice(0, count)
+    } else {
+      topics = uniqueTopics.slice(0, count)
     }
 
-    // Store topics in database
     const topicDocuments = topics.map((topic, index) => ({
       id: `topic-${Date.now()}-${index}`,
       userEmail,
-      storyId: storyId || `story-${Date.now()}`,
       topicText: topic,
       status: "pending",
+      context, // Added context field
       createdAt: new Date(),
-      updatedAt: new Date(),
+      storyId: storyId || `story-${userEmail}-${Date.now()}`,
     }))
 
     if (topicDocuments.length > 0) {
@@ -170,106 +179,15 @@ Generate 3 topics now:`
   }
 }
 
-async function regenerateTopicsFromStory(userEmail: string, storyId?: string) {
+async function regenerateTopicsFromStory(userEmail: string, storyId?: string, count = 3, context = "default") {
   try {
     const db = await connectDB()
 
-    const storyData = await PersonalStoryService.getUserStoryData(userEmail)
-    if (!storyData) {
-      return NextResponse.json(
-        { error: "No personal story data found. Please complete your personal story first." },
-        { status: 400 },
-      )
-    }
+    // Delete only topics for the specific context to maintain uniqueness across different sections
+    await db.collection("storyTopics").deleteMany({ userEmail, context })
 
-    const [existingTopics, approvedTopics] = await Promise.all([
-      db
-        .collection("storyTopics")
-        .find({ userEmail }, { projection: { topicText: 1 } })
-        .toArray(),
-      db
-        .collection("approvedTopics")
-        .find({ userEmail }, { projection: { topicText: 1 } })
-        .toArray(),
-    ])
-
-    const allExistingTexts = [...existingTopics.map((t) => t.topicText), ...approvedTopics.map((t) => t.topicText)]
-
-    const storyContext = PersonalStoryService.buildStoryContext(storyData)
-
-    const topicPrompt = `Analyze this personal story and generate 3 NEW unique topics. Avoid these existing topics:
-
-${allExistingTexts.map((t) => `- ${t}`).join("\n")}
-
-Story:
-${storyContext}
-
-Requirements:
-- Create completely different topics from the existing ones
-- Focus on different aspects of the story
-- Keep topics short and professional (maximum 8-10 words)
-- Use natural, human language
-- Do NOT use colons (:) in topic titles
-- Be specific and personal
-- Make topics sound like professional blog post titles
-- Output only the topic titles, one per line
-
-Generate 3 NEW topics now:`
-
-    const aiService = new AIService()
-    const response = await aiService.generateContent(
-      "topics",
-      topicPrompt,
-      "openai",
-      {
-        tone: "professional",
-        wordCount: 50,
-        temperature: 0.8,
-      },
-      undefined,
-      userEmail,
-    )
-
-    let topics: string[] = []
-    if (Array.isArray(response.content)) {
-      topics = response.content
-    } else if (typeof response.content === "string") {
-      topics = response.content
-        .split("\n")
-        .map((line) => line.trim().replace(/^\d+[.)]\s*/, ""))
-        .filter((line) => line.length > 0)
-        .slice(0, 3)
-    }
-
-    // Filter duplicates
-    const existingSet = new Set(allExistingTexts.map((t) => t.toLowerCase()))
-    topics = topics.filter((topic) => !existingSet.has(topic.toLowerCase()))
-
-    if (topics.length < 3) {
-      const fallbackTopics = generateFallbackTopics(storyData)
-      topics = [...topics, ...fallbackTopics.filter((t) => !existingSet.has(t.toLowerCase()))].slice(0, 3)
-    }
-
-    const topicDocuments = topics.map((topic, index) => ({
-      id: `topic-${Date.now()}-${index}`,
-      userEmail,
-      storyId: storyId || `story-${Date.now()}`,
-      topicText: topic,
-      status: "pending",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }))
-
-    if (topicDocuments.length > 0) {
-      await db.collection("storyTopics").insertMany(topicDocuments)
-    }
-
-    return NextResponse.json({
-      success: true,
-      topics: topicDocuments,
-      message: "New topics generated successfully",
-    })
-  } catch (error) {
+    return await generateTopicsFromStory(userEmail, storyId, count, context)
+  } catch (error: any) {
     console.error("Error regenerating topics from story:", error)
     return NextResponse.json({ error: "Failed to regenerate topics" }, { status: 500 })
   }
@@ -300,19 +218,40 @@ function generateFallbackTopics(storyData: any): string[] {
   const { answers } = storyData
   const fallbackTopics = []
 
+  // Generate more specific and personal topics based on story content
   if (answers.early_life && answers.early_life.trim().length > 20) {
-    fallbackTopics.push("How My Early Life Shaped My Success")
+    fallbackTopics.push("How My Early Life Shaped My Professional Success")
   }
 
   if (answers.education && answers.education.trim().length > 20) {
-    fallbackTopics.push("What My Education Taught Me")
+    fallbackTopics.push("What My Education Taught Me About Success")
   }
 
   if (answers.career_journey && answers.career_journey.trim().length > 20) {
     fallbackTopics.push("The Career Decision That Changed Everything")
   }
 
-  return fallbackTopics.slice(0, 3)
+  if (answers.challenges && answers.challenges.trim().length > 20) {
+    fallbackTopics.push("How I Overcame My Biggest Challenge")
+  }
+
+  if (answers.achievements && answers.achievements.trim().length > 20) {
+    fallbackTopics.push("The Achievement That Defined My Career")
+  }
+
+  if (answers.mentors && answers.mentors.trim().length > 20) {
+    fallbackTopics.push("The Mentor Who Changed My Perspective")
+  }
+
+  if (answers.future_goals && answers.future_goals.trim().length > 20) {
+    fallbackTopics.push("My Vision for the Future")
+  }
+
+  if (answers.personal_values && answers.personal_values.trim().length > 20) {
+    fallbackTopics.push("The Values That Guide My Decisions")
+  }
+
+  return fallbackTopics.slice(0, 6) // Return up to 6 fallback topics
 }
 
 async function ensureTopicUniqueness(topics: string[], userEmail: string): Promise<string[]> {
