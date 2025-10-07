@@ -1,31 +1,30 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useRef, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
-import { formatIstDate } from "@/lib/ist-utils"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useLinkedInPosting } from "@/hooks/use-linkedin-posting"
 import { useAIGeneration } from "@/hooks/use-ai-generation"
 import { MicrophoneButton } from "@/components/ui/microphone-button"
 import {
-  ArrowLeft,
-  Bookmark,
   Eye,
   Bold,
   Check,
@@ -36,8 +35,7 @@ import {
   Sparkles,
   Calendar,
   Clock,
-  Image as ImageIcon,
-  Tag,
+  ImageIcon,
   Save,
   Send,
   Plus,
@@ -45,13 +43,10 @@ import {
   CheckCircle,
   AlertCircle,
   Search,
-  Palette,
-  Wand2,
   Loader2,
   Mic,
   HardDrive,
-  ExternalLink,
-  Copy
+  RefreshCw,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
@@ -84,10 +79,10 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
       const tomorrow = new Date()
       tomorrow.setDate(tomorrow.getDate() + 1)
       tomorrow.setHours(9, 0, 0, 0)
-      
-      const dateStr = tomorrow.toISOString().split('T')[0]
+
+      const dateStr = tomorrow.toISOString().split("T")[0]
       const timeStr = tomorrow.toTimeString().slice(0, 5)
-      
+
       setScheduledDate(dateStr)
       setScheduledTime(timeStr)
     }
@@ -97,7 +92,7 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
     if (scheduledDate && scheduledTime) {
       // Create date in local timezone (IST)
       const localDateTime = new Date(`${scheduledDate}T${scheduledTime}`)
-      
+
       // The date is already in the correct timezone context
       // We just need to ensure it's properly formatted for the API
       onSchedule(localDateTime.toISOString())
@@ -107,14 +102,14 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
   if (!isOpen) return null
 
   return (
-    <motion.div 
+    <motion.div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <motion.div 
+      <motion.div
         className="bg-white dark:bg-black rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-blue-200 dark:border-blue-800"
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -130,25 +125,21 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
             <X className="h-5 w-5" />
           </button>
         </div>
-        
+
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">
-              Date
-            </label>
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">Date</label>
             <Input
               type="date"
               value={scheduledDate}
               onChange={(e) => setScheduledDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
               className="w-full"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-black dark:text-white mb-2">
-              Time
-            </label>
+            <label className="block text-sm font-medium text-black dark:text-white mb-2">Time</label>
             <Input
               type="time"
               value={scheduledTime}
@@ -156,28 +147,27 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
               className="w-full"
             />
           </div>
-          
+
           <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-lg">
             <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
               <Clock className="h-4 w-4" />
               <span className="text-sm font-medium">
-                {scheduledDate && scheduledTime 
-                  ? `Will be posted on ${new Date(`${scheduledDate}T${scheduledTime}`).toLocaleString('en-IN', {
-                      timeZone: 'Asia/Kolkata',
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true
+                {scheduledDate && scheduledTime
+                  ? `Will be posted on ${new Date(`${scheduledDate}T${scheduledTime}`).toLocaleString("en-IN", {
+                      timeZone: "Asia/Kolkata",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
                     })}`
-                  : "Select date and time"
-                }
+                  : "Select date and time"}
               </span>
             </div>
           </div>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 mt-6">
           <Button
             onClick={handleSchedule}
@@ -196,12 +186,12 @@ function ScheduleModal({ isOpen, onClose, onSchedule, isScheduling }: ScheduleMo
               </>
             )}
           </Button>
-          
+
           <Button
             variant="outline"
             onClick={onClose}
             disabled={isScheduling}
-            className="flex-1 min-h-[40px]"
+            className="flex-1 min-h-[40px] bg-transparent"
           >
             Cancel
           </Button>
@@ -230,11 +220,13 @@ export default function CustomPostPage() {
   const [isSavingDraft, setIsSavingDraft] = useState(false)
   const [isScheduling, setIsScheduling] = useState(false)
   const [newTag, setNewTag] = useState("")
-  
+
   // AI Assist state
   const [showAIAssist, setShowAIAssist] = useState(false)
   const [aiPrompt, setAiPrompt] = useState("")
-  const [aiContentType, setAiContentType] = useState<"linkedin-post" | "article" | "story" | "list" | "quote" | "tips" | "insights" | "question">("linkedin-post")
+  const [aiContentType, setAiContentType] = useState<
+    "linkedin-post" | "article" | "story" | "list" | "quote" | "tips" | "insights" | "question"
+  >("linkedin-post")
   const [aiCustomization, setAiCustomization] = useState<{
     tone: "professional" | "casual" | "friendly" | "authoritative" | "conversational"
     language: "english"
@@ -254,7 +246,7 @@ export default function CustomPostPage() {
     includeEmojis: true,
     callToAction: true,
   })
-  
+
   const { generateContent, isGenerating } = useAIGeneration()
   const [showScheduleModal, setShowScheduleModal] = useState(false)
   const [showImageSearch, setShowImageSearch] = useState(false)
@@ -262,13 +254,13 @@ export default function CustomPostPage() {
   const [searchQuery, setSearchQuery] = useState("car")
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<any[]>([])
-  
+
   // Google Drive state
   const [googleDriveResults, setGoogleDriveResults] = useState<any[]>([])
   const [googleDriveConnected, setGoogleDriveConnected] = useState(false)
   const [googleDriveQuery, setGoogleDriveQuery] = useState("")
   const [googleDrivePageToken, setGoogleDrivePageToken] = useState("")
-  
+
   // Upload options state
   const [showUploadOptions, setShowUploadOptions] = useState(false)
   const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor")
@@ -278,15 +270,15 @@ export default function CustomPostPage() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files) {
-      const newImages = Array.from(files).map(file => URL.createObjectURL(file))
-      setPostData(prev => ({ ...prev, images: [...prev.images, ...newImages] }))
+      const newImages = Array.from(files).map((file) => URL.createObjectURL(file))
+      setPostData((prev) => ({ ...prev, images: [...prev.images, ...newImages] }))
     }
   }
 
   const removeImage = (index: number) => {
-    setPostData(prev => ({
+    setPostData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
     }))
   }
 
@@ -297,9 +289,9 @@ export default function CustomPostPage() {
   const handleImageSelect = (imageUrl: string) => {
     if (postData.images.includes(imageUrl)) {
       // If image is already selected, remove it
-      setPostData(prev => ({
+      setPostData((prev) => ({
         ...prev,
-        images: prev.images.filter(img => img !== imageUrl)
+        images: prev.images.filter((img) => img !== imageUrl),
       }))
       toast({
         title: "Image removed",
@@ -307,9 +299,9 @@ export default function CustomPostPage() {
       })
     } else {
       // Add new image to selection
-      setPostData(prev => ({
+      setPostData((prev) => ({
         ...prev,
-        images: [...prev.images, imageUrl]
+        images: [...prev.images, imageUrl],
       }))
       toast({
         title: "Image selected",
@@ -320,21 +312,21 @@ export default function CustomPostPage() {
 
   const addTag = () => {
     if (newTag.trim() && !postData.tags.includes(newTag.trim())) {
-      setPostData(prev => ({ ...prev, tags: [...prev.tags, newTag.trim()] }))
+      setPostData((prev) => ({ ...prev, tags: [...prev.tags, newTag.trim()] }))
       setNewTag("")
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    setPostData(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }))
+    setPostData((prev) => ({ ...prev, tags: prev.tags.filter((tag) => tag !== tagToRemove) }))
   }
 
   const handlePostNow = async () => {
     if (!postData.content.trim()) {
-      toast({ 
-        title: "Content Required", 
-        description: "Please write some content before posting", 
-        variant: "destructive" 
+      toast({
+        title: "Content Required",
+        description: "Please write some content before posting",
+        variant: "destructive",
       })
       return
     }
@@ -346,37 +338,37 @@ export default function CustomPostPage() {
       })
 
       if (result.success) {
-        toast({ 
-          title: "Posted Successfully!", 
-          description: "Your post has been published to LinkedIn" 
+        toast({
+          title: "Posted Successfully!",
+          description: "Your post has been published to LinkedIn",
         })
         // Reset form
-        setPostData({ 
-          content: "", 
+        setPostData({
+          content: "",
           htmlContent: "",
-          images: [], 
-          platform: "linkedin", 
-          type: "text", 
-          tags: [], 
-          title: "" 
+          images: [],
+          platform: "linkedin",
+          type: "text",
+          tags: [],
+          title: "",
         })
       }
     } catch (error) {
       console.error("Error posting:", error)
-      toast({ 
-        title: "Posting Failed", 
-        description: "Failed to post to LinkedIn. Please try again.", 
-        variant: "destructive" 
+      toast({
+        title: "Posting Failed",
+        description: "Failed to post to LinkedIn. Please try again.",
+        variant: "destructive",
       })
     }
   }
 
   const handleSchedule = async (scheduledDateTime: string) => {
     if (!postData.content.trim()) {
-      toast({ 
-        title: "Content Required", 
-        description: "Please write some content before scheduling", 
-        variant: "destructive" 
+      toast({
+        title: "Content Required",
+        description: "Please write some content before scheduling",
+        variant: "destructive",
       })
       return
     }
@@ -399,27 +391,27 @@ export default function CustomPostPage() {
       const result = await response.json()
 
       if (result.success) {
-        toast({ 
-          title: "Post Scheduled!", 
-          description: `Your post has been scheduled for ${new Date(scheduledDateTime).toLocaleString('en-IN', {
-            timeZone: 'Asia/Kolkata',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-          })}` 
+        toast({
+          title: "Post Scheduled!",
+          description: `Your post has been scheduled for ${new Date(scheduledDateTime).toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })}`,
         })
         // Reset form
-        setPostData({ 
-          content: "", 
+        setPostData({
+          content: "",
           htmlContent: "",
-          images: [], 
-          platform: "linkedin", 
-          type: "text", 
-          tags: [], 
-          title: "" 
+          images: [],
+          platform: "linkedin",
+          type: "text",
+          tags: [],
+          title: "",
         })
         setShowScheduleModal(false)
       } else {
@@ -427,10 +419,10 @@ export default function CustomPostPage() {
       }
     } catch (error) {
       console.error("Error scheduling post:", error)
-      toast({ 
-        title: "Scheduling Failed", 
-        description: "Failed to schedule post. Please try again.", 
-        variant: "destructive" 
+      toast({
+        title: "Scheduling Failed",
+        description: "Failed to schedule post. Please try again.",
+        variant: "destructive",
       })
     } finally {
       setIsScheduling(false)
@@ -439,10 +431,10 @@ export default function CustomPostPage() {
 
   const handleSaveDraft = async () => {
     if (!postData.content.trim()) {
-      toast({ 
-        title: "Content Required", 
-        description: "Please write some content before saving", 
-        variant: "destructive" 
+      toast({
+        title: "Content Required",
+        description: "Please write some content before saving",
+        variant: "destructive",
       })
       return
     }
@@ -456,36 +448,36 @@ export default function CustomPostPage() {
           title: postData.title || `Custom Post - ${new Date().toLocaleDateString()}`,
           content: postData.content,
           format: postData.type,
-          niche: "Custom Post"
+          niche: "Custom Post",
         }),
       })
 
       const result = await response.json()
 
       if (result.success) {
-        toast({ 
-          title: "Draft Saved!", 
-          description: "Your post has been saved to drafts successfully" 
+        toast({
+          title: "Draft Saved!",
+          description: "Your post has been saved to drafts successfully",
         })
         // Reset form
-        setPostData({ 
-          content: "", 
+        setPostData({
+          content: "",
           htmlContent: "",
-          images: [], 
-          platform: "linkedin", 
-          type: "text", 
-          tags: [], 
-          title: "" 
+          images: [],
+          platform: "linkedin",
+          type: "text",
+          tags: [],
+          title: "",
         })
       } else {
         throw new Error(result.error || "Failed to save draft")
       }
     } catch (error) {
       console.error("Error saving draft:", error)
-      toast({ 
-        title: "Save Failed", 
-        description: "Failed to save draft. Please try again.", 
-        variant: "destructive" 
+      toast({
+        title: "Save Failed",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
       })
     } finally {
       setIsSavingDraft(false)
@@ -494,10 +486,10 @@ export default function CustomPostPage() {
 
   const handleImageSearch = async () => {
     if (!searchQuery.trim()) {
-      toast({ 
-        title: "Search Query Required", 
-        description: "Please enter a search term", 
-        variant: "destructive" 
+      toast({
+        title: "Search Query Required",
+        description: "Please enter a search term",
+        variant: "destructive",
       })
       return
     }
@@ -515,20 +507,20 @@ export default function CustomPostPage() {
 
       if (response.ok) {
         const data = await response.json()
-        
+
         if (data.success && data.images && data.images.length > 0) {
           setSearchResults(data.images)
-          toast({ 
-            title: "Search Complete", 
-            description: `Found ${data.images.length} images for "${searchQuery}" from ${data.source}` 
+          toast({
+            title: "Search Complete",
+            description: `Found ${data.images.length} images for "${searchQuery}" from ${data.source}`,
           })
         } else {
           // No images found
           setSearchResults([])
-          toast({ 
-            title: "No Images Found", 
+          toast({
+            title: "No Images Found",
             description: `No images found for "${searchQuery}". Try a different search term.`,
-            variant: "destructive"
+            variant: "destructive",
           })
         }
       } else {
@@ -537,14 +529,14 @@ export default function CustomPostPage() {
       }
     } catch (error) {
       console.error("Error searching images:", error)
-      
+
       // Show error toast
-      toast({ 
-        title: "Search Failed", 
+      toast({
+        title: "Search Failed",
         description: "Unable to search images. Showing fallback options.",
-        variant: "destructive"
+        variant: "destructive",
       })
-      
+
       // Set empty results to show placeholder
       setSearchResults([])
     } finally {
@@ -553,32 +545,32 @@ export default function CustomPostPage() {
   }
 
   const handleAddImageFromSearch = (imageUrl: string) => {
-    setPostData(prev => ({ ...prev, images: [...prev.images, imageUrl] }))
-    toast({ 
-      title: "Image Added", 
-      description: "Image has been added to your post" 
+    setPostData((prev) => ({ ...prev, images: [...prev.images, imageUrl] }))
+    toast({
+      title: "Image Added",
+      description: "Image has been added to your post",
     })
   }
 
   // Google Drive functions
   const checkGoogleDriveConnection = async () => {
     try {
-      const response = await fetch('/api/google-drive/auth?action=check')
+      const response = await fetch("/api/google-drive/auth?action=check")
       if (response.ok) {
         const data = await response.json()
         setGoogleDriveConnected(data.connected)
       }
     } catch (error) {
-      console.error('Failed to check Google Drive connection:', error)
+      console.error("Failed to check Google Drive connection:", error)
     }
   }
 
   const connectGoogleDrive = async () => {
     try {
-      const response = await fetch('/api/google-drive/auth?action=connect')
+      const response = await fetch("/api/google-drive/auth?action=connect")
       if (response.ok) {
         const data = await response.json()
-        window.open(data.authUrl, '_blank')
+        window.open(data.authUrl, "_blank")
         toast({
           title: "Google Drive Authorization",
           description: "Please complete the authorization in the new window.",
@@ -593,8 +585,8 @@ export default function CustomPostPage() {
     }
   }
 
-  const searchGoogleDriveImages = async () => {
-    if (!googleDriveConnected) {
+  const searchGoogleDriveImages = async (skipConnectionCheck = false) => {
+    if (!skipConnectionCheck && !googleDriveConnected) {
       toast({
         title: "Not connected",
         description: "Please connect your Google Drive account first.",
@@ -605,40 +597,50 @@ export default function CustomPostPage() {
 
     setIsSearching(true)
     try {
-      const action = googleDriveQuery.trim() ? 'search' : 'list'
+      const action = googleDriveQuery.trim() ? "search" : "list"
       const params = new URLSearchParams({
         action,
         ...(googleDriveQuery.trim() && { query: googleDriveQuery }),
       })
 
       const response = await fetch(`/api/google-drive?${params}`)
-      
+
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.images && data.images.length > 0) {
           setGoogleDriveResults(data.images)
-          setGoogleDrivePageToken(data.nextPageToken || '')
-          
+          setGoogleDrivePageToken(data.nextPageToken || "")
+
           toast({
-            title: "Search Complete",
-            description: `Found ${data.images.length} images from Google Drive`,
+            title: "Images Loaded",
+            description: `Found ${data.images.length} images from your Google Drive`,
           })
         } else {
           setGoogleDriveResults([])
           toast({
             title: "No Images Found",
-            description: "No images found in your Google Drive. Try a different search term.",
-            variant: "destructive"
+            description: "No images found in your Google Drive. Try uploading some images to your Drive first.",
           })
         }
       } else {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || "Google Drive search failed")
+
+        if (errorData.needsReconnect) {
+          setGoogleDriveConnected(false)
+          toast({
+            title: "Connection Expired",
+            description: "Your Google Drive connection has expired. Please reconnect.",
+            variant: "destructive",
+          })
+        } else {
+          throw new Error(errorData.error || "Google Drive search failed")
+        }
       }
     } catch (error) {
+      console.error("Google Drive search error:", error)
       toast({
         title: "Search failed",
-        description: "Failed to search Google Drive. Please try again.",
+        description: "Failed to load images from Google Drive. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -651,7 +653,7 @@ export default function CustomPostPage() {
       toast({
         title: "Prompt Required",
         description: "Please enter a prompt for AI generation",
-        variant: "destructive"
+        variant: "destructive",
       })
       return
     }
@@ -661,7 +663,7 @@ export default function CustomPostPage() {
       prompt: aiPrompt.trim(),
       provider: "openai",
       customization: aiCustomization,
-      userEmail: session?.user?.email || undefined // Include userEmail for contextual personal story integration
+      userEmail: session?.user?.email || undefined, // Include userEmail for contextual personal story integration
     })
 
     if (response && response.content) {
@@ -675,10 +677,10 @@ export default function CustomPostPage() {
       }
 
       // Insert generated content into the post
-      setPostData(prev => ({
+      setPostData((prev) => ({
         ...prev,
         content: prev.content + (prev.content ? "\n\n" : "") + generatedText,
-        htmlContent: prev.htmlContent + (prev.htmlContent ? "\n\n" : "") + generatedText
+        htmlContent: prev.htmlContent + (prev.htmlContent ? "\n\n" : "") + generatedText,
       }))
 
       // Close the AI Assist modal
@@ -687,7 +689,7 @@ export default function CustomPostPage() {
 
       toast({
         title: "Content Generated!",
-        description: "AI-generated content has been added to your post"
+        description: "AI-generated content has been added to your post",
       })
     }
   }
@@ -697,176 +699,189 @@ export default function CustomPostPage() {
   const isContentValid = postData.content.trim().length > 0
 
   const insertEmoji = (emoji: string) => {
-    const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+    const textarea = document.querySelector("textarea") as HTMLTextAreaElement
     if (!textarea) return
 
     const start = textarea.selectionStart
     const newContent = postData.content.substring(0, start) + emoji + postData.content.substring(start)
     const newHtmlContent = postData.htmlContent.substring(0, start) + emoji + postData.htmlContent.substring(start)
-    
-    setPostData(prev => ({ 
-      ...prev, 
+
+    setPostData((prev) => ({
+      ...prev,
       content: newContent,
-      htmlContent: newHtmlContent
+      htmlContent: newHtmlContent,
     }))
-    
+
     // Set cursor position after emoji
     setTimeout(() => {
       textarea.focus()
       textarea.setSelectionRange(start + emoji.length, start + emoji.length)
     }, 0)
-    
+
     toast({
       title: "Emoji Added",
-      description: `Added ${emoji} to your post`
+      description: `Added ${emoji} to your post`,
     })
   }
 
   // Function to format content for preview (preserves line breaks and HTML)
   const formatContentForPreview = (content: string, htmlContent: string) => {
     if (!content) return "Your content will appear here..."
-    
+
     // Use the content that has the most formatting information
     const sourceContent = htmlContent && htmlContent !== content ? htmlContent : content
-    
+
     // First, handle line breaks - convert \n to <br>
-    let formattedContent = sourceContent.replace(/\n/g, '<br>')
-    
+    let formattedContent = sourceContent.replace(/\n/g, "<br>")
+
     // Then escape HTML characters to prevent XSS, but preserve our formatting tags
-    formattedContent = formattedContent
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-    
+    formattedContent = formattedContent.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+
     // Now restore our allowed formatting tags
     formattedContent = formattedContent
-      .replace(/&lt;br&gt;/g, '<br>')
-      .replace(/&lt;strong&gt;/g, '<strong>')
-      .replace(/&lt;\/strong&gt;/g, '</strong>')
-      .replace(/&lt;em&gt;/g, '<em>')
-      .replace(/&lt;\/em&gt;/g, '</em>')
-      .replace(/&lt;u&gt;/g, '<u>')
-      .replace(/&lt;\/u&gt;/g, '</u>')
-    
+      .replace(/&lt;br&gt;/g, "<br>")
+      .replace(/&lt;strong&gt;/g, "<strong>")
+      .replace(/&lt;\/strong&gt;/g, "</strong>")
+      .replace(/&lt;em&gt;/g, "<em>")
+      .replace(/&lt;\/em&gt;/g, "</em>")
+      .replace(/&lt;u&gt;/g, "<u>")
+      .replace(/&lt;\/u&gt;/g, "</u>")
+
     return formattedContent
   }
 
   // Text formatting functions with real HTML formatting
-  const formatText = (format: 'bold' | 'italic' | 'underline') => {
-    const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+  const formatText = (format: "bold" | "italic" | "underline") => {
+    const textarea = document.querySelector("textarea") as HTMLTextAreaElement
     if (!textarea) return
 
     // Get current selection
     const start = textarea.selectionStart
     const end = textarea.selectionEnd
     const selectedText = postData.content.substring(start, end)
-    
+
     if (selectedText.length === 0) {
       toast({
         title: "No Text Selected",
         description: "Please select some text to format",
-        variant: "destructive"
+        variant: "destructive",
       })
       return
     }
-    
+
     // Create new HTML content with formatting
     let newHtmlContent = postData.htmlContent || postData.content
-    
+
     // Get the plain text before and after selection
     const beforeText = postData.content.substring(0, start)
     const afterText = postData.content.substring(end)
-    
+
     // Create formatted text
     let formattedText = selectedText
     switch (format) {
-      case 'bold':
+      case "bold":
         formattedText = `<strong>${selectedText}</strong>`
         break
-      case 'italic':
+      case "italic":
         formattedText = `<em>${selectedText}</em>`
         break
-      case 'underline':
+      case "underline":
         formattedText = `<u>${selectedText}</u>`
         break
     }
-    
+
     // Update HTML content by replacing the selected text with formatted version
     newHtmlContent = beforeText + formattedText + afterText
-    
-    setPostData(prev => ({ 
-      ...prev, 
+
+    setPostData((prev) => ({
+      ...prev,
       content: prev.content, // Keep plain text unchanged
-      htmlContent: newHtmlContent
+      htmlContent: newHtmlContent,
     }))
-    
+
     // Set cursor position after formatting
     setTimeout(() => {
       textarea.focus()
       textarea.setSelectionRange(start + formattedText.length, start + formattedText.length)
     }, 0)
-    
+
     toast({
       title: "Text Formatted",
-      description: `Applied ${format} formatting to selected text`
+      description: `Applied ${format} formatting to selected text`,
     })
   }
 
-  // Check for Google Drive connection success from URL parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get('google_drive_connected') === 'true') {
+    if (urlParams.get("google_drive_connected") === "true") {
       // Connection was successful, check status and load images
+      toast({
+        title: "Google Drive Connected!",
+        description: "Loading your images...",
+      })
+
+      // Clean up URL parameters
+      window.history.replaceState({}, "", "/dashboard/custom-post")
+
       setTimeout(() => {
         checkGoogleDriveConnection()
-      }, 1000) // Small delay to ensure connection is fully established
+      }, 500)
+    }
+
+    const error = urlParams.get("error")
+    if (error) {
+      let errorMessage = "Failed to connect Google Drive"
+      if (error === "google_drive_auth_failed") {
+        errorMessage = "Google Drive authorization failed. Please try again."
+      } else if (error === "missing_auth_params") {
+        errorMessage = "Missing authorization parameters. Please try again."
+      } else if (error === "google_drive_callback_failed") {
+        errorMessage = "Failed to complete Google Drive connection. Please try again."
+      }
+
+      toast({
+        title: "Connection Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+
+      // Clean up URL parameters
+      window.history.replaceState({}, "", "/dashboard/custom-post")
     }
   }, [])
 
-  // Auto-load Google Drive images when connection is established
   useEffect(() => {
-    if (googleDriveConnected && googleDriveResults.length === 0) {
-      // Automatically load all images when Google Drive is connected
-      console.log('Auto-loading Google Drive images...')
-      searchGoogleDriveImages()
+    if (googleDriveConnected && googleDriveResults.length === 0 && !isSearching) {
+      console.log("[v0] Auto-loading Google Drive images...")
+      searchGoogleDriveImages(true) // Skip connection check since we know it's connected
     }
   }, [googleDriveConnected])
 
-  // Check for connection status changes periodically
-  useEffect(() => {
-    const checkConnectionPeriodically = setInterval(() => {
-      if (!googleDriveConnected) {
-        console.log('Checking Google Drive connection status...')
-        checkGoogleDriveConnection()
-      }
-    }, 2000) // Check every 2 seconds
-
-    return () => clearInterval(checkConnectionPeriodically)
-  }, [googleDriveConnected])
+  // Connection status is checked only when needed
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key.toLowerCase()) {
-          case 'b':
+          case "b":
             e.preventDefault()
-            formatText('bold')
+            formatText("bold")
             break
-          case 'i':
+          case "i":
             e.preventDefault()
-            formatText('italic')
+            formatText("italic")
             break
-          case 'u':
+          case "u":
             e.preventDefault()
-            formatText('underline')
+            formatText("underline")
             break
         }
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [postData.content])
 
   return (
@@ -897,20 +912,20 @@ export default function CustomPostPage() {
       </header>
 
       {/* Hero Section */}
-      <motion.div 
+      <motion.div
         className="px-2 sm:px-4 py-6 sm:py-8 relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
-          <motion.div 
+          <motion.div
             className="space-y-2 sm:space-y-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            <motion.h1 
+            <motion.h1
               className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent leading-tight"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -923,7 +938,7 @@ export default function CustomPostPage() {
       </motion.div>
 
       {/* Main Content */}
-      <motion.div 
+      <motion.div
         className="px-2 sm:px-4 pb-6 relative z-10"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -932,223 +947,265 @@ export default function CustomPostPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
             {/* Left: Editor */}
-            <motion.div 
+            <motion.div
               className="space-y-6 sm:space-y-8"
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
             >
+              {/* Content Editor */}
+              <motion.div
+                className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.0, ease: "easeOut" }}
+                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+              >
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                    <div>
+                      <label className="block text-lg sm:text-xl font-bold text-black dark:text-white mb-2">
+                        Write Your Content
+                      </label>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                        <Mic className="h-4 w-4" />
+                        Tip: Click the microphone icon to record your content instead of typing
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "text-sm px-3 py-1 rounded-full font-medium",
+                          characterCount > maxCharacters * 0.9
+                            ? "bg-red-100 text-red-600"
+                            : "bg-gray-100 text-gray-600",
+                        )}
+                      >
+                        {characterCount}/{maxCharacters}
+                      </span>
+                    </div>
+                  </div>
 
-            {/* Content Editor */}
-            <motion.div 
-              className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1.0, ease: "easeOut" }}
-              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-            >
-              <div className="space-y-4 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                  <div>
-                    <label className="block text-lg sm:text-xl font-bold text-black dark:text-white mb-2">
-                      Write Your Content
-                    </label>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                      <Mic className="h-4 w-4" />
-                      Tip: Click the microphone icon to record your content instead of typing
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={cn(
-                      "text-sm px-3 py-1 rounded-full font-medium",
-                      characterCount > maxCharacters * 0.9 
-                        ? "bg-red-100 text-red-600"
-                        : "bg-gray-100 text-gray-600"
-                    )}>
-                      {characterCount}/{maxCharacters}
-                    </span>
-                  </div>
-                </div>
+                  {/* Toolbar */}
+                  <motion.div
+                    className="flex flex-wrap gap-2 bg-blue-50/50 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-200/50 dark:border-blue-800/50"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 1.2, ease: "easeOut" }}
+                  >
+                    <div className="flex items-center gap-1">
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                          onClick={() => formatText("bold")}
+                          title="Bold (Ctrl+B)"
+                        >
+                          <Bold className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                          onClick={() => formatText("italic")}
+                          title="Italic (Ctrl+I)"
+                        >
+                          <Italic className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                          onClick={() => formatText("underline")}
+                          title="Underline (Ctrl+U)"
+                        >
+                          <Underline className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                    </div>
 
-                {/* Toolbar */}
-                <motion.div 
-                  className="flex flex-wrap gap-2 bg-blue-50/50 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-200/50 dark:border-blue-800/50"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 1.2, ease: "easeOut" }}
-                >
-                  <div className="flex items-center gap-1">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                        onClick={() => formatText('bold')}
-                        title="Bold (Ctrl+B)"
-                      >
-                        <Bold className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                        onClick={() => formatText('italic')}
-                        title="Italic (Ctrl+I)"
-                      >
-                        <Italic className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                        onClick={() => formatText('underline')}
-                        title="Underline (Ctrl+U)"
-                      >
-                        <Underline className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                  </div>
-                  
-                  <div className="w-px bg-blue-300 dark:bg-blue-700 mx-2" />
-                  
-                  <div className="flex items-center gap-1">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        title="Insert Emoji"
-                      >
-                        <Smile className="h-4 w-4" />
-                      </Button>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-9 px-4 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 gap-2 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-200"
-                        onClick={() => {
-                          setAiPrompt(postData.content.trim())
-                          setShowAIAssist(true)
-                        }}
-                      >
-                        <Sparkles className="h-4 w-4" />
-                        <span className="hidden sm:inline">AI Assist</span>
-                      </Button>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              
-                {/* Emoji Picker */}
-                <AnimatePresence>
-                  {showEmojiPicker && (
-                    <motion.div 
-                      className="absolute z-50 bg-white dark:bg-black border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-2xl max-w-sm"
-                      initial={{ opacity: 0, scale: 0.8, y: -10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.8, y: -10 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                    >
-                      <div className="grid grid-cols-8 gap-2">
-                        {[
-                          '😊', '😄', '😃', '😀', '😉', '😋', '😎', '😍',
-                          '👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '👊',
-                          '🎉', '🎊', '🎈', '🎁', '🎂', '🎄', '🎃', '🎗️',
-                          '🔥', '💡', '💎', '💪', '🎯', '✨', '🌟', '⭐',
-                          '💼', '💻', '📱', '📧', '📞', '📱', '💾', '🔋',
-                          '🚀', '✈️', '🚗', '🚲', '🚢', '🚁', '🚂', '🚌',
-                          '❤️', '💙', '💚', '💛', '💜', '🖤', '💔', '💕',
-                          '🌍', '🌎', '🌏', '🌙', '⭐', '☀️', '🌦️'
-                        ].map((emoji, index) => (
-                          <motion.button
-                            key={index}
-                            onClick={() => {
-                              insertEmoji(emoji)
-                              setShowEmojiPicker(false)
-                            }}
-                            className="w-10 h-10 text-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors flex items-center justify-center"
-                            title={emoji}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.1, delay: index * 0.01 }}
-                            whileHover={{ scale: 1.2 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            {emoji}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    <div className="w-px bg-blue-300 dark:bg-blue-700 mx-2" />
 
-                <div className="relative">
-                  <Textarea
-                    placeholder="Write your post content here... Use @ to mention people, # for hashtags, and let your creativity flow!"
-                    value={postData.content}
-                    onChange={(e) => {
-                      const newContent = e.target.value
-                      setPostData(prev => ({ 
-                        ...prev, 
-                        content: newContent,
-                        // If HTML content was the same as plain text, update it too
-                        // Otherwise, keep the HTML content as is (preserving formatting)
-                        htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent
-                      }))
-                    }}
-                    className="min-h-[200px] sm:min-h-[250px] resize-none text-base leading-relaxed border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl bg-background/80 focus:bg-background text-foreground placeholder-muted-foreground pr-12 transition-all duration-200"
-                    maxLength={maxCharacters}
-                  />
-                  <div className="absolute bottom-4 right-4">
-                    <MicrophoneButton
-                      onTranscript={(transcript) => {
-                        const trimmedTranscript = transcript.trim()
-                        if (trimmedTranscript) {
-                          setPostData(prev => {
-                            const newContent = prev.content + (prev.content ? ' ' : '') + trimmedTranscript
-                            const newHtmlContent = prev.htmlContent + (prev.htmlContent ? ' ' : '') + trimmedTranscript
-                            
-                            // Prevent duplicates by checking if the transcript is already at the end
-                            if (prev.content.endsWith(trimmedTranscript)) {
-                              return prev
-                            }
-                            
-                            return { 
-                              ...prev, 
-                              content: newContent,
-                              htmlContent: newHtmlContent
-                            }
-                          })
-                        }
+                    <div className="flex items-center gap-1">
+                      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                          title="Insert Emoji"
+                        >
+                          <Smile className="h-4 w-4" />
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-9 px-4 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 gap-2 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300 transition-all duration-200 bg-transparent"
+                          onClick={() => {
+                            setAiPrompt(postData.content.trim())
+                            setShowAIAssist(true)
+                          }}
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          <span className="hidden sm:inline">AI Assist</span>
+                        </Button>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+
+                  {/* Emoji Picker */}
+                  <AnimatePresence>
+                    {showEmojiPicker && (
+                      <motion.div
+                        className="absolute z-50 bg-white dark:bg-black border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-2xl max-w-sm"
+                        initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                      >
+                        <div className="grid grid-cols-8 gap-2">
+                          {[
+                            "😊",
+                            "😄",
+                            "😃",
+                            "😀",
+                            "😉",
+                            "😋",
+                            "😎",
+                            "😍",
+                            "👍",
+                            "👎",
+                            "👌",
+                            "✌️",
+                            "🤞",
+                            "🤟",
+                            "🤘",
+                            "👊",
+                            "🎉",
+                            "🎊",
+                            "🎈",
+                            "🎁",
+                            "🎂",
+                            "🎄",
+                            "🎃",
+                            "🎗️",
+                            "🔥",
+                            "💡",
+                            "💎",
+                            "💪",
+                            "🎯",
+                            "✨",
+                            "🌟",
+                            "⭐",
+                            "💼",
+                            "💻",
+                            "📱",
+                            "📧",
+                            "📞",
+                            "📱",
+                            "💾",
+                            "🔋",
+                            "🚀",
+                            "✈️",
+                            "🚗",
+                            "🚲",
+                            "🚢",
+                            "🚁",
+                            "🚂",
+                            "🚌",
+                            "❤️",
+                            "💙",
+                            "💚",
+                            "💛",
+                            "💜",
+                            "🖤",
+                            "💔",
+                            "💕",
+                            "🌍",
+                            "🌎",
+                            "🌏",
+                            "🌙",
+                            "⭐",
+                            "☀️",
+                            "🌦️",
+                          ].map((emoji, index) => (
+                            <motion.button
+                              key={index}
+                              onClick={() => {
+                                insertEmoji(emoji)
+                                setShowEmojiPicker(false)
+                              }}
+                              className="w-10 h-10 text-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors flex items-center justify-center"
+                              title={emoji}
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.1, delay: index * 0.01 }}
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              {emoji}
+                            </motion.button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <div className="relative">
+                    <Textarea
+                      placeholder="Write your post content here... Use @ to mention people, # for hashtags, and let your creativity flow!"
+                      value={postData.content}
+                      onChange={(e) => {
+                        const newContent = e.target.value
+                        setPostData((prev) => ({
+                          ...prev,
+                          content: newContent,
+                          // If HTML content was the same as plain text, update it too
+                          // Otherwise, keep the HTML content as is (preserving formatting)
+                          htmlContent: prev.htmlContent === prev.content ? newContent : prev.htmlContent,
+                        }))
                       }}
-                      size="sm"
-                      variant="ghost"
-                      className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                      className="min-h-[200px] sm:min-h-[250px] resize-none text-base leading-relaxed border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl bg-background/80 focus:bg-background text-foreground placeholder-muted-foreground pr-12 transition-all duration-200"
+                      maxLength={maxCharacters}
                     />
+                    <div className="absolute bottom-4 right-4">
+                      <MicrophoneButton
+                        onTranscript={(transcript) => {
+                          const trimmedTranscript = transcript.trim()
+                          if (trimmedTranscript) {
+                            setPostData((prev) => {
+                              const newContent = prev.content + (prev.content ? " " : "") + trimmedTranscript
+                              const newHtmlContent =
+                                prev.htmlContent + (prev.htmlContent ? " " : "") + trimmedTranscript
+
+                              // Prevent duplicates by checking if the transcript is already at the end
+                              if (prev.content.endsWith(trimmedTranscript)) {
+                                return prev
+                              }
+
+                              return {
+                                ...prev,
+                                content: newContent,
+                                htmlContent: newHtmlContent,
+                              }
+                            })
+                          }
+                        }}
+                        size="sm"
+                        variant="ghost"
+                        className="h-9 w-9 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
 
               {/* Tags */}
               <div className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8">
@@ -1157,25 +1214,29 @@ export default function CustomPostPage() {
                     Tags & Hashtags
                   </label>
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <Input 
-                      placeholder="Add a tag or hashtag..." 
-                      value={newTag} 
-                      onChange={(e) => setNewTag(e.target.value)} 
-                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                    <Input
+                      placeholder="Add a tag or hashtag..."
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && addTag()}
                       className="flex-1 text-base border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl h-12 bg-white dark:bg-black text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                     />
-                    <Button size="lg" onClick={addTag} className="gap-2 w-full sm:w-auto h-12 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white">
+                    <Button
+                      size="lg"
+                      onClick={addTag}
+                      className="gap-2 w-full sm:w-auto h-12 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white"
+                    >
                       <Plus className="h-5 w-5" />
                       Add Tag
                     </Button>
                   </div>
-                  
+
                   {postData.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {postData.tags.map(tag => (
-                        <span 
-                          key={tag} 
-                          onClick={() => removeTag(tag)} 
+                      {postData.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          onClick={() => removeTag(tag)}
                           className="px-4 py-2 border border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium cursor-pointer hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2"
                         >
                           #{tag}
@@ -1190,10 +1251,8 @@ export default function CustomPostPage() {
               {/* Attachments */}
               <div className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8">
                 <div className="space-y-4 sm:space-y-6">
-                  <label className="block text-lg sm:text-xl font-bold text-black dark:text-white">
-                    Add Images
-                  </label>
-                  
+                  <label className="block text-lg sm:text-xl font-bold text-black dark:text-white">Add Images</label>
+
                   {/* Attachment Options */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Upload Images */}
@@ -1218,7 +1277,7 @@ export default function CustomPostPage() {
                           </span>
                         </div>
                       </div>
-                      
+
                       {/* Upload Options Modal */}
                       {showUploadOptions && (
                         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -1227,7 +1286,9 @@ export default function CustomPostPage() {
                             <div className="flex items-center justify-between mb-6">
                               <div>
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">Add Images</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Choose how you want to add images</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                  Choose how you want to add images
+                                </p>
                               </div>
                               <button
                                 onClick={() => setShowUploadOptions(false)}
@@ -1236,7 +1297,7 @@ export default function CustomPostPage() {
                                 <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                               </button>
                             </div>
-                            
+
                             {/* Options */}
                             <div className="space-y-3">
                               {/* Upload from Local */}
@@ -1258,7 +1319,7 @@ export default function CustomPostPage() {
                                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                 </div>
                               </div>
-                              
+
                               {/* Upload from Google Drive */}
                               <div
                                 className="flex items-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all duration-200 group"
@@ -1271,7 +1332,9 @@ export default function CustomPostPage() {
                                   <HardDrive className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div className="flex-1">
-                                  <h4 className="font-semibold text-gray-900 dark:text-white">Upload from Google Drive</h4>
+                                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                                    Upload from Google Drive
+                                  </h4>
                                   <p className="text-sm text-gray-500 dark:text-gray-400">Access your cloud storage</p>
                                 </div>
                                 <div className="flex-shrink-0">
@@ -1279,7 +1342,7 @@ export default function CustomPostPage() {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Footer */}
                             <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                               <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
@@ -1289,28 +1352,32 @@ export default function CustomPostPage() {
                           </div>
                         </div>
                       )}
-                      
-                      <input 
-                        ref={fileInputRef} 
-                        type="file" 
-                        multiple 
-                        accept="image/*" 
-                        onChange={handleImageUpload} 
-                        className="hidden" 
+
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
                       />
 
-                      {/* Google Drive Images Section */}
                       {googleDriveConnected && (
                         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800">
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center">
                               <HardDrive className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
                               <h3 className="font-semibold text-blue-900 dark:text-blue-100">Google Drive Images</h3>
+                              {googleDriveConnected && (
+                                <span className="ml-2 px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">
+                                  Connected
+                                </span>
+                              )}
                             </div>
                             <div className="flex items-center space-x-2">
-                              {googleDriveResults.length === 0 && (
-                                <Button 
-                                  onClick={() => searchGoogleDriveImages()} 
+                              {googleDriveResults.length > 0 && (
+                                <Button
+                                  onClick={() => searchGoogleDriveImages()}
                                   disabled={isSearching}
                                   size="sm"
                                   variant="outline"
@@ -1318,17 +1385,34 @@ export default function CustomPostPage() {
                                   {isSearching ? (
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                   ) : (
-                                    <Search className="w-4 h-4 mr-2" />
+                                    <RefreshCw className="w-4 h-4 mr-2" />
                                   )}
-                                  Load Images
+                                  Refresh
                                 </Button>
                               )}
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  setGoogleDriveConnected(false)
-                                  setGoogleDriveResults([])
+                                onClick={async () => {
+                                  try {
+                                    const response = await fetch("/api/google-drive/auth", {
+                                      method: "POST",
+                                    })
+                                    if (response.ok) {
+                                      setGoogleDriveConnected(false)
+                                      setGoogleDriveResults([])
+                                      toast({
+                                        title: "Disconnected",
+                                        description: "Google Drive has been disconnected.",
+                                      })
+                                    }
+                                  } catch (error) {
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to disconnect. Please try again.",
+                                      variant: "destructive",
+                                    })
+                                  }
                                 }}
                               >
                                 Disconnect
@@ -1336,33 +1420,59 @@ export default function CustomPostPage() {
                             </div>
                           </div>
 
-                          {googleDriveResults.length > 0 ? (
-                            <div className="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto">
-                              {googleDriveResults.map((result) => (
-                                <div key={result.id} className="relative group">
-                                  <img
-                                    src={result.url}
-                                    alt={result.name}
-                                    className="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                    onClick={() => handleImageSelect(result.downloadUrl)}
-                                  />
-                                  <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded truncate">
-                                    {result.name}
-                                  </div>
-                                  {postData.images.includes(result.downloadUrl) && (
-                                    <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                                      <div className="bg-blue-500 text-white rounded-full p-1">
-                                        <Check className="w-3 h-3" />
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
+                          {isSearching ? (
+                            <div className="flex flex-col items-center justify-center py-12">
+                              <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin mb-3" />
+                              <p className="text-sm text-blue-700 dark:text-blue-300">
+                                Loading your Google Drive images...
+                              </p>
                             </div>
+                          ) : googleDriveResults.length > 0 ? (
+                            <>
+                              <div className="mb-3">
+                                <Input
+                                  placeholder="Search in your Google Drive..."
+                                  value={googleDriveQuery}
+                                  onChange={(e) => setGoogleDriveQuery(e.target.value)}
+                                  onKeyPress={(e) => e.key === "Enter" && searchGoogleDriveImages()}
+                                  className="w-full"
+                                />
+                              </div>
+                              <div className="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto">
+                                {googleDriveResults.map((result) => (
+                                  <div key={result.id} className="relative group">
+                                    <img
+                                      src={result.url || "/placeholder.svg"}
+                                      alt={result.name}
+                                      className="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                      onClick={() => handleImageSelect(result.downloadUrl)}
+                                    />
+                                    <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded truncate">
+                                      {result.name}
+                                    </div>
+                                    {postData.images.includes(result.downloadUrl) && (
+                                      <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                        <div className="bg-blue-500 text-white rounded-full p-1">
+                                          <Check className="w-3 h-3" />
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 mt-3 text-center">
+                                {googleDriveResults.length} image{googleDriveResults.length !== 1 ? "s" : ""} • Click to
+                                select
+                              </p>
+                            </>
                           ) : (
-                            <div className="text-center py-4">
-                              <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                                {isSearching ? 'Loading your Google Drive images...' : 'Click "Load Images" to see your Google Drive photos'}
+                            <div className="text-center py-8">
+                              <HardDrive className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                No images found in your Google Drive
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-500">
+                                Upload some images to your Google Drive and refresh
                               </p>
                             </div>
                           )}
@@ -1371,7 +1481,7 @@ export default function CustomPostPage() {
                     </div>
 
                     {/* Search Images */}
-                    <div 
+                    <div
                       className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center cursor-pointer hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50/50 dark:hover:bg-purple-950/30 transition-all duration-200 group bg-gray-50/50 dark:bg-gray-900/50"
                       onClick={() => setShowImageSearch(true)}
                     >
@@ -1389,7 +1499,7 @@ export default function CustomPostPage() {
                       </div>
                     </div>
                   </div>
-              
+
                   {/* Uploaded Images Preview */}
                   {postData.images.length > 0 && (
                     <div className="space-y-4">
@@ -1400,7 +1510,7 @@ export default function CustomPostPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setPostData(prev => ({ ...prev, images: [] }))}
+                          onClick={() => setPostData((prev) => ({ ...prev, images: [] }))}
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <X className="w-4 h-4 mr-2" />
@@ -1410,20 +1520,20 @@ export default function CustomPostPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {postData.images.map((img, i) => (
                           <div key={i} className="relative group">
-                            <img 
-                              src={img} 
-                              alt="preview" 
-                              className="rounded-xl h-20 sm:h-24 w-full object-cover border-2 border-blue-200 dark:border-blue-800 shadow-sm cursor-pointer hover:opacity-80 transition-opacity" 
+                            <img
+                              src={img || "/placeholder.svg"}
+                              alt="preview"
+                              className="rounded-xl h-20 sm:h-24 w-full object-cover border-2 border-blue-200 dark:border-blue-800 shadow-sm cursor-pointer hover:opacity-80 transition-opacity"
                               onClick={() => handleImagePreview(img)}
                             />
                             <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                               {i + 1}
                             </div>
-                            <button 
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation()
                                 removeImage(i)
-                              }} 
+                              }}
                               className="absolute -top-2 -right-2 bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
                             >
                               <X className="w-3 h-3" />
@@ -1438,27 +1548,27 @@ export default function CustomPostPage() {
             </motion.div>
 
             {/* Right: Preview */}
-            <motion.div 
+            <motion.div
               className="space-y-6 sm:space-y-8"
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 1.0, ease: "easeOut" }}
             >
               {/* Preview Header */}
-              <motion.div 
+              <motion.div
                 className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1.2, ease: "easeOut" }}
                 whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
               >
-                <motion.div 
+                <motion.div
                   className="flex items-center gap-3 mb-6"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 1.4, ease: "easeOut" }}
                 >
-                  <motion.div 
+                  <motion.div
                     className="w-10 h-10 bg-gradient-to-br from-blue-500 to-secondary rounded-xl flex items-center justify-center"
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.6 }}
@@ -1468,8 +1578,8 @@ export default function CustomPostPage() {
                   <h2 className="text-xl sm:text-2xl font-bold text-black dark:text-white">Live Preview</h2>
                 </motion.div>
 
-                {/* Preview Content - LinkedIn Style */}
-                <motion.div 
+                {/* LinkedIn Style Preview */}
+                <motion.div
                   className="bg-white dark:bg-black rounded-2xl shadow-lg border border-blue-200 dark:border-blue-800 overflow-hidden"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -1481,9 +1591,9 @@ export default function CustomPostPage() {
                     <div className="flex items-center gap-4">
                       <div className="h-14 w-14 rounded-full overflow-hidden shadow-lg">
                         {session?.user?.image ? (
-                          <img 
-                            src={session.user.image} 
-                            alt={session.user.name || "Profile"} 
+                          <img
+                            src={session.user.image || "/placeholder.svg"}
+                            alt={session.user.name || "Profile"}
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -1497,7 +1607,7 @@ export default function CustomPostPage() {
                           {session?.user?.name || "Your Name"}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          LinkedIn • {postData.type === 'text' ? 'Text' : 'Post'}
+                          LinkedIn • {postData.type === "text" ? "Text" : "Post"}
                         </p>
                       </div>
                       <div className="text-gray-500 dark:text-gray-400">
@@ -1507,72 +1617,95 @@ export default function CustomPostPage() {
                       </div>
                     </div>
                   </div>
-              
+
                   {/* LinkedIn Content */}
                   <div className="p-6">
                     {postData.title && (
-                      <h3 className="font-bold text-xl text-black dark:text-white mb-4">
-                        {postData.title}
-                      </h3>
+                      <h3 className="font-bold text-xl text-black dark:text-white mb-4">{postData.title}</h3>
                     )}
-                    
-                    <div 
+
+                    <div
                       className="text-black dark:text-white leading-relaxed mb-6 text-base"
-                      dangerouslySetInnerHTML={{ 
-                        __html: formatContentForPreview(postData.content, postData.htmlContent)
+                      dangerouslySetInnerHTML={{
+                        __html: formatContentForPreview(postData.content, postData.htmlContent),
                       }}
                     />
-                    
+
                     {postData.images.length > 0 && (
-                      <div className={`grid gap-3 mb-6 ${postData.images.length === 1 ? 'grid-cols-1' : postData.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                      <div
+                        className={`grid gap-3 mb-6 ${postData.images.length === 1 ? "grid-cols-1" : postData.images.length === 2 ? "grid-cols-2" : "grid-cols-2"}`}
+                      >
                         {postData.images.map((img, i) => (
-                          <img 
-                            key={i} 
-                            src={img} 
-                            alt="preview" 
-                            className={`rounded-xl w-full object-cover shadow-sm ${postData.images.length === 1 ? 'h-64' : 'h-32'}`}
+                          <img
+                            key={i}
+                            src={img || "/placeholder.svg"}
+                            alt="preview"
+                            className={`rounded-xl w-full object-cover shadow-sm ${postData.images.length === 1 ? "h-64" : "h-32"}`}
                           />
                         ))}
                       </div>
                     )}
-                    
+
                     {postData.tags.length > 0 && (
                       <div className="flex gap-2 flex-wrap mb-6">
-                        {postData.tags.map(tag => (
-                          <span key={tag} className="px-3 py-1 border border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer">
+                        {postData.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-3 py-1 border border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer"
+                          >
                             #{tag}
                           </span>
                         ))}
                       </div>
                     )}
                   </div>
-                  
+
                   {/* LinkedIn Footer */}
                   <div className="px-6 py-4 border-t border-blue-200/30 dark:border-blue-800/30">
                     <div className="flex items-center justify-between text-gray-500 dark:text-gray-400 text-sm">
                       <div className="flex items-center gap-8">
                         <button className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+                            />
                           </svg>
                           <span>Like</span>
                         </button>
                         <button className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                            />
                           </svg>
                           <span>Comment</span>
                         </button>
                         <button className="flex items-center gap-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684"
+                            />
                           </svg>
                           <span>Share</span>
                         </button>
                       </div>
                       <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -1581,7 +1714,7 @@ export default function CustomPostPage() {
               </motion.div>
 
               {/* Quick Actions */}
-              <motion.div 
+              <motion.div
                 className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1589,7 +1722,7 @@ export default function CustomPostPage() {
                 whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
               >
                 <div className="space-y-4 sm:space-y-6">
-                  <motion.h4 
+                  <motion.h4
                     className="text-lg sm:text-xl font-bold text-black dark:text-white"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -1623,7 +1756,7 @@ export default function CustomPostPage() {
                         )}
                       </Button>
                     </motion.div>
-                    
+
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -1641,7 +1774,7 @@ export default function CustomPostPage() {
                         <span>Schedule Post</span>
                       </Button>
                     </motion.div>
-                    
+
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -1673,7 +1806,7 @@ export default function CustomPostPage() {
               </motion.div>
 
               {/* Status Indicators */}
-              <motion.div 
+              <motion.div
                 className="bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-2xl shadow-xl border border-blue-200/50 dark:border-blue-800/50 p-6 sm:p-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1683,7 +1816,7 @@ export default function CustomPostPage() {
                 <div className="space-y-4">
                   <AnimatePresence mode="wait">
                     {!isContentValid && (
-                      <motion.div 
+                      <motion.div
                         className="flex items-center gap-3 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-4 rounded-xl border border-amber-200 dark:border-amber-800"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -1694,9 +1827,9 @@ export default function CustomPostPage() {
                         <span className="text-sm font-medium">Write some content to enable posting</span>
                       </motion.div>
                     )}
-                    
+
                     {isContentValid && (
-                      <motion.div 
+                      <motion.div
                         className="flex items-center gap-3 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-4 rounded-xl border border-green-200 dark:border-green-800"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -1718,161 +1851,156 @@ export default function CustomPostPage() {
       {/* Image Search Modal */}
       <AnimatePresence>
         {showImageSearch && (
-          <motion.div 
+          <motion.div
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <motion.div 
+            <motion.div
               className="bg-white dark:bg-black rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl border border-blue-200 dark:border-blue-800 max-h-[90vh] overflow-hidden"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-black dark:text-white">Search Images</h3>
-              <button
-                onClick={() => setShowImageSearch(false)}
-                className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            
-            <div className="space-y-4 sm:space-y-6">
-              {/* Image Source Selection */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="flex-1 w-full">
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">
-                    Image Source
-                  </label>
-                  <Select value={imageSource} onValueChange={setImageSource}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select image source" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="unsplash">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                          Unsplash
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="pexels">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                          Pexels
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="pixabay">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
-                          Pixabay
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="google">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-                          Google Images
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex-1 w-full">
-                  <label className="block text-sm font-medium text-black dark:text-white mb-2">
-                    Search Images
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Input
-                      placeholder="Search for images (e.g., business, technology, nature)..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleImageSearch()}
-                      className="flex-1 text-sm sm:text-base"
-                    />
-                    <Button 
-                      onClick={handleImageSearch}
-                      disabled={isSearching}
-                      className="gap-2 w-full sm:w-auto min-h-[40px]"
-                    >
-                      {isSearching ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                          <span className="text-sm sm:text-base">Searching...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Search className="h-4 w-4" />
-                          <span className="text-sm sm:text-base">Search</span>
-                        </>
-                      )}
-                    </Button>
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h3 className="text-lg sm:text-xl font-semibold text-black dark:text-white">Search Images</h3>
+                <button
+                  onClick={() => setShowImageSearch(false)}
+                  className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4 sm:space-y-6">
+                {/* Image Source Selection */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex-1 w-full">
+                    <label className="block text-sm font-medium text-black dark:text-white mb-2">Image Source</label>
+                    <Select value={imageSource} onValueChange={setImageSource}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select image source" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unsplash">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                            Unsplash
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="pexels">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                            Pexels
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="pixabay">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
+                            Pixabay
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="google">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+                            Google Images
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex-1 w-full">
+                    <label className="block text-sm font-medium text-black dark:text-white mb-2">Search Images</label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Input
+                        placeholder="Search for images (e.g., business, technology, nature)..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleImageSearch()}
+                        className="flex-1 text-sm sm:text-base"
+                      />
+                      <Button
+                        onClick={handleImageSearch}
+                        disabled={isSearching}
+                        className="gap-2 w-full sm:w-auto min-h-[40px]"
+                      >
+                        {isSearching ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                            <span className="text-sm sm:text-base">Searching...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Search className="h-4 w-4" />
+                            <span className="text-sm sm:text-base">Search</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              {/* Search Results */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 max-h-64 sm:max-h-96 overflow-y-auto">
-                {searchResults.length > 0 ? (
-                  searchResults.map((image, i) => {
-                    const isSelected = postData.images.includes(image.url)
-                    return (
-                      <div key={image.id || i} className="relative group cursor-pointer">
-                        <img 
-                          src={image.url} 
-                          alt={image.alt || `Search result ${i + 1}`}
-                          className={`aspect-square rounded-lg object-cover border hover:scale-105 transition-transform duration-200 ${
-                            isSelected ? 'border-blue-500 ring-2 ring-blue-500' : 'border-blue-200 dark:border-blue-800'
-                          }`}
-                          onClick={() => handleImagePreview(image.url)}
-                          onError={(e) => {
-                            // Fallback to placeholder if image fails to load
-                            const target = e.target as HTMLImageElement
-                            target.src = `https://via.placeholder.com/400x400/666666/FFFFFF?text=${encodeURIComponent(searchQuery || 'Image')}`
-                          }}
-                        />
-                        {isSelected && (
-                          <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                            <div className="bg-blue-500 text-white rounded-full p-1">
-                              <Check className="w-3 h-3" />
-                            </div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <Button 
-                            size="sm" 
-                            className={`text-xs ${
-                              isSelected 
-                                ? 'bg-red-500 hover:bg-red-600' 
-                                : 'bg-blue-500 hover:bg-blue-600'
+
+                {/* Search Results */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 max-h-64 sm:max-h-96 overflow-y-auto">
+                  {searchResults.length > 0 ? (
+                    searchResults.map((image, i) => {
+                      const isSelected = postData.images.includes(image.url)
+                      return (
+                        <div key={image.id || i} className="relative group cursor-pointer">
+                          <img
+                            src={image.url || "/placeholder.svg"}
+                            alt={image.alt || `Search result ${i + 1}`}
+                            className={`aspect-square rounded-lg object-cover border hover:scale-105 transition-transform duration-200 ${
+                              isSelected
+                                ? "border-blue-500 ring-2 ring-blue-500"
+                                : "border-blue-200 dark:border-blue-800"
                             }`}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleImageSelect(image.url)
+                            onClick={() => handleImagePreview(image.url)}
+                            onError={(e) => {
+                              // Fallback to placeholder if image fails to load
+                              const target = e.target as HTMLImageElement
+                              target.src = `https://via.placeholder.com/400x400/666666/FFFFFF?text=${encodeURIComponent(searchQuery || "Image")}`
                             }}
-                          >
-                            {isSelected ? (
-                              <>
-                                <X className="h-3 w-3 mr-1" />
-                                Remove
-                              </>
-                            ) : (
-                              <>
-                                <Plus className="h-3 w-3 mr-1" />
-                                Add
-                              </>
-                            )}
-                          </Button>
+                          />
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                              <div className="bg-blue-500 text-white rounded-full p-1">
+                                <Check className="w-3 h-3" />
+                              </div>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                            <Button
+                              size="sm"
+                              className={`text-xs ${
+                                isSelected ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleImageSelect(image.url)
+                              }}
+                            >
+                              {isSelected ? (
+                                <>
+                                  <X className="h-3 w-3 mr-1" />
+                                  Remove
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className="h-3 w-3 mr-1" />
+                                  Add
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })
-                ) : (
-                  // Show different states based on search status
+                      )
+                    })
+                  ) : // Show different states based on search status
                   isSearching ? (
                     // Loading state
                     Array.from({ length: 20 }).map((_, i) => (
@@ -1886,11 +2014,13 @@ export default function CustomPostPage() {
                     // No results found state
                     <div className="col-span-3 sm:col-span-4 lg:col-span-5 flex flex-col items-center justify-center py-8 sm:py-12 text-center">
                       <ImageIcon className="h-12 w-12 sm:h-16 sm:w-16 text-gray-500 dark:text-gray-400 mb-3 sm:mb-4" />
-                      <h4 className="text-base sm:text-lg font-medium text-black dark:text-white mb-2">No images found</h4>
+                      <h4 className="text-base sm:text-lg font-medium text-black dark:text-white mb-2">
+                        No images found
+                      </h4>
                       <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
                         No images found for "{searchQuery}". Try a different search term or image source.
                       </p>
-                      <Button 
+                      <Button
                         onClick={() => setSearchQuery("")}
                         variant="outline"
                         className="gap-2 text-sm sm:text-base"
@@ -1914,22 +2044,20 @@ export default function CustomPostPage() {
                         </div>
                       </div>
                     ))
-                  )
-                )}
+                  )}
+                </div>
+
+                <div className="text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                  {searchResults.length > 0 ? (
+                    <span>
+                      <span className="font-medium capitalize">{imageSource}</span> • Free to use • High quality stock
+                      photos
+                    </span>
+                  ) : (
+                    <span>{isSearching ? "Searching..." : "Enter a search term to find images"}</span>
+                  )}
+                </div>
               </div>
-              
-              <div className="text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                {searchResults.length > 0 ? (
-                  <span>
-                    <span className="font-medium capitalize">{imageSource}</span> • Free to use • High quality stock photos
-                  </span>
-                ) : (
-                  <span>
-                    {isSearching ? "Searching..." : "Enter a search term to find images"}
-                  </span>
-                )}
-              </div>
-            </div>
             </motion.div>
           </motion.div>
         )}
@@ -1953,7 +2081,7 @@ export default function CustomPostPage() {
                 <DialogTitle className="flex items-center gap-2">
                   <motion.div
                     animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
                   >
                     <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </motion.div>
@@ -1964,107 +2092,119 @@ export default function CustomPostPage() {
                 </DialogDescription>
               </motion.div>
             </DialogHeader>
-          
-          <div className="space-y-6">
-            {/* Content Type Selection */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-black dark:text-white">Content Type</Label>
-              <Select value={aiContentType} onValueChange={(value: any) => setAiContentType(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="linkedin-post">LinkedIn Post</SelectItem>
-                  <SelectItem value="article">Article</SelectItem>
-                  <SelectItem value="story">Story</SelectItem>
-                  <SelectItem value="list">List</SelectItem>
-                  <SelectItem value="quote">Quote</SelectItem>
-                  <SelectItem value="tips">Tips</SelectItem>
-                  <SelectItem value="insights">Insights</SelectItem>
-                  <SelectItem value="question">Question</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
-            {/* Prompt Input */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-black dark:text-white">What would you like to write about?</Label>
-              <Textarea
-                placeholder="e.g., Share insights about remote work productivity, tips for new entrepreneurs, or discuss the latest trends in AI..."
-                value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
-                rows={4}
-                className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 bg-background text-foreground placeholder-muted-foreground"
-              />
-            </div>
+            <div className="space-y-6">
+              {/* Content Type Selection */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-black dark:text-white">Content Type</Label>
+                <Select value={aiContentType} onValueChange={(value: any) => setAiContentType(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="linkedin-post">LinkedIn Post</SelectItem>
+                    <SelectItem value="article">Article</SelectItem>
+                    <SelectItem value="story">Story</SelectItem>
+                    <SelectItem value="list">List</SelectItem>
+                    <SelectItem value="quote">Quote</SelectItem>
+                    <SelectItem value="tips">Tips</SelectItem>
+                    <SelectItem value="insights">Insights</SelectItem>
+                    <SelectItem value="question">Question</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Customization Options */}
-            <div className="space-y-4">
-              <Label className="text-sm font-medium text-black dark:text-white">Customization</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-xs text-gray-600 dark:text-gray-400">Tone</Label>
-                  <Select value={aiCustomization.tone} onValueChange={(value: "professional" | "casual" | "friendly" | "authoritative" | "conversational") => setAiCustomization(prev => ({ ...prev, tone: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                      <SelectItem value="friendly">Friendly</SelectItem>
-                      <SelectItem value="authoritative">Authoritative</SelectItem>
-                      <SelectItem value="conversational">Conversational</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label className="text-xs text-gray-600 dark:text-gray-400">Word Count</Label>
-                  <Select value={aiCustomization.wordCount.toString()} onValueChange={(value) => setAiCustomization(prev => ({ ...prev, wordCount: parseInt(value) }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="100">100 words</SelectItem>
-                      <SelectItem value="150">150 words</SelectItem>
-                      <SelectItem value="200">200 words</SelectItem>
-                      <SelectItem value="300">300 words</SelectItem>
-                      <SelectItem value="500">500 words</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {/* Prompt Input */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-black dark:text-white">
+                  What would you like to write about?
+                </Label>
+                <Textarea
+                  placeholder="e.g., Share insights about remote work productivity, tips for new entrepreneurs, or discuss the latest trends in AI..."
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  rows={4}
+                  className="border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 bg-background text-foreground placeholder-muted-foreground"
+                />
+              </div>
+
+              {/* Customization Options */}
+              <div className="space-y-4">
+                <Label className="text-sm font-medium text-black dark:text-white">Customization</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-gray-600 dark:text-gray-400">Tone</Label>
+                    <Select
+                      value={aiCustomization.tone}
+                      onValueChange={(
+                        value: "professional" | "casual" | "friendly" | "authoritative" | "conversational",
+                      ) => setAiCustomization((prev) => ({ ...prev, tone: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">Professional</SelectItem>
+                        <SelectItem value="casual">Casual</SelectItem>
+                        <SelectItem value="friendly">Friendly</SelectItem>
+                        <SelectItem value="authoritative">Authoritative</SelectItem>
+                        <SelectItem value="conversational">Conversational</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs text-gray-600 dark:text-gray-400">Word Count</Label>
+                    <Select
+                      value={aiCustomization.wordCount.toString()}
+                      onValueChange={(value) =>
+                        setAiCustomization((prev) => ({ ...prev, wordCount: Number.parseInt(value) }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="100">100 words</SelectItem>
+                        <SelectItem value="150">150 words</SelectItem>
+                        <SelectItem value="200">200 words</SelectItem>
+                        <SelectItem value="300">300 words</SelectItem>
+                        <SelectItem value="500">500 words</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowAIAssist(false)}
-                disabled={isGenerating}
-                className="border-blue-200 dark:border-blue-800 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-blue-950/50"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleAIGenerate}
-                disabled={!aiPrompt.trim() || isGenerating}
-                className="gap-2 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Generate Content
-                  </>
-                )}
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAIAssist(false)}
+                  disabled={isGenerating}
+                  className="border-blue-200 dark:border-blue-800 text-black dark:text-white hover:bg-blue-50 dark:hover:bg-blue-950/50"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAIGenerate}
+                  disabled={!aiPrompt.trim() || isGenerating}
+                  className="gap-2 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Generate Content
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
           </motion.div>
         </DialogContent>
       </Dialog>
@@ -2090,7 +2230,7 @@ export default function CustomPostPage() {
               <X className="w-4 h-4" />
             </Button>
             <img
-              src={previewImage}
+              src={previewImage || "/placeholder.svg"}
               alt="Preview"
               className="max-w-full max-h-full object-contain rounded-lg"
             />
