@@ -1,78 +1,47 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState } from "react"
+import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Loader2, 
-  Sparkles, 
-  X, 
-  Calendar, 
-  Save, 
-  Eye, 
-  Settings,
-  BookOpen,
-  Lightbulb,
-  Target,
-  TrendingUp,
-  Users,
-  Zap,
-  Heart,
-  Star,
-  ArrowRight,
-  RefreshCw,
-  Copy,
-  Share2,
-  MessageSquare,
-  BarChart3,
-  Globe,
-  Award,
-  Brain,
-  PenTool,
-  CheckCircle,
-  Trash2
-} from "lucide-react"
+import { Loader2, Sparkles, X, Eye, Settings, PenTool, CheckCircle, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { LinkedInPreview } from "@/components/linkedin-preview"
-import { LinkedInPostButton } from "@/components/linkedin-post-button"
-import { ScheduleButton } from "@/components/schedule-button"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
 import { useEffect } from "react"
 import { useSession } from "next-auth/react"
 
 // Predefined recommended topics
-const allRecommendedTopics = [
-  "The Future of Remote Work: Trends and Predictions",
-  "Building a Personal Brand on LinkedIn: A Complete Guide",
-  "AI in Marketing: How Technology is Changing the Game",
-  "Leadership Lessons from Successful Entrepreneurs",
-  "Digital Transformation: What Every Business Needs to Know",
-  "Mental Health in the Workplace: Creating Supportive Environments",
-  "Sustainable Business Practices: Going Green for Growth",
-  "The Rise of Freelancing: Building a Successful Gig Economy Career",
-  "Data-Driven Decision Making: Analytics for Business Success",
-  "Customer Experience: The Key to Business Growth",
-  "Innovation in Traditional Industries: Modernizing Old Business Models",
-  "Work-Life Balance: Strategies for the Modern Professional",
-  "Social Media Marketing: Best Practices for 2024",
-  "Cybersecurity for Small Businesses: Essential Protection Strategies",
-  "The Psychology of Sales: Understanding Customer Behavior",
-  "Team Building in Virtual Environments: Remote Collaboration Tips",
-  "Financial Planning for Entrepreneurs: Managing Business Finances",
-  "Content Marketing Strategies: Creating Engaging Brand Stories",
-  "Diversity and Inclusion: Building Better Workplaces",
-  "E-commerce Trends: The Future of Online Shopping",
-  "Productivity Hacks: Maximizing Efficiency in the Digital Age",
-  "Startup Funding: Navigating the Investment Landscape",
-  "Customer Retention: Building Long-Term Business Relationships",
-  "Technology Adoption: Embracing Change in the Workplace",
-  "Personal Development: Skills Every Professional Should Master"
-]
+// const allRecommendedTopics = [
+//   "The Future of Remote Work: Trends and Predictions",
+//   "Building a Personal Brand on LinkedIn: A Complete Guide",
+//   "AI in Marketing: How Technology is Changing the Game",
+//   "Leadership Lessons from Successful Entrepreneurs",
+//   "Digital Transformation: What Every Business Needs to Know",
+//   "Mental Health in the Workplace: Creating Supportive Environments",
+//   "Sustainable Business Practices: Going Green for Growth",
+//   "The Rise of Freelancing: Building a Successful Gig Economy Career",
+//   "Data-Driven Decision Making: Analytics for Business Success",
+//   "Customer Experience: The Key to Business Growth",
+//   "Innovation in Traditional Industries: Modernizing Old Business Models",
+//   "Work-Life Balance: Strategies for the Modern Professional",
+//   "Social Media Marketing: Best Practices for 2024",
+//   "Cybersecurity for Small Businesses: Essential Protection Strategies",
+//   "The Psychology of Sales: Understanding Customer Behavior",
+//   "Team Building in Virtual Environments: Remote Collaboration Tips",
+//   "Financial Planning for Entrepreneurs: Managing Business Finances",
+//   "Content Marketing Strategies: Creating Engaging Brand Stories",
+//   "Diversity and Inclusion: Building Better Workplaces",
+//   "E-commerce Trends: The Future of Online Shopping",
+//   "Productivity Hacks: Maximizing Efficiency in the Digital Age",
+//   "Startup Funding: Navigating the Investment Landscape",
+//   "Customer Retention: Building Long-Term Business Relationships",
+//   "Technology Adoption: Embracing Change in the Workplace",
+//   "Personal Development: Skills Every Professional Should Master",
+// ]
 
 interface Topic {
   id: string
@@ -83,6 +52,7 @@ interface Topic {
   content?: string | string[]
   status: "generated" | "content-ready" | "expanded"
   isPersonalized?: boolean
+  storyTopicId?: string // Store original ID for story-content API
 }
 
 export default function AIArticlesPage() {
@@ -99,7 +69,7 @@ export default function AIArticlesPage() {
   const [showCustomization, setShowCustomization] = useState<string | null>(null)
   const [showTopicGenerator, setShowTopicGenerator] = useState(true)
   const [provider, setProvider] = useState<"openai" | "perplexity">("openai")
-  const [recommendedTopics, setRecommendedTopics] = useState<Topic[]>([])
+  // const [recommendedTopics, setRecommendedTopics] = useState<Topic[]>([])
   const [personalizedTopics, setPersonalizedTopics] = useState<Topic[]>([])
   const [allPersonalizedTopics, setAllPersonalizedTopics] = useState<Topic[]>([]) // Store all 20 topics
   const [hasPersonalStory, setHasPersonalStory] = useState(false)
@@ -107,6 +77,14 @@ export default function AIArticlesPage() {
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
   const [hasGeneratedTopics, setHasGeneratedTopics] = useState(false)
   const [approvedTopics, setApprovedTopics] = useState<any[]>([])
+
+  // State for managing content generation for individual topics
+  const [isGeneratingContent, setIsGeneratingContent] = useState<{ [key: string]: boolean }>({})
+  const [generatedContents, setGeneratedContents] = useState<{ topicId: string; content: string }[]>([])
+  const [showContentModal, setShowContentModal] = useState(false)
+  const [selectedContent, setSelectedContent] = useState<string | null>(null)
+
+  const [isFirstLoad, setIsFirstLoad] = useState(true)
 
   const [customization, setCustomization] = useState<CustomizationOptions>({
     tone: "professional",
@@ -123,21 +101,21 @@ export default function AIArticlesPage() {
   const { toast } = useToast()
 
   // Function to shuffle and select 10 random recommended topics
-  const generateRandomRecommendedTopics = () => {
-    const shuffled = [...allRecommendedTopics].sort(() => Math.random() - 0.5)
-    const selected = shuffled.slice(0, 10).map((title, index) => ({
-      id: `recommended-${Date.now()}-${index}`,
-      title,
-      viralChance: Math.floor(Math.random() * 40) + 60, // 60-100%
-      niche: "Recommended",
-      status: "generated" as const,
-      isPersonalized: false
-    }))
-    setRecommendedTopics(selected)
-  }
+  // const generateRandomRecommendedTopics = () => {
+  //   const shuffled = [...allRecommendedTopics].sort(() => Math.random() - 0.5)
+  //   const selected = shuffled.slice(0, 10).map((title, index) => ({
+  //     id: `recommended-${Date.now()}-${index}`,
+  //     title,
+  //     viralChance: Math.floor(Math.random() * 40) + 60, // 60-100%
+  //     niche: "Recommended",
+  //     status: "generated" as const,
+  //     isPersonalized: false,
+  //   }))
+  //   setRecommendedTopics(selected)
+  // }
 
-  // Function to shuffle and select 6 topics from all personalized topics
-  const shuffleAndSelectTopics = (allTopics: Topic[], count: number = 6) => {
+  // Function to shuffle and select topics from all personalized topics
+  const shuffleAndSelectTopics = (allTopics: Topic[], count = 6) => {
     const shuffled = [...allTopics].sort(() => Math.random() - 0.5)
     return shuffled.slice(0, count)
   }
@@ -146,53 +124,40 @@ export default function AIArticlesPage() {
   const fetchPersonalizedTopics = async () => {
     try {
       setIsRefreshingTopics(true)
-      
-      // First check if user has personal story data
-      const storyResponse = await fetch('/api/personal-story/answers')
-      if (!storyResponse.ok) {
-        setHasPersonalStory(false)
-        setPersonalizedTopics([])
-        setAllPersonalizedTopics([])
-        return
-      }
-      
-      const storyData = await storyResponse.json()
-      if (!storyData.answers || Object.values(storyData.answers).every(value => !value || (typeof value === 'string' && value.trim() === ''))) {
-        setHasPersonalStory(false)
-        setPersonalizedTopics([])
-        setAllPersonalizedTopics([])
-        return
-      }
-      
-      // Generate fresh topics from personal story
-      const response = await fetch('/api/story-topics', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'generate'
-        })
+      console.log("Fetching personalized topics from story...")
+
+      const response = await fetch("/api/story-topics", {
+        method: "GET",
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.topics) {
           // Convert story topics to the format expected by the UI
           const formattedTopics = data.topics.map((topic: any) => ({
             id: topic._id || topic.id,
+            storyTopicId: topic._id || topic.id, // Store original ID for story-content API
             title: topic.topicText,
             viralChance: Math.floor(Math.random() * 30) + 70, // 70-100% for story-based topics
             niche: "Personal Story",
             status: "generated" as const,
-            isPersonalized: true
+            isPersonalized: true,
           }))
-          
+
           // Store all topics
           setAllPersonalizedTopics(formattedTopics)
           // Shuffle and select 6 topics for display
           const shuffledTopics = shuffleAndSelectTopics(formattedTopics, 6)
           setPersonalizedTopics(shuffledTopics)
           setHasPersonalStory(true)
-          
+
+          if (isFirstLoad && formattedTopics.length > 0) {
+            toast({
+              title: "Topics Ready!",
+              description: `${formattedTopics.length} personalized topics generated from your story`,
+            })
+            setIsFirstLoad(false)
+          }
         } else {
           setHasPersonalStory(false)
           setPersonalizedTopics([])
@@ -204,7 +169,7 @@ export default function AIArticlesPage() {
         setAllPersonalizedTopics([])
       }
     } catch (error) {
-      console.error('Error fetching personalized topics:', error)
+      console.error("Error fetching personalized topics:", error)
       setHasPersonalStory(false)
       setPersonalizedTopics([])
       setAllPersonalizedTopics([])
@@ -212,57 +177,6 @@ export default function AIArticlesPage() {
       setIsRefreshingTopics(false)
     }
   }
-
-  // Function to check personal story completion status
-  const checkPersonalStoryStatus = async () => {
-    try {
-      // Check if user has personal story data
-      const response = await fetch('/api/personal-story/answers')
-      
-      if (response.ok) {
-        const data = await response.json()
-        const newHasPersonalStory = data.answers && Object.values(data.answers).some(value => value && (typeof value === 'string' && value.trim() !== ''))
-        
-        // If personal story status changed, update topics
-        if (newHasPersonalStory !== hasPersonalStory) {
-          if (newHasPersonalStory) {
-            await fetchPersonalizedTopics()
-          } else {
-            setHasPersonalStory(false)
-            setPersonalizedTopics([])
-            setAllPersonalizedTopics([])
-            generateRandomRecommendedTopics()
-          }
-        } else {
-          console.log("Personal story status unchanged")
-        }
-      } else {
-        console.error("Status check failed:", response.status)
-        setHasPersonalStory(false)
-        setPersonalizedTopics([])
-        setAllPersonalizedTopics([])
-        generateRandomRecommendedTopics()
-      }
-    } catch (error) {
-      console.error("Error checking personal story status:", error)
-      setHasPersonalStory(false)
-      setPersonalizedTopics([])
-      setAllPersonalizedTopics([])
-      generateRandomRecommendedTopics()
-    }
-  }
-
-  // Force refresh personalized topics (can be called externally)
-  const forceRefreshPersonalizedTopics = useCallback(async () => {
-    console.log("Force refreshing personalized topics...")
-    await checkPersonalStoryStatus()
-  }, [])
-
-  // Function to check when tab becomes active
-  const handleTabActivation = useCallback(async () => {
-    console.log("Topic Generator tab activated, checking personal story...")
-    await checkPersonalStoryStatus()
-  }, [])
 
   // Function to shuffle and display new set of 6 topics
   const handleShuffleTopics = () => {
@@ -277,53 +191,46 @@ export default function AIArticlesPage() {
     }
   }
 
-  // Function to regenerate topics completely
   const handleRegenerateTopics = async () => {
     try {
       setIsRefreshingTopics(true)
       console.log("Regenerating personalized topics...")
-      
-      // Call new story-topics API to force regeneration
-      const response = await fetch('/api/story-topics', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+
+      const response = await fetch("/api/story-topics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'regenerate'
-        })
+          action: "regenerate",
+        }),
       })
-      
+
       if (response.ok) {
         const data = await response.json()
-        if (data.success && data.topics) {
-          // Convert story topics to the format expected by the UI
-          const formattedTopics = data.topics.map((topic: any) => ({
-            id: topic._id || topic.id,
-            title: topic.topicText,
-            viralChance: Math.floor(Math.random() * 30) + 70, // 70-100% for story-based topics
-            niche: "Personal Story",
-            status: "generated" as const,
-            isPersonalized: true
-          }))
-          
-          setAllPersonalizedTopics(formattedTopics)
-          const shuffledTopics = shuffleAndSelectTopics(formattedTopics, 6)
-          setPersonalizedTopics(shuffledTopics)
-          setHasPersonalStory(true)
-          
-          toast({
-            title: "Topics Regenerated!",
-            description: "Generated fresh topics from your personal story.",
-          })
-        }
+        const newTopics = data.topics.map((topic: any) => ({
+          id: topic._id || topic.id,
+          title: topic.topicText || topic.title,
+          viralChance: Math.floor(Math.random() * 30) + 70,
+          niche: "Personal Story",
+          status: "generated" as const,
+          isPersonalized: true,
+          storyTopicId: topic._id || topic.id,
+        }))
+
+        setAllPersonalizedTopics(newTopics)
+        setPersonalizedTopics(newTopics) // Directly set personalizedTopics to newTopics
+        setHasPersonalStory(true)
+
+        toast({
+          title: "Topics Regenerated",
+          description: `${newTopics.length} new topics generated from your personal story`,
+        })
       } else {
-        throw new Error('Failed to regenerate topics')
+        throw new Error("Failed to regenerate topics")
       }
     } catch (error) {
       console.error("Error regenerating topics:", error)
       toast({
-        title: "Regeneration Failed",
+        title: "Error",
         description: "Failed to regenerate topics. Please try again.",
         variant: "destructive",
       })
@@ -332,111 +239,27 @@ export default function AIArticlesPage() {
     }
   }
 
-  // Expose the function globally for external calls
-  useEffect(() => {
-    // @ts-ignore - Global function exposure for external components
-    (window as any).refreshPersonalizedTopics = forceRefreshPersonalizedTopics
-    // @ts-ignore - Global function exposure for external components
-    (window as any).checkTopicGeneratorTab = handleTabActivation
-    return () => {
-      delete (window as any).refreshPersonalizedTopics
-      delete (window as any).checkTopicGeneratorTab
-    }
-  }, [])
-
-  // Initialize recommended topics and fetch approved topics on component mount
   useEffect(() => {
     console.log("=== TOPIC GENERATOR INITIALIZED ===")
-    // First try to fetch personalized topics
+    // Fetch personalized topics only on initial load
     fetchPersonalizedTopics()
-    
+
     // Fetch approved topics from story system
     const fetchApprovedTopics = async () => {
       try {
-        const response = await fetch('/api/approved-topics')
+        const response = await fetch("/api/approved-topics")
         if (response.ok) {
           const data = await response.json()
           setApprovedTopics(data.approvedTopics || [])
           console.log("Fetched approved topics:", data.approvedTopics?.length || 0)
         }
       } catch (error) {
-        console.error('Error fetching approved topics:', error)
+        console.error("Error fetching approved topics:", error)
       }
     }
 
     fetchApprovedTopics()
-  }, [])
-
-  // Check immediately when component becomes visible
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        // Page became visible, checking personal story status
-        checkPersonalStoryStatus()
-      }
-    }
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [])
-
-  // Generate random recommended topics only if no personal story
-  useEffect(() => {
-    if (!hasPersonalStory) {
-      generateRandomRecommendedTopics()
-    }
-  }, [hasPersonalStory])
-
-  // Periodic check for personal story completion
-  useEffect(() => {
-    const interval = setInterval(() => {
-      checkPersonalStoryStatus()
-    }, 10000) // Check every 10 seconds to reduce API calls
-
-    return () => clearInterval(interval)
-  }, [hasPersonalStory])
-
-  // More frequent check when user is active
-  useEffect(() => {
-    let activeInterval: NodeJS.Timeout
-    
-    const startActiveCheck = () => {
-      activeInterval = setInterval(() => {
-        checkPersonalStoryStatus()
-      }, 5000) // Check every 5 seconds when active (reduced from 1 second)
-    }
-    
-    const stopActiveCheck = () => {
-      if (activeInterval) {
-        clearInterval(activeInterval)
-      }
-    }
-
-    // Start active checking when user interacts
-    const handleUserActivity = () => {
-      // User activity detected, starting active check
-      stopActiveCheck()
-      startActiveCheck()
-      
-      // Stop after 30 seconds of inactivity (increased from 15 seconds)
-      setTimeout(stopActiveCheck, 30000)
-    }
-
-    document.addEventListener('mousemove', handleUserActivity)
-    document.addEventListener('keypress', handleUserActivity)
-    document.addEventListener('click', handleUserActivity)
-    document.addEventListener('scroll', handleUserActivity)
-
-    return () => {
-      stopActiveCheck()
-      document.removeEventListener('mousemove', handleUserActivity)
-      document.removeEventListener('keypress', handleUserActivity)
-      document.removeEventListener('click', handleUserActivity)
-      document.removeEventListener('scroll', handleUserActivity)
-    }
-  }, [hasPersonalStory])
-
-  // Removed redundant visibility change effect to reduce API calls
+  }, []) // Empty dependency array - runs only once on mount
 
   // Function to discard all approved topics
   const handleDiscardAllApprovedTopics = async () => {
@@ -444,27 +267,27 @@ export default function AIArticlesPage() {
 
     try {
       // Delete all approved topics from database
-      const deletePromises = approvedTopics.map(topic => 
-        fetch('/api/approved-topics', {
-          method: 'DELETE',
+      const deletePromises = approvedTopics.map((topic) =>
+        fetch("/api/approved-topics", {
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ topicId: topic._id }),
-        })
+        }),
       )
 
       await Promise.all(deletePromises)
-      
+
       // Clear the local state
       setApprovedTopics([])
-      
+
       toast({
         title: "All approved topics discarded",
         description: "All approved topics have been removed from your collection.",
       })
     } catch (error) {
-      console.error('Error discarding approved topics:', error)
+      console.error("Error discarding approved topics:", error)
       toast({
         title: "Error",
         description: "Failed to discard approved topics. Please try again.",
@@ -477,32 +300,32 @@ export default function AIArticlesPage() {
   const handleDiscardApprovedTopic = async (topicId: string, topicTitle: string) => {
     try {
       console.log("Discarding topic - ID:", topicId, "Title:", topicTitle)
-      
-      const response = await fetch('/api/approved-topics', {
-        method: 'DELETE',
+
+      const response = await fetch("/api/approved-topics", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ topicId }),
       })
-      
+
       console.log("Delete response status:", response.status)
       const responseData = await response.json()
       console.log("Delete response data:", responseData)
 
       if (response.ok) {
         // Remove from local state
-        setApprovedTopics(prev => prev.filter(topic => topic._id !== topicId))
-        
+        setApprovedTopics((prev) => prev.filter((topic) => topic._id !== topicId))
+
         toast({
           title: "Topic discarded",
           description: `"${topicTitle}" has been removed from your approved topics.`,
         })
       } else {
-        throw new Error('Failed to delete topic')
+        throw new Error("Failed to delete topic")
       }
     } catch (error) {
-      console.error('Error discarding approved topic:', error)
+      console.error("Error discarding approved topic:", error)
       toast({
         title: "Error",
         description: "Failed to discard topic. Please try again.",
@@ -524,22 +347,14 @@ export default function AIArticlesPage() {
 
   // Function to update topic content
   const updateTopicContent = (topicId: string, newContent: string) => {
-    setTopics(prevTopics => 
-      prevTopics.map(topic => 
-        topic.id === topicId 
-          ? { ...topic, content: newContent }
-          : topic
-      )
+    setTopics((prevTopics) =>
+      prevTopics.map((topic) => (topic.id === topicId ? { ...topic, content: newContent } : topic)),
     )
-    
+
     // Also update recommended topics if needed
-    setRecommendedTopics(prevTopics => 
-      prevTopics.map(topic => 
-        topic.id === topicId 
-          ? { ...topic, content: newContent }
-          : topic
-      )
-    )
+    // setRecommendedTopics((prevTopics) =>
+    //   prevTopics.map((topic) => (topic.id === topicId ? { ...topic, content: newContent } : topic)),
+    // )
   }
 
   const generateTopics = async () => {
@@ -590,8 +405,8 @@ export default function AIArticlesPage() {
             maxTokens: customization.maxTokens,
             niche: topicPrompt.trim(),
             contentType: contentType,
-            topicCount: 3 // Explicitly request 3 topics
-          }
+            topicCount: 3, // Explicitly request 3 topics
+          },
         }),
       })
 
@@ -600,7 +415,7 @@ export default function AIArticlesPage() {
         try {
           const responseText = await response.text()
           console.log("Raw error response:", responseText)
-          
+
           if (responseText) {
             try {
               errorData = JSON.parse(responseText)
@@ -615,18 +430,22 @@ export default function AIArticlesPage() {
           console.error("Failed to parse error response:", parseError)
           errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
         }
-        
+
         console.error("Topic generation failed:", errorData)
-        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        const errorMessage =
+          errorData?.error ||
+          errorData?.message ||
+          errorData?.details ||
+          `HTTP ${response.status}: ${response.statusText}`
         throw new Error(`Topic generation failed: ${errorMessage}`)
       }
 
       const data = await response.json()
       console.log("API Response:", data) // Debug log
-      
+
       // Handle different response structures
       let topicsArray = []
-      if (Array.isArray(data.data?.content)) {
+      if (data.data && Array.isArray(data.data.content)) {
         topicsArray = data.data.content
       } else if (Array.isArray(data.content)) {
         topicsArray = data.content
@@ -635,22 +454,23 @@ export default function AIArticlesPage() {
       } else if (Array.isArray(data)) {
         topicsArray = data
       }
-      
+
       console.log("Topics Array:", topicsArray) // Debug log
-      
-      // Ensure we have exactly 3 topics
-      if (topicsArray.length < 3) {
-        // If we have fewer than 3 topics, create additional unique topics
+
+      // Ensure we have exactly 4 topics
+      if (topicsArray.length < 4) {
+        // If we have fewer than 4 topics, create additional unique topics
         const baseTopic = topicPrompt.trim()
         const additionalTopics = [
           `${baseTopic}: Key Strategies and Best Practices`,
           `${baseTopic}: Future Trends and Predictions`,
-          `${baseTopic}: Common Challenges and Solutions`
+          `${baseTopic}: Common Challenges and Solutions`,
+          `${baseTopic}: Expert Insights and Advice`, // Added one more for variety
         ]
-        
-        // Add unique additional topics until we have 3
+
+        // Add unique additional topics until we have 4
         let additionalIndex = 0
-        while (topicsArray.length < 3 && additionalIndex < additionalTopics.length) {
+        while (topicsArray.length < 4 && additionalIndex < additionalTopics.length) {
           const newTopic = additionalTopics[additionalIndex]
           if (!topicsArray.includes(newTopic)) {
             topicsArray.push(newTopic)
@@ -658,24 +478,25 @@ export default function AIArticlesPage() {
           additionalIndex++
         }
       }
-      
+
       // If still no topics, create fallback topics
       if (topicsArray.length === 0) {
         const baseTopic = topicPrompt.trim()
         topicsArray = [
           `${baseTopic}: Key Strategies and Best Practices`,
           `${baseTopic}: Future Trends and Predictions`,
-          `${baseTopic}: Common Challenges and Solutions`
+          `${baseTopic}: Common Challenges and Solutions`,
+          `${baseTopic}: Expert Insights and Advice`,
         ]
       }
-      
-      const generatedTopics: Topic[] = topicsArray.slice(0, 3).map((title: string, index: number) => ({
-            id: `topic-${Date.now()}-${index}`,
-            title,
-            viralChance: Math.floor(Math.random() * 40) + 60, // 60-100%
+
+      const generatedTopics: Topic[] = topicsArray.slice(0, 4).map((title: string, index: number) => ({
+        id: `topic-${Date.now()}-${index}`,
+        title,
+        viralChance: Math.floor(Math.random() * 40) + 60, // 60-100%
         niche: topicPrompt.trim(),
-            status: "generated" as const,
-          }))
+        status: "generated" as const,
+      }))
 
       setTopics(generatedTopics)
       setShowTopicGenerator(false) // Hide the topic generator section
@@ -703,12 +524,12 @@ export default function AIArticlesPage() {
 
     try {
       console.log("Generating content for approved topic:", topicTitle)
-      
+
       const creditResponse = await fetch("/api/billing/credits")
       if (creditResponse.ok) {
         const creditData = await creditResponse.json()
         console.log("Credit data:", creditData)
-        
+
         // Use the same credit check logic as the regular generateContent function
         if (!creditData.isTrialActive && creditData.credits < 0.3) {
           toast({
@@ -738,9 +559,9 @@ export default function AIArticlesPage() {
             return "linkedin-post"
         }
       }
-      
+
       const validContentType = getValidContentType(contentType)
-      
+
       // Create highly varied, topic-specific prompts for maximum uniqueness
       const timestamp = Date.now()
       const randomSeed = Math.random().toString(36).substring(7)
@@ -752,23 +573,23 @@ export default function AIArticlesPage() {
         "Tell a story that illustrates key concepts",
         "Provide data-driven insights and statistics",
         "Share lessons learned from real-world scenarios",
-        "Discuss best practices and expert advice"
+        "Discuss best practices and expert advice",
       ]
-      
+
       const randomStrategy = variationStrategies[Math.floor(Math.random() * variationStrategies.length)]
       const contentAngles = [
         "from a beginner's perspective",
-        "from an expert's viewpoint", 
+        "from an expert's viewpoint",
         "with real-world examples",
         "focusing on common mistakes",
         "highlighting success stories",
         "with actionable takeaways",
         "using industry insights",
-        "with personal anecdotes"
+        "with personal anecdotes",
       ]
-      
+
       const randomAngle = contentAngles[Math.floor(Math.random() * contentAngles.length)]
-      
+
       const enhancedPrompt = `Create a medium-length, professional LinkedIn post about: ${topicTitle}
 
 Approach: ${randomStrategy} ${randomAngle}
@@ -795,20 +616,20 @@ FORMATTING RULES:
 Context ID: ${timestamp}-${randomSeed}
 Variation #${contentVariationCounter + 1}
 Create medium-length, professional content with actionable insights.`
-      
+
       // Use more professional tones for better content
       const tones = ["professional", "authoritative", "direct", "insightful"]
       const randomTone = tones[Math.floor(Math.random() * tones.length)]
-      
+
       // Enhance customization for maximum variety and topic-specific content
       const enhancedCustomization = {
         ...customization,
         temperature: 0.9, // High temperature for creativity (reduced from 1.3)
-        randomness: 80,   // Good randomness for variety
-        humanLike: false,  // More professional, less human-like
+        randomness: 80, // Good randomness for variety
+        humanLike: false, // More professional, less human-like
         personalTouch: false, // Less personal touch for professional tone
-        storytelling: false,  // Less storytelling for concise content
-        emotionalDepth: 40,  // Lower emotional depth for professional tone
+        storytelling: false, // Less storytelling for concise content
+        emotionalDepth: 40, // Lower emotional depth for professional tone
         conversationalStyle: false, // Less conversational for professional tone
         wordCount: 180, // Medium-length content (not too short, not too long)
         mainGoal: "engagement", // Focus on engagement
@@ -819,19 +640,19 @@ Create medium-length, professional content with actionable insights.`
         niche: topicTitle, // Use topic as niche for better relevance
         includeHashtags: true,
         includeEmojis: true, // Minimal icons (1-2) where relevant
-        callToAction: false // No call to action for clean professional posts
+        callToAction: false, // No call to action for clean professional posts
       }
-      
+
       console.log("Sending content generation request...")
       console.log("Request payload:", {
         type: validContentType,
         prompt: enhancedPrompt,
         provider,
-        customization: enhancedCustomization
+        customization: enhancedCustomization,
       })
       console.log("Enhanced prompt:", enhancedPrompt)
       console.log("Enhanced customization:", enhancedCustomization)
-      
+
       const response = await fetch("/api/ai/generate-topic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -845,13 +666,13 @@ Create medium-length, professional content with actionable insights.`
       })
 
       console.log("Content generation response status:", response.status)
-      
+
       if (!response.ok) {
         let errorData: any = {}
         try {
           const responseText = await response.text()
           console.log("Raw error response:", responseText)
-          
+
           if (responseText) {
             try {
               errorData = JSON.parse(responseText)
@@ -866,15 +687,19 @@ Create medium-length, professional content with actionable insights.`
           console.error("Failed to parse error response:", parseError)
           errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
         }
-        
+
         console.error("Content generation failed:", errorData)
-        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        const errorMessage =
+          errorData?.error ||
+          errorData?.message ||
+          errorData?.details ||
+          `HTTP ${response.status}: ${response.statusText}`
         throw new Error(`Content generation failed: ${errorMessage}`)
       }
 
       const data = await response.json()
       console.log("Content generation response data:", data)
-      
+
       // Better content extraction logic
       let content = ""
       if (data.data) {
@@ -892,34 +717,34 @@ Create medium-length, professional content with actionable insights.`
       } else if (data.text) {
         content = data.text
       }
-      
+
       console.log("Extracted content:", content)
       console.log("Content length:", content.length)
-      
+
       // Clean unwanted content endings
       if (content) {
         content = content
-          .replace(/\n*Join the conversation\.?\s*/gi, '')
-          .replace(/\n*\[End of story\]\s*/gi, '')
-          .replace(/\n*P\.S\.\s*.*$/gi, '')
-          .replace(/\n*Join the discussion\.?\s*/gi, '')
-          .replace(/\n*What are your thoughts\?.*$/gi, '')
-          .replace(/\n*Let me know your thoughts.*$/gi, '')
-          .replace(/\n*Share your experience.*$/gi, '')
-          .replace(/\n*Thank you for reading!.*$/gi, '')
-          .replace(/\n*If you've experienced something similar.*$/gi, '')
-          .replace(/\n*I'd love to hear it in the comments.*$/gi, '')
-          .replace(/\n*I'd love to hear your thoughts.*$/gi, '')
-          .replace(/\n*Feel free to share your experience.*$/gi, '')
-          .replace(/\n*What's your take on this\?.*$/gi, '')
-          .replace(/\n*Drop your thoughts below.*$/gi, '')
-          .replace(/\n*Let's discuss in the comments.*$/gi, '')
-          .replace(/\n*Share your story below.*$/gi, '')
-          .replace(/\n*I'd love to hear from you.*$/gi, '')
-          .replace(/\n*What do you think\?.*$/gi, '')
-          .replace(/\n*Your thoughts\?.*$/gi, '')
+          .replace(/\n*Join the conversation\.?\s*/gi, "")
+          .replace(/\n*\[End of story\]\s*/gi, "")
+          .replace(/\n*P\.S\.\s*.*$/gi, "")
+          .replace(/\n*Join the discussion\.?\s*/gi, "")
+          .replace(/\n*What do you think\?.*$/gi, "")
+          .replace(/\n*Let me know your thoughts.*$/gi, "")
+          .replace(/\n*Share your experience.*$/gi, "")
+          .replace(/\n*Thank you for reading!.*$/gi, "")
+          .replace(/\n*If you've experienced something similar.*$/gi, "")
+          .replace(/\n*I'd love to hear it in the comments.*$/gi, "")
+          .replace(/\n*I'd love to hear your thoughts.*$/gi, "")
+          .replace(/\n*Feel free to share your experience.*$/gi, "")
+          .replace(/\n*What's your take on this\?.*$/gi, "")
+          .replace(/\n*Drop your thoughts below.*$/gi, "")
+          .replace(/\n*Let's discuss in the comments.*$/gi, "")
+          .replace(/\n*Share your story below.*$/gi, "")
+          .replace(/\n*I'd love to hear from you.*$/gi, "")
+          .replace(/\n*What do you think\?.*$/gi, "")
+          .replace(/\n*Your thoughts\?.*$/gi, "")
           .trim()
-        
+
         console.log("Cleaned content:", content)
       }
 
@@ -946,11 +771,11 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
           content: fallbackContent,
           viralChance: 75,
           niche: "Approved Topic",
-          status: "generated"
+          status: "generated",
         }
 
         // Add to topics list
-        setTopics(prev => [approvedTopic, ...prev])
+        setTopics((prev) => [approvedTopic, ...prev])
         setSelectedTopicId(topicId)
         setPreviewContent(fallbackContent)
         setPreviewingTopicId(topicId)
@@ -969,29 +794,26 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
         content: content,
         viralChance: 75,
         niche: "Approved Topic",
-        status: "generated"
+        status: "generated",
       }
 
       // Add to topics list
-      setTopics(prev => [approvedTopic, ...prev])
+      setTopics((prev) => [approvedTopic, ...prev])
       setSelectedTopicId(topicId)
       setPreviewContent(content)
       setPreviewingTopicId(topicId)
 
-      // Increment variation counter for next generation
-      setContentVariationCounter(prev => prev + 1)
-      
       toast({
         title: "Content Generated!",
         description: "Your unique content has been generated successfully.",
       })
     } catch (error) {
       console.error("Error generating content for approved topic:", error)
-      
+
       // Create fallback content even if there's an error
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
       console.log("Creating fallback content due to error:", errorMessage)
-      
+
       // Show user-friendly error message
       toast({
         title: "Content Generation Failed",
@@ -1018,11 +840,11 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
         content: fallbackContent,
         viralChance: 75,
         niche: "Approved Topic",
-        status: "generated"
+        status: "generated",
       }
 
       // Add to topics list
-      setTopics(prev => [approvedTopic, ...prev])
+      setTopics((prev) => [approvedTopic, ...prev])
       setSelectedTopicId(topicId)
       setPreviewContent(fallbackContent)
       setPreviewingTopicId(topicId)
@@ -1075,8 +897,8 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
             maxTokens: customization.maxTokens,
             format: contentType,
             niche: topic.niche,
-            variations: 4 // Generate 4 variations
-          }
+            variations: 4, // Generate 4 variations
+          },
         }),
       })
 
@@ -1085,7 +907,7 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
         try {
           const responseText = await response.text()
           console.log("Raw error response:", responseText)
-          
+
           if (responseText) {
             try {
               errorData = JSON.parse(responseText)
@@ -1100,9 +922,13 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
           console.error("Failed to parse error response:", parseError)
           errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
         }
-        
+
         console.error("Content generation failed:", errorData)
-        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        const errorMessage =
+          errorData?.error ||
+          errorData?.message ||
+          errorData?.details ||
+          `HTTP ${response.status}: ${response.statusText}`
         throw new Error(`Content generation failed: ${errorMessage}`)
       }
 
@@ -1110,25 +936,25 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
       const content = Array.isArray(data.data.content) ? data.data.content : [data.data.content]
 
       // Update topics (both regular and recommended)
-      setTopics(prev => prev.map(t => 
-        t.id === topic.id 
-          ? { ...t, content: content, format: contentType, status: "content-ready" as const }
-          : t
-      ))
-      
+      setTopics((prev) =>
+        prev.map((t) =>
+          t.id === topic.id ? { ...t, content: content, format: contentType, status: "content-ready" as const } : t,
+        ),
+      )
+
       // Also update recommended topics if this is a recommended topic
-      setRecommendedTopics(prev => prev.map(t => 
-        t.id === topic.id 
-          ? { ...t, content: content, format: contentType, status: "content-ready" as const }
-          : t
-      ))
-      
+      // setRecommendedTopics((prev) =>
+      //   prev.map((t) =>
+      //     t.id === topic.id ? { ...t, content: content, format: contentType, status: "content-ready" as const } : t,
+      //   ),
+      // )
+
       // Also update personalized topics if this is a personalized topic
-      setPersonalizedTopics(prev => prev.map(t => 
-        t.id === topic.id 
-          ? { ...t, content: content, format: contentType, status: "content-ready" as const }
-          : t
-      ))
+      setPersonalizedTopics((prev) =>
+        prev.map((t) =>
+          t.id === topic.id ? { ...t, content: content, format: contentType, status: "content-ready" as const } : t,
+        ),
+      )
 
       // Set the selected topic and hide others
       setSelectedTopicId(topic.id)
@@ -1151,9 +977,9 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
 
   // Direct generation for recommended topics (bypasses customization)
   const generateRecommendedTopicContent = async (topic: Topic) => {
+    // Changed to accept Topic object
     console.log("Starting content generation for topic:", topic)
-    console.log("Current topic status:", topic.status)
-    setIsGenerating(true)
+    setIsGeneratingContent((prev) => ({ ...prev, [topic.id]: true })) // Set generating state for this topic
 
     try {
       const creditResponse = await fetch("/api/billing/credits")
@@ -1168,8 +994,58 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
           window.location.href = "/dashboard/billing"
           return
         }
+      } else {
+        console.error("Failed to fetch credit data")
       }
 
+      if (topic.isPersonalized && topic.storyTopicId) {
+        console.log("[v0] Found personalized topic, using story-content API")
+        console.log("[v0] Story Topic ID:", topic.storyTopicId)
+
+        const response = await fetch("/api/story-content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topicId: topic.storyTopicId,
+            contentType: "linkedin-post",
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error("Story content generation failed:", errorData)
+          throw new Error(errorData.error || "Failed to generate content from personal story")
+        }
+
+        const data = await response.json()
+        console.log("[v0] Story content generation response:", data)
+
+        if (data.success && data.content) {
+          // Format the content as an array for consistency
+          const contentArray = [data.content.content]
+
+          // Update personalized topics
+          setPersonalizedTopics((prev) =>
+            prev.map((t) =>
+              t.id === topic.id
+                ? { ...t, content: contentArray, format: "linkedin-post", status: "content-ready" as const }
+                : t,
+            ),
+          )
+          // Store generated content
+          setGeneratedContents((prev) => [...prev, { topicId: topic.id, content: contentArray.join("\n\n") }])
+
+          toast({
+            title: "Content Generated from Your Story!",
+            description: `Generated personalized content based on your personal story.`,
+          })
+          return
+        } else {
+          throw new Error("Invalid response from story content API")
+        }
+      }
+
+      console.log("[v0] Using regular AI generation for non-personalized topic")
       const response = await fetch("/api/ai/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1190,8 +1066,8 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
             maxTokens: 1000,
             format: "linkedin-post",
             niche: topic.niche,
-            variations: 4
-          }
+            variations: 4,
+          },
         }),
       })
 
@@ -1200,7 +1076,7 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
         try {
           const responseText = await response.text()
           console.log("Raw error response:", responseText)
-          
+
           if (responseText) {
             try {
               errorData = JSON.parse(responseText)
@@ -1215,87 +1091,96 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
           console.error("Failed to parse error response:", parseError)
           errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
         }
-        
+
         console.error("Content generation failed:", errorData)
-        const errorMessage = errorData?.error || errorData?.message || errorData?.details || `HTTP ${response.status}: ${response.statusText}`
+        const errorMessage =
+          errorData?.error ||
+          errorData?.message ||
+          errorData?.details ||
+          `HTTP ${response.status}: ${response.statusText}`
         throw new Error(`Content generation failed: ${errorMessage}`)
       }
 
       const data = await response.json()
       console.log("Content generation response data:", data)
-      
-      const content = Array.isArray(data.data.content) ? data.data.content : [data.data.content]
-      console.log("Processed content:", content)
-      console.log("Content length:", content.length)
 
-      // Update recommended topics
-      setRecommendedTopics(prev => prev.map(t => 
-        t.id === topic.id 
-          ? { ...t, content: content, format: "linkedin-post", status: "content-ready" as const }
-          : t
-      ))
-      
+      const contentArray = Array.isArray(data.data.content) ? data.data.content : [data.data.content]
+      console.log("Processed content:", contentArray)
+      console.log("Content length:", contentArray.length)
+
       // Update personalized topics
-      setPersonalizedTopics(prev => prev.map(t => 
-        t.id === topic.id 
-          ? { ...t, content: content, format: "linkedin-post", status: "content-ready" as const }
-          : t
-      ))
-      
-      console.log("Updated topics with content")
+      setPersonalizedTopics((prev) =>
+        prev.map((t) =>
+          t.id === topic.id
+            ? { ...t, content: contentArray, format: "linkedin-post", status: "content-ready" as const }
+            : t,
+        ),
+      )
+      // Store generated content
+      setGeneratedContents((prev) => [...prev, { topicId: topic.id, content: contentArray.join("\n\n") }])
 
-      // Set the selected topic and hide others
-      setSelectedTopicId(topic.id)
       toast({
         title: "Content Generated!",
-        description: `Generated ${content.length} variations for "${topic.title}"`,
+        description: `Generated ${contentArray.length} variations for "${topic.title}"`,
       })
     } catch (error) {
       console.error("Error generating content:", error)
-      
-      // Create fallback content if AI generation fails
-      const fallbackContent = [`${topic.title}
+
+      const fallbackContent = topic.isPersonalized
+        ? [
+            `${topic.title}
+
+This topic is deeply connected to my personal journey and experiences. Through my story, I've learned valuable lessons that I believe can help others in their professional development.
+
+Key insights from my experience:
+• Every challenge is an opportunity for growth
+• Authenticity builds stronger connections
+• Continuous learning is essential for success
+• Building meaningful relationships matters
+
+What aspects of this topic resonate with your own experiences? I'd love to hear your thoughts and stories in the comments.
+
+#PersonalStory #ProfessionalGrowth #Authenticity #LinkedIn`,
+          ]
+        : [
+            `${topic.title}
 
 This is an important topic that many professionals can relate to. In my experience, this has been a key factor in professional growth and development.
 
 Key insights:
 • Understanding the fundamentals is crucial
-• Continuous learning and adaptation are essential  
+• Continuous learning and adaptation are essential
 • Building strong relationships and networks matters
 • Persistence and resilience lead to success
 
 What are your thoughts on this topic? I'd love to hear your experiences and insights in the comments below.
 
-#ProfessionalGrowth #CareerDevelopment #LinkedIn`]
+#ProfessionalGrowth #CareerDevelopment #LinkedIn`,
+          ]
 
       // Update topics with fallback content
-      setRecommendedTopics(prev => prev.map(t => 
-        t.id === topic.id 
-          ? { ...t, content: fallbackContent, format: "linkedin-post", status: "content-ready" as const }
-          : t
-      ))
-      
-      setPersonalizedTopics(prev => prev.map(t => 
-        t.id === topic.id 
-          ? { ...t, content: fallbackContent, format: "linkedin-post", status: "content-ready" as const }
-          : t
-      ))
-      
-      setSelectedTopicId(topic.id)
-      
+      setPersonalizedTopics((prev) =>
+        prev.map((t) =>
+          t.id === topic.id
+            ? { ...t, content: fallbackContent, format: "linkedin-post", status: "content-ready" as const }
+            : t,
+        ),
+      )
+      setGeneratedContents((prev) => [...prev, { topicId: topic.id, content: fallbackContent.join("\n\n") }])
+
       toast({
         title: "Content Generated (Fallback)",
         description: "Generated fallback content for your topic.",
       })
     } finally {
-      setIsGenerating(false)
+      setIsGeneratingContent((prev) => ({ ...prev, [topic.id]: false })) // Reset generating state
     }
   }
 
   // Generate content from approved topics using story-based content generation
   const generateContentFromApprovedTopic = async (topic: any) => {
     console.log("Starting content generation for approved topic:", topic)
-    setIsGenerating(true)
+    setIsGenerating(true) // Use global isGenerating for this flow
 
     try {
       const creditResponse = await fetch("/api/billing/credits")
@@ -1317,8 +1202,8 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          topicId: topic.id,
-          contentType: "linkedin-post"
+          topicId: topic.id, // Assuming topic.id is the correct field
+          contentType: "linkedin-post",
         }),
       })
 
@@ -1330,7 +1215,7 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
 
       const data = await response.json()
       console.log("Story content generation response:", data)
-      
+
       if (data.success && data.content) {
         // Create a topic object for display
         const storyTopic: Topic = {
@@ -1341,15 +1226,18 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
           content: [data.content.content],
           format: "linkedin-post",
           status: "content-ready",
-          isPersonalized: true
+          isPersonalized: true,
         }
 
         // Add to topics list for display
-        setTopics(prev => [storyTopic, ...prev])
-        
+        setTopics((prev) => [storyTopic, ...prev])
+
+        // Store generated content
+        setGeneratedContents((prev) => [...prev, { topicId: storyTopic.id, content: data.content.content }])
+
         // Set as selected topic
         setSelectedTopicId(storyTopic.id)
-        
+
         toast({
           title: "Content Generated from Your Story!",
           description: `Generated personalized content for "${topic.title}" based on your personal story.`,
@@ -1359,7 +1247,7 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       }
     } catch (error) {
       console.error("Error generating content from approved topic:", error)
-      
+
       // Create fallback content
       const fallbackContent = `${topic.title}
 
@@ -1383,18 +1271,19 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
         content: [fallbackContent],
         format: "linkedin-post",
         status: "content-ready",
-        isPersonalized: true
+        isPersonalized: true,
       }
 
-      setTopics(prev => [storyTopic, ...prev])
+      setTopics((prev) => [storyTopic, ...prev])
       setSelectedTopicId(storyTopic.id)
-      
+      setGeneratedContents((prev) => [...prev, { topicId: storyTopic.id, content: fallbackContent }])
+
       toast({
         title: "Content Generated (Fallback)",
         description: "Generated fallback content based on your approved topic.",
       })
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false) // Use global isGenerating for this flow
     }
   }
 
@@ -1406,7 +1295,7 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
     setSelectedTopicId(null) // Reset selected topic
   }
 
-  const saveToDraft = async (content: string, title: string, format: string = "article") => {
+  const saveToDraft = async (content: string, title: string, format = "article") => {
     try {
       const response = await fetch("/api/drafts", {
         method: "POST",
@@ -1416,7 +1305,7 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
           content,
           format,
           niche: "AI Generated",
-        })
+        }),
       })
 
       if (response.ok) {
@@ -1452,7 +1341,7 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
 
       <div className="relative z-10 space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-4 lg:p-6">
         {/* Clean Header */}
-        <motion.div 
+        <motion.div
           className="text-center py-12 sm:py-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1468,20 +1357,22 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
 
         {/* Topic Categories - Desktop Only */}
 
-
         {/* Clean Topic Generator Input */}
         {showTopicGenerator && (
-        <motion.div 
+          <motion.div
             className="flex justify-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
             <div className="w-full sm:max-w-2xl">
               {/* Mobile Layout */}
               <div className="block sm:hidden space-y-8">
                 <div className="w-full">
-                  <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
+                  <Select
+                    value={contentType}
+                    onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}
+                  >
                     <SelectTrigger className="w-full h-20 border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-black">
                       <div className="flex items-center gap-3">
                         <PenTool className="w-7 h-7 text-blue-600 dark:text-blue-400" />
@@ -1496,72 +1387,67 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-4">
                   <Input
                     placeholder="Enter a topic or keyword..."
                     value={topicPrompt}
                     onChange={(e) => setTopicPrompt(e.target.value)}
                     className="w-full h-32 px-8 text-2xl border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-black text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                    onKeyPress={(e) => e.key === 'Enter' && generateTopics()}
+                    onKeyPress={(e) => e.key === "Enter" && generateTopics()}
                   />
-                  
-          <Button 
+
+                  <Button
                     onClick={generateTopics}
                     disabled={!topicPrompt.trim() || isGenerating}
                     className="w-full h-16 px-8 bg-blue-500 hover:bg-blue-600 text-white text-lg"
                   >
-                    {isGenerating ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      "Generate"
-                    )}
-          </Button>
-          </div>
+                    {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Generate"}
+                  </Button>
+                </div>
               </div>
 
               {/* Desktop Layout */}
               <div className="hidden sm:block">
                 <div className="flex items-center border-2 border-blue-200 dark:border-blue-800 rounded-2xl overflow-hidden bg-white dark:bg-black shadow-sm hover:shadow-md transition-all duration-300 focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:shadow-lg">
-                <div className="flex-shrink-0">
-                  <Select value={contentType} onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}>
+                  <div className="flex-shrink-0">
+                    <Select
+                      value={contentType}
+                      onValueChange={(value: "caseStudy" | "descriptive" | "list" | "story") => setContentType(value)}
+                    >
                       <SelectTrigger className="w-48 h-20 border-0 bg-transparent focus:ring-0">
-                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                           <PenTool className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                        <SelectValue />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="caseStudy">Case Study</SelectItem>
-                      <SelectItem value="descriptive">Descriptive</SelectItem>
-                      <SelectItem value="list">List</SelectItem>
-                      <SelectItem value="story">Story</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex-1">
-                  <Input
-                    placeholder="Enter a topic or keyword..."
-                    value={topicPrompt}
-                    onChange={(e) => setTopicPrompt(e.target.value)}
+                          <SelectValue />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="caseStudy">Case Study</SelectItem>
+                        <SelectItem value="descriptive">Descriptive</SelectItem>
+                        <SelectItem value="list">List</SelectItem>
+                        <SelectItem value="story">Story</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Enter a topic or keyword..."
+                      value={topicPrompt}
+                      onChange={(e) => setTopicPrompt(e.target.value)}
                       className="h-20 px-6 text-lg border-0 focus-visible:ring-0 bg-transparent text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
-                    onKeyPress={(e) => e.key === 'Enter' && generateTopics()}
-                  />
-                </div>
-                
+                      onKeyPress={(e) => e.key === "Enter" && generateTopics()}
+                    />
+                  </div>
+
                   <div className="flex-shrink-0 p-3">
-                  <Button
-                    onClick={generateTopics}
-                    disabled={!topicPrompt.trim() || isGenerating}
+                    <Button
+                      onClick={generateTopics}
+                      disabled={!topicPrompt.trim() || isGenerating}
                       className="h-12 px-8 bg-blue-500 hover:bg-blue-600 text-white text-lg"
-                  >
-                    {isGenerating ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      "Generate"
-                    )}
-                  </Button>
+                    >
+                      {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Generate"}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -1571,14 +1457,14 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
 
         {/* Approved Topics Section */}
         {showTopicGenerator && approvedTopics.length > 0 && (
-          <motion.div 
+          <motion.div
             className="max-w-7xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
             <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
-              <CardHeader className="pb-4 sm:pb-6 bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
+              <CardHeader className="pb-4 sm:pb-6 bg-gradient-to-r from-blue-50/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-3 text-xl">
@@ -1586,25 +1472,23 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                         <CheckCircle className="w-4 h-4 text-white" />
                       </div>
                       Approved Topics
-                  </CardTitle>
-                    <CardDescription className="mt-2">
-                      Topics approved from your personal stories
-                  </CardDescription>
+                    </CardTitle>
+                    <CardDescription className="mt-2">Topics approved from your personal stories</CardDescription>
                   </div>
                   {approvedTopics.length > 0 && (
-                  <Button
+                    <Button
                       onClick={handleDiscardAllApprovedTopics}
-                    variant="outline"
-                    size="sm"
-                      className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50"
-                  >
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50 bg-transparent"
+                    >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Discard All
-                  </Button>
+                    </Button>
                   )}
                 </div>
-                </CardHeader>
-              
+              </CardHeader>
+
               <CardContent className="p-4 sm:p-6">
                 <div className="grid gap-4 sm:gap-6">
                   {approvedTopics.map((topic, index) => (
@@ -1631,11 +1515,11 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                               <span className="text-xs sm:text-sm font-medium">Generate Content</span>
                             </div>
                           </div>
-                          
+
                           <h3 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
                             {topic.title}
                           </h3>
-                          
+
                           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-blue-200/50 dark:border-blue-800/50">
                             <Button
                               onClick={() => {
@@ -1652,12 +1536,12 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                               )}
                               Generate Content
                             </Button>
-                            
+
                             <Button
                               onClick={() => handleDiscardApprovedTopic(topic._id, topic.title)}
                               variant="outline"
                               size="sm"
-                              className="h-9 sm:h-10 px-3 sm:px-4 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50"
+                              className="h-9 sm:h-10 px-3 sm:px-4 border-red-200 text-red-600 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50"
                             >
                               <Trash2 className="w-4 h-4 mr-1 sm:mr-2" />
                               <span className="hidden sm:inline">Discard</span>
@@ -1675,7 +1559,7 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
 
         {/* Approved Topics from Personal Story */}
         {showTopicGenerator && approvedTopics.length > 0 && (
-          <motion.div 
+          <motion.div
             className="max-w-7xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1718,12 +1602,18 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                             Approved
                           </Badge>
                         </div>
-                        
+
                         <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
+                          >
                             From Story
                           </Badge>
-                          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                          >
                             Ready to Generate
                           </Badge>
                         </div>
@@ -1784,471 +1674,250 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
           </motion.div>
         )}
 
-        {/* Enhanced Recommended Topics Section */}
-          {showTopicGenerator && (hasPersonalStory ? personalizedTopics.length > 0 : recommendedTopics.length > 0) && (
-          <motion.div 
-            className="max-w-7xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <Card className="border-0 shadow-2xl bg-card/80 backdrop-blur-sm overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/50 dark:to-purple-950/50 border-b border-border">
+        {showTopicGenerator && !hasPersonalStory && !isRefreshingTopics && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+            <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+              <CardHeader>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-3 text-xl text-foreground">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                        <Star className="w-4 h-4 text-white" />
-                      </div>
-                      {hasPersonalStory ? "Topics from Your Personal Story" : "Recommended Topics"}
-                    </CardTitle>
-                    {hasPersonalStory && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Topics generated specifically from your personal story answers
-                      </p>
-                    )}
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-blue-600" />
+                    <CardTitle className="text-blue-900">Topic Generator</CardTitle>
                   </div>
-                </div>
-                </CardHeader>
-              <CardContent className="p-4 sm:p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {(hasPersonalStory ? personalizedTopics : recommendedTopics).map((topic, index) => (
-                    <motion.div
-                      key={topic.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      whileHover={{ y: -5 }}
-                      className="group relative bg-white dark:bg-black border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-4 sm:p-6 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all duration-300 flex flex-col"
-                    >
-                      <div className="space-y-3 sm:space-y-4 flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-base sm:text-lg leading-tight text-black dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex-1">
-                            {topic.title}
-                          </h3>
-                          <Badge className="bg-gradient-to-r from-blue-100 to-secondary/20 dark:from-blue-900/50 dark:to-secondary/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 text-xs flex-shrink-0">
-                              {topic.viralChance}% viral
-                            </Badge>
-                          </div>
-                          
-                          <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-                            {topic.niche}
-                          </Badge>
-                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className={`text-xs ${topic.status === "content-ready" ? "bg-gradient-to-r from-blue-500 to-secondary text-white" : "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"}`}>
-                            {topic.status === "content-ready" ? "Content Ready" : "Ready to Generate"}
-                            </Badge>
-                          </div>
-
-                        {/* Generate Button - Mobile: Always visible, Desktop: Hover */}
-                          {topic.status === "generated" && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            whileHover={{ opacity: 1 }}
-                            className="hidden sm:block sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
-                          >
-                              <Button
-                                onClick={() => generateRecommendedTopicContent(topic)}
-                                size="sm"
-                              className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
-                                disabled={isGenerating}
-                              >
-                                {isGenerating ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Generating...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Sparkles className="w-4 h-4 mr-2" />
-                                    Generate Content
-                                  </>
-                                )}
-                              </Button>
-                          </motion.div>
-                          )}
-
-                        {/* Generate Button for Mobile - Always visible when not content-ready */}
-                          {topic.status !== "content-ready" && (
-                          <div className="block sm:hidden mt-4">
-                              <Button
-                                onClick={() => generateRecommendedTopicContent(topic)}
-                                size="sm"
-                              className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
-                                disabled={isGenerating}
-                              >
-                                {isGenerating ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Generating...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Sparkles className="w-4 h-4 mr-2" />
-                                    Generate Content
-                                  </>
-                                )}
-                              </Button>
-                          </div>
-                          )}
-
-                          {/* Generated Content Display */}
-                          {topic.status === "content-ready" && topic.content && (
-                          <div className="space-y-3 sm:space-y-4 mt-4">
-                              <div className="flex items-center gap-2 flex-wrap">
-                              <Badge variant="default" className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                                {topic.format}
-                              </Badge>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">4 variations generated</span>
-                              </div>
-                              
-                              {Array.isArray(topic.content) ? (
-                              <div className="grid grid-cols-1 gap-3">
-                                  {topic.content.map((content, index) => (
-                                  <div key={index} className="p-3 sm:p-4 border border-blue-200 dark:border-blue-800 rounded-xl bg-blue-50/50 dark:bg-blue-950/20">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">Post {index + 1}</Badge>
-                                      </div>
-                                    <p className="text-xs sm:text-sm text-black dark:text-white line-clamp-3 leading-relaxed mb-4 break-words">
-                                        {content}
-                                      </p>
-                                      <div className="flex gap-2">
-                                        <Button 
-                                          size="sm"
-                                          variant="outline"
-                                        className="flex-1 text-xs h-8 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300"
-                                          onClick={() => {
-                                            setPreviewContent(content)
-                                            setPreviewingTopicId(topic.id)
-                                          }}
-                                        >
-                                          <Eye className="w-3 h-3 mr-1" />
-                                          Preview
-                                        </Button>
-                                        <Button 
-                                          size="sm"
-                                        className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white"
-                                          onClick={() => saveToDraft(content, `${topic.title} - Post ${index + 1}`, "linkedin-post")}
-                                        >
-                                          <Save className="w-3 h-3 mr-1" />
-                                          Save
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                              <div className="p-3 sm:p-4 border border-blue-200 dark:border-blue-800 rounded-xl bg-blue-50/50 dark:bg-blue-950/20">
-                                <p className="text-xs sm:text-sm text-black dark:text-white line-clamp-3 leading-relaxed mb-4 break-words">
-                                    {getTopicContent(topic)}
-                                  </p>
-                                  <div className="flex gap-2">
-                                    <Button 
-                                      size="sm"
-                                      variant="outline"
-                                    className="flex-1 text-xs h-8 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300"
-                                      onClick={() => {
-                                        setPreviewContent(getTopicContent(topic))
-                                        setPreviewingTopicId(topic.id)
-                                      }}
-                                    >
-                                      <Eye className="w-3 h-3 mr-1" />
-                                      Preview
-                                    </Button>
-                                    <Button 
-                                      size="sm"
-                                    className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white"
-                                      onClick={() => saveToDraft(getTopicContent(topic), topic.title, "linkedin-post")}
-                                    >
-                                      <Save className="w-3 h-3 mr-1" />
-                                      Save
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                    </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-          </motion.div>
-          )}
-
-        {/* Enhanced Generated Topics */}
-          {topics.length > 0 && (
-          <motion.div 
-            className="max-w-7xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-black/80 backdrop-blur-sm overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-teal-50/50 to-secondary/20 dark:from-teal-950/50 dark:to-secondary/10 border-b border-teal-200/50 dark:border-teal-800/50">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <CardTitle className="flex items-center gap-3 text-xl text-black dark:text-white">
-                      <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-secondary rounded-lg flex items-center justify-center">
-                        <Calendar className="w-4 h-4 text-white" />
-                      </div>
-                      Your Generated Topics
-                    </CardTitle>
-                    <CardDescription className="mt-2 text-gray-600 dark:text-gray-400">
-                      Click on any topic to generate content or customize your preferences
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={clearTopics} 
-                    className="gap-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 hover:border-red-300 dark:hover:border-red-700"
-                  >
-                    <X className="w-4 h-4" />
-                    Clear All
+                  <Button variant="ghost" size="sm" onClick={() => setShowTopicGenerator(false)}>
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-4 sm:p-8">
-                <div className="space-y-4 sm:space-y-6">
-                  {(() => {
-                    const filteredTopics = topics.filter(topic => {
-                      if (!selectedTopicId) return true
-                      return topic.id === selectedTopicId
-                    })
-                    return filteredTopics
-                  })()
-                    .sort((a, b) => {
-                      if (selectedTopicId) {
-                        if (a.id === selectedTopicId) return -1
-                        if (b.id === selectedTopicId) return 1
-                      }
-                      return 0
-                    })
-                    .map((topic, index) => (
-                      <motion.div
-                        key={topic.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                        whileHover={{ y: -5 }}
-                        className="group relative bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 rounded-2xl p-4 sm:p-6 hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-xl transition-all duration-300 flex flex-col"
-                      >
-                        <div className="space-y-3 sm:space-y-4 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold text-base sm:text-lg leading-tight text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex-1">
-                              {topic.title}
-                            </h3>
-                            <Badge className="bg-gradient-to-r from-blue-100 to-blue-100 dark:from-blue-900 dark:to-blue-900 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 text-xs flex-shrink-0">
-                            {topic.viralChance}% viral
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700">
-                              {topic.niche}
-                            </Badge>
-                            <Badge variant={topic.status === "content-ready" ? "default" : "outline"} className="text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600">
-                              {topic.status === "content-ready" ? "Content Ready" : "Ready to Generate"}
-                            </Badge>
-                        </div>
-
-                          {/* Generate Button - Mobile: Always visible, Desktop: Hover */}
-                        {topic.status === "generated" && (
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              whileHover={{ opacity: 1 }}
-                              className="hidden sm:block sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
-                            >
-                        <Button
-                              onClick={() => setShowCustomization(topic.id)}
-                          size="sm"
-                                className="w-full h-10 bg-blue-500 hover:bg-blue-600 text-white"
-                        >
-                              <Sparkles className="w-4 h-4 mr-2" />
-                              Generate Content
-                        </Button>
-                            </motion.div>
-                        )}
-
-                        {/* Generated Content Display */}
-                        {topic.status === "content-ready" && topic.content && (
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="default" className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
-                                  {topic.format}
-                                </Badge>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">4 variations generated</span>
-                              </div>
-                            
-                              {Array.isArray(topic.content) ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  {topic.content.map((content, index) => (
-                                    <div key={index} className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50">
-                                      <div className="flex items-start justify-between mb-3">
-                                      <Badge variant="outline" className="text-xs bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600">Post {index + 1}</Badge>
-                                      </div>
-                                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed mb-4">
-                                          {content}
-                                        </p>
-                                    <div className="flex gap-2">
-                                          <Button 
-                                            size="sm" 
-                                            variant="outline"
-                                          className="flex-1 text-xs h-8 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300"
-                                            onClick={() => {
-                                              setPreviewContent(content)
-                                              setPreviewingTopicId(topic.id)
-                                            }}
-                                          >
-                                            <Eye className="w-3 h-3 mr-1" />
-                                            Preview
-                                          </Button>
-                                      <Button 
-                                        size="sm"
-                                          className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
-                                        onClick={() => saveToDraft(content, `${topic.title} - Post ${index + 1}`, "linkedin-post")}
-                                      >
-                                        <Save className="w-3 h-3 mr-1" />
-                                        Save
-                                      </Button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50">
-                                  <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed mb-4">
-                                        {getTopicContent(topic)}
-                                      </p>
-                                <div className="flex gap-2">
-                                        <Button 
-                                          size="sm" 
-                                          variant="outline"
-                                      className="flex-1 text-xs h-8 border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-blue-700 dark:text-blue-300"
-                                          onClick={() => {
-                                            setPreviewContent(getTopicContent(topic))
-                                            setPreviewingTopicId(topic.id)
-                                          }}
-                                        >
-                                          <Eye className="w-3 h-3 mr-1" />
-                                          Preview
-                                        </Button>
-                                  <Button 
-                                    size="sm"
-                                      className="flex-1 text-xs h-8 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
-                                    onClick={() => saveToDraft(getTopicContent(topic), topic.title, "linkedin-post")}
-                                  >
-                                    <Save className="w-3 h-3 mr-1" />
-                                    Save
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                                      </div>
-                        )}
-                                    </div>
-                      </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-              </Card>
-          </motion.div>
-                              )}
-                            </div>
-
-        {/* Background Blur Overlay */}
-        {showCustomization && (
-          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />
-        )}
-
-        {/* Customization Panel */}
-        {showCustomization && (
-          <Card className="fixed inset-x-4 bottom-4 z-50 max-w-2xl mx-auto">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-primary" />
-                  Customize Content Generation
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowCustomization(null)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-                              </div>
-              <CardDescription>
-                Customize the tone, style, and format for your LinkedIn posts.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <AICustomizationPanel
-                customization={customization}
-                onCustomizationChange={setCustomization}
-                contentType="linkedin-post"
-                onContentTypeChange={() => {}}
-                showAdvanced={false}
-                onToggleAdvanced={() => {}}
-              />
-              <div className="flex gap-3 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowCustomization(null)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    // Check both regular topics and recommended topics
-                    let topic = topics.find(t => t.id === showCustomization)
-                    if (!topic) {
-                      topic = recommendedTopics.find(t => t.id === showCustomization)
-                    }
-                    if (topic) {
-                      generateContent(topic)
-                    }
-                  }}
-                  disabled={isGenerating}
-                  className="flex-1"
-                >
-                                {isGenerating ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Generating...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Sparkles className="w-4 h-4 mr-2" />
-                      Generate Posts
-                                  </>
-                                )}
-                              </Button>
+              <CardContent>
+                <div className="text-center py-8">
+                  <p className="text-gray-600 mb-4">
+                    Create your personal story to get AI-generated topics based on your unique journey
+                  </p>
+                  <Button
+                    onClick={() => (window.location.href = "/dashboard/personal-story")}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Create Personal Story
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          )}
-
-        {/* LinkedIn Preview Modal */}
-        {previewContent && (
-          <LinkedInPreview
-            content={previewContent}
-            onSaveToDraft={saveToDraft}
-            onClose={() => {
-              setPreviewContent(null)
-              setPreviewingTopicId(null)
-            }}
-            onContentUpdate={(newContent) => {
-              setPreviewContent(newContent)
-              if (previewingTopicId) {
-                updateTopicContent(previewingTopicId, newContent)
-              }
-            }}
-          />
+          </motion.div>
         )}
+
+        {showTopicGenerator && personalizedTopics.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+            <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-blue-600" />
+                    <CardTitle className="text-blue-900">Topics from Your Personal Story</CardTitle>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerateTopics}
+                      disabled={isRefreshingTopics}
+                      className="border-blue-300 text-blue-700 hover:bg-blue-50 bg-transparent"
+                    >
+                      {isRefreshingTopics ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Regenerating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Regenerate Topics
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setShowTopicGenerator(false)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <CardDescription className="text-blue-700">
+                  AI-generated topics based on your unique personal story
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                  {personalizedTopics.map((topic, index) => (
+                    <motion.div
+                      key={topic.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <Card className="group cursor-pointer border-blue-100 transition-all hover:border-blue-300 hover:shadow-md">
+                        <CardContent className="p-4">
+                          <div className="mb-3 flex items-start justify-between">
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                              {topic.niche}
+                            </Badge>
+                            <Badge variant="outline" className="border-green-300 bg-green-50 text-green-700">
+                              {topic.viralChance}% viral
+                            </Badge>
+                          </div>
+                          <h3 className="mb-3 text-sm font-semibold text-gray-900 group-hover:text-blue-600">
+                            {topic.title}
+                          </h3>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => generateRecommendedTopicContent(topic)} // Pass topic object
+                              disabled={isGeneratingContent[topic.id] || topic.status === "content-ready"}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700"
+                            >
+                              {isGeneratingContent[topic.id] ? (
+                                <>
+                                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                  Generating...
+                                </>
+                              ) : topic.status === "content-ready" ? (
+                                <>
+                                  <CheckCircle className="mr-2 h-3 w-3" />
+                                  Ready
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="mr-2 h-3 w-3" />
+                                  Generate
+                                </>
+                              )}
+                            </Button>
+                            {topic.status === "content-ready" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  const content = generatedContents.find((c) => c.topicId === topic.id)
+                                  if (content) {
+                                    setSelectedContent(content.content)
+                                    setShowContentModal(true)
+                                  }
+                                }}
+                                className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                              >
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </div>
+
+      {/* Background Blur Overlay */}
+      {showCustomization && <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />}
+
+      {/* Customization Panel */}
+      {showCustomization && (
+        <Card className="fixed inset-x-4 bottom-4 z-50 max-w-2xl mx-auto">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-primary" />
+                Customize Content Generation
+              </CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setShowCustomization(null)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <CardDescription>Customize the tone, style, and format for your LinkedIn posts.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <AICustomizationPanel
+              customization={customization}
+              onCustomizationChange={setCustomization}
+              contentType="linkedin-post"
+              onContentTypeChange={() => {}}
+              showAdvanced={false}
+              onToggleAdvanced={() => {}}
+            />
+            <div className="flex gap-3 pt-4">
+              <Button variant="outline" onClick={() => setShowCustomization(null)} className="flex-1">
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  // Check both regular topics and recommended topics
+                  let topic = topics.find((t) => t.id === showCustomization)
+                  if (!topic) {
+                    topic = [] // No longer using recommendedTopics
+                  }
+                  if (topic) {
+                    generateContent(topic)
+                  }
+                }}
+                disabled={isGenerating}
+                className="flex-1"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Posts
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* LinkedIn Preview Modal */}
+      {previewContent && (
+        <LinkedInPreview
+          content={previewContent}
+          onSaveToDraft={saveToDraft}
+          onClose={() => {
+            setPreviewContent(null)
+            setPreviewingTopicId(null)
+          }}
+          onContentUpdate={(newContent) => {
+            setPreviewContent(newContent)
+            if (previewingTopicId) {
+              updateTopicContent(previewingTopicId, newContent)
+            }
+          }}
+        />
+      )}
+
+      {/* Content Modal for Viewing Generated Content */}
+      {showContentModal && selectedContent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/40">
+          <div className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto bg-white dark:bg-black rounded-lg shadow-xl p-6">
+            <button
+              onClick={() => setShowContentModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold mb-4 text-foreground">Generated Content</h2>
+            <div className="prose max-w-none dark:prose-invert text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+              {selectedContent}
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button onClick={() => setShowContentModal(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
