@@ -232,85 +232,107 @@ export default function PersonalStoryPage() {
     return requiredFields.every(field => formData[field as keyof PersonalStoryForm]?.trim())
   }
 
-  // Generate topics directly from question answers
+  // Generate topics directly from question answers - now using more specific, story-driven approach
   const generateTopicsFromAnswers = (answers: PersonalStoryForm) => {
     const topics = []
     
-    // Extract keywords from text
-    const extractKeywords = (text: string) => {
-      return text.toLowerCase()
-        .replace(/[^\w\s]/g, ' ')
-        .split(/\s+/)
-        .filter(word => word.length > 3)
-        .slice(0, 2)
-    }
-    
-    // Expanded professional topic templates for more variety
-    const topicTemplates = [
-      "The Challenge That Changed Everything: My Unexpected Breakthrough",
-      "How I Turned My Biggest Failure Into My Greatest Success", 
-      "The Moment That Tested Everything I Believed In",
-      "Why My Worst Setback Became My Best Teacher",
-      "The Decision That Almost Broke Me (And How It Made Me Stronger)",
-      "The Breakthrough That Changed My Entire Career Path",
-      "How I Achieved What Everyone Said Was Impossible",
-      "The Success That Surprised Even Me",
-      "Why My Biggest Risk Led to My Greatest Reward",
-      "The Moment I Knew I Had Made It",
-      "The Lesson That Took Me Years to Learn (But Changed Everything)",
-      "How I Overcame My Biggest Professional Fear",
-      "The Turning Point That Redefined My Success",
-      "Why My Most Difficult Period Became My Greatest Growth",
-      "The Insight That Transformed My Entire Approach",
-      "How I Found Strength in My Weakest Moments",
-      "The Realization That Changed My Career Forever",
-      "Why My Biggest Mistake Became My Best Learning",
-      "The Journey That Taught Me What Success Really Means",
-      "How I Discovered My True Professional Purpose"
-    ]
-    
-    // Shuffle templates to ensure different topics each time
-    const shuffledTemplates = [...topicTemplates].sort(() => Math.random() - 0.5)
-    
-    // Generate topics based on question answers with more variety
-    if (answers.early_life && answers.early_life.trim().length > 0) {
-      const keywords = extractKeywords(answers.early_life)
-      const variations = [
-        `How My Early Life in ${keywords[0] || 'Childhood'} Shaped My Professional Success`,
-        `The ${keywords[0] || 'Early'} Experience That Defined My Career Path`,
-        `Why My ${keywords[0] || 'Childhood'} Background Became My Greatest Asset`
-      ]
-      topics.push(variations[Math.floor(Math.random() * variations.length)])
-    }
-    
-    if (answers.education && answers.education.trim().length > 0) {
-      const keywords = extractKeywords(answers.education)
-      const variations = [
-        `The ${keywords[0] || 'Educational'} Moment That Changed My Career Path`,
-        `How My ${keywords[0] || 'Education'} Shaped My Professional Identity`,
-        `The ${keywords[0] || 'Learning'} Experience That Made All the Difference`
-      ]
-      topics.push(variations[Math.floor(Math.random() * variations.length)])
-    }
-    
-    if (answers.career_journey && answers.career_journey.trim().length > 0) {
-      const keywords = extractKeywords(answers.career_journey)
-      const variations = [
-        `My ${keywords[0] || 'Career'} Journey: From Where I Started to Where I Am Now`,
-        `The ${keywords[0] || 'Professional'} Path That Led to My Success`,
-        `How My ${keywords[0] || 'Career'} Evolution Taught Me Everything`
-      ]
-      topics.push(variations[Math.floor(Math.random() * variations.length)])
-    }
-    
-    // Fill remaining slots with shuffled professional templates
-    let templateIndex = 0
-    while (topics.length < 3 && templateIndex < shuffledTemplates.length) {
-      const template = shuffledTemplates[templateIndex]
-      if (!topics.includes(template)) {
-        topics.push(template)
+    // Extract specific details from each answer to create more personalized topics
+    if (answers.early_life && answers.early_life.trim().length > 20) {
+      const earlyLifeText = answers.early_life.toLowerCase()
+      if (earlyLifeText.includes('family') || earlyLifeText.includes('parents')) {
+        topics.push("What My Family Taught Me About Success")
+      } else if (earlyLifeText.includes('school') || earlyLifeText.includes('education')) {
+        topics.push("The School Experience That Changed Everything")
+      } else if (earlyLifeText.includes('challenge') || earlyLifeText.includes('difficult')) {
+        topics.push("The Early Challenge That Made Me Stronger")
+      } else {
+        topics.push("How My Childhood Shaped Who I Am Today")
       }
-      templateIndex++
+    }
+
+    if (answers.education && answers.education.trim().length > 20) {
+      const educationText = answers.education.toLowerCase()
+      if (educationText.includes('teacher') || educationText.includes('mentor')) {
+        topics.push("The Teacher Who Changed My Life")
+      } else if (educationText.includes('subject') || educationText.includes('course')) {
+        topics.push("The Subject That Opened My Eyes")
+      } else if (educationText.includes('college') || educationText.includes('university')) {
+        topics.push("What College Really Taught Me")
+      } else {
+        topics.push("The Education That Shaped My Career")
+      }
+    }
+
+    if (answers.career_journey && answers.career_journey.trim().length > 20) {
+      const careerText = answers.career_journey.toLowerCase()
+      if (careerText.includes('first job') || careerText.includes('started')) {
+        topics.push("My First Job and What It Taught Me")
+      } else if (careerText.includes('promotion') || careerText.includes('success')) {
+        topics.push("The Moment I Knew I Was on the Right Path")
+      } else if (careerText.includes('change') || careerText.includes('switch')) {
+        topics.push("Why I Made the Career Change That Changed Everything")
+      } else {
+        topics.push("The Career Decision That Changed My Life")
+      }
+    }
+
+    if (answers.personal_side && answers.personal_side.trim().length > 20) {
+      const personalText = answers.personal_side.toLowerCase()
+      if (personalText.includes('hobby') || personalText.includes('passion')) {
+        topics.push("How My Hobby Became My Secret Weapon")
+      } else if (personalText.includes('family') || personalText.includes('kids')) {
+        topics.push("What My Personal Life Taught Me About Work")
+      } else if (personalText.includes('sport') || personalText.includes('fitness')) {
+        topics.push("The Sport That Taught Me About Discipline")
+      } else {
+        topics.push("The Personal Side That Drives My Success")
+      }
+    }
+
+    if (answers.current_identity && answers.current_identity.trim().length > 20) {
+      const identityText = answers.current_identity.toLowerCase()
+      if (identityText.includes('expert') || identityText.includes('specialist')) {
+        topics.push("How I Became Known for What I Do")
+      } else if (identityText.includes('leader') || identityText.includes('manager')) {
+        topics.push("The Leadership Style That Works for Me")
+      } else if (identityText.includes('brand') || identityText.includes('reputation')) {
+        topics.push("Building My Professional Reputation One Step at a Time")
+      } else {
+        topics.push("What I Want People to Remember About Me")
+      }
+    }
+
+    if (answers.future_aspirations && answers.future_aspirations.trim().length > 20) {
+      const futureText = answers.future_aspirations.toLowerCase()
+      if (futureText.includes('goal') || futureText.includes('dream')) {
+        topics.push("The Goal That Keeps Me Moving Forward")
+      } else if (futureText.includes('impact') || futureText.includes('help')) {
+        topics.push("How I Want to Make a Difference")
+      } else if (futureText.includes('learn') || futureText.includes('grow')) {
+        topics.push("What I Still Want to Learn and Achieve")
+      } else {
+        topics.push("My Vision for the Next Chapter")
+      }
+    }
+
+    // If we still need more topics, create more specific ones based on content
+    while (topics.length < 3) {
+      const allText = Object.values(answers).join(' ').toLowerCase()
+      
+      if (allText.includes('mistake') || allText.includes('failure')) {
+        topics.push("The Mistake That Taught Me the Most")
+      } else if (allText.includes('mentor') || allText.includes('guide')) {
+        topics.push("The Person Who Believed in Me When I Didn't")
+      } else if (allText.includes('risk') || allText.includes('chance')) {
+        topics.push("The Risk That Paid Off")
+      } else if (allText.includes('team') || allText.includes('colleague')) {
+        topics.push("What I Learned from Working with Others")
+      } else {
+        topics.push("The Experience That Changed My Perspective")
+      }
+      
+      // Prevent infinite loop
+      if (topics.length >= 10) break
     }
     
     return topics.slice(0, 3).map((title, index) => ({
@@ -481,50 +503,19 @@ export default function PersonalStoryPage() {
   const generateRelatedTopics = async (story: GeneratedStory) => {
     try {
       setIsGeneratingTopics(true)
-      console.log("Starting topic generation based on personal story answers")
+      console.log("Starting topic generation based on personal story using new API")
       
       // Clear existing topics to ensure fresh generation
       setGeneratedTopics([])
       
-      // Build context from the actual question answers, not the AI-generated story
-      const answersContext = Object.entries(formData)
-        .filter(([key, value]) => value && value.trim().length > 0)
-        .map(([key, value]) => {
-          const questionName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-          return `${questionName}: ${value}`
-        })
-        .join('\n\n')
-
-      if (!answersContext.trim()) {
-        console.log("No answers available for topic generation")
-        return
-      }
-
-      // Generate topics directly from question answers instead of using AI
-      console.log("Generating fresh topics from question answers")
-      const generatedTopics = generateTopicsFromAnswers(formData)
-      
-      if (generatedTopics.length > 0) {
-        console.log("Generated topics from answers:", generatedTopics)
-        setGeneratedTopics(generatedTopics)
-        setShowTopicApproval(true)
-        
-        toast({
-          title: "Fresh Topics Generated",
-          description: `${generatedTopics.length} new related topics have been generated for your review.`,
-        })
-        return
-      } else {
-        console.log("No topics generated from answers, proceeding with AI generation")
-      }
-      
-      console.log("Sending topic generation request to personalized topics API...")
-      
-      // Use the personalized topics API which handles personal story integration
-      
-      const response = await fetch("/api/personalized-topics", {
-        method: "GET",
+      // Use the new story-topics API
+      const response = await fetch("/api/story-topics", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate",
+          storyId: story.id
+        })
       })
 
       console.log("Topic generation response status:", response.status)
@@ -533,184 +524,36 @@ export default function PersonalStoryPage() {
         const data = await response.json()
         console.log("Topic generation response data:", data)
         
-        if (data.topics && Array.isArray(data.topics)) {
-          // Parse topics from the personalized topics API response
-          const topics = data.topics
-            .slice(0, 3) // Take only first 3 topics
-            .map((topic: any, index: number) => ({
-              id: topic.id || `topic-${Date.now()}-${index}`,
-              title: topic.title || topic,
+        if (data.success && data.topics && Array.isArray(data.topics)) {
+          // Parse topics from the new API response
+          const topics = data.topics.map((topic: any) => ({
+            id: topic._id || topic.id,
+            title: topic.topicText,
               status: "pending" as const
             }))
 
           console.log("Parsed topics:", topics)
-          console.log("Number of parsed topics:", topics.length)
-          
-          // If no topics were parsed, create some fallback topics
-          if (topics.length === 0) {
-            console.log("No topics parsed, creating fallback topics")
-            
-            // Create fallback topics based on the actual question answers
-            let fallbackTopics = []
-            
-            // Check each question answer for content
-            if (formData.early_life && formData.early_life.trim().length > 0) {
-              fallbackTopics.push("How My Early Life Shaped My Professional Success")
-            }
-            if (formData.education && formData.education.trim().length > 0) {
-              fallbackTopics.push("The Educational Moment That Changed My Career Path")
-            }
-            if (formData.career_journey && formData.career_journey.trim().length > 0) {
-              fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
-            }
-            if (formData.personal_side && formData.personal_side.trim().length > 0) {
-              fallbackTopics.push("The Personal Side That Drives My Professional Success")
-            }
-            if (formData.current_identity && formData.current_identity.trim().length > 0) {
-              fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
-            }
-            if (formData.future_aspirations && formData.future_aspirations.trim().length > 0) {
-              fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
-            }
-            
-            // Fill remaining slots with generic but engaging topics
-            const genericTopics = [
-              "What I Wish I Knew Before Starting My Career",
-              "The Moment Everything Clicked: My Professional Awakening",
-              "Breaking Through: How I Overcame My Biggest Obstacle"
-            ]
-            
-            while (fallbackTopics.length < 3) {
-              const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
-              if (!fallbackTopics.includes(randomTopic)) {
-                fallbackTopics.push(randomTopic)
-              }
-            }
-            
-            const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
-              id: `fallback-topic-${Date.now()}-${index}`,
-              title,
-              status: "pending" as const
-            }))
-            setGeneratedTopics(finalFallbackTopics)
-          } else {
             setGeneratedTopics(topics)
-          }
-        } else {
-          console.log("No topics in response, creating fallback topics")
-          // Create fallback topics if no topics in response
-          const fallbackTopics = generateTopicsFromAnswers(formData)
-          setGeneratedTopics(fallbackTopics)
-        }
-        
         setShowTopicApproval(true)
-        console.log("Set showTopicApproval to true")
         
         toast({
           title: "Topics Generated",
-          description: "Related topics have been generated for your review.",
+            description: `${topics.length} related topics have been generated from your personal story.`,
         })
       } else {
-        console.error("Topic generation failed with status:", response.status)
+          throw new Error("Invalid response format")
+        }
+      } else {
         const errorData = await response.json().catch(() => ({}))
-        console.error("Error data:", errorData)
-        
-        // Create fallback topics based on question answers if API fails
-        let fallbackTopics = []
-        
-        // Check each question answer for content
-        if (formData.early_life && formData.early_life.trim().length > 0) {
-          fallbackTopics.push("How My Early Life Shaped My Professional Success")
-        }
-        if (formData.education && formData.education.trim().length > 0) {
-          fallbackTopics.push("The Educational Moment That Changed My Career Path")
-        }
-        if (formData.career_journey && formData.career_journey.trim().length > 0) {
-          fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
-        }
-        if (formData.personal_side && formData.personal_side.trim().length > 0) {
-          fallbackTopics.push("The Personal Side That Drives My Professional Success")
-        }
-        if (formData.current_identity && formData.current_identity.trim().length > 0) {
-          fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
-        }
-        if (formData.future_aspirations && formData.future_aspirations.trim().length > 0) {
-          fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
-        }
-        
-        // Fill remaining slots with generic but engaging topics
-        const genericTopics = [
-          "What I Wish I Knew Before Starting My Career",
-          "The Moment Everything Clicked: My Professional Awakening",
-          "Breaking Through: How I Overcame My Biggest Obstacle"
-        ]
-        
-        while (fallbackTopics.length < 3) {
-          const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
-          if (!fallbackTopics.includes(randomTopic)) {
-            fallbackTopics.push(randomTopic)
-          }
-        }
-        
-        const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
-          id: `fallback-topic-${Date.now()}-${index}`,
-          title,
-          status: "pending" as const
-        }))
-        setGeneratedTopics(finalFallbackTopics)
-        setShowTopicApproval(true)
-        
-        toast({
-          title: "Topics Generated (Fallback)",
-          description: "Generated fallback topics for your review.",
-        })
+        console.error("Topic generation failed:", errorData)
+        throw new Error(errorData.error || "Failed to generate topics")
       }
     } catch (error) {
       console.error("Error generating related topics:", error)
       
-      // Create fallback topics even if there's an error
-      const storyText = story.content.toLowerCase()
-      let fallbackTopics = []
-      
-      if (storyText.includes("early") || storyText.includes("childhood") || storyText.includes("roots")) {
-        fallbackTopics.push("How My Childhood Shaped My Professional Success")
-      }
-      if (storyText.includes("education") || storyText.includes("school") || storyText.includes("college")) {
-        fallbackTopics.push("The Educational Moment That Changed My Career Path")
-      }
-      if (storyText.includes("career") || storyText.includes("professional") || storyText.includes("journey")) {
-        fallbackTopics.push("My Career Journey: From Where I Started to Where I Am Now")
-      }
-      if (storyText.includes("personal") || storyText.includes("hobby") || storyText.includes("passion")) {
-        fallbackTopics.push("The Personal Side That Drives My Professional Success")
-      }
-      if (storyText.includes("identity") || storyText.includes("positioning") || storyText.includes("brand")) {
-        fallbackTopics.push("How I Want to Be Remembered: Building My Professional Identity")
-      }
-      if (storyText.includes("future") || storyText.includes("goal") || storyText.includes("aspiration")) {
-        fallbackTopics.push("My Vision for the Future: Goals That Drive Me Forward")
-      }
-      
-      // Fill remaining slots with generic but engaging topics
-      const genericTopics = [
-        "What I Wish I Knew Before Starting My Career",
-        "The Moment Everything Clicked: My Professional Awakening",
-        "Breaking Through: How I Overcame My Biggest Obstacle"
-      ]
-      
-      while (fallbackTopics.length < 3) {
-        const randomTopic = genericTopics[Math.floor(Math.random() * genericTopics.length)]
-        if (!fallbackTopics.includes(randomTopic)) {
-          fallbackTopics.push(randomTopic)
-        }
-      }
-      
-      const finalFallbackTopics = fallbackTopics.slice(0, 3).map((title, index) => ({
-        id: `fallback-topic-${Date.now()}-${index}`,
-        title,
-        status: "pending" as const
-      }))
-      setGeneratedTopics(finalFallbackTopics)
+      // Create fallback topics based on question answers
+      const fallbackTopics = generateTopicsFromAnswers(formData)
+      setGeneratedTopics(fallbackTopics)
       setShowTopicApproval(true)
       
       toast({
@@ -950,12 +793,12 @@ export default function PersonalStoryPage() {
     if (!topic) return
 
     try {
-      const response = await fetch('/api/approved-topics', {
+      const response = await fetch('/api/story-topics/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topics: [topic.title],
-          storyId: generatedStories[0]?.id
+          topicIds: [topicId],
+          action: "approve"
         })
       })
 
@@ -965,8 +808,10 @@ export default function PersonalStoryPage() {
         ))
         toast({
           title: "Topic Approved",
-          description: "Topic has been added to your approved topics.",
+          description: "Topic has been approved and added to your topic generator.",
         })
+      } else {
+        throw new Error("Failed to approve topic")
       }
     } catch (error) {
       console.error("Error approving topic:", error)
@@ -978,10 +823,36 @@ export default function PersonalStoryPage() {
     }
   }
 
-  const handleDiscardTopic = (topicId: string) => {
+  const handleDiscardTopic = async (topicId: string) => {
+    try {
+      const response = await fetch('/api/story-topics/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topicIds: [topicId],
+          action: "discard"
+        })
+      })
+
+      if (response.ok) {
     setGeneratedTopics(prev => prev.map(t => 
       t.id === topicId ? { ...t, status: "discarded" } : t
     ))
+        toast({
+          title: "Topic Discarded",
+          description: "Topic has been discarded.",
+        })
+      } else {
+        throw new Error("Failed to discard topic")
+      }
+    } catch (error) {
+      console.error("Error discarding topic:", error)
+      toast({
+        title: "Error",
+        description: "Failed to discard topic. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleApproveAllTopics = async () => {
@@ -989,12 +860,12 @@ export default function PersonalStoryPage() {
     if (pendingTopics.length === 0) return
 
     try {
-      const response = await fetch('/api/approved-topics', {
+      const response = await fetch('/api/story-topics/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topics: pendingTopics.map(t => t.title),
-          storyId: generatedStories[0]?.id
+          topicIds: pendingTopics.map(t => t.id),
+          action: "approve"
         })
       })
 
@@ -1004,8 +875,10 @@ export default function PersonalStoryPage() {
         ))
         toast({
           title: "All Topics Approved",
-          description: "All topics have been added to your approved topics.",
+          description: "All topics have been approved and added to your topic generator.",
         })
+      } else {
+        throw new Error("Failed to approve topics")
       }
     } catch (error) {
       console.error("Error approving topics:", error)
@@ -1014,6 +887,66 @@ export default function PersonalStoryPage() {
         description: "Failed to approve topics. Please try again.",
         variant: "destructive",
       })
+    }
+  }
+
+  const handleRegenerateTopics = async () => {
+    try {
+      setIsGeneratingTopics(true)
+      console.log("Regenerating topics from personal story")
+      
+      // Use the new story-topics API for regeneration
+      const response = await fetch("/api/story-topics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "regenerate",
+          storyId: generatedStories[0]?.id
+        })
+      })
+
+      console.log("Topic regeneration response status:", response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log("Topic regeneration response data:", data)
+        
+        if (data.success && data.topics && Array.isArray(data.topics)) {
+          // Parse topics from the new API response
+          const topics = data.topics.map((topic: any) => ({
+            id: topic._id || topic.id,
+            title: topic.topicText,
+            status: "pending" as const
+          }))
+
+          console.log("Parsed regenerated topics:", topics)
+          setGeneratedTopics(topics)
+          
+          toast({
+            title: "Topics Regenerated",
+            description: `${topics.length} new topics have been generated from your personal story.`,
+          })
+        } else {
+          throw new Error("Invalid response format")
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Topic regeneration failed:", errorData)
+        throw new Error(errorData.error || "Failed to regenerate topics")
+      }
+    } catch (error) {
+      console.error("Error regenerating topics:", error)
+      
+      // Create fallback topics based on question answers
+      const fallbackTopics = generateTopicsFromAnswers(formData)
+      setGeneratedTopics(fallbackTopics)
+      
+      toast({
+        title: "Topics Regenerated (Fallback)",
+        description: "Generated fallback topics for your review.",
+      })
+    } finally {
+      setIsGeneratingTopics(false)
     }
   }
 
@@ -1530,8 +1463,8 @@ export default function PersonalStoryPage() {
                               console.log("Regenerate topics button clicked")
                               console.log("Generated stories length:", generatedStories.length)
                               if (generatedStories.length > 0) {
-                                console.log("Calling generateRelatedTopics with story:", generatedStories[0])
-                                generateRelatedTopics(generatedStories[0])
+                                console.log("Calling handleRegenerateTopics")
+                                handleRegenerateTopics()
                               } else {
                                 console.log("No generated stories available")
                                 toast({

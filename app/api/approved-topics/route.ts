@@ -1,25 +1,64 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { connectToDatabase } from "@/lib/mongodb"
-import { ObjectId } from "mongodb"
+import { connectDB } from "@/lib/mongodb"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { db } = await connectToDatabase()
-    const approvedTopics = await db.collection("approved_topics").find({
-      userEmail: session.user.email
-    }).sort({ createdAt: -1 }).toArray()
+    const userEmail = session.user.email
+    const db = await connectDB()
+    
+    // Get approved topics from story system
+    const approvedTopics = await db.collection("approvedTopics")
+      .find({ userEmail })
+      .sort({ approvedAt: -1 })
+      .toArray()
 
-    return NextResponse.json({ approvedTopics })
+    // Get approved story topics
+    const storyTopics = await db.collection("storyTopics")
+      .find({ userEmail, status: "Approved" })
+      .sort({ updatedAt: -1 })
+      .toArray()
+
+    // Combine and format topics
+    const allApprovedTopics = [
+      ...approvedTopics.map(topic => ({
+        id: topic._id,
+        title: topic.topicText,
+        source: topic.source || "personal_story",
+        approvedAt: topic.approvedAt,
+        createdAt: topic.createdAt
+      })),
+      ...storyTopics.map(topic => ({
+        id: topic._id,
+        title: topic.topicText,
+        source: "personal_story",
+        approvedAt: topic.updatedAt,
+        createdAt: topic.createdAt
+      }))
+    ]
+
+    // Remove duplicates based on title
+    const uniqueTopics = allApprovedTopics.filter((topic, index, self) => 
+      index === self.findIndex(t => t.title.toLowerCase() === topic.title.toLowerCase())
+    )
+
+    return NextResponse.json({
+      success: true,
+      approvedTopics: uniqueTopics
+    })
+
   } catch (error) {
     console.error("Error fetching approved topics:", error)
-    return NextResponse.json({ error: "Failed to fetch approved topics" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to fetch approved topics" },
+      { status: 500 }
+    )
   }
 }
 
@@ -31,75 +70,37 @@ export async function POST(request: NextRequest) {
     }
 
     const { topics, storyId } = await request.json()
+    const userEmail = session.user.email
 
-    if (!topics || !Array.isArray(topics) || topics.length === 0) {
+    if (!topics || !Array.isArray(topics)) {
       return NextResponse.json({ error: "Invalid topics data" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
+    const db = await connectDB()
     
-    // Save approved topics
-    const approvedTopics = topics.map((topic: string) => ({
-      title: topic,
-      userEmail: session.user.email,
+    // Insert approved topics
+    const topicDocuments = topics.map((topic: string) => ({
+      userEmail,
+      topicText: topic,
+      source: "manual_approval",
       storyId: storyId || null,
-      createdAt: new Date(),
-      status: "approved"
+      approvedAt: new Date(),
+      createdAt: new Date()
     }))
 
-    const result = await db.collection("approved_topics").insertMany(approvedTopics)
+    await db.collection("approvedTopics").insertMany(topicDocuments)
 
-    return NextResponse.json({ 
-      success: true, 
-      approvedTopics: approvedTopics.map((topic, index) => ({
-        ...topic,
-        _id: result.insertedIds[index]
-      }))
+    return NextResponse.json({
+      success: true,
+      message: "Topics approved successfully",
+      approvedCount: topics.length
     })
+
   } catch (error) {
-    console.error("Error saving approved topics:", error)
-    return NextResponse.json({ error: "Failed to save approved topics" }, { status: 500 })
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const { topicId } = await request.json()
-    console.log("DELETE request - topicId:", topicId, "userEmail:", session.user.email)
-
-    if (!topicId) {
-      return NextResponse.json({ error: "Topic ID is required" }, { status: 400 })
-    }
-
-    const { db } = await connectToDatabase()
-    
-    // Try to find the topic first to debug
-    const topicToDelete = await db.collection("approved_topics").findOne({
-      _id: new ObjectId(topicId),
-      userEmail: session.user.email
-    })
-    
-    console.log("Topic found for deletion:", topicToDelete)
-    
-    const result = await db.collection("approved_topics").deleteOne({
-      _id: new ObjectId(topicId),
-      userEmail: session.user.email
-    })
-
-    console.log("Delete result:", result)
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: "Topic not found" }, { status: 404 })
-    }
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error("Error deleting approved topic:", error)
-    return NextResponse.json({ error: "Failed to delete approved topic" }, { status: 500 })
+    console.error("Error approving topics:", error)
+    return NextResponse.json(
+      { error: "Failed to approve topics" },
+      { status: 500 }
+    )
   }
 }

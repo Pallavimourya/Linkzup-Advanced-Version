@@ -146,15 +146,50 @@ export default function AIArticlesPage() {
   const fetchPersonalizedTopics = async () => {
     try {
       setIsRefreshingTopics(true)
-      const response = await fetch('/api/personalized-topics')
+      
+      // First check if user has personal story data
+      const storyResponse = await fetch('/api/personal-story/answers')
+      if (!storyResponse.ok) {
+        setHasPersonalStory(false)
+        setPersonalizedTopics([])
+        setAllPersonalizedTopics([])
+        return
+      }
+      
+      const storyData = await storyResponse.json()
+      if (!storyData.answers || Object.values(storyData.answers).every(value => !value || (typeof value === 'string' && value.trim() === ''))) {
+        setHasPersonalStory(false)
+        setPersonalizedTopics([])
+        setAllPersonalizedTopics([])
+        return
+      }
+      
+      // Generate fresh topics from personal story
+      const response = await fetch('/api/story-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate'
+        })
+      })
       
       if (response.ok) {
         const data = await response.json()
-        if (data.hasPersonalStory && data.topics) {
+        if (data.success && data.topics) {
+          // Convert story topics to the format expected by the UI
+          const formattedTopics = data.topics.map((topic: any) => ({
+            id: topic._id || topic.id,
+            title: topic.topicText,
+            viralChance: Math.floor(Math.random() * 30) + 70, // 70-100% for story-based topics
+            niche: "Personal Story",
+            status: "generated" as const,
+            isPersonalized: true
+          }))
+          
           // Store all topics
-          setAllPersonalizedTopics(data.topics)
+          setAllPersonalizedTopics(formattedTopics)
           // Shuffle and select 6 topics for display
-          const shuffledTopics = shuffleAndSelectTopics(data.topics, 6)
+          const shuffledTopics = shuffleAndSelectTopics(formattedTopics, 6)
           setPersonalizedTopics(shuffledTopics)
           setHasPersonalStory(true)
           
@@ -166,8 +201,10 @@ export default function AIArticlesPage() {
       } else {
         setHasPersonalStory(false)
         setPersonalizedTopics([])
+        setAllPersonalizedTopics([])
       }
     } catch (error) {
+      console.error('Error fetching personalized topics:', error)
       setHasPersonalStory(false)
       setPersonalizedTopics([])
       setAllPersonalizedTopics([])
@@ -179,33 +216,39 @@ export default function AIArticlesPage() {
   // Function to check personal story completion status
   const checkPersonalStoryStatus = async () => {
     try {
-      const response = await fetch('/api/personalized-topics')
+      // Check if user has personal story data
+      const response = await fetch('/api/personal-story/answers')
       
       if (response.ok) {
         const data = await response.json()
-        // Status check data received
-        const newHasPersonalStory = data.hasPersonalStory
-        
-        // Personal story status check completed
+        const newHasPersonalStory = data.answers && Object.values(data.answers).some(value => value && (typeof value === 'string' && value.trim() !== ''))
         
         // If personal story status changed, update topics
         if (newHasPersonalStory !== hasPersonalStory) {
-          // Personal story status changed
           if (newHasPersonalStory) {
             await fetchPersonalizedTopics()
           } else {
             setHasPersonalStory(false)
             setPersonalizedTopics([])
-    generateRandomRecommendedTopics()
+            setAllPersonalizedTopics([])
+            generateRandomRecommendedTopics()
           }
         } else {
           console.log("Personal story status unchanged")
         }
       } else {
         console.error("Status check failed:", response.status)
+        setHasPersonalStory(false)
+        setPersonalizedTopics([])
+        setAllPersonalizedTopics([])
+        generateRandomRecommendedTopics()
       }
     } catch (error) {
       console.error("Error checking personal story status:", error)
+      setHasPersonalStory(false)
+      setPersonalizedTopics([])
+      setAllPersonalizedTopics([])
+      generateRandomRecommendedTopics()
     }
   }
 
@@ -240,21 +283,39 @@ export default function AIArticlesPage() {
       setIsRefreshingTopics(true)
       console.log("Regenerating personalized topics...")
       
-      // Call API to force regeneration
-      const response = await fetch('/api/personalized-topics/regenerate', {
+      // Call new story-topics API to force regeneration
+      const response = await fetch('/api/story-topics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({
+          action: 'regenerate'
+        })
       })
       
       if (response.ok) {
         const data = await response.json()
-        if (data.hasPersonalStory && data.topics) {
-          setAllPersonalizedTopics(data.topics)
-          const shuffledTopics = shuffleAndSelectTopics(data.topics, 6)
+        if (data.success && data.topics) {
+          // Convert story topics to the format expected by the UI
+          const formattedTopics = data.topics.map((topic: any) => ({
+            id: topic._id || topic.id,
+            title: topic.topicText,
+            viralChance: Math.floor(Math.random() * 30) + 70, // 70-100% for story-based topics
+            niche: "Personal Story",
+            status: "generated" as const,
+            isPersonalized: true
+          }))
+          
+          setAllPersonalizedTopics(formattedTopics)
+          const shuffledTopics = shuffleAndSelectTopics(formattedTopics, 6)
           setPersonalizedTopics(shuffledTopics)
           setHasPersonalStory(true)
+          
+          toast({
+            title: "Topics Regenerated!",
+            description: "Generated fresh topics from your personal story.",
+          })
         }
       } else {
         throw new Error('Failed to regenerate topics')
@@ -289,13 +350,14 @@ export default function AIArticlesPage() {
     // First try to fetch personalized topics
     fetchPersonalizedTopics()
     
-    // Fetch approved topics
+    // Fetch approved topics from story system
     const fetchApprovedTopics = async () => {
       try {
         const response = await fetch('/api/approved-topics')
         if (response.ok) {
           const data = await response.json()
           setApprovedTopics(data.approvedTopics || [])
+          console.log("Fetched approved topics:", data.approvedTopics?.length || 0)
         }
       } catch (error) {
         console.error('Error fetching approved topics:', error)
@@ -1230,6 +1292,112 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
     }
   }
 
+  // Generate content from approved topics using story-based content generation
+  const generateContentFromApprovedTopic = async (topic: any) => {
+    console.log("Starting content generation for approved topic:", topic)
+    setIsGenerating(true)
+
+    try {
+      const creditResponse = await fetch("/api/billing/credits")
+      if (creditResponse.ok) {
+        const creditData = await creditResponse.json()
+        if (!creditData.isTrialActive && creditData.credits < 0.3) {
+          toast({
+            title: "Insufficient Credits",
+            description: "You need at least 0.3 credits to generate content. Please purchase more credits.",
+            variant: "destructive",
+          })
+          window.location.href = "/dashboard/billing"
+          return
+        }
+      }
+
+      // Use the story-content API to generate content based on the approved topic
+      const response = await fetch("/api/story-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topicId: topic.id,
+          contentType: "linkedin-post"
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Story content generation failed:", errorData)
+        throw new Error(errorData.error || "Failed to generate content from story")
+      }
+
+      const data = await response.json()
+      console.log("Story content generation response:", data)
+      
+      if (data.success && data.content) {
+        // Create a topic object for display
+        const storyTopic: Topic = {
+          id: `story-${topic.id}`,
+          title: topic.title,
+          viralChance: 85, // High viral chance for story-based content
+          niche: "Personal Story",
+          content: [data.content.content],
+          format: "linkedin-post",
+          status: "content-ready",
+          isPersonalized: true
+        }
+
+        // Add to topics list for display
+        setTopics(prev => [storyTopic, ...prev])
+        
+        // Set as selected topic
+        setSelectedTopicId(storyTopic.id)
+        
+        toast({
+          title: "Content Generated from Your Story!",
+          description: `Generated personalized content for "${topic.title}" based on your personal story.`,
+        })
+      } else {
+        throw new Error("Invalid response from story content API")
+      }
+    } catch (error) {
+      console.error("Error generating content from approved topic:", error)
+      
+      // Create fallback content
+      const fallbackContent = `${topic.title}
+
+This topic is deeply connected to my personal journey and experiences. Through my story, I've learned valuable lessons that I believe can help others in their professional development.
+
+Key insights from my experience:
+• Every challenge is an opportunity for growth
+• Authenticity builds stronger connections
+• Continuous learning is essential for success
+• Building meaningful relationships matters
+
+What aspects of this topic resonate with your own experiences? I'd love to hear your thoughts and stories in the comments.
+
+#PersonalStory #ProfessionalGrowth #Authenticity #LinkedIn`
+
+      const storyTopic: Topic = {
+        id: `story-fallback-${topic.id}`,
+        title: topic.title,
+        viralChance: 75,
+        niche: "Personal Story",
+        content: [fallbackContent],
+        format: "linkedin-post",
+        status: "content-ready",
+        isPersonalized: true
+      }
+
+      setTopics(prev => [storyTopic, ...prev])
+      setSelectedTopicId(storyTopic.id)
+      
+      toast({
+        title: "Content Generated (Fallback)",
+        description: "Generated fallback content based on your approved topic.",
+      })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   const clearTopics = () => {
     setTopics([])
     setExpandedTopic(null)
@@ -1505,6 +1673,117 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
           </motion.div>
         )}
 
+        {/* Approved Topics from Personal Story */}
+        {showTopicGenerator && approvedTopics.length > 0 && (
+          <motion.div 
+            className="max-w-7xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Card className="border-0 shadow-2xl bg-card/80 backdrop-blur-sm overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 dark:from-green-950/50 dark:to-blue-950/50 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-3 text-xl text-foreground">
+                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                        <CheckCircle className="w-4 h-4 text-white" />
+                      </div>
+                      Approved Topics from Your Story
+                    </CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground mt-1">
+                      Topics you've approved from your personal story - ready for content generation
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {approvedTopics.slice(0, 6).map((topic, index) => (
+                    <motion.div
+                      key={topic.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      whileHover={{ y: -5 }}
+                      className="group relative bg-white dark:bg-black border-2 border-green-200 dark:border-green-800 rounded-2xl p-4 sm:p-6 hover:border-green-500 dark:hover:border-green-400 hover:shadow-xl transition-all duration-300 flex flex-col"
+                    >
+                      <div className="space-y-3 sm:space-y-4 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-semibold text-base sm:text-lg leading-tight text-black dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors flex-1">
+                            {topic.title}
+                          </h3>
+                          <Badge className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/50 dark:to-blue-900/50 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 text-xs flex-shrink-0">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Approved
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+                            From Story
+                          </Badge>
+                          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                            Ready to Generate
+                          </Badge>
+                        </div>
+
+                        {/* Generate Content Button */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          whileHover={{ opacity: 1 }}
+                          className="hidden sm:block sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
+                        >
+                          <Button
+                            onClick={() => generateContentFromApprovedTopic(topic)}
+                            size="sm"
+                            className="w-full h-10 bg-green-500 hover:bg-green-600 text-white"
+                            disabled={isGenerating}
+                          >
+                            {isGenerating ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-4 h-4 mr-2" />
+                                Generate Content
+                              </>
+                            )}
+                          </Button>
+                        </motion.div>
+
+                        {/* Generate Button for Mobile - Always visible */}
+                        <div className="block sm:hidden mt-4">
+                          <Button
+                            onClick={() => generateContentFromApprovedTopic(topic)}
+                            size="sm"
+                            className="w-full h-10 bg-green-500 hover:bg-green-600 text-white"
+                            disabled={isGenerating}
+                          >
+                            {isGenerating ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Generating...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-4 h-4 mr-2" />
+                                Generate Content
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Enhanced Recommended Topics Section */}
           {showTopicGenerator && (hasPersonalStory ? personalizedTopics.length > 0 : recommendedTopics.length > 0) && (
           <motion.div 
@@ -1521,8 +1800,13 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
                       <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                         <Star className="w-4 h-4 text-white" />
                       </div>
-                      {hasPersonalStory ? "Personalized Topics" : "Recommended Topics"}
-                  </CardTitle>
+                      {hasPersonalStory ? "Topics from Your Personal Story" : "Recommended Topics"}
+                    </CardTitle>
+                    {hasPersonalStory && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Topics generated specifically from your personal story answers
+                      </p>
+                    )}
                   </div>
                 </div>
                 </CardHeader>
