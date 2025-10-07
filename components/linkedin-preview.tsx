@@ -22,7 +22,6 @@ import {
   Smartphone,
   Monitor,
   Check,
-  HardDrive,
   ExternalLink,
   Copy
 } from "lucide-react"
@@ -43,14 +42,9 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
   const { isLinkedInConnected } = useLinkedInPosting()
   const { data: session } = useSession()
   const [selectedImages, setSelectedImages] = useState<string[]>([])
-  const [imageSource, setImageSource] = useState<"ai-carousel" | "search" | "ai-generate" | "upload" | "google-drive" | null>(null)
+  const [imageSource, setImageSource] = useState<"ai-carousel" | "search" | "ai-generate" | "upload" | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   
-  // Google Drive state
-  const [googleDriveResults, setGoogleDriveResults] = useState<any[]>([])
-  const [googleDriveConnected, setGoogleDriveConnected] = useState(false)
-  const [googleDriveQuery, setGoogleDriveQuery] = useState("")
-  const [googleDrivePageToken, setGoogleDrivePageToken] = useState("")
   
   // Edit functionality state
   const [isEditing, setIsEditing] = useState(false)
@@ -61,35 +55,6 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
     setEditableContent(content)
   }, [content])
 
-  // Check for Google Drive connection success from URL parameters
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get('google_drive_connected') === 'true') {
-      // Connection was successful, check status and load images
-      setTimeout(() => {
-        checkGoogleDriveConnection()
-      }, 1000) // Small delay to ensure connection is fully established
-    }
-  }, [])
-
-  // Auto-load Google Drive images when connection is established
-  React.useEffect(() => {
-    if (googleDriveConnected && googleDriveResults.length === 0) {
-      // Automatically load all images when Google Drive is connected
-      searchGoogleDriveImages()
-    }
-  }, [googleDriveConnected])
-
-  // Check for connection status changes periodically
-  React.useEffect(() => {
-    const checkConnectionPeriodically = setInterval(() => {
-      if (!googleDriveConnected) {
-        checkGoogleDriveConnection()
-      }
-    }, 3000) // Check every 3 seconds
-
-    return () => clearInterval(checkConnectionPeriodically)
-  }, [googleDriveConnected])
   
   // Image Management State
   const [isLoading, setIsLoading] = useState(false)
@@ -298,133 +263,6 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
     })
   }
 
-  // Google Drive functions
-  const checkGoogleDriveConnection = async () => {
-    try {
-      const response = await fetch('/api/google-drive/auth?action=check')
-      if (response.ok) {
-        const data = await response.json()
-        setGoogleDriveConnected(data.connected)
-      }
-    } catch (error) {
-      console.error('Failed to check Google Drive connection:', error)
-    }
-  }
-
-  const connectGoogleDrive = async () => {
-    try {
-      const response = await fetch('/api/google-drive/auth?action=connect')
-      if (response.ok) {
-        const data = await response.json()
-        window.open(data.authUrl, '_blank')
-        toast({
-          title: "Google Drive Authorization",
-          description: "Please complete the authorization in the new window.",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Connection failed",
-        description: "Failed to connect to Google Drive. Please try again.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const disconnectGoogleDrive = async () => {
-    try {
-      const response = await fetch('/api/google-drive/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action: 'disconnect' }),
-      })
-
-      if (response.ok) {
-        setGoogleDriveConnected(false)
-        setGoogleDriveResults([])
-        toast({
-          title: "Disconnected",
-          description: "Google Drive has been disconnected successfully.",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Disconnect failed",
-        description: "Failed to disconnect from Google Drive. Please try again.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const searchGoogleDriveImages = async (loadMore = false) => {
-    if (!googleDriveConnected) {
-      toast({
-        title: "Not connected",
-        description: "Please connect your Google Drive account first.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const action = googleDriveQuery.trim() ? 'search' : 'list'
-      const params = new URLSearchParams({
-        action,
-        ...(googleDriveQuery.trim() && { query: googleDriveQuery }),
-        ...(loadMore && googleDrivePageToken && { pageToken: googleDrivePageToken }),
-      })
-
-      const response = await fetch(`/api/google-drive?${params}`)
-      
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.images && data.images.length > 0) {
-          if (loadMore) {
-            setGoogleDriveResults(prev => [...prev, ...data.images])
-          } else {
-            setGoogleDriveResults(data.images)
-          }
-          setGoogleDrivePageToken(data.nextPageToken || '')
-          
-          if (!loadMore) {
-            toast({
-              title: "Search Complete",
-              description: `Found ${data.images.length} images from Google Drive`,
-            })
-          }
-        } else {
-          if (!loadMore) {
-            setGoogleDriveResults([])
-            toast({
-              title: "No Images Found",
-              description: "No images found in your Google Drive. Try a different search term.",
-              variant: "destructive"
-            })
-          }
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || "Google Drive search failed")
-      }
-    } catch (error) {
-      toast({
-        title: "Search failed",
-        description: "Failed to search Google Drive. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const loadMoreGoogleDriveImages = () => {
-    if (googleDrivePageToken) {
-      searchGoogleDriveImages(true)
-    }
-  }
 
   const handleClearAllImages = () => {
     setSelectedImages([])
@@ -639,7 +477,7 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
             )}
 
             <Tabs defaultValue="upload" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="upload">
                   <Upload className="w-4 h-4 mr-2" />
                   Upload
@@ -647,10 +485,6 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                 <TabsTrigger value="search">
                   <Search className="w-4 h-4 mr-2" />
                   Search
-                </TabsTrigger>
-                <TabsTrigger value="google-drive">
-                  <HardDrive className="w-4 h-4 mr-2" />
-                  Google Drive
                 </TabsTrigger>
                 <TabsTrigger value="ai-generate">
                   <Sparkles className="w-4 h-4 mr-2" />
@@ -790,167 +624,6 @@ export function LinkedInPreview({ content, onSaveToDraft, onClose, onContentUpda
                 </Card>
               </TabsContent>
 
-              {/* Google Drive Tab */}
-              <TabsContent value="google-drive" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span className="flex items-center">
-                        <HardDrive className="w-5 h-5 mr-2" />
-                        Google Drive
-                      </span>
-                      {googleDriveConnected ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={disconnectGoogleDrive}
-                        >
-                          Disconnect
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={connectGoogleDrive}
-                        >
-                          Connect
-                        </Button>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {!googleDriveConnected ? (
-                      <div className="text-center py-8">
-                        <HardDrive className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-lg font-semibold mb-2">Connect Google Drive</h3>
-                        <p className="text-muted-foreground mb-4">
-                          Connect your Google Drive account to access your images directly from your cloud storage.
-                        </p>
-                        <Button onClick={connectGoogleDrive} className="w-full">
-                          <HardDrive className="w-4 h-4 mr-2" />
-                          Connect Google Drive
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Search your Google Drive images..."
-                            value={googleDriveQuery}
-                            onChange={(e) => setGoogleDriveQuery(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && searchGoogleDriveImages()}
-                            className="flex-1"
-                          />
-                          <Button 
-                            onClick={() => searchGoogleDriveImages()} 
-                            disabled={isLoading}
-                          >
-                            {isLoading ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Search className="w-4 h-4" />
-                            )}
-                          </Button>
-                        </div>
-
-                        {googleDriveResults.length > 0 && (
-                          <div className="space-y-2">
-                            <Label>Google Drive Images</Label>
-                            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                              {googleDriveResults.map((result) => {
-                                const isSelected = selectedImages.includes(result.downloadUrl)
-                                return (
-                                  <div key={result.id} className="relative group">
-                                    <img
-                                      src={result.url}
-                                      alt={result.name}
-                                      className={`w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity ${
-                                        isSelected ? 'ring-2 ring-blue-500' : ''
-                                      }`}
-                                      onClick={() => handleImageSelect(result.downloadUrl)}
-                                    />
-                                    <Badge className="absolute top-1 left-1 text-xs">
-                                      Drive
-                                    </Badge>
-                                    <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded truncate">
-                                      {result.name}
-                                    </div>
-                                    {isSelected && (
-                                      <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                                        <div className="bg-blue-500 text-white rounded-full p-1">
-                                          <Check className="w-3 h-3" />
-                                        </div>
-                                      </div>
-                                    )}
-                                    <div className="absolute top-1 right-1 flex gap-1">
-                                      <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6"
-                                        onClick={() => navigator.clipboard.writeText(result.downloadUrl)}
-                                      >
-                                        <Copy className="w-3 h-3" />
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="secondary"
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6"
-                                        onClick={() => window.open(result.webViewLink, '_blank')}
-                                      >
-                                        <ExternalLink className="w-3 h-3" />
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                            
-                            {googleDrivePageToken && (
-                              <Button
-                                variant="outline"
-                                onClick={loadMoreGoogleDriveImages}
-                                disabled={isLoading}
-                                className="w-full"
-                              >
-                                {isLoading ? (
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                ) : (
-                                  'Load More'
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                        )}
-
-                        {googleDriveResults.length === 0 && googleDriveConnected && (
-                          <div className="text-center py-8">
-                            <Image className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                            <h3 className="text-lg font-semibold mb-2">No Images Found</h3>
-                            <p className="text-muted-foreground mb-4">
-                              {googleDriveQuery ? 
-                                `No images found matching "${googleDriveQuery}". Try a different search term.` :
-                                "No images found in your Google Drive. Upload some images to get started."
-                              }
-                            </p>
-                            <Button 
-                              variant="outline" 
-                              onClick={() => searchGoogleDriveImages()}
-                              disabled={isLoading}
-                            >
-                              {isLoading ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              ) : (
-                                <Search className="w-4 h-4 mr-2" />
-                              )}
-                              {googleDriveQuery ? 'Search Again' : 'Browse All Images'}
-                            </Button>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
               {/* AI Generate Tab */}
               <TabsContent value="ai-generate" className="mt-4">

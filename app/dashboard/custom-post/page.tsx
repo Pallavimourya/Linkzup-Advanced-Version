@@ -45,7 +45,6 @@ import {
   Search,
   Loader2,
   Mic,
-  HardDrive,
   RefreshCw,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -255,11 +254,6 @@ export default function CustomPostPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<any[]>([])
 
-  // Google Drive state
-  const [googleDriveResults, setGoogleDriveResults] = useState<any[]>([])
-  const [googleDriveConnected, setGoogleDriveConnected] = useState(false)
-  const [googleDriveQuery, setGoogleDriveQuery] = useState("")
-  const [googleDrivePageToken, setGoogleDrivePageToken] = useState("")
 
   // Upload options state
   const [showUploadOptions, setShowUploadOptions] = useState(false)
@@ -552,101 +546,6 @@ export default function CustomPostPage() {
     })
   }
 
-  // Google Drive functions
-  const checkGoogleDriveConnection = async () => {
-    try {
-      const response = await fetch("/api/google-drive/auth?action=check")
-      if (response.ok) {
-        const data = await response.json()
-        setGoogleDriveConnected(data.connected)
-      }
-    } catch (error) {
-      console.error("Failed to check Google Drive connection:", error)
-    }
-  }
-
-  const connectGoogleDrive = async () => {
-    try {
-      const response = await fetch("/api/google-drive/auth?action=connect")
-      if (response.ok) {
-        const data = await response.json()
-        window.open(data.authUrl, "_blank")
-        toast({
-          title: "Google Drive Authorization",
-          description: "Please complete the authorization in the new window.",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Connection failed",
-        description: "Failed to connect to Google Drive. Please try again.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const searchGoogleDriveImages = async (skipConnectionCheck = false) => {
-    if (!skipConnectionCheck && !googleDriveConnected) {
-      toast({
-        title: "Not connected",
-        description: "Please connect your Google Drive account first.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsSearching(true)
-    try {
-      const action = googleDriveQuery.trim() ? "search" : "list"
-      const params = new URLSearchParams({
-        action,
-        ...(googleDriveQuery.trim() && { query: googleDriveQuery }),
-      })
-
-      const response = await fetch(`/api/google-drive?${params}`)
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.images && data.images.length > 0) {
-          setGoogleDriveResults(data.images)
-          setGoogleDrivePageToken(data.nextPageToken || "")
-
-          toast({
-            title: "Images Loaded",
-            description: `Found ${data.images.length} images from your Google Drive`,
-          })
-        } else {
-          setGoogleDriveResults([])
-          toast({
-            title: "No Images Found",
-            description: "No images found in your Google Drive. Try uploading some images to your Drive first.",
-          })
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}))
-
-        if (errorData.needsReconnect) {
-          setGoogleDriveConnected(false)
-          toast({
-            title: "Connection Expired",
-            description: "Your Google Drive connection has expired. Please reconnect.",
-            variant: "destructive",
-          })
-        } else {
-          throw new Error(errorData.error || "Google Drive search failed")
-        }
-      }
-    } catch (error) {
-      console.error("Google Drive search error:", error)
-      toast({
-        title: "Search failed",
-        description: "Failed to load images from Google Drive. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSearching(false)
-    }
-  }
 
   const handleAIGenerate = async () => {
     if (!aiPrompt.trim()) {
@@ -811,51 +710,6 @@ export default function CustomPostPage() {
     })
   }
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.get("google_drive_connected") === "true") {
-      // Connection was successful, check status and load images
-      toast({
-        title: "Google Drive Connected!",
-        description: "Loading your images...",
-      })
-
-      // Clean up URL parameters
-      window.history.replaceState({}, "", "/dashboard/custom-post")
-
-      setTimeout(() => {
-        checkGoogleDriveConnection()
-      }, 500)
-    }
-
-    const error = urlParams.get("error")
-    if (error) {
-      let errorMessage = "Failed to connect Google Drive"
-      if (error === "google_drive_auth_failed") {
-        errorMessage = "Google Drive authorization failed. Please try again."
-      } else if (error === "missing_auth_params") {
-        errorMessage = "Missing authorization parameters. Please try again."
-      } else if (error === "google_drive_callback_failed") {
-        errorMessage = "Failed to complete Google Drive connection. Please try again."
-      }
-
-      toast({
-        title: "Connection Error",
-        description: errorMessage,
-        variant: "destructive",
-      })
-
-      // Clean up URL parameters
-      window.history.replaceState({}, "", "/dashboard/custom-post")
-    }
-  }, [])
-
-  useEffect(() => {
-    if (googleDriveConnected && googleDriveResults.length === 0 && !isSearching) {
-      console.log("[v0] Auto-loading Google Drive images...")
-      searchGoogleDriveImages(true) // Skip connection check since we know it's connected
-    }
-  }, [googleDriveConnected])
 
   // Connection status is checked only when needed
 
@@ -1265,17 +1119,7 @@ export default function CustomPostPage() {
                           <Upload className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Upload Images</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">From computer or Google Drive</p>
-                        <div className="mt-3 flex items-center justify-center space-x-4 text-xs text-gray-400 dark:text-gray-500">
-                          <span className="flex items-center">
-                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                            Local Files
-                          </span>
-                          <span className="flex items-center">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                            Google Drive
-                          </span>
-                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">From your computer</p>
                       </div>
 
                       {/* Upload Options Modal */}
@@ -1320,27 +1164,6 @@ export default function CustomPostPage() {
                                 </div>
                               </div>
 
-                              {/* Upload from Google Drive */}
-                              <div
-                                className="flex items-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all duration-200 group"
-                                onClick={() => {
-                                  setShowUploadOptions(false)
-                                  connectGoogleDrive()
-                                }}
-                              >
-                                <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-4 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
-                                  <HardDrive className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <div className="flex-1">
-                                  <h4 className="font-semibold text-gray-900 dark:text-white">
-                                    Upload from Google Drive
-                                  </h4>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">Access your cloud storage</p>
-                                </div>
-                                <div className="flex-shrink-0">
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                </div>
-                              </div>
                             </div>
 
                             {/* Footer */}
@@ -1362,122 +1185,6 @@ export default function CustomPostPage() {
                         className="hidden"
                       />
 
-                      {googleDriveConnected && (
-                        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center">
-                              <HardDrive className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
-                              <h3 className="font-semibold text-blue-900 dark:text-blue-100">Google Drive Images</h3>
-                              {googleDriveConnected && (
-                                <span className="ml-2 px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">
-                                  Connected
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              {googleDriveResults.length > 0 && (
-                                <Button
-                                  onClick={() => searchGoogleDriveImages()}
-                                  disabled={isSearching}
-                                  size="sm"
-                                  variant="outline"
-                                >
-                                  {isSearching ? (
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  ) : (
-                                    <RefreshCw className="w-4 h-4 mr-2" />
-                                  )}
-                                  Refresh
-                                </Button>
-                              )}
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={async () => {
-                                  try {
-                                    const response = await fetch("/api/google-drive/auth", {
-                                      method: "POST",
-                                    })
-                                    if (response.ok) {
-                                      setGoogleDriveConnected(false)
-                                      setGoogleDriveResults([])
-                                      toast({
-                                        title: "Disconnected",
-                                        description: "Google Drive has been disconnected.",
-                                      })
-                                    }
-                                  } catch (error) {
-                                    toast({
-                                      title: "Error",
-                                      description: "Failed to disconnect. Please try again.",
-                                      variant: "destructive",
-                                    })
-                                  }
-                                }}
-                              >
-                                Disconnect
-                              </Button>
-                            </div>
-                          </div>
-
-                          {isSearching ? (
-                            <div className="flex flex-col items-center justify-center py-12">
-                              <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin mb-3" />
-                              <p className="text-sm text-blue-700 dark:text-blue-300">
-                                Loading your Google Drive images...
-                              </p>
-                            </div>
-                          ) : googleDriveResults.length > 0 ? (
-                            <>
-                              <div className="mb-3">
-                                <Input
-                                  placeholder="Search in your Google Drive..."
-                                  value={googleDriveQuery}
-                                  onChange={(e) => setGoogleDriveQuery(e.target.value)}
-                                  onKeyPress={(e) => e.key === "Enter" && searchGoogleDriveImages()}
-                                  className="w-full"
-                                />
-                              </div>
-                              <div className="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto">
-                                {googleDriveResults.map((result) => (
-                                  <div key={result.id} className="relative group">
-                                    <img
-                                      src={result.url || "/placeholder.svg"}
-                                      alt={result.name}
-                                      className="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                                      onClick={() => handleImageSelect(result.downloadUrl)}
-                                    />
-                                    <div className="absolute bottom-1 left-1 right-1 bg-black/50 text-white text-xs p-1 rounded truncate">
-                                      {result.name}
-                                    </div>
-                                    {postData.images.includes(result.downloadUrl) && (
-                                      <div className="absolute inset-0 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                                        <div className="bg-blue-500 text-white rounded-full p-1">
-                                          <Check className="w-3 h-3" />
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                              <p className="text-xs text-blue-600 dark:text-blue-400 mt-3 text-center">
-                                {googleDriveResults.length} image{googleDriveResults.length !== 1 ? "s" : ""} • Click to
-                                select
-                              </p>
-                            </>
-                          ) : (
-                            <div className="text-center py-8">
-                              <HardDrive className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                No images found in your Google Drive
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-500">
-                                Upload some images to your Google Drive and refresh
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
 
                     {/* Search Images */}

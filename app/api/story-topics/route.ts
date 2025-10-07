@@ -128,10 +128,11 @@ Generate ${count} topics now:`
         .slice(0, count) // Use dynamic count
     }
 
-    // Ensure we have enough topics
-    if (topics.length < count) {
+    // Ensure we have at least 3 topics (minimum requirement)
+    const minTopics = Math.max(3, count)
+    if (topics.length < minTopics) {
       const fallbackTopics = generateFallbackTopics(storyData)
-      topics = [...topics, ...fallbackTopics].slice(0, count)
+      topics = [...topics, ...fallbackTopics].slice(0, minTopics)
     }
 
     // Check for existing topics across all contexts to ensure uniqueness
@@ -145,11 +146,11 @@ Generate ${count} topics now:`
     // Filter out duplicates and ensure uniqueness
     const uniqueTopics = await ensureTopicUniqueness(topics, userEmail)
     
-    // If we don't have enough unique topics, generate more
-    if (uniqueTopics.length < count) {
+    // If we don't have enough unique topics, generate more (minimum 3)
+    if (uniqueTopics.length < minTopics) {
       const additionalTopics = generateFallbackTopics(storyData)
       const additionalUnique = await ensureTopicUniqueness(additionalTopics, userEmail)
-      topics = [...uniqueTopics, ...additionalUnique].slice(0, count)
+      topics = [...uniqueTopics, ...additionalUnique].slice(0, minTopics)
     } else {
       topics = uniqueTopics.slice(0, count)
     }
@@ -251,7 +252,7 @@ function generateFallbackTopics(storyData: any): string[] {
     fallbackTopics.push("The Values That Guide My Decisions")
   }
 
-  return fallbackTopics.slice(0, 6) // Return up to 6 fallback topics
+  return fallbackTopics // Return all available fallback topics
 }
 
 async function ensureTopicUniqueness(topics: string[], userEmail: string): Promise<string[]> {

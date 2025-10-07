@@ -68,7 +68,6 @@ export default function DashboardPage() {
   useEffect(() => {
     const success = searchParams.get("success")
     const error = searchParams.get("error")
-    const googleDriveConnected = searchParams.get("google_drive_connected")
     const openImageManager = searchParams.get("open_image_manager")
 
     if (success === "linkedin_connected") {
@@ -99,25 +98,6 @@ export default function DashboardPage() {
       })
     }
 
-    // Handle Google Drive connection success
-    if (googleDriveConnected === "true") {
-      toast({
-        title: "Google Drive Connected!",
-        description: "Your Google Drive account has been connected successfully.",
-      })
-
-      // Open ImageManager with Google Drive tab active
-      if (openImageManager === "true") {
-        setImageManagerActiveTab("google-drive")
-        setShowImageManager(true)
-      }
-
-      // Clear the parameters from URL
-      const url = new URL(window.location.href)
-      url.searchParams.delete("google_drive_connected")
-      url.searchParams.delete("open_image_manager")
-      window.history.replaceState({}, "", url.toString())
-    }
   }, [searchParams, updateSession, toast])
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
@@ -1140,15 +1120,15 @@ export default function DashboardPage() {
                       Create Personal Story
                     </Button>
                   </div>
-                ) : personalizedTopics.length === 0 ? (
+                ) : personalizedTopics.length < 3 ? (
                   // Empty State - No Topics Generated Yet
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <div className="w-20 h-20 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full flex items-center justify-center mb-6">
                       <Sparkles className="w-10 h-10 text-blue-500" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Topics Yet</h3>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Generating More Topics</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-                      Generate personalized topics from your personal story to get started
+                      We need at least 3 topics to display. Generating more personalized topics from your story...
                     </p>
                     <Button
                       onClick={handleRegenerateTopics}
@@ -1171,10 +1151,7 @@ export default function DashboardPage() {
                 ) : (
                   // Topics Grid
                   <>
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Your Personalized Topics ({personalizedTopics.length}/6)
-                      </h3>
+                    <div className="flex justify-end items-center mb-6">
                       <Button
                         onClick={handleRegenerateTopics}
                         disabled={isRegeneratingTopics}
@@ -1298,36 +1275,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Show loading state when generating */}
-        {isGenerating && (
-          <div className="flex flex-col items-center justify-center py-16 sm:py-20 space-y-8">
-            <div className="relative">
-              <div className="w-20 h-20 border-4 border-blue-200 dark:border-blue-800 border-t-blue-500 rounded-full animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-blue-500 animate-pulse" />
-              </div>
-            </div>
-            <div className="text-center space-y-4 max-w-md mx-auto">
-              <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-black via-blue-600 to-secondary dark:from-white dark:via-blue-400 dark:to-secondary bg-clip-text text-transparent">
-                Creating Magic
-              </h3>
-              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                Our AI is crafting engaging content tailored just for you...
-              </p>
-              <div className="flex justify-center space-x-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                <div
-                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.1s" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Generated Posts - Centered when content is generated */}
         {generatedPosts.length > 0 && (
@@ -1715,20 +1662,6 @@ export default function DashboardPage() {
         type="content"
         title="Creating Content..."
         description="Our AI is crafting engaging content tailored just for you..."
-      />
-      
-      <ProcessingOverlay 
-        isVisible={isLoadingTopics} 
-        type="topics"
-        title="Generating Topics..."
-        description="Creating personalized topics based on your story..."
-      />
-      
-      <ProcessingOverlay 
-        isVisible={isRegeneratingTopics} 
-        type="topics"
-        title="Regenerating Topics..."
-        description="Creating fresh topics from your personal story..."
       />
     </div>
   )
