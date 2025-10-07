@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
+import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongodb"
+import { ObjectId } from "mongodb"
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as any
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Update topic status
     const result = await db.collection("storyTopics").updateMany(
       { 
-        _id: { $in: topicIds.map((id: string) => new Object(id)) },
+        _id: { $in: topicIds.map((id: string) => new ObjectId(id)) },
         userEmail 
       },
       { 
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (action === "approve") {
       const approvedTopics = await db.collection("storyTopics")
         .find({ 
-          _id: { $in: topicIds.map((id: string) => new Object(id)) },
+          _id: { $in: topicIds.map((id: string) => new ObjectId(id)) },
           userEmail 
         })
         .toArray()
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as any
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -107,4 +108,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-
