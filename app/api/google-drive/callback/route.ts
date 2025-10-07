@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
 
     await client.close()
 
-    // Redirect back to dashboard with success message
-    return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/dashboard?google_drive_connected=true`)
+    // Redirect back to dashboard with success message and open ImageManager
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/dashboard?google_drive_connected=true&open_image_manager=true`)
 
   } catch (error) {
     console.error('Google Drive callback error:', error)

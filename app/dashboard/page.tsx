@@ -39,6 +39,7 @@ import { type CustomizationOptions } from "@/components/ai-customization-panel"
 import { MicrophoneButton } from "@/components/ui/microphone-button"
 import { LinkedInPostPreview } from "@/components/linkedin-post-preview"
 import { EnhancedLinkedInPreview } from "@/components/enhanced-linkedin-preview"
+import { ImageManager } from "@/components/image-manager"
 
 
 interface GeneratedPost {
@@ -58,6 +59,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const success = searchParams.get('success')
     const error = searchParams.get('error')
+    const googleDriveConnected = searchParams.get('google_drive_connected')
+    const openImageManager = searchParams.get('open_image_manager')
     
     if (success === 'linkedin_connected') {
       // Refresh session to get updated LinkedIn connection status
@@ -83,6 +86,26 @@ export default function DashboardPage() {
         variant: "destructive",
       })
     }
+
+    // Handle Google Drive connection success
+    if (googleDriveConnected === 'true') {
+      toast({
+        title: "Google Drive Connected!",
+        description: "Your Google Drive account has been connected successfully.",
+      })
+      
+      // Open ImageManager with Google Drive tab active
+      if (openImageManager === 'true') {
+        setImageManagerActiveTab("google-drive")
+        setShowImageManager(true)
+      }
+      
+      // Clear the parameters from URL
+      const url = new URL(window.location.href)
+      url.searchParams.delete('google_drive_connected')
+      url.searchParams.delete('open_image_manager')
+      window.history.replaceState({}, '', url.toString())
+    }
   }, [searchParams, updateSession, toast])
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
@@ -92,6 +115,8 @@ export default function DashboardPage() {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [showGenerationModal, setShowGenerationModal] = useState(false)
   const [showCustomizationPanel, setShowCustomizationPanel] = useState(false)
+  const [showImageManager, setShowImageManager] = useState(false)
+  const [imageManagerActiveTab, setImageManagerActiveTab] = useState("upload")
   const [prompt, setPrompt] = useState("")
   const [contentType, setContentType] = useState<string>("linkedin-post")
   const [provider, setProvider] = useState<"openai" | "perplexity">("openai")
@@ -1433,6 +1458,23 @@ export default function DashboardPage() {
           }}
         />
       )}
+
+      {/* Image Manager Modal */}
+      <ImageManager
+        onImageSelect={(imageUrl, imageData) => {
+          setSelectedImage(imageUrl)
+          setShowImageManager(false)
+          toast({
+            title: "Image Selected",
+            description: "Image has been added to your content.",
+          })
+        }}
+        trigger={null}
+        className="hidden"
+        open={showImageManager}
+        onOpenChange={setShowImageManager}
+        defaultActiveTab={imageManagerActiveTab}
+      />
 
       {/* Generation Modal */}
       {/* Generation Modal */}

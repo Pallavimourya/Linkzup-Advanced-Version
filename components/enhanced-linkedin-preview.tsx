@@ -80,6 +80,11 @@ export function EnhancedLinkedInPreview({
     setEditableContent(content)
   }, [content])
 
+  // Initial connection check when component mounts
+  React.useEffect(() => {
+    checkGoogleDriveConnection()
+  }, [])
+
   // Check for Google Drive connection success from URL parameters
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
@@ -102,13 +107,12 @@ export function EnhancedLinkedInPreview({
   // Check for connection status changes periodically
   React.useEffect(() => {
     const checkConnectionPeriodically = setInterval(() => {
-      if (!googleDriveConnected) {
-        checkGoogleDriveConnection()
-      }
-    }, 3000) // Check every 3 seconds
+      // Always check connection status to maintain persistent connection
+      checkGoogleDriveConnection()
+    }, 10000) // Check every 10 seconds to maintain connection
 
     return () => clearInterval(checkConnectionPeriodically)
-  }, [googleDriveConnected])
+  }, [])
 
   // Prevent background scrolling when modal is open
   React.useEffect(() => {
@@ -446,6 +450,15 @@ export function EnhancedLinkedInPreview({
         }
       } else {
         const errorData = await response.json().catch(() => ({}))
+        if (errorData.needsReconnect) {
+          setGoogleDriveConnected(false)
+          toast({
+            title: "Reconnection Required",
+            description: "Your Google Drive access has expired. Please reconnect your account.",
+            variant: "destructive",
+          })
+          return
+        }
         throw new Error(errorData.error || "Google Drive search failed")
       }
     } catch (error) {

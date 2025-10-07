@@ -18,6 +18,9 @@ interface ImageManagerProps {
   onImageSelect: (imageUrl: string, imageData?: any) => void
   trigger?: React.ReactNode
   className?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  defaultActiveTab?: string
 }
 
 interface SearchResult {
@@ -47,9 +50,9 @@ interface AIGenerationResult {
   timestamp: Date
 }
 
-export function ImageManager({ onImageSelect, trigger, className }: ImageManagerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState("upload")
+export function ImageManager({ onImageSelect, trigger, className, open, onOpenChange, defaultActiveTab }: ImageManagerProps) {
+  const [isOpen, setIsOpen] = useState(open || false)
+  const [activeTab, setActiveTab] = useState(defaultActiveTab || "upload")
   const [isLoading, setIsLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -239,11 +242,8 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
       const response = await fetch('/api/google-drive/auth?action=connect')
       if (response.ok) {
         const data = await response.json()
-        window.open(data.authUrl, '_blank')
-        toast({
-          title: "Google Drive Authorization",
-          description: "Please complete the authorization in the new window.",
-        })
+        // Redirect in the same window instead of opening new window
+        window.location.href = data.authUrl
       }
     } catch (error) {
       toast({
@@ -338,6 +338,15 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
         }
       } else {
         const errorData = await response.json().catch(() => ({}))
+        if (errorData.needsReconnect) {
+          setGoogleDriveConnected(false)
+          toast({
+            title: "Reconnection Required",
+            description: "Your Google Drive access has expired. Please reconnect your account.",
+            variant: "destructive",
+          })
+          return
+        }
         throw new Error(errorData.error || "Google Drive search failed")
       }
     } catch (error) {
@@ -364,6 +373,11 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
       checkGoogleDriveConnection()
     }
   }, [activeTab])
+
+  // Initial connection check when component mounts
+  useEffect(() => {
+    checkGoogleDriveConnection()
+  }, [])
 
   // Check for Google Drive connection success from URL parameters
   useEffect(() => {
@@ -401,17 +415,38 @@ export function ImageManager({ onImageSelect, trigger, className }: ImageManager
   // Check for connection status changes (e.g., after successful OAuth callback)
   useEffect(() => {
     const checkConnectionPeriodically = setInterval(() => {
-      if (!googleDriveConnected) {
-        console.log('Checking Google Drive connection status...')
-        checkGoogleDriveConnection()
-      }
-    }, 2000) // Check every 2 seconds
+      // Always check connection status to maintain persistent connection
+      console.log('Checking Google Drive connection status...')
+      checkGoogleDriveConnection()
+    }, 10000) // Check every 10 seconds to maintain connection
 
     return () => clearInterval(checkConnectionPeriodically)
-  }, [googleDriveConnected])
+  }, [])
+
+  // Handle external open state changes
+  useEffect(() => {
+    if (open !== undefined) {
+      setIsOpen(open)
+    }
+  }, [open])
+
+  // Handle external active tab changes
+  useEffect(() => {
+    if (defaultActiveTab) {
+      setActiveTab(defaultActiveTab)
+    }
+  }, [defaultActiveTab])
+
+  // Handle modal close
+  const handleOpenChange = (newOpen: boolean) => {
+    setIsOpen(newOpen)
+    if (onOpenChange) {
+      onOpenChange(newOpen)
+    }
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline" className={className}>

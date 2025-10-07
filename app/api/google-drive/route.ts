@@ -38,13 +38,25 @@ export async function GET(request: NextRequest) {
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
+      `${process.env.NEXTAUTH_URL}/api/google-drive/callback`
     )
 
     oauth2Client.setCredentials({
       access_token: user.googleAccessToken,
       refresh_token: user.googleRefreshToken,
     })
+
+    // Try to refresh token if needed
+    try {
+      await oauth2Client.getAccessToken()
+    } catch (error) {
+      console.error('Token refresh failed:', error)
+      // If token refresh fails, return error
+      return NextResponse.json({ 
+        error: 'Google Drive access token expired. Please reconnect your Google Drive account.',
+        needsReconnect: true
+      }, { status: 401 })
+    }
 
     const drive = google.drive({ version: 'v3', auth: oauth2Client })
 
