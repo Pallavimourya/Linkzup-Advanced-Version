@@ -73,11 +73,28 @@ async function generateTopicsFromStory(userEmail: string, storyId?: string, coun
 
     const storyContext = PersonalStoryService.buildStoryContext(storyData)
 
-    // Enhanced prompt for better personal story-based topics
+    // Enhanced prompt for better personal story-based topics with randomization
+    const timestamp = Date.now()
+    const randomSeed = Math.floor(Math.random() * 1000)
+    const topicVariations = [
+      "Focus on the most impactful lessons learned from specific experiences",
+      "Emphasize the challenges overcome and skills developed", 
+      "Highlight the relationships and connections that mattered most",
+      "Explore the turning points and pivotal moments",
+      "Focus on the failures that led to growth",
+      "Emphasize the mentors and teachers who made a difference",
+      "Highlight the times when you had to step outside your comfort zone",
+      "Explore the creative solutions you found to problems"
+    ]
+    
+    const randomVariation = topicVariations[Math.floor(Math.random() * topicVariations.length)]
+    
     const topicPrompt = `Analyze this personal story and generate ${count} unique, specific blog topics based on real events mentioned:
 
 Story:
 ${storyContext}
+
+SPECIAL INSTRUCTION: ${randomVariation}
 
 Requirements:
 - Each topic must be based on actual events from the story
@@ -90,27 +107,36 @@ Requirements:
 - No numbering, no JSON format
 - Focus on specific experiences, challenges, and achievements mentioned in the story
 - Make topics relatable and actionable for LinkedIn audience
+- Be creative and explore DIFFERENT angles than typical career topics
+- Use different vocabulary and phrasing to ensure uniqueness
+- This is generation #${Math.floor(timestamp / 1000) % 1000} at ${new Date().toISOString()}, so make these topics DIFFERENT from any previous ones
 
 ${context === "dashboard" ? "- Focus on broader career and life themes from the story" : "- Focus on specific actionable insights from the story"}
 
-Examples of good format:
+Examples of good format (but create DIFFERENT ones):
 - "How My Early Life Shaped My Professional Success"
 - "Building Resilience Through Taekwondo Training"
 - "From Classroom Debates to Leadership Development"
 - "The Career Decision That Changed Everything"
 - "What My Education Taught Me About Success"
 
-Generate ${count} topics now:`
+Generate ${count} COMPLETELY NEW and DIFFERENT topics now:`
 
     const aiService = new AIService()
+    
+    // Use different AI providers and settings for more variety
+    const providers = ["openai", "perplexity"]
+    const randomProvider = providers[Math.floor(Math.random() * providers.length)]
+    
     const response = await aiService.generateContent(
       "topics",
       topicPrompt,
-      "openai",
+      randomProvider as "openai" | "perplexity",
       {
         tone: "professional",
         wordCount: 50,
-        temperature: 0.8, // Increased for more creativity
+        temperature: 0.9, // Higher temperature for more creativity
+        maxTokens: 400, // Allow more tokens for variety
       },
       undefined,
       userEmail,
@@ -208,7 +234,15 @@ async function regenerateTopicsFromStory(userEmail: string, storyId?: string, co
       "Focus on the small decisions that had big consequences",
       "Emphasize the skills developed through difficult situations",
       "Highlight the turning points that changed everything",
-      "Explore the values that were tested and strengthened"
+      "Explore the values that were tested and strengthened",
+      "Focus on the failures that became stepping stones to success",
+      "Emphasize the mentors and teachers who shaped your perspective",
+      "Highlight the moments when you had to step outside your comfort zone",
+      "Explore the creative solutions you found to complex problems",
+      "Focus on the times when you had to stand up for what you believed in",
+      "Emphasize the collaborations that led to breakthrough moments",
+      "Highlight the times when you had to learn something completely new",
+      "Explore the moments when you realized your true potential"
     ]
     
     const randomVariation = promptVariations[Math.floor(Math.random() * promptVariations.length)]

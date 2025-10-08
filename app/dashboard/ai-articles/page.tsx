@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Sparkles, X, Eye, Settings, PenTool, CheckCircle, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { LinkedInPreview } from "@/components/linkedin-preview"
+import { EnhancedLinkedInPreview } from "@/components/enhanced-linkedin-preview"
 import { AICustomizationPanel, type CustomizationOptions } from "@/components/ai-customization-panel"
 import { useEffect } from "react"
 import { useSession } from "next-auth/react"
@@ -1002,12 +1002,13 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
       if (topic.isPersonalized && topic.storyTopicId) {
         console.log("[v0] Found personalized topic, using story-content API")
         console.log("[v0] Story Topic ID:", topic.storyTopicId)
+        console.log("[v0] Topic Title:", topic.title)
 
         const response = await fetch("/api/story-content", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            topicId: topic.storyTopicId,
+            topicText: topic.title, // Use topic title as topicText for direct generation
             contentType: "linkedin-post",
           }),
         })
@@ -1298,26 +1299,34 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
 
   const saveToDraft = async (content: string, title: string, format = "article") => {
     try {
+      // Map format to valid Draft type
+      const draftType = format === "linkedin-post" ? "text" : format === "story" ? "story" : "text"
+      
       const response = await fetch("/api/drafts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           content,
-          format,
-          niche: "AI Generated",
+          format: draftType,
+          niche: "Personal Story",
+          source: "personal-story",
         }),
       })
 
       if (response.ok) {
+        const data = await response.json()
+        console.log("Draft saved successfully:", data)
         toast({
           title: "Draft Saved!",
           description: "Content has been saved to your drafts.",
         })
       } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Failed to save draft:", errorData)
         toast({
           title: "Error",
-          description: "Failed to save draft. Please try again.",
+          description: errorData.error || "Failed to save draft. Please try again.",
           variant: "destructive",
         })
       }
@@ -1522,21 +1531,23 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                           </h3>
 
                           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-blue-200/50 dark:border-blue-800/50">
-                            <Button
-                              onClick={() => {
-                                console.log("Generating content for approved topic:", topic.title)
-                                generateContentForTopic(topic.title, `approved-${topic._id || index}`)
-                              }}
-                              disabled={generatingTopicId === `approved-${topic._id || index}`}
-                              className="flex-1 h-9 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
-                            >
-                              {generatingTopicId === `approved-${topic._id || index}` ? (
-                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                              ) : (
-                                <Sparkles className="w-4 h-4 mr-2" />
-                              )}
-                              Generate Content
-                            </Button>
+                            {!topics.some(t => t.id === `approved-${topic._id || index}` && t.status === "content-ready") && (
+                              <Button
+                                onClick={() => {
+                                  console.log("Generating content for approved topic:", topic.title)
+                                  generateContentForTopic(topic.title, `approved-${topic._id || index}`)
+                                }}
+                                disabled={generatingTopicId === `approved-${topic._id || index}`}
+                                className="flex-1 h-9 sm:h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
+                              >
+                                {generatingTopicId === `approved-${topic._id || index}` ? (
+                                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                ) : (
+                                  <Sparkles className="w-4 h-4 mr-2" />
+                                )}
+                                Generate Content
+                              </Button>
+                            )}
 
                             <Button
                               onClick={() => handleDiscardApprovedTopic(topic._id, topic.title)}
@@ -1558,122 +1569,6 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
           </motion.div>
         )}
 
-        {/* Approved Topics from Personal Story */}
-        {showTopicGenerator && approvedTopics.length > 0 && (
-          <motion.div
-            className="max-w-7xl mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Card className="border-0 shadow-2xl bg-card/80 backdrop-blur-sm overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-green-50/50 to-blue-50/50 dark:from-green-950/50 dark:to-blue-950/50 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-3 text-xl text-foreground">
-                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-white" />
-                      </div>
-                      Approved Topics from Your Story
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground mt-1">
-                      Topics you've approved from your personal story - ready for content generation
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {approvedTopics.slice(0, 6).map((topic, index) => (
-                    <motion.div
-                      key={topic.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      whileHover={{ y: -5 }}
-                      className="group relative bg-white dark:bg-black border-2 border-green-200 dark:border-green-800 rounded-2xl p-4 sm:p-6 hover:border-green-500 dark:hover:border-green-400 hover:shadow-xl transition-all duration-300 flex flex-col"
-                    >
-                      <div className="space-y-3 sm:space-y-4 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-base sm:text-lg leading-tight text-black dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors flex-1">
-                            {topic.title}
-                          </h3>
-                          <Badge className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/50 dark:to-blue-900/50 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 text-xs flex-shrink-0">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Approved
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
-                          >
-                            From Story
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
-                          >
-                            Ready to Generate
-                          </Badge>
-                        </div>
-
-                        {/* Generate Content Button */}
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          whileHover={{ opacity: 1 }}
-                          className="hidden sm:block sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 mt-4"
-                        >
-                          <Button
-                            onClick={() => generateContentFromApprovedTopic(topic)}
-                            size="sm"
-                            className="w-full h-10 bg-green-500 hover:bg-green-600 text-white"
-                            disabled={isGenerating}
-                          >
-                            {isGenerating ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Generating...
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="w-4 h-4 mr-2" />
-                                Generate Content
-                              </>
-                            )}
-                          </Button>
-                        </motion.div>
-
-                        {/* Generate Button for Mobile - Always visible */}
-                        <div className="block sm:hidden mt-4">
-                          <Button
-                            onClick={() => generateContentFromApprovedTopic(topic)}
-                            size="sm"
-                            className="w-full h-10 bg-green-500 hover:bg-green-600 text-white"
-                            disabled={isGenerating}
-                          >
-                            {isGenerating ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Generating...
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="w-4 h-4 mr-2" />
-                                Generate Content
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
 
         {showTopicGenerator && !hasPersonalStory && !isRefreshingTopics && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
@@ -1768,29 +1663,26 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                             {topic.title}
                           </h3>
                           <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => generateRecommendedTopicContent(topic)} // Pass topic object
-                              disabled={isGeneratingContent[topic.id] || topic.status === "content-ready"}
-                              className="flex-1 bg-blue-600 hover:bg-blue-700"
-                            >
-                              {isGeneratingContent[topic.id] ? (
-                                <>
-                                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                                  Generating...
-                                </>
-                              ) : topic.status === "content-ready" ? (
-                                <>
-                                  <CheckCircle className="mr-2 h-3 w-3" />
-                                  Ready
-                                </>
-                              ) : (
-                                <>
-                                  <Sparkles className="mr-2 h-3 w-3" />
-                                  Generate
-                                </>
-                              )}
-                            </Button>
+                            {topic.status !== "content-ready" && (
+                              <Button
+                                size="sm"
+                                onClick={() => generateRecommendedTopicContent(topic)} // Pass topic object
+                                disabled={isGeneratingContent[topic.id]}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                              >
+                                {isGeneratingContent[topic.id] ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                    Generating...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles className="mr-2 h-3 w-3" />
+                                    Generate
+                                  </>
+                                )}
+                              </Button>
+                            )}
                             {topic.status === "content-ready" && (
                               <Button
                                 size="sm"
@@ -1881,9 +1773,9 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
         </Card>
       )}
 
-      {/* LinkedIn Preview Modal */}
+      {/* Enhanced LinkedIn Preview Modal */}
       {previewContent && (
-        <LinkedInPreview
+        <EnhancedLinkedInPreview
           content={previewContent}
           onSaveToDraft={saveToDraft}
           onClose={() => {
@@ -1899,25 +1791,28 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
         />
       )}
 
-      {/* Content Modal for Viewing Generated Content */}
+      {/* Enhanced Content Modal for Viewing Generated Content */}
       {showContentModal && selectedContent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/40">
-          <div className="relative w-full max-w-2xl max-h-[80vh] overflow-y-auto bg-white dark:bg-black rounded-lg shadow-xl p-6">
-            <button
-              onClick={() => setShowContentModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <h2 className="text-xl font-bold mb-4 text-foreground">Generated Content</h2>
-            <div className="prose max-w-none dark:prose-invert text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-              {selectedContent}
-            </div>
-            <div className="mt-6 flex justify-end">
-              <Button onClick={() => setShowContentModal(false)}>Close</Button>
-            </div>
-          </div>
-        </div>
+        <EnhancedLinkedInPreview
+          content={selectedContent}
+          onSaveToDraft={async (content, title, format) => {
+            // Handle save to draft functionality
+            await saveToDraft(content, title, format)
+            setShowContentModal(false)
+          }}
+          onClose={() => setShowContentModal(false)}
+          onContentUpdate={(newContent) => {
+            setSelectedContent(newContent)
+            // Update the generated content in state
+            setGeneratedContents((prev) => 
+              prev.map((c) => 
+                c.content === selectedContent 
+                  ? { ...c, content: newContent }
+                  : c
+              )
+            )
+          }}
+        />
       )}
 
       {/* Processing Overlays */}

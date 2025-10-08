@@ -28,10 +28,12 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
+      console.log("No session or email found")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, content, format, niche } = await request.json()
+    const { title, content, format, niche, source } = await request.json()
+    console.log("Draft data received:", { title, content: content?.substring(0, 100) + "...", format, niche, source, userEmail: session.user.email })
 
     const db = await connectDB()
     const draft = {
@@ -39,12 +41,15 @@ export async function POST(request: NextRequest) {
       content,
       format,
       niche,
+      source: source || "ai-generated",
       userEmail: session.user.email,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
 
+    console.log("Inserting draft:", draft)
     const result = await db.collection("drafts").insertOne(draft)
+    console.log("Draft inserted successfully:", result.insertedId)
 
     return NextResponse.json({
       success: true,

@@ -144,6 +144,7 @@ export default function DashboardPage() {
   const [hasPersonalStory, setHasPersonalStory] = useState(false)
   const [isLoadingTopics, setIsLoadingTopics] = useState(true)
   const [isRegeneratingTopics, setIsRegeneratingTopics] = useState(false)
+  const [personalStoryTopic, setPersonalStoryTopic] = useState<string | null>(null)
 
   // State declarations first
   const [clickedTopic, setClickedTopic] = useState<string | null>(null)
@@ -281,6 +282,8 @@ export default function DashboardPage() {
   const handleTopicClick = async (topic: string) => {
     setPrompt(topic)
     setClickedTopic(topic)
+    // Mark this as a personal story topic for content generation
+    setPersonalStoryTopic(topic)
 
     // Wait for prompt to be set, then open customization panel
     setTimeout(() => {
@@ -477,17 +480,32 @@ export default function DashboardPage() {
     setIsGenerating(true)
 
     try {
-      // Call the unique content API (NO personal story integration)
-      const response = await fetch("/api/ai/generate-unique", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: contentType,
-          prompt: prompt,
-          provider: provider,
-          customization: customization,
-        }),
-      })
+      let response: Response
+      
+      // Check if this is a personal story topic
+      if (personalStoryTopic && hasPersonalStory) {
+        // Use story-content API for personal story topics with topic text
+        response = await fetch("/api/story-content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topicText: prompt, // Pass topic text directly
+            contentType: contentType,
+          }),
+        })
+      } else {
+        // Use regular content generation
+        response = await fetch("/api/ai/generate-unique", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: contentType,
+            prompt: prompt,
+            provider: provider,
+            customization: customization,
+          }),
+        })
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
@@ -495,27 +513,53 @@ export default function DashboardPage() {
       }
 
       const data = await response.json()
-      const generatedPosts: GeneratedPost[] = Array.isArray(data.data.content)
-        ? data.data.content.map((content: string, index: number) => ({
-            id: `post-${Date.now()}-${index}`,
-            content,
+      console.log("Content generation response:", data) // Debug log
+      let generatedPosts: GeneratedPost[] = []
+      
+      if (personalStoryTopic && hasPersonalStory) {
+        // Handle personal story content response from story-content API
+        if (data.success && data.content) {
+          // Handle the specific response structure from story-content API
+          const contentData = data.content
+          const contentText = typeof contentData === 'string' ? contentData : contentData.content || contentData
+          
+          generatedPosts = [{
+            id: `post-${Date.now()}-0`,
+            content: contentText,
             tone: customization.tone || "professional",
-            wordCount: customization.wordCount || 150,
+            wordCount: contentText.split(' ').length,
             createdAt: new Date(),
-          }))
-        : [
-            {
-              id: `post-${Date.now()}-0`,
-              content: data.data.content as string,
+          }]
+        } else {
+          console.error("Personal story content generation failed:", data)
+          throw new Error("Failed to generate personal story content")
+        }
+      } else {
+        // Handle regular content response
+        generatedPosts = Array.isArray(data.data.content)
+          ? data.data.content.map((content: string, index: number) => ({
+              id: `post-${Date.now()}-${index}`,
+              content,
               tone: customization.tone || "professional",
               wordCount: customization.wordCount || 150,
               createdAt: new Date(),
-            },
-          ]
+            }))
+          : [
+              {
+                id: `post-${Date.now()}-0`,
+                content: data.data.content as string,
+                tone: customization.tone || "professional",
+                wordCount: customization.wordCount || 150,
+                createdAt: new Date(),
+              },
+            ]
+      }
 
       // Credits are automatically deducted by the centralized API
 
       setGeneratedPosts(generatedPosts)
+      // Clear personal story topic after successful generation
+      setPersonalStoryTopic(null)
       toast({
         title: "Success!",
         description: `Generated ${generatedPosts.length} unique ${contentType} content for you`,
@@ -541,20 +585,31 @@ export default function DashboardPage() {
 
   const handleSaveDraft = async (content?: string, title?: string, format?: string) => {
     const contentToSave = content || selectedPost?.content
-    const titleToSave = title || `AI Generated ${contentType}`
+    const titleToSave = title || (personalStoryTopic ? `Personal Story: ${prompt}` : `AI Generated ${contentType}`)
     const formatToSave = format || contentType
 
-    if (!contentToSave) return
+    if (!contentToSave) {
+      toast({
+        title: "Error",
+        description: "No content to save. Please try again.",
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
+      // Map format to valid Draft type
+      const draftType = formatToSave === "linkedin-post" ? "text" : formatToSave === "story" ? "story" : "text"
+      
       const response = await fetch("/api/drafts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: titleToSave,
           content: contentToSave,
-          format: formatToSave,
-          niche: "AI Generated",
+          format: draftType,
+          niche: personalStoryTopic ? "Personal Story" : "AI Generated",
+          source: personalStoryTopic ? "personal-story" : "ai-generated",
         }),
       })
 
@@ -565,9 +620,10 @@ export default function DashboardPage() {
         })
         setShowPreviewModal(false)
       } else {
+        const errorData = await response.json().catch(() => ({}))
         toast({
           title: "Error",
-          description: "Failed to save draft. Please try again.",
+          description: errorData.error || "Failed to save draft. Please try again.",
           variant: "destructive",
         })
       }
@@ -1335,7 +1391,10 @@ export default function DashboardPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setShowCustomizationPanel(false)}
+                onClick={() => {
+                  setShowCustomizationPanel(false)
+                  setPersonalStoryTopic(null) // Clear personal story topic when closing panel
+                }}
                 className="h-8 w-8 p-0"
               >
                 <X className="w-4 h-4" />

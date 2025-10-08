@@ -853,13 +853,13 @@ export function EnhancedLinkedInPreview({
                 // Mobile: Stack buttons vertically
                 <div className="space-y-3">
                   <LinkedInPostButton 
-                    content={content} 
+                    content={editableContent || content} 
                     images={selectedImages.length > 0 ? selectedImages : undefined}
                     className="w-full h-12 text-base"
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <Button 
-                      onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
+                      onClick={() => onSaveToDraft(editableContent || content, "LinkedIn Post", "linkedin-post")}
                       variant="outline"
                       className="w-full h-12 text-base"
                     >
@@ -893,7 +893,7 @@ export function EnhancedLinkedInPreview({
                     Cancel
                   </Button>
                   <Button 
-                    onClick={() => onSaveToDraft(content, "LinkedIn Post", "linkedin-post")}
+                    onClick={() => onSaveToDraft(editableContent || content, "LinkedIn Post", "linkedin-post")}
                     variant="outline"
                   >
                     <Save className="w-4 h-4 mr-2" />
@@ -907,7 +907,7 @@ export function EnhancedLinkedInPreview({
                     Schedule Post
                   </Button>
                   <LinkedInPostButton 
-                    content={content} 
+                    content={editableContent || content} 
                     images={selectedImages.length > 0 ? selectedImages : undefined}
                   />
                 </>
