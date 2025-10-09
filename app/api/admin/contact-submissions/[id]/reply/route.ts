@@ -16,7 +16,7 @@ export async function POST(
     }
 
     const body = await request.json()
-    const { message, type, replyTo } = body // type: 'email' | 'whatsapp', replyTo: email or phone
+    const { message, type, replyTo } = body // type: 'email', replyTo: email
 
     if (!message || !type || !replyTo) {
       return NextResponse.json(
@@ -25,9 +25,9 @@ export async function POST(
       )
     }
 
-    if (!['email', 'whatsapp'].includes(type)) {
+    if (type !== 'email') {
       return NextResponse.json(
-        { error: 'Invalid type. Must be email or whatsapp' },
+        { error: 'Invalid type. Must be email' },
         { status: 400 }
       )
     }
@@ -60,11 +60,9 @@ export async function POST(
     }
 
     // Send the reply based on type
-    let sendResult: { success: boolean; error?: string; messageId?: any; whatsappResponse?: any } = { success: false, error: 'Unknown type' }
+    let sendResult: { success: boolean; error?: string; messageId?: any } = { success: false, error: 'Unknown type' }
     if (type === 'email') {
       sendResult = await sendEmailReply(submission, message, replyTo)
-    } else if (type === 'whatsapp') {
-      sendResult = await sendWhatsAppReply(submission, message, replyTo)
     }
 
     // Update reply status based on send result
@@ -225,120 +223,6 @@ async function sendEmailReply(submission: any, message: string, email: string) {
   }
 }
 
-// WhatsApp reply function
-async function sendWhatsAppReply(submission: any, message: string, phone: string) {
-  try {
-    // Clean phone number (remove spaces, dashes, etc.)
-    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
-    
-    // Add country code if not present (assuming India +91)
-    const phoneWithCountryCode = cleanPhone.startsWith('+') 
-      ? cleanPhone 
-      : cleanPhone.startsWith('91') 
-        ? `+${cleanPhone}`
-        : `+91${cleanPhone}`
-
-    const whatsappMessage = `Hello ${submission.firstName}! 👋
-
-Thank you for reaching out to LinkzUp. Here's our response to your enquiry:
-
-${message}
-
----
-Your Original Enquiry:
-${submission.message}
-
-Best regards,
-LinkzUp Support Team
-📧 support@linkzup.in
-🌐 https://linkzup.in`
-
-    // Use WhatsApp Business API or Twilio
-    const result = await sendWhatsAppMessage(phoneWithCountryCode, whatsappMessage)
-    return result
-
-  } catch (error) {
-    console.error('Error sending WhatsApp reply:', error)
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
-  }
-}
-
-// WhatsApp message sending function
-async function sendWhatsAppMessage(phoneNumber: string, message: string) {
-  try {
-    // Check if WhatsApp API is configured
-    const whatsappApiUrl = process.env.WHATSAPP_API_URL
-    const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN
-    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
-
-    if (!whatsappApiUrl || !whatsappToken || !phoneNumberId) {
-      return {
-        success: false,
-        error: 'WhatsApp API not configured. Please set WHATSAPP_API_URL, WHATSAPP_ACCESS_TOKEN, and WHATSAPP_PHONE_NUMBER_ID environment variables.'
-      }
-    }
-
-    // Check if using dummy credentials
-    const isDummyCredentials = whatsappToken.includes('dummy') || phoneNumberId.includes('dummy')
-
-    if (isDummyCredentials) {
-      // Simulate successful WhatsApp message sending for dummy credentials
-      console.log(`[DUMMY] WhatsApp message would be sent to ${phoneNumber}:`)
-      console.log(`[DUMMY] Message: ${message.substring(0, 100)}...`)
-      
-      return {
-        success: true,
-        messageId: `dummy_message_id_${Date.now()}`,
-        whatsappResponse: {
-          messaging_product: 'whatsapp',
-          contacts: [{ input: phoneNumber, wa_id: phoneNumber }],
-          messages: [{ id: `dummy_message_id_${Date.now()}` }]
-        },
-        isDummy: true
-      }
-    }
-
-    // Real WhatsApp API call for production credentials
-    const response = await fetch(`${whatsappApiUrl}/${phoneNumberId}/messages`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${whatsappToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: phoneNumber,
-        type: 'text',
-        text: {
-          body: message
-        }
-      })
-    })
-
-    const result = await response.json()
-
-    if (response.ok) {
-      return {
-        success: true,
-        messageId: result.messages?.[0]?.id,
-        whatsappResponse: result
-      }
-    } else {
-      return {
-        success: false,
-        error: result.error?.message || 'Failed to send WhatsApp message',
-        whatsappResponse: result
-      }
-    }
-
-  } catch (error) {
-    console.error('WhatsApp API error:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }
-  }
-}
 
 // Get replies for a contact submission
 export async function GET(

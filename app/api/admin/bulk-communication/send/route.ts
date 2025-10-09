@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       adminId: session.user.id,
       subject,
       content,
-      type, // 'email' or 'whatsapp'
+      type, // 'email'
       userType, // 'trial', 'active', 'pending'
       targetUserIds: selectedUsers,
       totalRecipients: targetUsers.length,
@@ -158,32 +158,8 @@ export async function POST(request: NextRequest) {
             throw new Error(emailResult.error || 'Failed to send email')
           }
           
-        } else if (type === 'whatsapp') {
-          // Send WhatsApp notification (for now, just create in-app notification)
-          // TODO: Integrate with WhatsApp API when available
-          await notifications.insertOne({
-            userId: user._id,
-            type: "admin_bulk_whatsapp",
-            title: "WhatsApp Message from Admin",
-            message: content,
-            isRead: false,
-            createdAt: new Date(),
-            metadata: {
-              bulkMessageId: bulkMessageId,
-              adminId: session.user.id,
-              messageType: 'whatsapp',
-              phoneNumber: user.mobile
-            }
-          })
-
-          // For now, we'll mark WhatsApp as successful (when WhatsApp API is integrated, this will send real messages)
-          sentCount++
-          results.push({
-            userId: user._id,
-            email: user.email,
-            mobile: user.mobile,
-            status: 'success'
-          })
+        } else {
+          throw new Error(`Unsupported message type: ${type}`)
         }
 
       } catch (error) {

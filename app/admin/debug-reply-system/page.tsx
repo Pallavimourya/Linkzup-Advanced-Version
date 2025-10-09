@@ -190,12 +190,6 @@ export default function DebugReplySystemPage() {
                   {systemStatus.systemStatus?.emailConfigured ? 'Configured' : 'Not Configured'}
                 </Badge>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">WhatsApp System:</span>
-                <Badge className={getStatusColor(systemStatus.systemStatus?.whatsappConfigured)}>
-                  {systemStatus.systemStatus?.whatsappConfigured ? 'Configured' : 'Not Configured'}
-                </Badge>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -301,46 +295,6 @@ export default function DebugReplySystemPage() {
           </CardContent>
         </Card>
 
-        {/* WhatsApp Test */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <MessageSquare className="h-5 w-5" />
-              <span>WhatsApp System Test</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Test if the WhatsApp system is configured correctly.
-            </p>
-            <Button 
-              onClick={() => runTest('test_whatsapp')} 
-              disabled={isLoading}
-              className="w-full"
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Test WhatsApp Config
-            </Button>
-            
-            {testResults.test_whatsapp && (
-              <div className="border rounded-lg p-3">
-                <div className="flex items-center space-x-2 mb-2">
-                  {testResults.test_whatsapp.configured ? (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <XCircle className="h-4 w-4 text-red-600" />
-                  )}
-                  <span className="font-medium">WhatsApp Config Result</span>
-                </div>
-                <div className="text-sm space-y-1">
-                  <div>API URL: {testResults.test_whatsapp.details?.apiUrl}</div>
-                  <div>Access Token: {testResults.test_whatsapp.details?.accessToken}</div>
-                  <div>Phone Number ID: {testResults.test_whatsapp.details?.phoneNumberId}</div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
       {/* Instructions */}
@@ -371,9 +325,9 @@ export default function DebugReplySystemPage() {
           </div>
           
           <div>
-            <h4 className="font-medium mb-2">4. Test Email/WhatsApp Systems</h4>
+            <h4 className="font-medium mb-2">4. Test Email System</h4>
             <p className="text-sm text-muted-foreground">
-              Run tests to verify email and WhatsApp configurations are working.
+              Run tests to verify email configuration is working.
             </p>
           </div>
         </CardContent>

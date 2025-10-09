@@ -73,22 +73,6 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    if (testType === 'test_whatsapp') {
-      // Test WhatsApp configuration
-      const whatsappApiUrl = process.env.WHATSAPP_API_URL
-      const whatsappToken = process.env.WHATSAPP_ACCESS_TOKEN
-      const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
-
-      return NextResponse.json({
-        success: true,
-        configured: !!(whatsappApiUrl && whatsappToken && phoneNumberId),
-        details: {
-          apiUrl: whatsappApiUrl ? 'Set' : 'Not set',
-          accessToken: whatsappToken ? 'Set' : 'Not set',
-          phoneNumberId: phoneNumberId ? 'Set' : 'Not set'
-        }
-      })
-    }
 
     if (testType === 'migrate_schema') {
       // Migrate existing submissions to add missing fields
@@ -112,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: false,
-      error: 'Invalid test type. Use: check_submission, test_email, test_whatsapp, or migrate_schema'
+      error: 'Invalid test type. Use: check_submission, test_email, or migrate_schema'
     })
 
   } catch (error) {
@@ -148,12 +132,6 @@ export async function GET() {
     // Check email configuration
     const emailConfigured = !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD)
 
-    // Check WhatsApp configuration
-    const whatsappConfigured = !!(
-      process.env.WHATSAPP_API_URL && 
-      process.env.WHATSAPP_ACCESS_TOKEN && 
-      process.env.WHATSAPP_PHONE_NUMBER_ID
-    )
 
     return NextResponse.json({
       success: true,
@@ -162,7 +140,6 @@ export async function GET() {
         submissionsWithReplies,
         submissionsNeedingMigration,
         emailConfigured,
-        whatsappConfigured,
         needsMigration: submissionsNeedingMigration > 0
       }
     })

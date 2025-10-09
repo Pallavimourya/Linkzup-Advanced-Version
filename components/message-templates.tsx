@@ -24,7 +24,7 @@ interface MessageTemplate {
   name: string
   subject: string
   content: string
-  type: 'email' | 'whatsapp'
+  type: 'email'
   userType: 'trial' | 'active' | 'pending' | 'all'
   category: string
   isDefault: boolean
@@ -169,25 +169,6 @@ The Linkzup Team`,
     isDefault: true,
     createdAt: new Date().toISOString()
   },
-  {
-    _id: 'whatsapp-trial',
-    name: 'WhatsApp Trial Welcome',
-    subject: '',
-    content: `🎉 Welcome to Linkzup!
-
-Your 2-day free trial has started with 10 credits!
-
-Explore AI content generation, LinkedIn posting, and more.
-
-Need help? Reply to this message!
-
-- Linkzup Team`,
-    type: 'whatsapp',
-    userType: 'trial',
-    category: 'Welcome',
-    isDefault: true,
-    createdAt: new Date().toISOString()
-  }
 ]
 
 export default function MessageTemplates({ onSelectTemplate }: MessageTemplatesProps) {

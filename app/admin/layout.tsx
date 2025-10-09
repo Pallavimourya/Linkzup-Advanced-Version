@@ -191,7 +191,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           title: "Bulk Communication",
           href: "/admin/bulk-communication",
           icon: MessageSquare,
-          description: "Bulk email & WhatsApp messaging"
+          description: "Bulk email messaging"
         }
       ]
     },

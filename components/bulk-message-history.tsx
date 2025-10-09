@@ -28,7 +28,7 @@ interface BulkMessage {
   _id: string
   subject: string
   content: string
-  type: 'email' | 'whatsapp'
+  type: 'email'
   userType: 'trial' | 'active' | 'pending'
   totalRecipients: number
   sentCount: number

@@ -99,7 +99,7 @@ interface User {
 interface BulkMessage {
   subject: string
   content: string
-  type: 'email' | 'whatsapp'
+  type: 'email'
   userType: 'trialActive' | 'trialEndedNoPurchase' | 'trialEndedWithCredits' | 'trialEndedZeroCredits' | 'purchasedPlans' | 'activeSubscribers' | 'expiredSubscribers' | 'oneTimePurchasers' | 'suspendedUsers' | 'adminUsers'
   selectedUsers: string[]
 }
@@ -335,7 +335,7 @@ export default function BulkCommunicationPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl sm:text-3xl font-bold text-teal-700 truncate">Bulk Communication</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1">Send bulk emails and WhatsApp messages to users</p>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Send bulk emails to users</p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
           <Button variant="outline" size="sm" onClick={() => mutate()} className="w-full sm:w-auto">
@@ -766,30 +766,13 @@ export default function BulkCommunicationPage() {
           </DialogHeader>
           
           <div className="space-y-6">
-            {/* Message Type */}
+            {/* Message Type - Email Only */}
             <div className="space-y-2">
               <Label className="text-gray-700 dark:text-gray-300">Message Type</Label>
-              <Select value={message.type} onValueChange={(value: 'email' | 'whatsapp') => 
-                setMessage(prev => ({ ...prev, type: value }))
-              }>
-                <SelectTrigger className="border-2 border-gray-300 dark:border-gray-600 focus:border-teal-500 dark:focus:border-teal-400">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="email">
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Email
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="whatsapp">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
-                      WhatsApp
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2 p-3 border-2 border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-800">
+                <Mail className="h-4 w-4 text-teal-600" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</span>
+              </div>
             </div>
 
             {/* Subject */}

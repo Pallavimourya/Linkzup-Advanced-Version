@@ -43,7 +43,7 @@ interface ReplyInterfaceProps {
     replies?: Array<{
       id: string
       message: string
-      type: 'email' | 'whatsapp'
+      type: 'email'
       replyTo: string
       sentAt: string
       sentBy: string
@@ -58,7 +58,7 @@ interface ReplyInterfaceProps {
 export function AdminReplyInterface({ submission, onReplySent }: ReplyInterfaceProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [replyMessage, setReplyMessage] = useState('')
-  const [replyType, setReplyType] = useState<'email' | 'whatsapp'>('email')
+  const [replyType, setReplyType] = useState<'email'>('email')
   const [isSending, setIsSending] = useState(false)
   const [showReplies, setShowReplies] = useState(false)
   const { toast } = useToast()
@@ -73,14 +73,6 @@ export function AdminReplyInterface({ submission, onReplySent }: ReplyInterfaceP
       return
     }
 
-    if (replyType === 'whatsapp' && !submission.phone) {
-      toast({
-        title: "Error",
-        description: "No phone number available for WhatsApp reply",
-        variant: "destructive",
-      })
-      return
-    }
 
     setIsSending(true)
 
@@ -209,25 +201,10 @@ export function AdminReplyInterface({ submission, onReplySent }: ReplyInterfaceP
             {/* Reply Type Selection */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Reply Method</label>
-              <Select value={replyType} onValueChange={(value: 'email' | 'whatsapp') => setReplyType(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="email">
-                    <div className="flex items-center space-x-2">
-                      <Mail className="h-4 w-4" />
-                      <span>Email ({submission.email})</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="whatsapp" disabled={!submission.phone}>
-                    <div className="flex items-center space-x-2">
-                      <MessageSquare className="h-4 w-4" />
-                      <span>WhatsApp ({submission.phone || 'No phone number'})</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2 p-3 border rounded-md bg-gray-50 dark:bg-gray-800">
+                <Mail className="h-4 w-4 text-teal-600" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Email ({submission.email})</span>
+              </div>
             </div>
 
             {/* Reply Message */}
@@ -301,13 +278,9 @@ export function AdminReplyInterface({ submission, onReplySent }: ReplyInterfaceP
                 <div key={reply.id || index} className="border rounded-lg p-4 space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center space-x-2">
-                      {reply.type === 'email' ? (
-                        <Mail className="h-4 w-4 text-blue-600" />
-                      ) : (
-                        <MessageSquare className="h-4 w-4 text-green-600" />
-                      )}
+                      <Mail className="h-4 w-4 text-blue-600" />
                       <span className="text-sm font-medium">
-                        {reply.type === 'email' ? 'Email' : 'WhatsApp'} to {reply.replyTo}
+                        Email to {reply.replyTo}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
