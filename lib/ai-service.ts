@@ -351,7 +351,7 @@ class AIService {
     const {
       tone = "professional",
       language = "english",
-      wordCount = 150,
+      wordCount = 200,
       targetAudience = "LinkedIn professionals",
       mainGoal = "engagement",
       format,
@@ -425,22 +425,52 @@ Closing: Strong takeaway or call-to-action
 </content_structure>
 
 <formatting_requirements>
-- Clean, scannable layout
-- Proper line breaks between sections
-- Bullet points on separate lines
+- Clean, scannable layout with proper structure
+- Opening paragraph: 2-3 sentences introducing the topic
+- Bullet points: Each on separate line with • symbol, 1-2 sentences each
+- Closing paragraph: 1-2 sentences with encouragement or call-to-action
+- Hashtags: 3-5 relevant hashtags at end on separate line
 - Professional yet engaging tone
-${includeHashtags ? "- 3-5 relevant hashtags at end" : ""}
-${includeEmojis ? "- 1-2 strategic emojis" : ""}
 - No generic phrases or fluff
 - No forced engagement prompts
 - NO generic titles or headings like "My Journey from..." or "Building a Life of..."
 - Start directly with engaging content
+- NO bold formatting (**text**) or markdown formatting
+- Use plain text only, no special formatting
+- Create completely unique content based on the user's specific topic
+- Avoid repetitive or generic content patterns
+- Structure: Opening → Bullet Points → Closing → Hashtags
 </formatting_requirements>
 
 <output_specification>
 Generate 2 distinct posts, each separated by "---POST_SEPARATOR---"
 Each post should be complete and ready to publish
 Focus on "${prompt}"${personalStoryContext ? ' with authentic personal elements' : ''}
+
+CRITICAL FORMATTING REQUIREMENTS - MANDATORY:
+You MUST generate content in this EXACT format. Do not deviate:
+
+1. Start with 2-3 sentence opening paragraph (40-60 words)
+2. Add a blank line
+3. Add exactly 4 bullet points using • symbol (each on separate line, 30-40 words each)
+4. Add a blank line  
+5. Add 1-2 sentence closing paragraph (30-40 words)
+6. Add a blank line
+7. Add 3-5 hashtags on final line
+8. TOTAL WORD COUNT: Minimum 200 words
+
+EXAMPLE FORMAT (copy this structure exactly):
+
+Growing up in a close-knit family, I learned early on that diverse perspectives enrich our understanding and foster growth. This became even clearer during my educational journey and professional career, where collaboration with individuals from various backgrounds ignited my passion for learning and mentorship.
+
+• Embrace different viewpoints to expand your understanding and challenge your assumptions
+• Seek out diverse teams and environments that push you beyond your comfort zone
+• Practice active listening to truly understand perspectives different from your own
+• Share your own experiences while remaining open to learning from others
+
+Remember, growth happens when we step outside our echo chambers and engage with ideas that challenge us. The most meaningful connections and learning opportunities often come from those who see the world differently than we do.
+
+#DiversityAndInclusion #PersonalGrowth #Collaboration #Learning #Mentorship
 </output_specification>
 </linkedin_content_creation>`
         } else {
@@ -486,21 +516,53 @@ Resolution: Strong conclusion with clear takeaway
 </content_architecture>
 
 <optimization_requirements>
-- Scannable format with proper spacing
-- Professional yet conversational tone
+- Clean, scannable layout with proper structure
+- Opening paragraph: 2-3 sentences introducing the topic
+- Bullet points: Each on separate line with • symbol, 1-2 sentences each
+- Closing paragraph: 1-2 sentences with encouragement or call-to-action
+- Hashtags: 3-5 relevant hashtags at end on separate line
+- Professional yet engaging tone
 - No generic phrases or clichés
 - No forced engagement prompts
-${includeHashtags ? "- Strategic hashtag placement" : ""}
-${includeEmojis ? "- Minimal, purposeful emoji usage" : ""}
 - Ready-to-publish format
 - NO generic titles or headings like "My Journey from..." or "Building a Life of..."
 - Start directly with engaging content
+- NO bold formatting (**text**) or markdown formatting
+- Use plain text only, no special formatting
+- Create completely unique content based on the user's specific topic
+- Avoid repetitive or generic content patterns
+- Structure: Opening → Bullet Points → Closing → Hashtags
 </optimization_requirements>
 
 <output_deliverable>
 Generate 2 distinct posts separated by "---POST_SEPARATOR---"
 Each post should be complete and optimized for LinkedIn
 Focus on user input: "${prompt}"${personalStoryContext ? ' with authentic personal elements' : ''}
+
+CRITICAL FORMATTING REQUIREMENTS - MANDATORY:
+You MUST generate content in this EXACT format. Do not deviate:
+
+1. Start with 2-3 sentence opening paragraph (40-60 words)
+2. Add a blank line
+3. Add exactly 4 bullet points using • symbol (each on separate line, 30-40 words each)
+4. Add a blank line  
+5. Add 1-2 sentence closing paragraph (30-40 words)
+6. Add a blank line
+7. Add 3-5 hashtags on final line
+8. TOTAL WORD COUNT: Minimum 200 words
+
+EXAMPLE FORMAT (copy this structure exactly):
+
+Growing up in a close-knit family, I learned early on that diverse perspectives enrich our understanding and foster growth. This became even clearer during my educational journey and professional career, where collaboration with individuals from various backgrounds ignited my passion for learning and mentorship.
+
+• Embrace different viewpoints to expand your understanding and challenge your assumptions
+• Seek out diverse teams and environments that push you beyond your comfort zone
+• Practice active listening to truly understand perspectives different from your own
+• Share your own experiences while remaining open to learning from others
+
+Remember, growth happens when we step outside our echo chambers and engage with ideas that challenge us. The most meaningful connections and learning opportunities often come from those who see the world differently than we do.
+
+#DiversityAndInclusion #PersonalGrowth #Collaboration #Learning #Mentorship
 </output_deliverable>
 </custom_linkedin_content>`
         }
@@ -637,6 +699,10 @@ ${includeEmojis ? "- Minimal, purposeful emoji usage" : ""}
 - No generic titles like "My Journey from..." or "Building a Life of..."
 - No forced engagement prompts
 - Natural story ending
+- NO bold formatting (**text**) or markdown formatting
+- Use plain text only, no special formatting
+- Create completely unique content based on the user's specific topic
+- Avoid repetitive or generic content patterns
 </formatting_requirements>
 
 <output_deliverable>
@@ -715,6 +781,10 @@ Return ONLY a valid JSON object with this exact structure:
 - Last slide: "tagline", "final_heading", "last_bullet"
 - Keep all text brief and visually scannable
 - Ensure JSON is valid and parsable
+- NO bold formatting (**text**) or markdown formatting
+- Use plain text only, no special formatting
+- Create completely unique content based on the user's specific topic
+- Avoid repetitive or generic content patterns
 </formatting_rules>
 
 Generate exactly ${wordCount / 50} slides. Format as 2 distinct carousels separated by "---POST_SEPARATOR---".
@@ -1189,6 +1259,15 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
       .replace(/^###\s*/g, '')
       .trim()
 
+    // Remove bold formatting and markdown
+    cleaned = this.removeBoldFormatting(cleaned)
+
+    // Apply enhanced formatting for better structure
+    cleaned = this.enhanceContentFormatting(cleaned)
+
+    // Ensure proper structure with post-processing
+    cleaned = this.ensureProperStructure(cleaned)
+
     // Format hashtags to be on a new line
     cleaned = this.formatHashtags(cleaned)
     
@@ -1199,6 +1278,140 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     cleaned = this.applyComprehensiveFormatting(cleaned)
     
     return cleaned
+  }
+
+  // Enhanced formatting for better content structure
+  private enhanceContentFormatting(content: string): string {
+    // First, ensure bullet points are properly formatted
+    let formatted = content
+      // Convert any bullet variations to consistent • symbol
+      .replace(/^[-*]\s+/gm, '• ')
+      .replace(/^\*\s+/gm, '• ')
+      // Ensure bullet points are on separate lines
+      .replace(/([^\n])(•\s*[^\n]+)/g, '$1\n\n$2')
+      // Clean up multiple line breaks
+      .replace(/\n{3,}/g, '\n\n')
+    
+    // Split content into lines
+    let lines = formatted.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+    
+    if (lines.length === 0) return content
+    
+    let formattedLines: string[] = []
+    let i = 0
+    
+    while (i < lines.length) {
+      const line = lines[i]
+      
+      // Handle bullet points - ensure they start on new lines with proper spacing
+      if (line.startsWith('•') || line.startsWith('*')) {
+        const bulletLine = line.replace(/^\*/, '•')
+        
+        // Add empty line before bullet points if previous line is not empty and not a bullet
+        if (formattedLines.length > 0 && 
+            !formattedLines[formattedLines.length - 1].startsWith('•') &&
+            !formattedLines[formattedLines.length - 1].startsWith('#') &&
+            formattedLines[formattedLines.length - 1].length > 0) {
+          formattedLines.push('')
+        }
+        
+        formattedLines.push(bulletLine)
+        i++
+        continue
+      }
+      
+      // Handle hashtags (should be at the end)
+      if (line.startsWith('#')) {
+        // Add empty line before hashtags if not already present
+        if (formattedLines.length > 0 && !formattedLines[formattedLines.length - 1].startsWith('#')) {
+          formattedLines.push('')
+        }
+        formattedLines.push(line)
+        i++
+        continue
+      }
+      
+      // Handle regular text
+      if (line.length > 0) {
+        // Add empty line before new paragraph if needed
+        if (formattedLines.length > 0 && 
+            !formattedLines[formattedLines.length - 1].startsWith('•') && 
+            !formattedLines[formattedLines.length - 1].startsWith('#') &&
+            formattedLines[formattedLines.length - 1].length > 0) {
+          formattedLines.push('')
+        }
+        formattedLines.push(line)
+      }
+      
+      i++
+    }
+    
+    // Join lines with proper spacing
+    let result = formattedLines.join('\n')
+    
+    // Clean up any excessive line breaks
+    result = result.replace(/\n{3,}/g, '\n\n')
+    
+    return result.trim()
+  }
+
+  // Ensure proper structure with post-processing
+  private ensureProperStructure(content: string): string {
+    const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+    
+    if (lines.length === 0) return content
+    
+    // Check if content already has proper structure
+    const hasBulletPoints = lines.some(line => line.startsWith('•'))
+    const hasHashtags = lines.some(line => line.startsWith('#'))
+    
+    if (hasBulletPoints && hasHashtags) {
+      return content // Already properly structured
+    }
+    
+    // If content is just a single paragraph, restructure it
+    if (lines.length <= 3 && !hasBulletPoints) {
+      const text = lines.join(' ')
+      const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10)
+      
+      if (sentences.length >= 3) {
+        const opening = sentences.slice(0, 2).join('. ') + '.'
+        const bullet1 = sentences[2] ? sentences[2].trim() + '.' : 'Focus on continuous learning and growth.'
+        const bullet2 = sentences[3] ? sentences[3].trim() + '.' : 'Embrace challenges as opportunities for development.'
+        const bullet3 = sentences[4] ? sentences[4].trim() + '.' : 'Build meaningful connections and relationships.'
+        const bullet4 = sentences[5] ? sentences[5].trim() + '.' : 'Share your knowledge and experiences with others.'
+        const closing = sentences.length > 6 ? sentences.slice(6).join('. ') + '.' : 'Remember, every experience is a stepping stone to success.'
+        
+        return `${opening}
+
+• ${bullet1}
+• ${bullet2}
+• ${bullet3}
+• ${bullet4}
+
+${closing}
+
+#PersonalGrowth #ProfessionalDevelopment #Learning #Success`
+      }
+    }
+    
+    return content
+  }
+
+  // Remove bold formatting and markdown from content
+  private removeBoldFormatting(content: string): string {
+    return content
+      // Remove bold markdown formatting
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      // Remove italic markdown formatting
+      .replace(/_(.*?)_/g, '$1')
+      // Remove any remaining markdown formatting
+      .replace(/`(.*?)`/g, '$1')
+      .replace(/~~(.*?)~~/g, '$1')
+      // Clean up any extra spaces that might be left
+      .replace(/\s+/g, ' ')
+      .trim()
   }
 
   // Format hashtags to be on a new line

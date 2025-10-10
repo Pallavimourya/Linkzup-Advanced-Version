@@ -119,6 +119,10 @@ Format Requirements:
 - Include personal anecdotes and specific examples from the story
 - Make it conversational yet professional
 - Include a call-to-action that encourages engagement
+- NO bold formatting (**text**) or markdown formatting
+- Use plain text only, no special formatting
+- Create completely unique content based on the user's specific topic
+- Avoid repetitive or generic content patterns
 
 Example Format:
 [Compelling opening line that hooks the reader]

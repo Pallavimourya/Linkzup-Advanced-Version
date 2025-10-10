@@ -112,6 +112,10 @@ Count: ${count} unique pieces
 - Original, creative storytelling that transforms user experiences
 - No direct copying of user answers
 - Fresh, unique content with creative interpretation
+- NO bold formatting (**text**) or markdown formatting
+- Use plain text only, no special formatting
+- Create completely unique content based on the user's specific topic
+- Avoid repetitive or generic content patterns
 </quality_standards>
 </personal_story_content_creation>`
 

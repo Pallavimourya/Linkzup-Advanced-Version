@@ -470,25 +470,28 @@ export default function DashboardPage() {
       return
     }
 
-    try {
-      const creditResponse = await fetch("/api/billing/credits")
-      if (creditResponse.ok) {
-        const creditData = await creditResponse.json()
+    // Only check credits for non-personal story topics (personal story topics handle credits in their API)
+    if (!personalStoryTopic || !hasPersonalStory) {
+      try {
+        const creditResponse = await fetch("/api/billing/credits")
+        if (creditResponse.ok) {
+          const creditData = await creditResponse.json()
 
-        // Check if user has trial or credits
-        if (!creditData.isTrialActive && creditData.credits < 0.5) {
-          toast({
-            title: "Insufficient Credits",
-            description: "You need at least 0.5 credits to generate content. Please purchase more credits.",
-            variant: "destructive",
-          })
-          // Redirect to billing page
-          window.location.href = "/dashboard/billing"
-          return
+          // Check if user has trial or credits
+          if (!creditData.isTrialActive && creditData.credits < 0.5) {
+            toast({
+              title: "Insufficient Credits",
+              description: "You need at least 0.5 credits to generate content. Please purchase more credits.",
+              variant: "destructive",
+            })
+            // Redirect to billing page
+            window.location.href = "/dashboard/billing"
+            return
+          }
         }
+      } catch (error) {
+        console.error("Failed to check credits:", error)
       }
-    } catch (error) {
-      console.error("Failed to check credits:", error)
     }
 
     // Close the generation modal immediately
@@ -500,8 +503,8 @@ export default function DashboardPage() {
       
       // Check if this is a personal story topic
       if (personalStoryTopic && hasPersonalStory) {
-        // Use story-content API for personal story topics with topic text
-        response = await fetch("/api/story-content", {
+        // Use personal-story-topic-content API for personal story topics with enhanced formatting
+        response = await fetch("/api/personal-story-topic-content", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -533,9 +536,9 @@ export default function DashboardPage() {
       let generatedPosts: GeneratedPost[] = []
       
       if (personalStoryTopic && hasPersonalStory) {
-        // Handle personal story content response from story-content API
+        // Handle personal story topic content response from personal-story-topic-content API
         if (data.success && data.content) {
-          // Handle the specific response structure from story-content API
+          // Handle the specific response structure from personal-story-topic-content API
           const contentData = data.content
           const contentText = typeof contentData === 'string' ? contentData : contentData.content || contentData
           
@@ -547,8 +550,8 @@ export default function DashboardPage() {
             createdAt: new Date(),
           }]
         } else {
-          console.error("Personal story content generation failed:", data)
-          throw new Error("Failed to generate personal story content")
+          console.error("Personal story topic content generation failed:", data)
+          throw new Error("Failed to generate personal story topic content")
         }
       } else {
         // Handle regular content response
@@ -571,7 +574,7 @@ export default function DashboardPage() {
             ]
       }
 
-      // Credits are automatically deducted by the centralized API
+      // Credits are automatically deducted by the respective APIs
 
       setGeneratedPosts(generatedPosts)
       // Clear personal story topic after successful generation
