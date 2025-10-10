@@ -96,10 +96,10 @@ Write a well-structured LinkedIn post about the topic: "${topic.topicText}", usi
 SPECIAL INSTRUCTION: ${randomVariation}
 
 Content Structure Requirements:
-1. **Opening Line**: Start with a compelling, attention-grabbing opening that relates to the topic
-2. **Main Content**: Use bullet points (•) to organize key insights and experiences from the story
-3. **Closing**: End with a thoughtful conclusion and call-to-action
-4. **Hashtags**: Include 3-5 relevant hashtags at the end
+1. Opening Line: Start with a compelling, attention-grabbing opening that relates to the topic
+2. Main Content: Use bullet points (•) to organize key insights and experiences from the story
+3. Closing: End with a thoughtful conclusion and call-to-action
+4. Hashtags: Include 3-5 relevant hashtags at the end
 
 Format Requirements:
 - Write in a professional, engaging tone
