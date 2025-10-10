@@ -163,6 +163,7 @@ export default function PersonalStoryPage() {
   const [generatedStories, setGeneratedStories] = useState<GeneratedStory[]>([])
   const [selectedStory, setSelectedStory] = useState<GeneratedStory | null>(null)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [isNewStoryPending, setIsNewStoryPending] = useState(false)
   const [formData, setFormData] = useState<PersonalStoryForm>({
     early_life: "",
     education: "",
@@ -187,16 +188,48 @@ export default function PersonalStoryPage() {
     )
   }, [showTopicApproval, generatedTopics])
 
+  // Debug useEffect to monitor story changes
+  useEffect(() => {
+    console.log("Generated stories updated:", generatedStories.length, generatedStories.map(s => ({ id: s.id, title: s.title, contentLength: s.content?.length })))
+  }, [generatedStories])
+
   // Update current input value when step changes
   useEffect(() => {
     const currentQuestion = storyQuestions[currentStep]
     setCurrentInputValue(formData[currentQuestion.key] || "")
   }, [currentStep, formData])
 
-  // Load saved form data from database on component mount
+  // Function to load saved story from database
+  const loadSavedStory = async () => {
+    try {
+      const response = await fetch("/api/personal-story/save")
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.story) {
+          const savedStory: GeneratedStory = {
+            id: data.story.id,
+            title: data.story.title,
+            content: data.story.content,
+            tone: data.story.tone,
+            wordCount: data.story.wordCount,
+            createdAt: new Date(data.story.createdAt),
+            variation: data.story.variation,
+            relatedTopics: data.story.relatedTopics
+          }
+          setGeneratedStories([savedStory])
+          console.log("Loaded saved story:", savedStory.title)
+        }
+      }
+    } catch (error) {
+      console.error("Error loading saved story:", error)
+    }
+  }
+
+  // Load saved form data and story from database on component mount
   useEffect(() => {
-    const loadSavedAnswers = async () => {
+    const loadSavedData = async () => {
       try {
+        // Load saved answers
         const response = await fetch("/api/personal-story/answers")
         if (response.ok) {
           const data = await response.json()
@@ -215,6 +248,9 @@ export default function PersonalStoryPage() {
             })
           }
         }
+
+        // Load saved story
+        await loadSavedStory()
       } catch (error) {
         console.error("Error loading saved answers:", error)
         // Fallback to localStorage if API fails
@@ -234,7 +270,7 @@ export default function PersonalStoryPage() {
     }
 
     if (session?.user?.email) {
-      loadSavedAnswers()
+      loadSavedData()
     }
   }, [session?.user?.email, toast])
 
@@ -634,11 +670,39 @@ export default function PersonalStoryPage() {
     let timeoutId: NodeJS.Timeout | undefined
 
     try {
-      // Create a comprehensive prompt from all story elements
-      const storyPrompt = `Personal story about my life journey: My early life and roots were shaped by ${formData.early_life}, my education influenced me through ${formData.education}, my career journey includes ${formData.career_journey}, my personal side is defined by ${formData.personal_side}, my current identity and positioning is ${formData.current_identity}, and my future aspirations are ${formData.future_aspirations}.`
+      // Create dynamic story prompts with different angles and structures for variety
+      const storyAngles = [
+        `Write a compelling personal story about my professional journey. Start with how my early life experiences (${formData.early_life}) shaped my foundation, then explore how my education (${formData.education}) influenced my path, followed by my career journey (${formData.career_journey}), my personal side (${formData.personal_side}), my current identity (${formData.current_identity}), and future aspirations (${formData.future_aspirations}). Make it engaging and unique with a storytelling approach.`,
+        
+        `Create a unique personal narrative that weaves together my life story. Begin with my childhood influences (${formData.early_life}), then my educational experiences (${formData.education}), my professional growth (${formData.career_journey}), personal interests (${formData.personal_side}), current positioning (${formData.current_identity}), and future goals (${formData.future_aspirations}). Tell it in a fresh, authentic way with emotional depth.`,
+        
+        `Craft a distinctive personal story that connects my life experiences. Focus on how my early life (${formData.early_life}) influenced my education choices (${formData.education}), which led to my career path (${formData.career_journey}), balanced with my personal life (${formData.personal_side}), current professional identity (${formData.current_identity}), and future vision (${formData.future_aspirations}). Make it memorable and different with a conversational tone.`,
+        
+        `Develop an original personal story that highlights my unique journey. Start with formative early experiences (${formData.early_life}), educational milestones (${formData.education}), career evolution (${formData.career_journey}), personal passions (${formData.personal_side}), current brand (${formData.current_identity}), and future aspirations (${formData.future_aspirations}). Create a fresh perspective with inspiring elements.`,
+        
+        `Write a creative personal narrative that showcases my life story. Begin with childhood influences (${formData.early_life}), educational journey (${formData.education}), professional development (${formData.career_journey}), personal interests (${formData.personal_side}), current identity (${formData.current_identity}), and future dreams (${formData.future_aspirations}). Make it stand out with a unique approach and motivational tone.`,
+        
+        `Tell my personal story in a new and exciting way. Connect my early life experiences (${formData.early_life}) with my educational background (${formData.education}), career progression (${formData.career_journey}), personal interests (${formData.personal_side}), current professional identity (${formData.current_identity}), and future aspirations (${formData.future_aspirations}). Use a reflective and inspiring narrative style.`,
+        
+        `Create an engaging personal story that captures my unique journey. Start with my formative years (${formData.early_life}), educational path (${formData.education}), career development (${formData.career_journey}), personal life (${formData.personal_side}), current positioning (${formData.current_identity}), and future goals (${formData.future_aspirations}). Make it compelling with a professional yet personal touch.`,
+        
+        `Write a fresh personal narrative about my life's journey. Begin with my early influences (${formData.early_life}), educational experiences (${formData.education}), professional growth (${formData.career_journey}), personal side (${formData.personal_side}), current identity (${formData.current_identity}), and future vision (${formData.future_aspirations}). Tell it with authenticity and inspiration.`
+      ]
+
+      // Randomly select a story angle and add timestamp for uniqueness
+      const randomAngle = storyAngles[Math.floor(Math.random() * storyAngles.length)]
+      const timestamp = Date.now()
+      const storyPrompt = `${randomAngle} [Generation ID: ${timestamp}]`
 
       const controller = new AbortController()
       timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
+
+      // Add more randomness to parameters for maximum variation
+      const randomTemperature = 0.6 + Math.random() * 0.4 // 0.6 to 1.0
+      const randomAmbiguity = 40 + Math.floor(Math.random() * 40) // 40 to 80
+      const randomRandomness = 20 + Math.floor(Math.random() * 60) // 20 to 80
+      const randomEmotionalDepth = 60 + Math.floor(Math.random() * 30) // 60 to 90
+      const randomWordCount = 350 + Math.floor(Math.random() * 150) // 350 to 500 words
 
       const requestBody = {
         type: "story",
@@ -647,25 +711,30 @@ export default function PersonalStoryPage() {
         customization: {
           tone: customization.tone,
           language: customization.language,
-          wordCount: 400,
+          wordCount: randomWordCount,
           targetAudience: customization.targetAudience,
           mainGoal: customization.mainGoal,
           includeHashtags: true,
           includeEmojis: true,
           callToAction: false,
           humanLike: true,
-          ambiguity: 60,
-          randomness: 40,
+          ambiguity: randomAmbiguity,
+          randomness: randomRandomness,
           personalTouch: true,
           storytelling: true,
-          emotionalDepth: 80,
+          emotionalDepth: randomEmotionalDepth,
           conversationalStyle: true,
-          temperature: 0.8,
+          temperature: randomTemperature,
           maxTokens: 2000,
         },
       }
 
-      console.log("Sending request to AI:", requestBody) // Debug log
+      console.log("Sending request to AI with variation:", {
+        storyAngle: randomAngle.substring(0, 100) + "...",
+        temperature: randomTemperature,
+        wordCount: randomWordCount,
+        timestamp: timestamp
+      }) // Debug log
 
       const response = await fetch("/api/ai/generate", {
         method: "POST",
@@ -699,27 +768,63 @@ export default function PersonalStoryPage() {
         storyContent = `Based on your personal journey, here's your story:\n\nMy story begins with my early life and roots, where "${formData.early_life}" shaped the foundation of who I am today. My education journey was marked by "${formData.education}", which influenced my interests and career choices.\n\nMy professional journey has been defined by "${formData.career_journey}", with key milestones and challenges that have shaped my growth. Beyond work, my personal side is enriched by "${formData.personal_side}", which brings balance and fulfillment to my life.\n\nCurrently, I want people to know "${formData.current_identity}" when they encounter my profile and content. Looking ahead, my future aspirations include "${formData.future_aspirations}", and I'm committed to using my personal brand to achieve these goals and make a meaningful impact.`
       }
 
-      // Create a single story
+      // Create dynamic story titles for variety
+      const storyTitles = [
+        "My Professional Journey",
+        "The Story of My Growth",
+        "My Path to Success",
+        "A Journey of Discovery",
+        "My Career Evolution",
+        "The Road I've Traveled",
+        "My Professional Story",
+        "From Dreams to Reality",
+        "My Life's Journey",
+        "The Story Behind My Success"
+      ]
+      
+      const randomTitle = storyTitles[Math.floor(Math.random() * storyTitles.length)]
+      const variationNumber = Math.floor(Math.random() * 10) + 1
+
+      // Create a single story with unique elements
       const newStory: GeneratedStory = {
-        id: `story-${Date.now()}`,
-        title: `My Professional Journey`,
+        id: `story-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        title: randomTitle,
         content: storyContent.trim(),
         tone: customization.tone,
-        wordCount: 400,
+        wordCount: storyContent.trim().split(' ').length,
         createdAt: new Date(),
-        variation: 1,
+        variation: variationNumber,
       }
 
-      setGeneratedStories([newStory, ...generatedStories])
+      // Set the new story and automatically open preview modal
+      setSelectedStory(newStory)
+      setShowPreviewModal(true)
+      setIsNewStoryPending(true)
+      
+      // Don't clear topics here - we'll generate them after user confirms the story
 
       // Check if we got proper content
       if (newStory.content && newStory.content.length > 50) {
-        // Generate related topics
-        await generateRelatedTopics(newStory)
+        // Auto-save the generated story to database
+        try {
+          const saveResponse = await fetch("/api/personal-story/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ story: newStory }),
+          })
+
+          if (saveResponse.ok) {
+            console.log("Story auto-saved successfully")
+          } else {
+            console.error("Failed to auto-save story")
+          }
+        } catch (error) {
+          console.error("Error auto-saving story:", error)
+        }
 
         toast({
           title: "Story Generated!",
-          description: "Your personal story has been created successfully. Please review the related topics below.",
+          description: "Your new personal story has been created. Click OK to confirm and generate related topics.",
         })
         // Save answers permanently to database after successful generation
         await saveAnswersToDatabase()
@@ -769,6 +874,39 @@ export default function PersonalStoryPage() {
   const handleSelectStory = (story: GeneratedStory) => {
     setSelectedStory(story)
     setShowPreviewModal(true)
+    setIsNewStoryPending(false) // This is not a new story, it's an existing one
+  }
+
+  const handleConfirmNewStory = async () => {
+    if (selectedStory) {
+      // Replace the old story with the new one
+      setGeneratedStories([selectedStory])
+      setIsNewStoryPending(false)
+      setShowPreviewModal(false)
+      
+      // Clear existing topics and generate new ones
+      setGeneratedTopics([])
+      setShowTopicApproval(false)
+      
+      // Generate related topics for the new story
+      try {
+        console.log("Starting topic generation for new story:", selectedStory.id)
+        await generateRelatedTopics(selectedStory)
+        console.log("Topic generation completed successfully")
+      } catch (error) {
+        console.error("Error generating topics:", error)
+        toast({
+          title: "Topics Generation Failed",
+          description: "Story was updated but topics couldn't be generated. You can try regenerating topics later.",
+          variant: "destructive",
+        })
+      }
+      
+      toast({
+        title: "Story Updated!",
+        description: "Your new story has been saved and related topics are being generated.",
+      })
+    }
   }
 
   const handleSaveDraft = async () => {
@@ -884,17 +1022,17 @@ export default function PersonalStoryPage() {
       if (response.ok) {
         setGeneratedTopics((prev) => prev.map((t) => (t.id === topicId ? { ...t, status: "discarded" } : t)))
         toast({
-          title: "Topic Discarded",
-          description: "Topic has been discarded.",
+          title: "Topic Rejected",
+          description: "Topic has been rejected.",
         })
       } else {
-        throw new Error("Failed to discard topic")
+        throw new Error("Failed to reject topic")
       }
     } catch (error) {
       console.error("Error discarding topic:", error)
       toast({
         title: "Error",
-        description: "Failed to discard topic. Please try again.",
+        description: "Failed to reject topic. Please try again.",
         variant: "destructive",
       })
     }
@@ -976,7 +1114,7 @@ export default function PersonalStoryPage() {
           variation: 1,
         }
 
-        setGeneratedStories((prev) => [newStory, ...prev])
+        setGeneratedStories([newStory])
         setSelectedStory(newStory)
         setShowPreviewModal(true)
 
@@ -1350,141 +1488,165 @@ export default function PersonalStoryPage() {
                 </Card>
               </motion.div>
 
-              {generatedStories.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                >
-                  <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
-                    <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-secondary rounded-2xl flex items-center justify-center">
-                          <BookOpen className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-2xl font-bold text-black dark:text-white">
-                            Your Story Collection
-                          </CardTitle>
-                        </div>
-                      </div>
-                    </CardHeader>
 
-                    <CardContent className="p-4 sm:p-8">
-                      <div className="space-y-4 sm:space-y-6">
-                        {generatedStories.length > 0 &&
-                          generatedStories.every((story) => !story.content || story.content.length < 50) && (
-                            <motion.div
-                              className="p-4 sm:p-6 border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 rounded-xl sm:rounded-2xl"
-                              initial={{ opacity: 0, scale: 0.95 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                  <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                                </div>
-                                <h4 className="font-semibold text-sm sm:text-base text-blue-800 dark:text-blue-200">
-                                  Regeneration Needed
-                                </h4>
+            </div>
+
+            {/* Enhanced Customization Sidebar */}
+            <div className="space-y-4 sm:space-y-8">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 1.8, ease: "easeOut" }}
+              >
+                <PersonalStoryCustomizationPanel
+                  customization={customization}
+                  onCustomizationChange={setCustomization}
+                />
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* Your Story Collection - Full Width */}
+        {generatedStories.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-7xl mx-auto mt-8"
+          >
+            <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
+              <CardHeader className="pb-6 bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-secondary rounded-2xl flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-black dark:text-white">
+                      Your Story Collection
+                    </CardTitle>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-4 sm:p-8">
+                <div className="space-y-4 sm:space-y-6">
+                  {generatedStories.length > 0 &&
+                    generatedStories.every((story) => !story.content || story.content.length < 50) && (
+                      <motion.div
+                        className="p-4 sm:p-6 border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 rounded-xl sm:rounded-2xl"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-sm sm:text-base text-blue-800 dark:text-blue-200">
+                            Regeneration Needed
+                          </h4>
+                        </div>
+                        <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 mb-3 sm:mb-4">
+                          The story may not have generated properly. Click below to regenerate with fresh content.
+                        </p>
+                        <Button
+                          onClick={generateStory}
+                          disabled={isGenerating}
+                          className="gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base h-9 sm:h-10"
+                        >
+                          <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
+                          {isGenerating ? "Regenerating..." : "Regenerate Story"}
+                        </Button>
+                      </motion.div>
+                    )}
+
+                  <div className="grid gap-4 sm:gap-6">
+                    {generatedStories.map((story, index) => (
+                      <motion.div
+                        key={`${story.id}-${story.createdAt.getTime()}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="group"
+                      >
+                        <Card className="bg-white dark:bg-black border-2 border-blue-200 dark:border-blue-800 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                          <CardContent className="p-4 sm:p-6">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
+                                  {story.tone}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
+                                  {story.wordCount} words
+                                </Badge>
+                                {story.variation && (
+                                  <Badge className="text-xs sm:text-sm px-2 sm:px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                                    Variation {story.variation}
+                                  </Badge>
+                                )}
                               </div>
-                              <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 mb-3 sm:mb-4">
-                                The story may not have generated properly. Click below to regenerate with fresh content.
-                              </p>
-                              <Button
-                                onClick={generateStory}
-                                disabled={isGenerating}
-                                className="gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base h-9 sm:h-10"
+                              <button
+                                className="flex items-center gap-2 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors self-start cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleSelectStory(story)
+                                }}
                               >
-                                <RefreshCw className="w-3 h-3 sm:w-3 h-3 sm:w-4 sm:h-4" />
-                                {isGenerating ? "Regenerating..." : "Regenerate Story"}
-                              </Button>
-                            </motion.div>
-                          )}
+                                <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="text-xs sm:text-sm font-medium">Preview</span>
+                              </button>
+                            </div>
 
-                        <div className="grid gap-4 sm:gap-6">
-                          {generatedStories.map((story, index) => (
-                            <motion.div
-                              key={story.id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.5, delay: index * 0.1 }}
-                              className="group"
-                            >
-                              <Card className="bg-white dark:bg-black border-2 border-blue-200 dark:border-blue-800 hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
-                                <CardContent className="p-4 sm:p-6">
-                                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
-                                        {story.tone}
-                                      </Badge>
-                                      <Badge variant="outline" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
-                                        {story.wordCount} words
-                                      </Badge>
-                                      {story.variation && (
-                                        <Badge className="text-xs sm:text-sm px-2 sm:px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                                          Variation {story.variation}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    <button
-                                      className="flex items-center gap-2 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors self-start cursor-pointer"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        handleSelectStory(story)
-                                      }}
-                                    >
-                                      <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                                      <span className="text-xs sm:text-sm font-medium">Preview</span>
-                                    </button>
-                                  </div>
+                            <div className="cursor-pointer" onClick={() => handleSelectStory(story)}>
+                              <h3 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
+                                {story.title}
+                              </h3>
 
-                                  <div className="cursor-pointer" onClick={() => handleSelectStory(story)}>
-                                    <h3 className="text-lg sm:text-xl font-bold text-black dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
-                                      {story.title}
-                                    </h3>
+                              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-4 mb-4">
+                                {story.content && story.content.length > 0
+                                  ? story.content
+                                  : "Story content is being generated..."}
+                              </p>
+                              {/* Force re-render with timestamp */}
+                              <div className="hidden">{story.createdAt.getTime()}</div>
+                            </div>
 
-                                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-4 mb-4">
-                                      {story.content && story.content.length > 0
-                                        ? story.content
-                                        : "Story content is being generated..."}
-                                    </p>
-                                  </div>
+                            {story.content && story.content.length > 0 && (
+                              <div
+                                className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-blue-200/50 dark:border-blue-800/50"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <LinkedInPostButton
+                                  content={story.content}
+                                  className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
+                                />
+                                <ScheduleButton
+                                  content={story.content}
+                                  defaultPlatform="linkedin"
+                                  defaultType="text"
+                                  className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
+                                />
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
-                                  {story.content && story.content.length > 0 && (
-                                    <div
-                                      className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-blue-200/50 dark:border-blue-800/50"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <LinkedInPostButton
-                                        content={story.content}
-                                        className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
-                                      />
-                                      <ScheduleButton
-                                        content={story.content}
-                                        defaultPlatform="linkedin"
-                                        defaultType="text"
-                                        className="flex-1 h-9 sm:h-10 bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white rounded-lg sm:rounded-xl text-sm sm:text-base"
-                                      />
-                                    </div>
-                                  )}
-                                </CardContent>
-                              </Card>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-
-              {/* Topic Approval Section */}
+        {/* Related Topics Section - Full Width */}
               {showTopicApproval && generatedTopics.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
+            className="max-w-7xl mx-auto mt-8"
                 >
                   <Card className="bg-white/95 dark:bg-black/95 backdrop-blur-sm border-0 shadow-2xl">
                     <CardHeader className="pb-4 sm:pb-6 bg-gradient-to-r from-blue-500/10 to-secondary/10 dark:from-blue-950/20 dark:to-secondary/10">
@@ -1534,7 +1696,7 @@ export default function PersonalStoryPage() {
                                   {topic.status === "discarded" && (
                                     <Badge variant="destructive" className="text-xs">
                                       <X className="w-3 h-3 mr-1" />
-                                      Discarded
+                                      Rejected
                                     </Badge>
                                   )}
                                   {topic.status === "pending" && (
@@ -1567,28 +1729,25 @@ export default function PersonalStoryPage() {
                                       className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50 text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4 flex-1"
                                     >
                                       <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                                      Discard
+                                      Reject
                                     </Button>
                                   </>
                                 )}
                                 {topic.status === "approved" && (
-                                  <Button
-                                    onClick={() => handleGenerateContentFromTopic(topic.id)}
-                                    disabled={isGenerating}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4 w-full"
-                                  >
-                                    {isGenerating ? (
-                                      <>
-                                        <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 animate-spin" />
-                                        Generating...
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                                        Generate Content
-                                      </>
-                                    )}
-                                  </Button>
+                                  <div className="flex items-center justify-center w-full py-2">
+                                    <Badge className="bg-green-500 text-white text-xs">
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                      Approved
+                                    </Badge>
+                                  </div>
+                                )}
+                                {topic.status === "discarded" && (
+                                  <div className="flex items-center justify-center w-full py-2">
+                                    <Badge variant="destructive" className="text-xs">
+                                      <X className="w-3 h-3 mr-1" />
+                                      Rejected
+                                    </Badge>
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -1650,27 +1809,18 @@ export default function PersonalStoryPage() {
                   </Card>
                 </motion.div>
               )}
-            </div>
-
-            {/* Enhanced Customization Sidebar */}
-            <div className="space-y-4 sm:space-y-8">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 1.8, ease: "easeOut" }}
-              >
-                <PersonalStoryCustomizationPanel
-                  customization={customization}
-                  onCustomizationChange={setCustomization}
-                />
-              </motion.div>
-            </div>
-          </div>
-        </div>
       </motion.div>
 
       {/* Enhanced Preview Modal */}
-      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+      <Dialog open={showPreviewModal} onOpenChange={(open) => {
+        setShowPreviewModal(open)
+        if (!open && isNewStoryPending) {
+          // If user closes modal without confirming, cancel the new story
+          console.log("Modal closed without confirming new story")
+          setIsNewStoryPending(false)
+          setSelectedStory(null)
+        }
+      }}>
         <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto mx-2 sm:mx-4 lg:mx-auto w-[calc(100vw-1rem)] sm:w-auto bg-white/95 dark:bg-black/95 backdrop-blur-sm border border-blue-200 dark:border-blue-800">
           <DialogHeader className="pb-6">
             <div className="flex items-center gap-4">
@@ -1678,9 +1828,14 @@ export default function PersonalStoryPage() {
                 <Eye className="w-6 h-6 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-bold text-black dark:text-white">Story Preview</DialogTitle>
+                <DialogTitle className="text-2xl font-bold text-black dark:text-white">
+                  {isNewStoryPending ? "New Story Generated!" : "Story Preview"}
+                </DialogTitle>
                 <DialogDescription className="text-gray-600 dark:text-gray-400 mt-1">
-                  Review your generated personal story before publishing to LinkedIn
+                  {isNewStoryPending 
+                    ? "Your new personal story has been generated. Click OK to replace your current story."
+                    : "Review your generated personal story before publishing to LinkedIn"
+                  }
                 </DialogDescription>
               </div>
             </div>
@@ -1727,6 +1882,19 @@ export default function PersonalStoryPage() {
               </Card>
 
               {/* Action Buttons */}
+              {isNewStoryPending ? (
+                /* New Story Confirmation - Show OK Button */
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleConfirmNewStory}
+                    className="h-12 px-12 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  >
+                    <CheckCircle className="w-5 h-5 mr-3" />
+                    <span className="text-lg font-semibold">OK</span>
+                  </Button>
+                </div>
+              ) : (
+                /* Existing Story - Show Post and Save Buttons */
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   onClick={handlePostStory}
@@ -1754,6 +1922,7 @@ export default function PersonalStoryPage() {
                   <span>Save to Drafts</span>
                 </Button>
               </div>
+              )}
             </motion.div>
           )}
         </DialogContent>

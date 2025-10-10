@@ -240,10 +240,33 @@ export default function AIArticlesPage() {
     }
   }
 
+  // Function to check if user has a personal story (without loading topics)
+  const checkPersonalStoryExists = async () => {
+    try {
+      const response = await fetch("/api/story-topics", {
+        method: "GET",
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.topics && data.topics.length > 0) {
+          setHasPersonalStory(true)
+        } else {
+          setHasPersonalStory(false)
+        }
+      } else {
+        setHasPersonalStory(false)
+      }
+    } catch (error) {
+      console.error("Error checking personal story:", error)
+      setHasPersonalStory(false)
+    }
+  }
+
   useEffect(() => {
     console.log("=== TOPIC GENERATOR INITIALIZED ===")
-    // Fetch personalized topics only on initial load
-    fetchPersonalizedTopics()
+    // Check if user has personal story without loading topics
+    checkPersonalStoryExists()
 
     // Fetch approved topics from story system
     const fetchApprovedTopics = async () => {
@@ -1630,6 +1653,55 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                   >
                     <Sparkles className="mr-2 h-4 w-4" />
                     Create Personal Story
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {showTopicGenerator && personalizedTopics.length === 0 && hasPersonalStory && !isRefreshingTopics && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+            <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-blue-600" />
+                    <CardTitle className="text-blue-900">Generate Personalized Topics</CardTitle>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setShowTopicGenerator(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <CardDescription className="text-blue-700">
+                  Click the button below to generate personalized topics based on your personal story
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full flex items-center justify-center mb-4">
+                    <Sparkles className="w-8 h-8 text-blue-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Generate Topics?</h3>
+                  <p className="text-gray-600 mb-6 max-w-md">
+                    We'll create unique content ideas tailored specifically to your personal story and experiences.
+                  </p>
+                  <Button
+                    onClick={fetchPersonalizedTopics}
+                    disabled={isRefreshingTopics}
+                    className="bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white px-6 py-3 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    {isRefreshingTopics ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Generating Topics...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        Generate Topics
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>

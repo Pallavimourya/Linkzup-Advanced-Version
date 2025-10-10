@@ -143,7 +143,7 @@ export default function DashboardPage() {
 
   const [personalizedTopics, setPersonalizedTopics] = useState<PersonalizedTopic[]>([])
   const [hasPersonalStory, setHasPersonalStory] = useState(false)
-  const [isLoadingTopics, setIsLoadingTopics] = useState(true)
+  const [isLoadingTopics, setIsLoadingTopics] = useState(false)
   const [isRegeneratingTopics, setIsRegeneratingTopics] = useState(false)
   const [personalStoryTopic, setPersonalStoryTopic] = useState<string | null>(null)
 
@@ -170,9 +170,16 @@ export default function DashboardPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          // No personal story found
+          // No personal story found - redirect to create one
           setHasPersonalStory(false)
           setPersonalizedTopics([])
+          toast({
+            title: "Personal Story Required",
+            description: "You need to create your personal story first to generate personalized topics.",
+            variant: "destructive",
+          })
+          // Redirect to personal story page
+          router.push("/dashboard/personal-story")
           return
         }
         throw new Error("Failed to fetch topics")
@@ -217,9 +224,16 @@ export default function DashboardPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          // No personal story found
+          // No personal story found - redirect to create one
           setHasPersonalStory(false)
           setPersonalizedTopics([])
+          toast({
+            title: "Personal Story Required",
+            description: "You need to create your personal story first to generate personalized topics.",
+            variant: "destructive",
+          })
+          // Redirect to personal story page
+          router.push("/dashboard/personal-story")
           return
         }
         throw new Error("Failed to regenerate topics")
@@ -247,9 +261,10 @@ export default function DashboardPage() {
     }
   }
 
-  useEffect(() => {
-    fetchPersonalizedTopics()
-  }, [])
+  // Removed auto-loading of topics - now only loads when user clicks button
+  // useEffect(() => {
+  //   fetchPersonalizedTopics()
+  // }, [])
 
   // Function to get appropriate icon for each topic category
   const getTopicIcon = (category?: string) => {
@@ -1156,29 +1171,36 @@ export default function DashboardPage() {
                       Creating unique topics based on your personal story
                     </p>
                   </div>
-                ) : !hasPersonalStory ? (
-                  // Empty State - No Personal Story
+                ) : personalizedTopics.length === 0 ? (
+                  // Empty State - No Topics Generated Yet (Initial State)
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <div className="w-20 h-20 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full flex items-center justify-center mb-6">
-                      <User className="w-10 h-10 text-blue-500" />
+                      <Sparkles className="w-10 h-10 text-blue-500" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                      Create Your Personal Story First
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md leading-relaxed">
-                      To get personalized topic suggestions, you need to create your personal story first. Share your
-                      journey and we'll generate unique topics based on your experiences.
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Generate Personalized Topics</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+                      Click the button below to generate personalized topics based on your personal story. We'll create unique content ideas tailored just for you.
                     </p>
                     <Button
-                      onClick={() => router.push("/dashboard/personal-story")}
+                      onClick={fetchPersonalizedTopics}
+                      disabled={isLoadingTopics}
                       className="bg-gradient-to-r from-blue-500 to-secondary hover:from-blue-600 hover:to-secondary/90 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                     >
-                      <User className="w-5 h-5 mr-2" />
-                      Create Personal Story
+                      {isLoadingTopics ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Generating Topics...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Generate Topics
+                        </>
+                      )}
                     </Button>
                   </div>
                 ) : personalizedTopics.length < 3 ? (
-                  // Empty State - No Topics Generated Yet
+                  // Empty State - Not Enough Topics Generated Yet
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <div className="w-20 h-20 bg-gradient-to-br from-blue-500/10 to-secondary/10 rounded-full flex items-center justify-center mb-6">
                       <Sparkles className="w-10 h-10 text-blue-500" />
@@ -1200,7 +1222,7 @@ export default function DashboardPage() {
                       ) : (
                         <>
                           <Sparkles className="w-5 h-5 mr-2" />
-                          Generate Topics
+                          Generate More Topics
                         </>
                       )}
                     </Button>
