@@ -23,8 +23,9 @@ import { useAIGeneration } from "@/hooks/use-ai-generation"
 import { AIQueueStatus } from "@/components/ai-queue-status"
 import { useToast } from "@/hooks/use-toast"
 import { MicrophoneButton } from "@/components/ui/microphone-button"
+import { AIModelSelector } from "@/components/ai-model-selector"
 
-import type { ContentType, AIProvider, CustomizationOptions, AIResponse } from "@/lib/ai-service"
+import type { ContentType, AIProvider, CustomizationOptions, AIResponse, OpenAIModel } from "@/lib/ai-service"
 
 export default function AIGeneratorPage() {
   const [prompt, setPrompt] = useState("")
@@ -41,6 +42,7 @@ export default function AIGeneratorPage() {
     callToAction: true,
     temperature: 0.7,
     maxTokens: 1000,
+    model: "gpt-3.5-turbo", // Default to free model
   })
   const [generatedContent, setGeneratedContent] = useState<AIResponse | null>(null)
 
@@ -346,6 +348,12 @@ export default function AIGeneratorPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* AI Model Selector */}
+          <AIModelSelector
+            selectedModel={customization.model || "gpt-3.5-turbo"}
+            onModelChange={(model) => setCustomization(prev => ({ ...prev, model: model as OpenAIModel }))}
+          />
+
           {/* Queue Status */}
           <AIQueueStatus
             queueStatus={queueStatus}

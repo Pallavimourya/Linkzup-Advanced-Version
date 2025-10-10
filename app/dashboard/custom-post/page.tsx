@@ -235,6 +235,7 @@ export default function CustomPostPage() {
     includeHashtags: boolean
     includeEmojis: boolean
     callToAction: boolean
+    model?: "gpt-3.5-turbo" | "gpt-4" | "gpt-4o-mini"
   }>({
     tone: "professional",
     language: "english",
@@ -244,6 +245,7 @@ export default function CustomPostPage() {
     includeHashtags: true,
     includeEmojis: true,
     callToAction: true,
+    model: "gpt-3.5-turbo", // Default to free model
   })
 
   const { generateContent, isGenerating } = useAIGeneration()

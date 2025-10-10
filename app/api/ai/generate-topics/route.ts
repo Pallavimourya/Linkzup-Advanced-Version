@@ -79,7 +79,7 @@ CRITICAL REQUIREMENTS:
     const response = await aiService.generateContent(
       "topics",
       enhancedPrompt,
-      "openai",
+      "openai", // Will automatically use GPT-3.5-turbo for topics (cost-efficient)
       {
         tone: "professional",
         targetAudience: "LinkedIn professionals",

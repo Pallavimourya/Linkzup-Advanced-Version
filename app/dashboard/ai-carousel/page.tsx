@@ -1690,6 +1690,7 @@ What do you think? Share your thoughts in the comments below.
           storytelling: false,
           conversationalStyle: true,
           temperature: 0.8,
+          model: "gpt-3.5-turbo", // Use free model
           // Add context about the carousel
           additionalContext: slideContent ? `This is for a carousel about: ${slideContent}` : undefined
         }),

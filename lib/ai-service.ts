@@ -2,7 +2,10 @@ import OpenAI from "openai"
 import { PersonalStoryService, type PersonalStoryData } from "./personal-story-service"
 
 // AI Provider Types
-export type AIProvider = "openai" | "perplexity" // OpenAI as primary, Perplexity as fallback
+  export type AIProvider = "openai" | "perplexity" // OpenAI + Perplexity with smart routing
+
+// OpenAI Model Types
+export type OpenAIModel = "gpt-4" | "gpt-3.5-turbo" | "gpt-4o-mini"
 
 // Content Generation Types
 export type ContentType = "linkedin-post" | "article" | "topics" | "carousel" | "story" | "list" | "quote" | "before-after" | "tips" | "insights" | "question"
@@ -28,6 +31,7 @@ export interface CustomizationOptions {
   storytelling?: boolean
   emotionalDepth?: number
   conversationalStyle?: boolean
+  model?: OpenAIModel // Allow model selection
 }
 
 // Request Interface
@@ -136,7 +140,24 @@ class AIService {
       let tokensUsed: number
       let cost: number
 
-      // Try OpenAI first, fallback to Perplexity if needed
+       // Smart provider selection with fallback system
+       if (request.provider === "perplexity") {
+         try {
+           const perplexityResult = await this.generateWithPerplexity(request)
+           content = perplexityResult.content
+           model = perplexityResult.model
+           tokensUsed = perplexityResult.tokensUsed
+           cost = perplexityResult.cost
+         } catch (perplexityError) {
+           console.warn("Perplexity generation failed, trying OpenAI:", perplexityError)
+           const openaiResult = await this.generateWithOpenAI(request)
+           content = openaiResult.content
+           model = openaiResult.model
+           tokensUsed = openaiResult.tokensUsed
+           cost = openaiResult.cost
+         }
+       } else {
+         // Default to OpenAI with Perplexity fallback
       try {
         const openaiResult = await this.generateWithOpenAI(request)
         content = openaiResult.content
@@ -150,6 +171,7 @@ class AIService {
         model = perplexityResult.model
         tokensUsed = perplexityResult.tokensUsed
         cost = perplexityResult.cost
+         }
       }
 
       const response: AIResponse = {
@@ -195,11 +217,15 @@ class AIService {
   // Generate content with OpenAI
   private async generateWithOpenAI(request: AIRequest) {
     const prompt = await this.buildPrompt(request)
-    const { temperature = 0.7, maxTokens = 2000 } = request.customization
+    const { temperature = 0.7, maxTokens = 2000, model = "gpt-3.5-turbo" } = request.customization
+
+    // Smart model selection based on content type
+    const optimalModel = this.getOptimalModel(request.type, request.customization)
+    const finalModel = model === "gpt-3.5-turbo" ? optimalModel : model
 
     // Use dynamic temperature for variety
     const completion = await this.getOpenAI().chat.completions.create({
-      model: "gpt-4",
+      model: finalModel, // Use optimized model selection
       messages: [{ role: "user", content: prompt }],
       temperature: temperature, // Use the temperature from customization
       max_tokens: maxTokens,
@@ -253,11 +279,12 @@ class AIService {
     const usage = completion.usage
     return {
       content: parsedContent,
-      model: "gpt-4",
+      model: model,
       tokensUsed: usage?.total_tokens || 0,
-      cost: this.calculateOpenAICost(usage?.total_tokens || 0, usage?.prompt_tokens || 0, usage?.completion_tokens || 0),
+      cost: this.calculateOpenAICost(usage?.total_tokens || 0, usage?.prompt_tokens || 0, usage?.completion_tokens || 0, model),
     }
   }
+
 
   // Generate content with Perplexity (fallback)
   private async generateWithPerplexity(request: AIRequest) {
@@ -357,126 +384,168 @@ class AIService {
       case "linkedin-post":
         if (isTopicBasedApproach) {
           // Topic-based approach: Use personal story + topic
-          basePrompt = `Generate 2 unique, natural LinkedIn posts about "${prompt}" with these specifications:
+          basePrompt = `<linkedin_content_creation>
+You are a viral LinkedIn content creator with expertise in professional storytelling and engagement optimization.
 
-Topic: ${prompt}
+<content_brief>
+Topic: "${prompt}"
 Tone: ${tone}
 Language: ${language}
-Word count: approximately ${wordCount} words
-Target audience: ${targetAudience}
-Main goal: ${mainGoal}
+Word Count: ~${wordCount} words
+Audience: ${targetAudience}
+Goal: ${mainGoal}
+</content_brief>
 
-${personalStoryContext ? `PERSONAL STORY CONTEXT:
+${personalStoryContext ? `<personal_story_integration>
 ${personalStoryContext}
 
-IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+<story_connection_strategy>
+- Identify the most relevant personal experiences for this topic
+- Create natural bridges between personal story and professional insights
+- Use specific details to build authenticity and relatability
+- Maintain professional credibility while being personal
+</story_connection_strategy>
+</personal_story_integration>` : ''}
 
-Requirements:
-- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
-- Write posts that are direct, concise, and professional
-- Start with engaging, natural openings - avoid generic phrases like "As professionals" or "We all know"
-- Use the specified tone: ${tone}
-- Write in ${language} language
-- Target the specified audience: ${targetAudience}
-- Align with the main goal: ${mainGoal}
-- Structure content with proper formatting:
-  * Start with an engaging opening paragraph
-  * Include 3-4 bullet points (•) with proper spacing - each bullet point MUST start on a new line with proper spacing
-  * End with a concise conclusion
-  * Ensure proper line breaks and spacing throughout the content
-  * Format exactly like this example: bullet points on separate lines with clean spacing
-- Keep content medium-length and professional (not too short, not too long)
-- Share 1-2 actionable insights or key takeaways related to the topic
-- Use clean formatting with proper spacing for LinkedIn readability
-- Be direct and professional - avoid fluff and unnecessary conversation starters
-- NO conversation starters, NO engagement prompts like "What do you think?", NO fluff
-- Ensure proper spacing between paragraphs and bullet points
-- Use clear, readable formatting that looks professional
-${includeHashtags ? "- Include 3-5 relevant hashtags on a separate line at the end - NO extra text after hashtags" : ""}
-${includeEmojis ? "- Use 1-2 minimal emojis where relevant and natural" : ""}
-- Do NOT include "Post 1:", "Post 2:", or any numbering prefixes
-- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
+<viral_optimization_framework>
+1. Hook Creation: Start with unexpected insights or contrarian takes
+2. Value Delivery: Provide actionable, specific advice
+3. Personal Connection: Weave in authentic experiences naturally
+4. Engagement Triggers: Create content that sparks discussion
+5. Professional Authority: Maintain credibility and expertise
+</viral_optimization_framework>
 
-${humanLikeInstructions}
+<content_structure>
+Opening: Compelling hook (1-2 sentences)
+Body: 3-4 key insights with bullet points
+• Each bullet on new line with proper spacing
+• Specific, actionable advice
+• Personal examples when relevant
+Closing: Strong takeaway or call-to-action
+</content_structure>
 
-Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---". Each post should be complete and ready to publish.`
+<formatting_requirements>
+- Clean, scannable layout
+- Proper line breaks between sections
+- Bullet points on separate lines
+- Professional yet engaging tone
+${includeHashtags ? "- 3-5 relevant hashtags at end" : ""}
+${includeEmojis ? "- 1-2 strategic emojis" : ""}
+- No generic phrases or fluff
+- No forced engagement prompts
+- NO generic titles or headings like "My Journey from..." or "Building a Life of..."
+- Start directly with engaging content
+</formatting_requirements>
+
+<output_specification>
+Generate 2 distinct posts, each separated by "---POST_SEPARATOR---"
+Each post should be complete and ready to publish
+Focus on "${prompt}"${personalStoryContext ? ' with authentic personal elements' : ''}
+</output_specification>
+</linkedin_content_creation>`
         } else {
           // Custom content approach: Use contextual personal story if available
-          basePrompt = `Generate 2 unique, natural LinkedIn posts based on this user input: "${prompt}"
+          basePrompt = `<custom_linkedin_content>
+You are a creative LinkedIn content strategist specializing in unique, engaging professional content.
 
-${personalStoryContext ? `PERSONAL STORY CONTEXT:
-${personalStoryContext}
-
-IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the user's input "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
-
-APPROACH: CUSTOM CONTENT GENERATION WITH PERSONAL TOUCH
-- Create fresh, unique content based on the user's input
-${personalStoryContext ? '- Incorporate relevant personal story elements that connect to the topic' : '- Focus purely on the topic/idea provided by the user'}
-- Generate original, creative content that stands out
-- Make the content feel authentic and personal
-
-Specifications:
+<content_request>
+User Input: "${prompt}"
 Tone: ${tone}
 Language: ${language}
-Word count: approximately ${wordCount} words
-Target audience: ${targetAudience}
-Main goal: ${mainGoal}
+Word Count: ~${wordCount} words
+Audience: ${targetAudience}
+Goal: ${mainGoal}
+</content_request>
 
-Requirements:
-- Create content focused on the user's input: "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
-- Write posts that are direct, concise, and professional
-- Start with engaging, natural openings - avoid generic phrases like "As professionals" or "We all know"
-- Use the specified tone: ${tone}
-- Write in ${language} language
-- Target the specified audience: ${targetAudience}
-- Align with the main goal: ${mainGoal}
-- Structure content with proper formatting:
-  * Start with an engaging opening paragraph
-  * Include 3-4 bullet points (•) with proper spacing - each bullet point MUST start on a new line with proper spacing
-  * End with a concise conclusion
-  * Ensure proper line breaks and spacing throughout the content
-  * Format exactly like this example: bullet points on separate lines with clean spacing
-- Keep content medium-length and professional (not too short, not too long)
-- Share 1-2 actionable insights or key takeaways related to the user's input
-- Use clean formatting with proper spacing for LinkedIn readability
-- Be direct and professional - avoid fluff and unnecessary conversation starters
-- NO conversation starters, NO engagement prompts like "What do you think?", NO fluff
-- Ensure proper spacing between paragraphs and bullet points
-- Use clear, readable formatting that looks professional
-${includeHashtags ? "- Include 3-5 relevant hashtags on a separate line at the end - NO extra text after hashtags" : ""}
-${includeEmojis ? "- Use 1-2 minimal emojis where relevant and natural" : ""}
-- Do NOT include "Post 1:", "Post 2:", or any numbering prefixes
-- Generate content based on the user's input${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
+${personalStoryContext ? `<personal_story_context>
+${personalStoryContext}
 
-${humanLikeInstructions}
+<integration_approach>
+- Analyze user input for connection opportunities with personal story
+- Select most relevant personal experiences for authentic integration
+- Create natural bridges between user's idea and personal insights
+- Maintain professional credibility while adding personal touch
+</integration_approach>
+</personal_story_context>` : ''}
 
-Format the response as 2 distinct posts, each separated by "---POST_SEPARATOR---". Each post should be complete and ready to publish.`
+<creative_content_strategy>
+1. Unique Angle: Find fresh perspective on the user's input
+2. Value Addition: Provide actionable insights and takeaways
+3. Authenticity: ${personalStoryContext ? 'Weave in relevant personal experiences naturally' : 'Create genuine, relatable content'}
+4. Engagement: Design content that encourages interaction
+5. Professionalism: Maintain industry credibility and authority
+</creative_content_strategy>
+
+<content_architecture>
+Hook: Attention-grabbing opening (1-2 sentences)
+Development: 3-4 key points with bullet structure
+• Each bullet on separate line
+• Specific, actionable advice
+• ${personalStoryContext ? 'Personal examples when relevant' : 'Concrete examples and insights'}
+Resolution: Strong conclusion with clear takeaway
+</content_architecture>
+
+<optimization_requirements>
+- Scannable format with proper spacing
+- Professional yet conversational tone
+- No generic phrases or clichés
+- No forced engagement prompts
+${includeHashtags ? "- Strategic hashtag placement" : ""}
+${includeEmojis ? "- Minimal, purposeful emoji usage" : ""}
+- Ready-to-publish format
+- NO generic titles or headings like "My Journey from..." or "Building a Life of..."
+- Start directly with engaging content
+</optimization_requirements>
+
+<output_deliverable>
+Generate 2 distinct posts separated by "---POST_SEPARATOR---"
+Each post should be complete and optimized for LinkedIn
+Focus on user input: "${prompt}"${personalStoryContext ? ' with authentic personal elements' : ''}
+</output_deliverable>
+</custom_linkedin_content>`
         }
         break
 
       case "topics":
-        basePrompt = `Generate 2 engaging and viral-worthy topic titles for the "${niche || prompt}" niche.
+        basePrompt = `<viral_topic_generation>
+You are a viral content strategist creating LinkedIn topics that maximize engagement and shares.
 
-Requirements:
-- Create compelling, shareable topic titles focused on "${prompt}"
-- Tone: ${tone}
-- Language: ${language}
-- Target audience: ${targetAudience}
-- Main goal: ${mainGoal}
-- Focus on trending and relevant subjects within the niche
-- Make titles engaging and click-worthy
+<topic_specifications>
+Niche: "${niche || prompt}"
+Tone: ${tone}
+Language: ${language}
+Audience: ${targetAudience}
+Goal: ${mainGoal}
+</topic_specifications>
+
+<viral_topic_framework>
+1. Curiosity Gap: Create topics that make people want to know more
+2. Contrarian Angle: Challenge conventional wisdom respectfully
+3. Personal Transformation: Focus on growth and change stories
+4. Behind-the-Scenes: Reveal insider insights and experiences
+5. Future-Focused: Predict trends and share forward-thinking perspectives
+6. Problem-Solution: Address common professional challenges
+</viral_topic_framework>
+
+<engagement_optimization>
+- Topics that spark debate and discussion
+- Universal professional themes with unique angles
+- Emotional hooks (struggle, triumph, learning, failure)
+- Actionable insights and clear value propositions
+- Trending relevance within the professional sphere
+</engagement_optimization>
+
+<output_requirements>
+- 5-10 words maximum per topic
+- LinkedIn-optimized for professional audience
 - Avoid generic or overused topics
-- Each title should be 5-10 words maximum
-- Write titles in ${language} language
-- Align with the ${tone} tone
-- Target the specified audience: ${targetAudience}
-- Focus on the main goal: ${mainGoal}
-- Generate content based purely on the topic and customization settings provided
-
-${humanLikeInstructions}
+- Create titles that are click-worthy and shareable
+- Focus on "${prompt}" within the ${niche || "general"} niche
+</output_requirements>
 
 Return ONLY a JSON array of strings containing the topic titles.
-Example format: ["Title 1", "Title 2"]`
+Example format: ["Title 1", "Title 2"]
+</viral_topic_generation>`
         break
 
       case "article":
@@ -509,100 +578,147 @@ Format the response as 2 distinct articles, each separated by "---POST_SEPARATOR
         break
 
       case "story":
-        basePrompt = `Generate 1 compelling story about "${prompt}" in the ${niche || "general"} niche.
+        basePrompt = `<natural_story_creation>
+You are a skilled storyteller creating authentic, engaging narratives without generic titles or headings.
 
-${personalStoryContext ? `PERSONAL STORY CONTEXT:
+<story_specifications>
+Topic: "${prompt}"
+Tone: ${tone}
+Language: ${language}
+Word Count: ~${wordCount} words
+Audience: ${targetAudience}
+Goal: ${mainGoal}
+</story_specifications>
+
+${personalStoryContext ? `<personal_story_integration>
 ${personalStoryContext}
 
-IMPORTANT: Use the personal story context above to create authentic, personalized content that connects the topic "${prompt}" to relevant personal experiences and insights. Weave in specific details from the personal story naturally and make the content feel authentic and relatable.` : ''}
+<story_weaving_strategy>
+- Select the most relevant personal experiences for this topic
+- Create natural narrative flow from personal story to universal insights
+- Use specific details to build authenticity and emotional connection
+- Maintain professional credibility while being vulnerable and relatable
+- Transform user answers into creative, unique narratives
+- Add storytelling elements like dialogue, emotions, and scenes
+- Create original content inspired by user experiences, not copied from them
+- Make each story fresh and engaging with creative interpretation
+</story_weaving_strategy>
+</personal_story_integration>` : ''}
 
-Requirements:
-- Create content focused on "${prompt}"${personalStoryContext ? ' while incorporating relevant personal story elements' : ''}
-- Tone: ${tone}
-- Language: ${language}
-- Word count: approximately ${wordCount} words
-- Target audience: ${targetAudience}
-- Main goal: ${mainGoal}
-- Include at least 3 bullet points (•) to make content more engaging and scannable
-${includeHashtags ? "- Include relevant hashtags" : ""}
-${includeEmojis ? "- Use emojis appropriately" : ""}
-${callToAction ? "- Include a call-to-action" : ""}
-- Create a cohesive, well-structured narrative
-- Make the story engaging and relatable
+<story_creation_rules>
+- Write a natural, flowing story without titles or headings
+- Start directly with the story content
+- Use specific details and emotions
+- Create authentic vulnerability and relatability
+- Show growth and learning through the narrative
+- Connect personal experience to universal themes
+- End naturally without forced conclusions
+- NEVER copy user answers word-for-word
+- Transform user experiences into unique, creative narratives
+- Use user answers as inspiration, not direct content
+- Create original storytelling that reflects the essence of user experiences
+- Add creative elements, dialogue, and narrative flow
+- Make each story unique and engaging
+</story_creation_rules>
+
+<content_structure>
+- Begin directly with the story (no title/heading)
+- Use natural paragraph breaks
 - Include specific details and emotions
-- Connect all story elements naturally
-- Do NOT include "Story:", or any numbering prefixes
-- Generate content based on the topic and customization settings provided${personalStoryContext ? ', incorporating relevant personal story elements naturally' : ''}
+- Show clear progression through the narrative
+- End with natural conclusion
+</content_structure>
 
-${humanLikeInstructions}
+<formatting_requirements>
+- Clean, natural formatting
+- Professional yet personal tone
+${includeHashtags ? "- Strategic hashtag placement" : ""}
+${includeEmojis ? "- Minimal, purposeful emoji usage" : ""}
+- No generic titles like "My Journey from..." or "Building a Life of..."
+- No forced engagement prompts
+- Natural story ending
+</formatting_requirements>
 
-IMPORTANT: Generate exactly 1 comprehensive story that focuses on "${prompt}" with these elements:
-- Have a clear beginning, middle, and end
-- Include specific details and experiences related to the topic
-- Show growth and learning throughout the journey
-- Be authentic and relatable to the target audience
-- Maintain the specified tone and style
-- Do NOT include any call-to-action text, requests for comments, or prompts for engagement
-- Do NOT end with phrases like "share your stories" or "let's empower each other"
-- End the story naturally without asking for interaction
-
-Return only the single story content, ready to publish.`
+<output_deliverable>
+Generate exactly 1 unique, creative story focused on "${prompt}"
+${personalStoryContext ? 'Transform personal story elements into original, engaging narratives - do NOT copy user answers directly' : 'Create authentic, relatable content'}
+Story should be clean, natural, creative, and ready to publish without generic titles
+Make it a unique story that reflects the essence of experiences, not a copy of them
+</output_deliverable>
+</natural_story_creation>`
         break
 
       case "carousel":
-        basePrompt = `Generate carousel content for a website based on these inputs:
+        basePrompt = `<carousel_content_creation>
+You are a visual content strategist creating engaging carousel content for professional audiences.
 
+<carousel_specifications>
 Topic: "${prompt}"
-Tone: "${tone}"
-Number of slides: ${wordCount / 50}
+Tone: ${tone}
+Slide Count: ${wordCount / 50}
+Audience: ${targetAudience}
+Goal: ${mainGoal}
+</carousel_specifications>
 
-Requirements:
-- Create content focused entirely on "${prompt}"
-- The content must be concise, clear, and suitable for display on visual cards
-- All content should relate directly to "${prompt}"
-- Generate content based purely on the topic and customization settings provided
+<visual_content_strategy>
+1. Hook Slide: Create compelling opening that grabs attention
+2. Value Slides: Deliver key insights and actionable content
+3. Story Slides: Use narrative elements to maintain engagement
+4. Impact Slide: End with strong takeaway or call-to-action
+</visual_content_strategy>
 
+<slide_optimization>
+- Each slide should be scannable in 3-5 seconds
+- Use punchy, memorable headlines
+- Include specific, actionable bullet points
+- Create visual hierarchy with clear information flow
+- Maintain consistent tone throughout all slides
+</slide_optimization>
+
+<content_requirements>
+- Focus entirely on "${prompt}"
+- Make content concise and visually appealing
+- Ensure each slide adds unique value
+- Create logical progression from slide to slide
+- Optimize for mobile viewing and engagement
+</content_requirements>
+
+<json_structure>
 Return ONLY a valid JSON object with this exact structure:
 
 {
   "slides": [
     {
-      "top_line": "string - short punchy text for slide 1",
-      "main_heading": "string - main heading for slide 1", 
-      "bullet": "string - one short bullet point"
+      "top_line": "string - attention-grabbing opener for slide 1",
+      "main_heading": "string - compelling main heading for slide 1", 
+      "bullet": "string - one impactful bullet point"
     },
     {
-      "heading": "string - heading for slide 2 and onwards",
+      "heading": "string - clear heading for slide 2 and onwards",
       "bullets": [
         "string - bullet 1",
         "string - bullet 2", 
         "string - bullet 3"
       ]
     },
-    // Repeat the above slide structure (heading + bullets) for all middle slides
     {
-      "tagline": "string - final tagline for last slide",
-      "final_heading": "string - final big heading",
-      "last_bullet": "string - last bullet point"
+      "tagline": "string - memorable final tagline for last slide",
+      "final_heading": "string - strong final heading",
+      "last_bullet": "string - powerful closing bullet point"
     }
   ]
 }
 
-Additional Instructions:
+<formatting_rules>
+- First slide: "top_line", "main_heading", "bullet"
+- Middle slides: "heading", "bullets" (array of 3 strings)
+- Last slide: "tagline", "final_heading", "last_bullet"
+- Keep all text brief and visually scannable
+- Ensure JSON is valid and parsable
+</formatting_rules>
 
-The first slide must have keys: "top_line", "main_heading", "bullet".
-
-Each middle slide must have keys: "heading" and "bullets" (array of 3 strings).
-
-The last slide must have keys: "tagline", "final_heading", "last_bullet".
-
-All text should be short enough to fit visually on a card (keep sentences brief).
-
-Do not include any explanations, only output the JSON.
-
-Ensure the JSON is valid and parsable.
-
-Generate exactly ${wordCount / 50} slides. Format the response as 2 distinct carousels, each separated by "---POST_SEPARATOR---".`
+Generate exactly ${wordCount / 50} slides. Format as 2 distinct carousels separated by "---POST_SEPARATOR---".
+</carousel_content_creation>`
         break
 
       case "list":
@@ -810,72 +926,111 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
   }): string {
     const { ambiguity, randomness, personalTouch, storytelling, emotionalDepth, conversationalStyle } = options
     
-    let instructions = "\nHUMAN-LIKE WRITING INSTRUCTIONS:\n"
+    let instructions = "\n<human_writing_optimization>\n"
     
     // Ambiguity level
     if (ambiguity > 70) {
-      instructions += "- Use open-ended statements and questions that invite interpretation\n"
-      instructions += "- Include multiple perspectives without forcing a single conclusion\n"
-      instructions += "- Leave some room for reader interpretation and discussion\n"
+      instructions += "<ambiguity_high>\n"
+      instructions += "- Create thought-provoking content that invites multiple interpretations\n"
+      instructions += "- Use open-ended statements that encourage reader engagement\n"
+      instructions += "- Present different perspectives without forcing conclusions\n"
+      instructions += "- Leave space for reader reflection and discussion\n"
+      instructions += "</ambiguity_high>\n"
     } else if (ambiguity > 40) {
-      instructions += "- Balance clarity with some open-ended elements\n"
-      instructions += "- Include both direct statements and thought-provoking questions\n"
+      instructions += "<ambiguity_balanced>\n"
+      instructions += "- Mix clear statements with thought-provoking elements\n"
+      instructions += "- Balance direct messaging with open-ended questions\n"
+      instructions += "- Provide guidance while allowing interpretation\n"
+      instructions += "</ambiguity_balanced>\n"
     } else {
-      instructions += "- Be clear and direct in your messaging\n"
-      instructions += "- Provide concrete, actionable insights\n"
+      instructions += "<ambiguity_low>\n"
+      instructions += "- Deliver clear, actionable insights\n"
+      instructions += "- Use direct, unambiguous language\n"
+      instructions += "- Provide concrete takeaways and next steps\n"
+      instructions += "</ambiguity_low>\n"
     }
 
     // Randomness level
     if (randomness > 70) {
-      instructions += "- Vary sentence structure unpredictably (mix short and long sentences)\n"
-      instructions += "- Include unexpected analogies or metaphors\n"
-      instructions += "- Use creative transitions between ideas\n"
+      instructions += "<randomness_high>\n"
+      instructions += "- Vary sentence structure dynamically (short punchy + longer explanatory)\n"
+      instructions += "- Include unexpected metaphors and creative analogies\n"
+      instructions += "- Use surprising transitions and unique connections\n"
+      instructions += "- Add creative flair while maintaining professionalism\n"
+      instructions += "</randomness_high>\n"
     } else if (randomness > 40) {
-      instructions += "- Use natural variations in sentence length and structure\n"
+      instructions += "<randomness_balanced>\n"
+      instructions += "- Use natural sentence rhythm variations\n"
       instructions += "- Include occasional creative elements\n"
+      instructions += "- Balance structure with spontaneity\n"
+      instructions += "</randomness_balanced>\n"
     } else {
-      instructions += "- Maintain consistent, predictable structure\n"
-      instructions += "- Use clear, logical flow between ideas\n"
+      instructions += "<randomness_low>\n"
+      instructions += "- Maintain consistent, logical structure\n"
+      instructions += "- Use predictable, clear flow patterns\n"
+      instructions += "- Focus on clarity and organization\n"
+      instructions += "</randomness_low>\n"
     }
 
     // Personal touch
     if (personalTouch) {
-      instructions += "- Include personal pronouns (I, we, you) to create connection\n"
-      instructions += "- Share relatable experiences or observations\n"
-      instructions += "- Use inclusive language that makes readers feel seen\n"
+      instructions += "<personal_connection>\n"
+      instructions += "- Use inclusive pronouns (I, we, you) strategically\n"
+      instructions += "- Share relatable experiences and observations\n"
+      instructions += "- Create connection through shared human experiences\n"
+      instructions += "- Make readers feel understood and seen\n"
+      instructions += "</personal_connection>\n"
     }
 
     // Storytelling
     if (storytelling) {
-      instructions += "- Include narrative elements (conflict, resolution, lesson)\n"
-      instructions += "- Use descriptive language to paint a picture\n"
-      instructions += "- Create emotional arcs that engage the reader\n"
+      instructions += "<narrative_elements>\n"
+      instructions += "- Structure content with clear narrative arc (setup, conflict, resolution)\n"
+      instructions += "- Use vivid, descriptive language to create mental images\n"
+      instructions += "- Build emotional engagement through story progression\n"
+      instructions += "- Include specific details that make stories memorable\n"
+      instructions += "</narrative_elements>\n"
     }
 
     // Emotional depth
     if (emotionalDepth > 80) {
-      instructions += "- Express genuine emotions and vulnerability\n"
-      instructions += "- Use emotionally charged language appropriately\n"
-      instructions += "- Create deep emotional connections with readers\n"
+      instructions += "<emotional_depth_high>\n"
+      instructions += "- Express genuine vulnerability and authentic emotions\n"
+      instructions += "- Use emotionally resonant language appropriately\n"
+      instructions += "- Create deep, meaningful connections with readers\n"
+      instructions += "- Share both struggles and triumphs authentically\n"
+      instructions += "</emotional_depth_high>\n"
     } else if (emotionalDepth > 60) {
+      instructions += "<emotional_depth_balanced>\n"
+      instructions += "- Balance factual content with emotional elements\n"
       instructions += "- Include moderate emotional expression\n"
-      instructions += "- Balance facts with feelings\n"
+      instructions += "- Connect with readers on both logical and emotional levels\n"
+      instructions += "</emotional_depth_balanced>\n"
     } else {
-      instructions += "- Focus on factual, objective information\n"
-      instructions += "- Maintain professional distance\n"
+      instructions += "<emotional_depth_low>\n"
+      instructions += "- Focus on objective, factual information\n"
+      instructions += "- Maintain professional, analytical tone\n"
+      instructions += "- Prioritize clarity and logic over emotional appeal\n"
+      instructions += "</emotional_depth_low>\n"
     }
 
     // Conversational style
     if (conversationalStyle) {
-      instructions += "- Write as if speaking to a friend or colleague\n"
-      instructions += "- Use contractions (don't, can't, won't)\n"
+      instructions += "<conversational_tone>\n"
+      instructions += "- Write as if speaking to a trusted colleague\n"
+      instructions += "- Use natural contractions (don't, can't, won't)\n"
       instructions += "- Include rhetorical questions and direct address\n"
-      instructions += "- Use casual transitions and natural flow\n"
+      instructions += "- Use casual, natural transitions\n"
+      instructions += "</conversational_tone>\n"
     }
 
-    instructions += "- Avoid overly perfect or robotic language\n"
-    instructions += "- Include natural imperfections and variations\n"
-    instructions += "- Make the content feel authentic and human-written\n"
+    instructions += "<authenticity_requirements>\n"
+    instructions += "- Avoid overly polished or robotic language\n"
+    instructions += "- Include natural variations and human imperfections\n"
+    instructions += "- Create content that feels genuinely human-written\n"
+    instructions += "- Maintain professional credibility while being relatable\n"
+    instructions += "</authenticity_requirements>\n"
+    instructions += "</human_writing_optimization>"
 
     return instructions
   }
@@ -1254,18 +1409,57 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     return parts
   }
 
-  // Calculate OpenAI cost
-  private calculateOpenAICost(totalTokens: number, promptTokens: number, completionTokens: number): number {
-    // GPT-4 pricing (as of 2024): $0.03 per 1K prompt tokens, $0.06 per 1K completion tokens
-    const promptCost = (promptTokens / 1000) * 0.03
-    const completionCost = (completionTokens / 1000) * 0.06
+  // Calculate OpenAI cost based on model
+  private calculateOpenAICost(totalTokens: number, promptTokens: number, completionTokens: number, model: OpenAIModel = "gpt-3.5-turbo"): number {
+    let promptCostPer1K: number
+    let completionCostPer1K: number
+
+    switch (model) {
+      case "gpt-4":
+        // GPT-4 pricing (as of 2024): $0.03 per 1K prompt tokens, $0.06 per 1K completion tokens
+        promptCostPer1K = 0.03
+        completionCostPer1K = 0.06
+        break
+      case "gpt-4o-mini":
+        // GPT-4o-mini pricing: $0.00015 per 1K prompt tokens, $0.0006 per 1K completion tokens
+        promptCostPer1K = 0.00015
+        completionCostPer1K = 0.0006
+        break
+      case "gpt-3.5-turbo":
+      default:
+        // GPT-3.5-turbo pricing: $0.001 per 1K prompt tokens, $0.002 per 1K completion tokens
+        promptCostPer1K = 0.001
+        completionCostPer1K = 0.002
+        break
+    }
+
+    const promptCost = (promptTokens / 1000) * promptCostPer1K
+    const completionCost = (completionTokens / 1000) * completionCostPer1K
     return promptCost + completionCost
   }
+
 
   // Calculate Perplexity cost
   private calculatePerplexityCost(tokens: number): number {
     // Perplexity pricing varies by model, using approximate rate
     return (tokens / 1000) * 0.02
+  }
+
+  // Smart provider selection based on content type and requirements
+  private getOptimalProvider(type: ContentType, customization: CustomizationOptions): AIProvider {
+    // For topic generation - use Perplexity (best for topic generation)
+    if (type === "topics") {
+      return "perplexity"
+    }
+    
+    // For all content generation - use OpenAI GPT-4o-mini (low-cost version)
+    return "openai"
+  }
+
+  // Get optimal model based on content type and cost efficiency (LOW-COST FOCUS)
+  private getOptimalModel(type: ContentType, customization: CustomizationOptions): OpenAIModel {
+    // For all content types - use GPT-4o-mini (low-cost version with good quality)
+    return "gpt-4o-mini"
   }
 
   // Public method to generate content (general purpose)
@@ -1277,12 +1471,23 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
     userId?: string,
     userEmail?: string
   ): Promise<AIResponse> {
+    // Smart provider selection based on content type
+    const optimizedProvider = this.getOptimalProvider(type, customization)
+    const finalProvider = provider === "openai" ? optimizedProvider : provider
+    
+    // Smart model selection for OpenAI
+    const optimalModel = this.getOptimalModel(type, customization)
+    const finalCustomization = {
+      ...customization,
+      model: optimalModel
+    }
+    
     const request: AIRequest = {
       id: this.generateRequestId(),
       type,
       prompt,
-      provider,
-      customization,
+      provider: finalProvider,
+      customization: finalCustomization,
       userId,
       userEmail,
       priority: "normal",

@@ -37,7 +37,7 @@ import {
 import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
 
-import type { CustomizationOptions } from "@/components/ai-customization-panel"
+import type { CustomizationOptions, OpenAIModel } from "@/lib/ai-service"
 import { MicrophoneButton } from "@/components/ui/microphone-button"
 import { LinkedInPostPreview } from "@/components/linkedin-post-preview"
 import { EnhancedLinkedInPreview } from "@/components/enhanced-linkedin-preview"
@@ -138,6 +138,7 @@ export default function DashboardPage() {
     callToAction: true,
     temperature: 0.7,
     maxTokens: 1000,
+    model: "gpt-3.5-turbo" as OpenAIModel, // Default to free model
   })
 
   const [personalizedTopics, setPersonalizedTopics] = useState<PersonalizedTopic[]>([])

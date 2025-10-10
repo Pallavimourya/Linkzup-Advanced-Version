@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { PersonalStoryService } from "@/lib/personal-story-service"
 import { PersonalStoryContentService } from "@/lib/personal-story-content-service"
 import { aiService } from "@/lib/ai-service"
+// @ts-ignore
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
@@ -50,36 +51,75 @@ export async function POST(request: NextRequest) {
     const storyContext = PersonalStoryService.buildContextualStoryContext(storyData, topic)
     
     // Create enhanced prompt with personal story context
-    const enhancedPrompt = `${storyContext}
+    const enhancedPrompt = `<personal_story_content_creation>
+You are a personal branding expert creating authentic, engaging content that showcases unique life experiences.
 
+${storyContext}
+
+<content_brief>
 Topic: "${topic}"
 Content Type: ${contentType}
+Count: ${count} unique pieces
+</content_brief>
 
-CRITICAL REQUIREMENTS:
-- Generate ${count} unique pieces of content
-- Each content piece MUST be directly inspired by elements from ALL 6 personal story sections:
-  * Early Life & Roots
-  * Education & Learning Phase
-  * Career Journey
-  * Personal Side
-  * Current Identity & Positioning
-  * Future Aspirations
-- Ensure the content connects the topic "${topic}" to relevant personal experiences and insights from multiple sections
-- Make the content feel authentic and relatable by incorporating specific details from the personal story
-- Use the personal story elements naturally - don't force connections that don't exist
-- Focus on creating unique, personalized content that showcases the complete user's unique journey and insights
-- Weave together elements from different life phases to create a rich, comprehensive narrative
-- Maintain professional tone while being authentic and personal
+<personal_story_integration_strategy>
+- Analyze ALL 6 life sections for relevant connections to "${topic}"
+- Prioritize sections with strongest thematic alignment
+- Create natural bridges between personal experiences and professional insights
+- Use specific details to build authenticity and emotional connection
+- Weave multiple life phases into cohesive narratives
+- Transform user answers into creative, unique stories - NEVER copy directly
+- Add storytelling elements like dialogue, emotions, scenes, and narrative flow
+- Create original content inspired by user experiences, not copied from them
+- Make each story fresh and engaging with creative interpretation
+</personal_story_integration_strategy>
+
+<content_optimization_framework>
+1. Authenticity: Use real experiences, not generic advice
+2. Relevance: Connect personal story to topic meaningfully
+3. Value: Provide actionable insights and takeaways
+4. Engagement: Create content that sparks discussion
+5. Uniqueness: Showcase perspectives only this person could share
+6. Professionalism: Maintain credibility while being personal
+</content_optimization_framework>
+
+<content_creation_requirements>
+- Generate ${count} distinct content pieces
+- Each piece must incorporate elements from multiple life sections
+- Create natural connections between topic and personal experiences
+- Use specific details to make content memorable and relatable
+- Vary approach, angle, and style for each piece
+- Ensure content reflects complete personal journey
+- Make each piece complete and ready to publish
 - Avoid generic content that could apply to anyone
-- Each content piece should be complete and ready to publish
-- Vary the approach, angle, and style for each content piece
-- Show the complete personal journey from early life to future aspirations`
+- NO generic titles or headings like "My Journey from..." or "Building a Life of..."
+- Start directly with the content, clean and natural
+- NEVER copy user answers word-for-word
+- Transform user experiences into unique, creative narratives
+- Add storytelling elements like dialogue, emotions, and scenes
+- Create original content inspired by user experiences, not copied from them
+- Make each story unique and engaging with creative interpretation
+</content_creation_requirements>
+
+<quality_standards>
+- Professional tone with authentic personal touch
+- Clear value proposition for target audience
+- Engaging narrative structure
+- Specific, actionable insights
+- Emotional resonance and relatability
+- Unique perspective based on personal journey
+- Clean, natural formatting without generic titles
+- Original, creative storytelling that transforms user experiences
+- No direct copying of user answers
+- Fresh, unique content with creative interpretation
+</quality_standards>
+</personal_story_content_creation>`
 
     // Generate content using the centralized AI service
     const response = await aiService.generateContent(
       contentType,
       enhancedPrompt,
-      "openai",
+      "openai", // Will automatically use optimal model based on content type
       {
         tone: "professional",
         targetAudience: "LinkedIn professionals",

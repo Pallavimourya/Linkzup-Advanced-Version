@@ -9,12 +9,14 @@ import { aiService } from "./ai-service"
 export interface TestPersonalStoryData {
   userEmail: string
   answers: {
-    challenge: string
-    achievement: string
-    failure: string
-    mentor: string
-    turning_point: string
-    lesson: string
+    early_life: string
+    education: string
+    career_journey: string
+    personal_side: string
+    challenges: string
+    achievements: string
+    current_identity: string
+    future_aspirations: string
   }
   customization: {
     tone: string
@@ -37,12 +39,14 @@ export function createTestStoryData(): TestPersonalStoryData {
   return {
     userEmail: "test@example.com",
     answers: {
-      challenge: "I faced a major project deadline crisis when our lead developer left unexpectedly, leaving our team without critical knowledge of the system architecture.",
-      achievement: "Successfully led a cross-functional team of 12 people to deliver a complex software project 2 weeks ahead of schedule, resulting in a 30% increase in customer satisfaction.",
-      failure: "Early in my career, I made a poor hiring decision that cost the company $50,000 and delayed our product launch by 3 months. This taught me the importance of thorough vetting and cultural fit.",
-      mentor: "My former manager Sarah taught me that leadership isn't about being the smartest person in the room, but about empowering others to be their best selves and creating an environment where everyone can thrive.",
-      turning_point: "Switching from a technical role to management was scary, but it opened up opportunities to impact more people and drive organizational change. It completely changed how I view my career and purpose.",
-      lesson: "The most important lesson I've learned is that vulnerability and authenticity in leadership create stronger teams. When I started sharing my own struggles and mistakes, my team became more open and collaborative."
+      early_life: "Growing up in a small town, I was always curious about how things worked. I spent hours taking apart electronics and trying to understand the mechanics behind everyday objects.",
+      education: "I pursued computer science in college, but struggled initially with programming concepts. It wasn't until my third year that everything clicked during a challenging algorithms course.",
+      career_journey: "Started as a junior developer at a startup, then moved to a tech giant where I learned enterprise-scale development. Now I lead a team of 12 engineers at a growing company.",
+      personal_side: "Outside of work, I'm passionate about hiking and photography. These hobbies help me maintain work-life balance and often provide fresh perspectives on problem-solving.",
+      challenges: "I faced a major project deadline crisis when our lead developer left unexpectedly, leaving our team without critical knowledge of the system architecture.",
+      achievements: "Successfully led a cross-functional team of 12 people to deliver a complex software project 2 weeks ahead of schedule, resulting in a 30% increase in customer satisfaction.",
+      current_identity: "I see myself as a technical leader who bridges the gap between complex engineering problems and business solutions. I'm passionate about mentoring junior developers and building inclusive teams.",
+      future_aspirations: "My goal is to eventually start my own tech company focused on solving real-world problems through innovative software solutions. I want to create a company culture that values both technical excellence and work-life balance."
     },
     customization: {
       tone: "professional",

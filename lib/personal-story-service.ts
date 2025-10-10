@@ -84,48 +84,50 @@ export class PersonalStoryService {
   static buildStoryContext(storyData: PersonalStoryData): string {
     const { answers, customization } = storyData
     
-    let context = "PERSONAL STORY CONTEXT:\n"
-    context += "Use the following personal experiences and insights to create authentic, personalized content:\n\n"
+    let context = "<personal_story_context>\n"
+    context += "You are creating authentic, personalized content using this person's unique life journey:\n\n"
     
     if (answers.early_life) {
-      context += `Early Life & Roots: ${answers.early_life}\n\n`
+      context += `<early_life>${answers.early_life}</early_life>\n\n`
     }
     
     if (answers.education) {
-      context += `Education & Learning Phase: ${answers.education}\n\n`
+      context += `<education>${answers.education}</education>\n\n`
     }
     
     if (answers.career_journey) {
-      context += `Career Journey: ${answers.career_journey}\n\n`
+      context += `<career_journey>${answers.career_journey}</career_journey>\n\n`
     }
     
     if (answers.personal_side) {
-      context += `Personal Side: ${answers.personal_side}\n\n`
+      context += `<personal_side>${answers.personal_side}</personal_side>\n\n`
     }
     
     if (answers.current_identity) {
-      context += `Current Identity & Positioning: ${answers.current_identity}\n\n`
+      context += `<current_identity>${answers.current_identity}</current_identity>\n\n`
     }
     
     if (answers.future_aspirations) {
-      context += `Future Aspirations: ${answers.future_aspirations}\n\n`
+      context += `<future_aspirations>${answers.future_aspirations}</future_aspirations>\n\n`
     }
 
-    // Add customization preferences
-    context += "STORY PREFERENCES:\n"
-    context += `- Preferred tone: ${customization.tone}\n`
-    context += `- Target audience: ${customization.targetAudience}\n`
-    context += `- Main goal: ${customization.mainGoal}\n`
-    context += `- Emotional tone: ${customization.emotionalTone}\n`
-    context += `- Include personal touch: ${customization.personalTouch ? 'Yes' : 'No'}\n\n`
+    context += "</personal_story_context>\n\n"
+    
+    context += "<content_guidelines>\n"
+    context += `Tone: ${customization.tone}\n`
+    context += `Audience: ${customization.targetAudience}\n`
+    context += `Goal: ${customization.mainGoal}\n`
+    context += `Emotional Style: ${customization.emotionalTone}\n`
+    context += `Personal Touch: ${customization.personalTouch ? 'Yes' : 'No'}\n`
+    context += "</content_guidelines>\n\n"
 
-    context += "INSTRUCTIONS:\n"
-    context += "- Weave these personal experiences naturally into the content\n"
-    context += "- Use specific details and emotions from the story\n"
-    context += "- Make the content feel authentic and relatable\n"
-    context += "- Connect the topic to relevant personal experiences\n"
-    context += "- Maintain the user's preferred tone and style\n"
-    context += "- Don't force connections - only use relevant story elements\n\n"
+    context += "<integration_rules>\n"
+    context += "1. Select the most relevant story elements for the topic\n"
+    context += "2. Weave personal details naturally - don't force connections\n"
+    context += "3. Use specific emotions and experiences to create authenticity\n"
+    context += "4. Maintain professional tone while being personal\n"
+    context += "5. Create content that only this person could write\n"
+    context += "</integration_rules>"
 
     return context
   }
@@ -140,9 +142,12 @@ export class PersonalStoryService {
     // Extract relevant story elements based on topic keywords
     const relevantElements = this.extractRelevantStoryElements(answers, topic)
     
-    let context = "PERSONAL STORY CONTEXT (COMPREHENSIVE):\n"
-    context += `Topic: "${topic}"\n`
-    context += "Use the following personal experiences to create authentic, personalized content. ALL sections should be considered for potential connections:\n\n"
+    let context = "<contextual_story_analysis>\n"
+    context += `Topic Focus: "${topic}"\n`
+    context += "Create authentic content by connecting this topic to the person's unique life experiences.\n"
+    context += "</contextual_story_analysis>\n\n"
+    
+    context += "<life_journey_sections>\n"
     
     // Include ALL personal story sections with emphasis on relevant ones
     const allSections = [
@@ -162,29 +167,31 @@ export class PersonalStoryService {
         )
         
         if (isHighlyRelevant) {
-          context += `🎯 ${section.label} (HIGHLY RELEVANT): ${section.content}\n\n`
+          context += `<priority_section name="${section.label}">${section.content}</priority_section>\n\n`
         } else {
-          context += `${section.label}: ${section.content}\n\n`
+          context += `<section name="${section.label}">${section.content}</section>\n\n`
         }
       }
     })
 
-    // Add customization preferences
-    context += "STORY PREFERENCES:\n"
-    context += `- Preferred tone: ${customization.tone}\n`
-    context += `- Target audience: ${customization.targetAudience}\n`
-    context += `- Main goal: ${customization.mainGoal}\n`
-    context += `- Emotional tone: ${customization.emotionalTone}\n`
-    context += `- Include personal touch: ${customization.personalTouch ? 'Yes' : 'No'}\n\n`
+    context += "</life_journey_sections>\n\n"
+    
+    context += "<content_parameters>\n"
+    context += `Tone: ${customization.tone}\n`
+    context += `Audience: ${customization.targetAudience}\n`
+    context += `Goal: ${customization.mainGoal}\n`
+    context += `Emotional Style: ${customization.emotionalTone}\n`
+    context += `Personal Touch: ${customization.personalTouch ? 'Yes' : 'No'}\n`
+    context += "</content_parameters>\n\n"
 
-    context += "CRITICAL INSTRUCTIONS:\n"
-    context += "- Use ALL personal story sections provided above to create comprehensive, authentic content\n"
-    context += "- Prioritize sections marked as 'HIGHLY RELEVANT' but don't ignore other sections\n"
-    context += "- Find creative ways to connect the topic to different aspects of the personal story\n"
-    context += "- Weave together elements from multiple sections to create a rich, personal narrative\n"
-    context += "- Make the content feel authentic and relatable by using specific details from the story\n"
-    context += "- Maintain the user's preferred tone and style\n"
-    context += "- Ensure the content reflects the complete personal journey, not just one aspect\n\n"
+    context += "<content_creation_strategy>\n"
+    context += "1. Analyze topic relevance to each life section\n"
+    context += "2. Prioritize high-relevance sections while maintaining narrative flow\n"
+    context += "3. Create natural connections between topic and personal experiences\n"
+    context += "4. Weave multiple life phases into a cohesive story\n"
+    context += "5. Use specific details to create authenticity\n"
+    context += "6. Ensure content reflects the complete personal journey\n"
+    context += "</content_creation_strategy>"
 
     return context
   }

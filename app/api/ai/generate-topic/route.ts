@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 // @ts-ignore
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { aiService, type ContentType, type AIProvider, type CustomizationOptions } from "@/lib/ai-service"
+import { aiService, type ContentType, type AIProvider, type CustomizationOptions, type OpenAIModel } from "@/lib/ai-service"
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,6 +52,23 @@ export async function POST(request: NextRequest) {
         supportedProviders: validProviders,
         received: provider
       }, { status: 400 })
+    }
+
+    // Validate OpenAI model if provider is OpenAI
+    if (provider === "openai" && customization.model) {
+      const validModels: OpenAIModel[] = ["gpt-4", "gpt-3.5-turbo", "gpt-4o-mini"]
+      if (!validModels.includes(customization.model)) {
+        return NextResponse.json({ 
+          error: "Invalid OpenAI model",
+          supportedModels: validModels,
+          received: customization.model
+        }, { status: 400 })
+      }
+    }
+
+    // Set default model to free model if not specified
+    if (provider === "openai" && !customization.model) {
+      customization.model = "gpt-3.5-turbo"
     }
 
     // Check credits before processing

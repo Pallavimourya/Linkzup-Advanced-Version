@@ -21,12 +21,13 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Generate carousel content using AI service
+    // Generate carousel content using AI service with free model
     const response = await aiService.generateContent(
       "carousel",
       topic,
       "openai",
       {
+        model: "gpt-3.5-turbo", // Use free model
         tone,
         wordCount: slideCount * 50, // Adjust word count based on slide count
         targetAudience: "LinkedIn professionals",

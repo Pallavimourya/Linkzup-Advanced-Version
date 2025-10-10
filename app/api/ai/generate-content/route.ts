@@ -88,6 +88,7 @@ CRITICAL REQUIREMENTS:
       enhancedPrompt,
       "openai",
       {
+        model: "gpt-3.5-turbo", // Use free model
         tone: "professional",
         targetAudience: "LinkedIn professionals",
         mainGoal: "engagement",

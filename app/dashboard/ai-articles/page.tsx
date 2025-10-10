@@ -301,6 +301,8 @@ export default function AIArticlesPage() {
   const handleDiscardApprovedTopic = async (topicId: string, topicTitle: string) => {
     try {
       console.log("Discarding topic - ID:", topicId, "Title:", topicTitle)
+      console.log("Topic ID type:", typeof topicId)
+      console.log("Topic ID length:", topicId?.length)
 
       const response = await fetch("/api/approved-topics", {
         method: "DELETE",
@@ -311,7 +313,19 @@ export default function AIArticlesPage() {
       })
 
       console.log("Delete response status:", response.status)
-      const responseData = await response.json()
+      
+      // Check if response has content before parsing JSON
+      const responseText = await response.text()
+      console.log("Delete response text:", responseText)
+      
+      let responseData
+      try {
+        responseData = responseText ? JSON.parse(responseText) : {}
+      } catch (parseError) {
+        console.error("Failed to parse response JSON:", parseError)
+        responseData = { error: "Invalid response format" }
+      }
+      
       console.log("Delete response data:", responseData)
 
       if (response.ok) {
@@ -323,13 +337,15 @@ export default function AIArticlesPage() {
           description: `"${topicTitle}" has been removed from your approved topics.`,
         })
       } else {
-        throw new Error("Failed to delete topic")
+        const errorMessage = (responseData as any).error || `Server returned status ${response.status}`
+        throw new Error(`Failed to delete topic: ${errorMessage}`)
       }
     } catch (error) {
       console.error("Error discarding approved topic:", error)
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
       toast({
         title: "Error",
-        description: "Failed to discard topic. Please try again.",
+        description: `Failed to discard topic: ${errorMessage}`,
         variant: "destructive",
       })
     }
@@ -886,6 +902,7 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
           prompt: topic.title,
           provider: "openai",
           customization: {
+            model: "gpt-3.5-turbo", // Use free model
             tone: customization.tone,
             language: customization.language,
             wordCount: customization.wordCount,
@@ -1014,9 +1031,15 @@ The journey of mastering ${topicTitle} is both challenging and rewarding. Every 
         })
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
+          const responseText = await response.text()
+          let errorData = {}
+          try {
+            errorData = responseText ? JSON.parse(responseText) : {}
+          } catch (parseError) {
+            console.error("Failed to parse error response JSON:", parseError)
+          }
           console.error("Story content generation failed:", errorData)
-          throw new Error(errorData.error || "Failed to generate content from personal story")
+          throw new Error((errorData as any).error || "Failed to generate content from personal story")
         }
 
         const data = await response.json()
@@ -1210,9 +1233,15 @@ What are your thoughts on this topic? I'd love to hear your experiences and insi
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
+        const responseText = await response.text()
+        let errorData = {}
+        try {
+          errorData = responseText ? JSON.parse(responseText) : {}
+        } catch (parseError) {
+          console.error("Failed to parse error response JSON:", parseError)
+        }
         console.error("Story content generation failed:", errorData)
-        throw new Error(errorData.error || "Failed to generate content from story")
+        throw new Error((errorData as any).error || "Failed to generate content from story")
       }
 
       const data = await response.json()
@@ -1290,7 +1319,7 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
   }
 
   const clearTopics = () => {
-    setTopics([])
+    setTopics([] as Topic[])
     setExpandedTopic(null)
     setShowTopicGenerator(true) // Show the topic generator section again
     setHasGeneratedTopics(false) // Reset the generated topics flag
@@ -1322,11 +1351,17 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
           description: "Content has been saved to your drafts.",
         })
       } else {
-        const errorData = await response.json().catch(() => ({}))
+        const responseText = await response.text()
+        let errorData = {}
+        try {
+          errorData = responseText ? JSON.parse(responseText) : {}
+        } catch (parseError) {
+          console.error("Failed to parse error response JSON:", parseError)
+        }
         console.error("Failed to save draft:", errorData)
         toast({
           title: "Error",
-          description: errorData.error || "Failed to save draft. Please try again.",
+          description: (errorData as any).error || "Failed to save draft. Please try again.",
           variant: "destructive",
         })
       }
@@ -1746,9 +1781,6 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
                 onClick={() => {
                   // Check both regular topics and recommended topics
                   let topic = topics.find((t) => t.id === showCustomization)
-                  if (!topic) {
-                    topic = [] // No longer using recommendedTopics
-                  }
                   if (topic) {
                     generateContent(topic)
                   }

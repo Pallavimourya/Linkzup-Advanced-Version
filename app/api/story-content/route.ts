@@ -151,6 +151,7 @@ Generate the content now following this exact structure:`
         contentPrompt,
         randomProvider as "openai" | "perplexity",
         {
+          model: "gpt-3.5-turbo", // Use free model
           tone: "professional",
           targetAudience: "LinkedIn professionals",
           mainGoal: "engagement",
@@ -182,6 +183,7 @@ Generate the content now following this exact structure:`
         contentPrompt,
         "openai",
         {
+          model: "gpt-3.5-turbo", // Use free model
           tone: "professional",
           targetAudience: "LinkedIn professionals",
           mainGoal: "engagement",

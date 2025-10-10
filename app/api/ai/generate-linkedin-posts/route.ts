@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       prompt,
       "openai",
       {
+        model: "gpt-3.5-turbo", // Use free model
         tone: tone || "professional",
         language: language || "english",
         wordCount: wordCount || 150,

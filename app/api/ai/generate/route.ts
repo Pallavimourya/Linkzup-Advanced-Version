@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 // @ts-ignore
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { aiService, type ContentType, type AIProvider, type CustomizationOptions } from "@/lib/ai-service"
+import { aiService, type ContentType, type AIProvider, type CustomizationOptions, type OpenAIModel } from "@/lib/ai-service"
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,8 +54,20 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Validate OpenAI model if provider is OpenAI
+    if (provider === "openai" && customization.model) {
+      const validModels: OpenAIModel[] = ["gpt-4", "gpt-3.5-turbo", "gpt-4o-mini"]
+      if (!validModels.includes(customization.model)) {
+        return NextResponse.json({ 
+          error: "Invalid OpenAI model",
+          supportedModels: validModels,
+          received: customization.model
+        }, { status: 400 })
+      }
+    }
+
     // Check credits before processing
-    const requiredCredits = getRequiredCredits(type, provider)
+    const requiredCredits = getRequiredCredits(type, provider, customization.model)
     const actionType = `ai_${type}`
     
     try {
@@ -123,8 +135,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Helper function to determine required credits based on content type and provider
-function getRequiredCredits(type: ContentType, provider: AIProvider = "openai"): number {
+// Helper function to determine required credits based on content type, provider, and model
+function getRequiredCredits(type: ContentType, provider: AIProvider = "openai", model?: OpenAIModel): number {
   const baseCreditMap: Record<ContentType, number> = {
     "linkedin-post": 0.5,    // 2 posts
     "article": 0.3,          // Single article
@@ -141,9 +153,18 @@ function getRequiredCredits(type: ContentType, provider: AIProvider = "openai"):
   
   const baseCredits = baseCreditMap[type] || 0.2
   
-  // Adjust credits based on provider (OpenAI is more expensive)
+  // Adjust credits based on provider and model
   if (provider === "openai") {
-    return baseCredits * 1.5 // 50% more expensive than Perplexity
+    // Adjust based on model cost
+    switch (model) {
+      case "gpt-4":
+        return baseCredits * 2.0 // Most expensive
+      case "gpt-4o-mini":
+        return baseCredits * 0.3 // Cheapest
+      case "gpt-3.5-turbo":
+      default:
+        return baseCredits * 0.5 // Moderate cost
+    }
   } else {
     return baseCredits * 0.7 // Perplexity is cheaper
   }

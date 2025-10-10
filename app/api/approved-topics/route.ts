@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+// @ts-ignore
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongodb"
+import { ObjectId } from "mongodb"
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,14 +30,16 @@ export async function GET(request: NextRequest) {
     // Combine and format topics
     const allApprovedTopics = [
       ...approvedTopics.map(topic => ({
-        id: topic._id,
+        _id: topic._id,
+        id: topic._id, // Also include id for compatibility
         title: topic.topicText,
         source: topic.source || "personal_story",
         approvedAt: topic.approvedAt,
         createdAt: topic.createdAt
       })),
       ...storyTopics.map(topic => ({
-        id: topic._id,
+        _id: topic._id,
+        id: topic._id, // Also include id for compatibility
         title: topic.topicText,
         source: "personal_story",
         approvedAt: topic.updatedAt,
@@ -100,6 +104,70 @@ export async function POST(request: NextRequest) {
     console.error("Error approving topics:", error)
     return NextResponse.json(
       { error: "Failed to approve topics" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { topicId } = await request.json()
+    const userEmail = session.user.email
+
+    if (!topicId) {
+      return NextResponse.json({ error: "Topic ID is required" }, { status: 400 })
+    }
+
+    const db = await connectDB()
+    
+    console.log("Attempting to delete topic with ID:", topicId, "User:", userEmail)
+    
+    // Try to convert topicId to ObjectId, but also try as string if conversion fails
+    let objectId
+    let useObjectId = true
+    
+    try {
+      objectId = new ObjectId(topicId)
+    } catch (error) {
+      console.log("ObjectId conversion failed, trying as string:", topicId)
+      useObjectId = false
+    }
+    
+    // Delete from approvedTopics collection
+    const approvedQuery = useObjectId 
+      ? { _id: objectId, userEmail }
+      : { _id: topicId, userEmail }
+    
+    const approvedResult = await db.collection("approvedTopics").deleteOne(approvedQuery)
+
+    // Also delete from storyTopics collection if it exists there
+    const storyQuery = useObjectId 
+      ? { _id: objectId, userEmail }
+      : { _id: topicId, userEmail }
+    
+    const storyResult = await db.collection("storyTopics").deleteOne(storyQuery)
+    
+    console.log("Delete results - approvedTopics:", approvedResult.deletedCount, "storyTopics:", storyResult.deletedCount)
+
+    if (approvedResult.deletedCount === 0 && storyResult.deletedCount === 0) {
+      return NextResponse.json({ error: "Topic not found" }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Topic deleted successfully",
+      deletedCount: approvedResult.deletedCount + storyResult.deletedCount
+    })
+
+  } catch (error) {
+    console.error("Error deleting approved topic:", error)
+    return NextResponse.json(
+      { error: "Failed to delete topic" },
       { status: 500 }
     )
   }
