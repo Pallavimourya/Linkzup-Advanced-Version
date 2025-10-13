@@ -7,67 +7,73 @@ import { aiService } from "@/lib/ai-service"
 
 // Enhanced formatting function for better content structure
 function enhanceContentFormatting(content: string): string {
-  // Split content into lines
-  let lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+  // First, clean up the content by removing extra spaces and fixing bullet points
+  let cleaned = content
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .replace(/•\s*•/g, '•') // Fix double bullet points
+    .trim()
   
-  if (lines.length === 0) return content
+  // Remove duplicate sentences by splitting into sentences and deduplicating
+  const sentences = cleaned.split(/[.!?]+/).filter(s => s.trim().length > 10)
+  const uniqueSentences = [...new Set(sentences.map(s => s.trim()))]
+  
+  if (uniqueSentences.length === 0) return content
   
   let formattedLines: string[] = []
-  let i = 0
   
-  while (i < lines.length) {
-    const line = lines[i]
-    
-    // Handle bullet points - ensure they start on new lines with proper spacing
-    if (line.startsWith('•') || line.startsWith('*')) {
-      const bulletLine = line.replace(/^\*/, '•')
-      
-      // Add empty line before bullet points if previous line is not empty and not a bullet
-      if (formattedLines.length > 0 && 
-          !formattedLines[formattedLines.length - 1].startsWith('•') &&
-          !formattedLines[formattedLines.length - 1].startsWith('#') &&
-          formattedLines[formattedLines.length - 1].length > 0) {
-        formattedLines.push('')
-      }
-      
-      formattedLines.push(bulletLine)
-      i++
-      continue
-    }
-    
-    // Handle hashtags (should be at the end)
-    if (line.startsWith('#')) {
-      // Add empty line before hashtags if not already present
-      if (formattedLines.length > 0 && !formattedLines[formattedLines.length - 1].startsWith('#')) {
-        formattedLines.push('')
-      }
-      formattedLines.push(line)
-      i++
-      continue
-    }
-    
-    // Handle regular text
-    if (line.length > 0) {
-      // Add empty line before new paragraph if needed
-      if (formattedLines.length > 0 && 
-          !formattedLines[formattedLines.length - 1].startsWith('•') && 
-          !formattedLines[formattedLines.length - 1].startsWith('#') &&
-          formattedLines[formattedLines.length - 1].length > 0) {
-        formattedLines.push('')
-      }
-      formattedLines.push(line)
-    }
-    
-    i++
+  // Find the opening paragraph (first 1-2 sentences)
+  const openingSentences = uniqueSentences.slice(0, 2)
+  if (openingSentences.length > 0) {
+    const opening = openingSentences.join('. ') + '.'
+    formattedLines.push(opening)
+    formattedLines.push('') // Add blank line
   }
   
-  // Join lines with proper spacing
-  let result = formattedLines.join('\n')
+  // Extract and clean bullet points from the content
+  const bulletMatches = cleaned.match(/•\s*([^•#]+)/g)
+  if (bulletMatches && bulletMatches.length > 0) {
+    const uniqueBullets = [...new Set(bulletMatches.map(bullet => {
+      const cleanBullet = bullet.replace(/^•\s*/, '').trim()
+      return cleanBullet.length > 0 ? cleanBullet : null
+    }).filter(Boolean))]
+    
+    // Take up to 4 unique bullet points
+    uniqueBullets.slice(0, 4).forEach(bullet => {
+      formattedLines.push(`• ${bullet}`)
+    })
+    formattedLines.push('') // Add blank line after bullets
+  }
   
-  // Clean up any excessive line breaks
-  result = result.replace(/\n{3,}/g, '\n\n')
+  // Find the closing paragraph (remaining sentences that aren't bullets and aren't hashtags)
+  const remainingSentences = uniqueSentences.slice(2).filter(s => {
+    const text = s.trim()
+    return text.length > 20 && 
+           !text.includes('•') && 
+           !text.includes('#') &&
+           !text.toLowerCase().includes('hashtag') &&
+           !text.toLowerCase().includes('innovation thrives') && // Remove common ending phrases
+           !text.toLowerCase().includes('my family instilled') && // Remove personal story elements
+           !text.toLowerCase().includes('finally, i aim') && // Remove future aspirations
+           !text.toLowerCase().includes('remember, every experience') // Remove common closing phrases
+  })
   
-  return result.trim()
+  if (remainingSentences.length > 0) {
+    // Take the first 1-2 sentences for closing, avoiding duplicates
+    const closingSentences = remainingSentences.slice(0, 2)
+    const closing = closingSentences.join('. ') + '.'
+    formattedLines.push(closing)
+    formattedLines.push('') // Add blank line
+  }
+  
+  // Extract and clean hashtags
+  const hashtagMatches = cleaned.match(/#\w+/g)
+  if (hashtagMatches && hashtagMatches.length > 0) {
+    const uniqueHashtags = [...new Set(hashtagMatches)]
+    const hashtags = uniqueHashtags.slice(0, 5).join(' ') // Limit to 5 hashtags
+    formattedLines.push(hashtags)
+  }
+  
+  return formattedLines.join('\n')
 }
 
 // Ensure proper structure with post-processing

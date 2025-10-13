@@ -248,7 +248,7 @@ class AIService {
         break
       case "story":
         // For story, we want a single story, not multiple variations
-        parsedContent = [content]
+        parsedContent = [cleanAndFormatContent(content)]
         break
       case "carousel":
         // For carousel, we want the raw content to parse as JSON, not split into variations
@@ -273,7 +273,8 @@ class AIService {
         parsedContent = this.parseMultipleContent(content, "question")
         break
       default:
-        parsedContent = this.parseMultipleContent(content, "content")
+        // Apply formatting to default content as well
+        parsedContent = [cleanAndFormatContent(content)]
     }
 
     const usage = completion.usage
@@ -310,8 +311,13 @@ class AIService {
       case "topics":
         parsedContent = this.parseTopics(content)
         break
+      case "story":
+        // For story, apply formatting
+        parsedContent = [cleanAndFormatContent(content)]
+        break
       default:
-        parsedContent = content
+        // Apply formatting to default content as well
+        parsedContent = [cleanAndFormatContent(content)]
     }
 
     return {
@@ -1238,46 +1244,8 @@ Format the response as 2 distinct content pieces, each separated by "---POST_SEP
 
   // Clean post content by removing prefixes and improving formatting
   private cleanPostContent(content: string): string {
-    // Remove common prefixes like "Post 1:", "1.", "Post:", etc.
-    let cleaned = content
-      .replace(/^(Post\s*\d*:?\s*)/i, '')
-      .replace(/^\d+\.\s*/, '')
-      .replace(/^(Content\s*\d*:?\s*)/i, '')
-      .replace(/^(Article\s*\d*:?\s*)/i, '')
-      .replace(/^(Story\s*\d*:?\s*)/i, '')
-      .replace(/^(List\s*\d*:?\s*)/i, '')
-      .replace(/^(Quote\s*\d*:?\s*)/i, '')
-      .replace(/^(Tips\s*\d*:?\s*)/i, '')
-      .replace(/^(Insights\s*\d*:?\s*)/i, '')
-      .replace(/^(Question\s*\d*:?\s*)/i, '')
-      // Remove separator patterns that might leak through
-      .replace(/^_SEPARATOR---\s*/g, '')
-      .replace(/^---POST_SEPARATOR---\s*/g, '')
-      .replace(/^---VARIATION_SEPARATOR---\s*/g, '')
-      .replace(/^---CONTENT_SEPARATOR---\s*/g, '')
-      .replace(/^---\s*/g, '')
-      .replace(/^###\s*/g, '')
-      .trim()
-
-    // Remove bold formatting and markdown
-    cleaned = this.removeBoldFormatting(cleaned)
-
-    // Apply enhanced formatting for better structure
-    cleaned = this.enhanceContentFormatting(cleaned)
-
-    // Ensure proper structure with post-processing
-    cleaned = this.ensureProperStructure(cleaned)
-
-    // Format hashtags to be on a new line
-    cleaned = this.formatHashtags(cleaned)
-    
-    // Add bullet points to make content more engaging
-    cleaned = this.addBulletPoints(cleaned)
-    
-    // Apply comprehensive formatting
-    cleaned = this.applyComprehensiveFormatting(cleaned)
-    
-    return cleaned
+    // Use the new comprehensive formatting function
+    return cleanAndFormatContent(content)
   }
 
   // Enhanced formatting for better content structure
@@ -1775,6 +1743,168 @@ ${closing}
     })
     this.queue = []
   }
+}
+
+// Enhanced formatting function for better content structure
+function enhanceContentFormatting(content: string): string {
+  // First, clean up the content by removing extra spaces and fixing bullet points
+  let cleaned = content
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .replace(/•\s*•/g, '•') // Fix double bullet points
+    .trim()
+  
+  // Remove duplicate sentences by splitting into sentences and deduplicating
+  const sentences = cleaned.split(/[.!?]+/).filter(s => s.trim().length > 10)
+  const uniqueSentences = [...new Set(sentences.map(s => s.trim()))]
+  
+  if (uniqueSentences.length === 0) return content
+  
+  let formattedLines: string[] = []
+  
+  // Find the opening paragraph (first 1-2 sentences)
+  const openingSentences = uniqueSentences.slice(0, 2)
+  if (openingSentences.length > 0) {
+    const opening = openingSentences.join('. ') + '.'
+    formattedLines.push(opening)
+    formattedLines.push('') // Add blank line
+  }
+  
+  // Extract and clean bullet points from the content
+  const bulletMatches = cleaned.match(/•\s*([^•#]+)/g)
+  if (bulletMatches && bulletMatches.length > 0) {
+    const uniqueBullets = [...new Set(bulletMatches.map(bullet => {
+      const cleanBullet = bullet.replace(/^•\s*/, '').trim()
+      return cleanBullet.length > 0 ? cleanBullet : null
+    }).filter(Boolean))]
+    
+    // Take up to 4 unique bullet points
+    uniqueBullets.slice(0, 4).forEach(bullet => {
+      formattedLines.push(`• ${bullet}`)
+    })
+    formattedLines.push('') // Add blank line after bullets
+  }
+  
+  // Find the closing paragraph (remaining sentences that aren't bullets and aren't hashtags)
+  const remainingSentences = uniqueSentences.slice(2).filter(s => {
+    const text = s.trim()
+    return text.length > 20 && 
+           !text.includes('•') && 
+           !text.includes('#') &&
+           !text.toLowerCase().includes('hashtag') &&
+           !text.toLowerCase().includes('innovation thrives') && // Remove common ending phrases
+           !text.toLowerCase().includes('my family instilled') && // Remove personal story elements
+           !text.toLowerCase().includes('finally, i aim') && // Remove future aspirations
+           !text.toLowerCase().includes('remember, every experience') // Remove common closing phrases
+  })
+  
+  if (remainingSentences.length > 0) {
+    // Take the first 1-2 sentences for closing, avoiding duplicates
+    const closingSentences = remainingSentences.slice(0, 2)
+    const closing = closingSentences.join('. ') + '.'
+    formattedLines.push(closing)
+    formattedLines.push('') // Add blank line
+  }
+  
+  // Extract and clean hashtags
+  const hashtagMatches = cleaned.match(/#\w+/g)
+  if (hashtagMatches && hashtagMatches.length > 0) {
+    const uniqueHashtags = [...new Set(hashtagMatches)]
+    const hashtags = uniqueHashtags.slice(0, 5).join(' ') // Limit to 5 hashtags
+    formattedLines.push(hashtags)
+  }
+  
+  return formattedLines.join('\n')
+}
+
+// Ensure proper structure with post-processing
+function ensureProperStructure(content: string): string {
+  const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+  
+  if (lines.length === 0) return content
+  
+  // Check if content already has proper structure
+  const hasBulletPoints = lines.some(line => line.startsWith('•'))
+  const hasHashtags = lines.some(line => line.startsWith('#'))
+  
+  if (hasBulletPoints && hasHashtags) {
+    return content // Already properly structured
+  }
+  
+  // If content is just a single paragraph, restructure it
+  if (lines.length <= 3 && !hasBulletPoints) {
+    const text = lines.join(' ')
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10)
+    
+    if (sentences.length >= 3) {
+      const opening = sentences.slice(0, 2).join('. ') + '.'
+      const bullet1 = sentences[2] ? sentences[2].trim() + '.' : 'Focus on continuous learning and growth.'
+      const bullet2 = sentences[3] ? sentences[3].trim() + '.' : 'Embrace challenges as opportunities for development.'
+      const bullet3 = sentences[4] ? sentences[4].trim() + '.' : 'Build meaningful connections and relationships.'
+      const bullet4 = sentences[5] ? sentences[5].trim() + '.' : 'Share your knowledge and experiences with others.'
+      const closing = sentences.length > 6 ? sentences.slice(6).join('. ') + '.' : 'Remember, every experience is a stepping stone to success.'
+      
+      return `${opening}
+
+• ${bullet1}
+• ${bullet2}
+• ${bullet3}
+• ${bullet4}
+
+${closing}
+
+#PersonalGrowth #ProfessionalDevelopment #Learning #Success`
+    }
+  }
+  
+  return content
+}
+
+// Clean and format content for LinkedIn posts
+function cleanAndFormatContent(content: string): string {
+  // Remove unwanted formatting and clean up
+  let cleanedContent = content
+    .replace(/^(Post\s*\d*:?\s*)/i, '')
+    .replace(/^\d+\.\s*/, '')
+    .replace(/^---POST_SEPARATOR---\s*/g, '')
+    .replace(/^---\s*/g, '')
+    .replace(/^###\s*/g, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/_(.*?)_/g, '$1')
+    .replace(/`(.*?)`/g, '$1')
+    .replace(/~~(.*?)~~/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  // Clean unwanted content endings
+  cleanedContent = cleanedContent
+    .replace(/\n*Join the conversation\.?\s*/gi, "")
+    .replace(/\n*\[End of story\]\s*/gi, "")
+    .replace(/\n*P\.S\.\s*.*$/gi, "")
+    .replace(/\n*Join the discussion\.?\s*/gi, "")
+    .replace(/\n*What do you think\?.*$/gi, "")
+    .replace(/\n*Let me know your thoughts.*$/gi, "")
+    .replace(/\n*Share your experience.*$/gi, "")
+    .replace(/\n*Thank you for reading!.*$/gi, "")
+    .replace(/\n*If you've experienced something similar.*$/gi, "")
+    .replace(/\n*I'd love to hear it in the comments.*$/gi, "")
+    .replace(/\n*I'd love to hear your thoughts.*$/gi, "")
+    .replace(/\n*Feel free to share your experience.*$/gi, "")
+    .replace(/\n*What's your take on this\?.*$/gi, "")
+    .replace(/\n*Drop your thoughts below.*$/gi, "")
+    .replace(/\n*Let's discuss in the comments.*$/gi, "")
+    .replace(/\n*Share your story below.*$/gi, "")
+    .replace(/\n*I'd love to hear from you.*$/gi, "")
+    .replace(/\n*Your thoughts\?.*$/gi, "")
+    .trim()
+
+  // Apply enhanced formatting for better structure
+  cleanedContent = enhanceContentFormatting(cleanedContent)
+  
+  // Ensure proper structure with post-processing
+  cleanedContent = ensureProperStructure(cleanedContent)
+
+  return cleanedContent
 }
 
 // Export class and singleton instance
