@@ -6,77 +6,51 @@ import { PersonalStoryService } from "@/lib/personal-story-service"
 import { aiService } from "@/lib/ai-service"
 
 // Enhanced formatting function for better content structure
-function enhanceContentFormatting(content: string): string {
-  // First, clean up the content by removing extra spaces and fixing bullet points
-  let cleaned = content
-    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-    .replace(/•\s*•/g, '•') // Fix double bullet points
-    .trim()
-  
-  // Remove duplicate sentences by splitting into sentences and deduplicating
-  const sentences = cleaned.split(/[.!?]+/).filter(s => s.trim().length > 10)
-  const uniqueSentences = [...new Set(sentences.map(s => s.trim()))]
-  
-  if (uniqueSentences.length === 0) return content
-  
-  let formattedLines: string[] = []
-  
-  // Find the opening paragraph (first 1-2 sentences)
-  const openingSentences = uniqueSentences.slice(0, 2)
-  if (openingSentences.length > 0) {
-    const opening = openingSentences.join('. ') + '.'
-    formattedLines.push(opening)
-    formattedLines.push('') // Add blank line
+function enhanceContentFormatting(content: string, topicText: string = "this topic"): string {
+  if (!content || content.trim().length === 0) {
+    return ""
   }
+
+  // First, extract and remove all hashtags from the content
+  const hashtagRegex = /#\w+/g
+  const hashtags = content.match(hashtagRegex) || []
+  let contentWithoutHashtags = content.replace(hashtagRegex, '').trim()
+
+  // Clean up content and normalize spacing
+  contentWithoutHashtags = contentWithoutHashtags.replace(/\s+/g, " ").trim()
+
+  // Remove any existing bullet points to prevent double bullets
+  contentWithoutHashtags = contentWithoutHashtags.replace(/•\s*/g, "").trim()
+
+  // Extract sentences for better structuring
+  const sentences = contentWithoutHashtags.split(/(?<=[.?!])\s+/).filter(s => s.length > 0)
+
+  // Use first 3–4 sentences as opening paragraph
+  const opening = sentences.slice(0, 3).join(" ")
   
-  // Extract and clean bullet points from the content
-  const bulletMatches = cleaned.match(/•\s*([^•#]+)/g)
-  if (bulletMatches && bulletMatches.length > 0) {
-    const uniqueBullets = [...new Set(bulletMatches.map(bullet => {
-      const cleanBullet = bullet.replace(/^•\s*/, '').trim()
-      return cleanBullet.length > 0 ? cleanBullet : null
-    }).filter(Boolean))]
-    
-    // Take up to 4 unique bullet points
-    uniqueBullets.slice(0, 4).forEach(bullet => {
-      formattedLines.push(`• ${bullet}`)
-    })
-    formattedLines.push('') // Add blank line after bullets
+  // Extract potential key ideas for bullet points
+  const remaining = sentences.slice(3)
+
+  // Generate 4 bullet points (auto-fill if fewer sentences exist)
+  const bulletPoints = []
+  for (let i = 0; i < 4; i++) {
+    const sentence = remaining[i] || remaining[i % remaining.length] || `Insight ${i + 1} about "${topicText}".`
+    // Clean any remaining hashtags from bullet points
+    const cleanSentence = sentence.replace(hashtagRegex, '').trim()
+    bulletPoints.push(`• ${cleanSentence}`)
   }
-  
-  // Find the closing paragraph (remaining sentences that aren't bullets and aren't hashtags)
-  const remainingSentences = uniqueSentences.slice(2).filter(s => {
-    const text = s.trim()
-    return text.length > 20 && 
-           !text.includes('•') && 
-           !text.includes('#') &&
-           !text.toLowerCase().includes('hashtag') &&
-           !text.toLowerCase().includes('innovation thrives') && // Remove common ending phrases
-           !text.toLowerCase().includes('my family instilled') && // Remove personal story elements
-           !text.toLowerCase().includes('finally, i aim') && // Remove future aspirations
-           !text.toLowerCase().includes('remember, every experience') // Remove common closing phrases
-  })
-  
-  if (remainingSentences.length > 0) {
-    // Take the first 1-2 sentences for closing, avoiding duplicates
-    const closingSentences = remainingSentences.slice(0, 2)
-    const closing = closingSentences.join('. ') + '.'
-    formattedLines.push(closing)
-    formattedLines.push('') // Add blank line
-  }
-  
-  // Extract and clean hashtags
-  const hashtagMatches = cleaned.match(/#\w+/g)
-  if (hashtagMatches && hashtagMatches.length > 0) {
-    const uniqueHashtags = [...new Set(hashtagMatches)]
-    const hashtags = uniqueHashtags.slice(0, 5).join(' ') // Limit to 5 hashtags
-    formattedLines.push(hashtags)
-  }
-  
-  return formattedLines.join('\n')
+
+  // Closing paragraph with inspirational wrap-up
+  const closing = `Ultimately, my experiences around "${topicText}" have shaped who I am today — reminding me that growth often begins where comfort ends. Embrace your own journey, and you'll uncover new paths to success.`
+
+  // Use extracted hashtags or default ones
+  const finalHashtags = hashtags.length > 0 ? hashtags.join(' ') : "#PersonalGrowth #CareerJourney #Inspiration #ProfessionalDevelopment #Motivation"
+
+  // Combine all formatted parts
+  return `${opening}\n\n${bulletPoints.join("\n\n")}\n\n${closing}\n\n${finalHashtags}`
 }
 
-// Ensure proper structure with post-processing
+// Ensure proper structure with post-processing and validation
 function ensureProperStructure(content: string): string {
   const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0)
   
@@ -85,34 +59,63 @@ function ensureProperStructure(content: string): string {
   // Check if content already has proper structure
   const hasBulletPoints = lines.some(line => line.startsWith('•'))
   const hasHashtags = lines.some(line => line.startsWith('#'))
+  const bulletCount = lines.filter(line => line.startsWith('•')).length
   
-  if (hasBulletPoints && hasHashtags) {
-    return content // Already properly structured
+  // If content already has proper structure with 4 bullet points, return as is
+  if (hasBulletPoints && hasHashtags && bulletCount >= 4) {
+    return content
   }
   
-  // If content is just a single paragraph, restructure it
-  if (lines.length <= 3 && !hasBulletPoints) {
+  // If content is missing structure, restructure it
+  if (!hasBulletPoints || bulletCount < 4) {
     const text = lines.join(' ')
     const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10)
     
     if (sentences.length >= 3) {
-      const opening = sentences.slice(0, 2).join('. ') + '.'
-      const bullet1 = sentences[2] ? sentences[2].trim() + '.' : 'Focus on continuous learning and growth.'
-      const bullet2 = sentences[3] ? sentences[3].trim() + '.' : 'Embrace challenges as opportunities for development.'
-      const bullet3 = sentences[4] ? sentences[4].trim() + '.' : 'Build meaningful connections and relationships.'
-      const bullet4 = sentences[5] ? sentences[5].trim() + '.' : 'Share your knowledge and experiences with others.'
-      const closing = sentences.length > 6 ? sentences.slice(6).join('. ') + '.' : 'Remember, every experience is a stepping stone to success.'
+      // Create opening paragraph from first 2-3 sentences
+      const opening = sentences.slice(0, Math.min(3, sentences.length)).join('. ') + '.'
+      
+      // Create bullet points from remaining sentences or use defaults
+      const bulletPoints = []
+      if (sentences.length > 3) {
+        for (let i = 3; i < Math.min(7, sentences.length); i++) {
+          bulletPoints.push(sentences[i].trim() + '.')
+        }
+      }
+      
+      // Ensure we have exactly 4 bullet points
+      const defaultBullets = [
+        'Focus on continuous learning and growth in your professional journey',
+        'Embrace challenges as opportunities for development and improvement',
+        'Build meaningful connections and relationships that support your goals',
+        'Share your knowledge and experiences to help others succeed'
+      ]
+      
+      while (bulletPoints.length < 4) {
+        bulletPoints.push(defaultBullets[bulletPoints.length])
+      }
+      
+      // Create closing paragraph
+      const remainingSentences = sentences.slice(7)
+      const closing = remainingSentences.length > 0 
+        ? remainingSentences.join('. ') + '.'
+        : 'Remember, every experience is a stepping stone to growth and success. The key is to learn, adapt, and continue moving forward with purpose and determination.'
+      
+      // Add hashtags if missing
+      const hashtags = hasHashtags 
+        ? lines.filter(line => line.startsWith('#')).join(' ')
+        : '#PersonalGrowth #ProfessionalDevelopment #Learning #Success #Leadership'
       
       return `${opening}
 
-• ${bullet1}
-• ${bullet2}
-• ${bullet3}
-• ${bullet4}
+• ${bulletPoints[0]}
+• ${bulletPoints[1]}
+• ${bulletPoints[2]}
+• ${bulletPoints[3]}
 
 ${closing}
 
-#PersonalGrowth #ProfessionalDevelopment #Learning #Success`
+${hashtags}`
     }
   }
   
@@ -181,150 +184,150 @@ export async function POST(request: NextRequest) {
     // Build contextual story context for the specific topic
     const storyContext = PersonalStoryService.buildContextualStoryContext(storyData, topicText)
     
-    // Create enhanced prompt specifically for personal story topics with no bold formatting
+    // Create enhanced prompt specifically for personal story topics with detailed integration
     const enhancedPrompt = `<personal_story_topic_content_creation>
-You are a personal branding expert creating authentic, engaging content that showcases unique life experiences based on personal story topics.
+You are an expert personal branding content creator specializing in transforming personal life experiences into compelling, professional LinkedIn content. Your task is to create authentic, engaging content that showcases unique life experiences based on the user's personal story data.
 
+PERSONAL STORY CONTEXT:
 ${storyContext}
 
-<content_brief>
-Topic: "${topicText}"
-Content Type: ${contentType}
-</content_brief>
+TOPIC TO ADDRESS: "${topicText}"
+CONTENT TYPE: ${contentType}
 
-<personal_story_integration_strategy>
-- Analyze ALL 6 life sections for relevant connections to "${topicText}"
-- Prioritize sections with strongest thematic alignment
-- Create natural bridges between personal experiences and professional insights
-- Use specific details to build authenticity and emotional connection
-- Weave multiple life phases into cohesive narratives
-- Transform user answers into creative, unique stories - NEVER copy directly
-- Add storytelling elements like dialogue, emotions, scenes, and narrative flow
-- Create original content inspired by user experiences, not copied from them
-- Make each story fresh and engaging with creative interpretation
-</personal_story_integration_strategy>
+<detailed_personal_story_analysis>
+Based on the personal story data provided above, analyze and extract the most relevant elements for the topic "${topicText}":
 
-<content_optimization_framework>
-1. Authenticity: Use real experiences, not generic advice
-2. Relevance: Connect personal story to topic meaningfully
-3. Value: Provide actionable insights and takeaways
-4. Engagement: Create content that sparks discussion
-5. Uniqueness: Showcase perspectives only this person could share
-6. Professionalism: Maintain credibility while being personal
-</content_optimization_framework>
+1. EARLY LIFE CONNECTIONS: How do the early life experiences relate to this topic?
+2. EDUCATION INSIGHTS: What educational experiences provide relevant context?
+3. CAREER JOURNEY LESSONS: Which career experiences offer valuable insights for this topic?
+4. PERSONAL SIDE RELEVANCE: How do personal interests/hobbies connect to this topic?
+5. CURRENT IDENTITY ALIGNMENT: What current professional identity elements are relevant?
+6. FUTURE ASPIRATIONS LINK: How do future goals connect to this topic?
 
-<content_creation_requirements>
-- Generate 1 distinct content piece
-- Must incorporate elements from multiple life sections
-- Create natural connections between topic and personal experiences
-- Use specific details to make content memorable and relatable
-- Ensure content reflects complete personal journey
-- Make content complete and ready to publish
-- Avoid generic content that could apply to anyone
-- NO generic titles or headings like "My Journey from..." or "Building a Life of..."
-- Start directly with the content, clean and natural
-- NEVER copy user answers word-for-word
-- Transform user experiences into unique, creative narratives
-- Add storytelling elements like dialogue, emotions, and scenes
-- Create original content inspired by user experiences, not copied from them
-- Make the story unique and engaging with creative interpretation
-</content_creation_requirements>
+Use these connections to create a rich, detailed narrative that feels authentic and personal.
+</detailed_personal_story_analysis>
 
-<quality_standards>
-- Professional tone with authentic personal touch
-- Clear value proposition for target audience
-- Engaging narrative structure
-- Specific, actionable insights
-- Emotional resonance and relatability
-- Unique perspective based on personal journey
-- Clean, natural formatting without generic titles
-- Original, creative storytelling that transforms user experiences
-- No direct copying of user answers
-- Fresh, unique content with creative interpretation
-- NO bold formatting (**text**) or markdown formatting
-- Use plain text only, no special formatting
-- Create completely unique content based on the user's specific topic
-- Avoid repetitive or generic content patterns
-- Structure with compelling hook, clear bullet points, and strong conclusion
-- Include 3-5 relevant hashtags at the end
-- Make it suitable for LinkedIn posting
-</quality_standards>
+<content_creation_strategy>
+- DEEP DIVE into personal story elements that directly relate to "${topicText}"
+- Create SPECIFIC, DETAILED examples from the user's life experiences
+- Weave together MULTIPLE life phases into a cohesive narrative
+- Use CONCRETE DETAILS and SPECIFIC SITUATIONS from the personal story
+- Transform raw personal story data into ENGAGING, STORYTELLING content
+- NEVER copy user answers word-for-word - instead, create original narratives inspired by them
+- Add EMOTIONAL DEPTH and PERSONAL INSIGHTS that only this person could share
+- Make the content feel AUTHENTIC and UNIQUE to this individual's journey
+- Ensure the content is SUBSTANTIAL and MEANINGFUL, not superficial
+</content_creation_strategy>
 
-<formatting_requirements>
-- Clean, scannable layout with proper structure
-- Opening paragraph: 2-3 sentences introducing the topic
-- Bullet points: Each on separate line with • symbol, 1-2 sentences each
-- Closing paragraph: 1-2 sentences with encouragement or call-to-action
-- Hashtags: 3-5 relevant hashtags at the end on separate line
-- Professional yet engaging tone
-- No generic phrases or fluff
-- No forced engagement prompts
-- NO generic titles or headings like "My Journey from..." or "Building a Life of..."
-- Start directly with engaging content
-- NO bold formatting (**text**) or markdown formatting
-- Use plain text only, no special formatting
-- Create completely unique content based on the user's specific topic
-- Avoid repetitive or generic content patterns
-- Structure: Opening → Bullet Points → Closing → Hashtags
-</formatting_requirements>
+<content_quality_requirements>
+- MINIMUM 250 words total content
+- Opening paragraph: 3-4 sentences (60-80 words) with compelling hook
+- Exactly 4 bullet points: Each 40-50 words with specific, actionable insights
+- Closing paragraph: 2-3 sentences (50-60 words) with strong conclusion
+- Include 4-5 relevant hashtags ONLY at the end
+- Professional yet personal tone
+- Specific examples and details from personal story
+- Actionable insights that provide real value
+- Emotional resonance that connects with readers
+- Unique perspective that only this person could offer
+</content_quality_requirements>
 
-<output_deliverable>
-Generate exactly 1 unique, creative content piece focused on "${topicText}"
-Transform personal story elements into original, engaging narratives - do NOT copy user answers directly
-Content should be clean, natural, creative, and ready to publish without generic titles
+<mandatory_formatting_structure>
+You MUST follow this EXACT structure. No deviations allowed:
 
-CRITICAL FORMATTING REQUIREMENTS - MANDATORY:
-You MUST generate content in this EXACT format. Do not deviate:
+STRUCTURE:
+1. OPENING PARAGRAPH (3-4 sentences, 60-80 words)
+   - Start with a compelling hook related to the topic
+   - Reference specific personal story elements
+   - Set up the main theme/lesson
 
-1. Start with 2-3 sentence opening paragraph (40-60 words)
-2. Add a blank line
-3. Add exactly 4 bullet points using • symbol (each on separate line, 30-40 words each)
-4. Add a blank line  
-5. Add 1-2 sentence closing paragraph (30-40 words)
-6. Add a blank line
-7. Add 3-5 hashtags on final line
-8. TOTAL WORD COUNT: Minimum 200 words
+2. BLANK LINE
 
-EXAMPLE FORMAT (copy this structure exactly):
+3. BULLET POINTS (exactly 4, each 40-50 words)
+   • First bullet: Specific insight from early life/education
+   • Second bullet: Career journey lesson or experience
+   • Third bullet: Personal side or current identity insight
+   • Fourth bullet: Future aspirations or broader lesson
+   - NO hashtags within bullet points
+   - NO hashtags anywhere except at the very end
 
-Growing up in a close-knit family, I learned early on that diverse perspectives enrich our understanding and foster growth. This became even clearer during my educational journey and professional career, where collaboration with individuals from various backgrounds ignited my passion for learning and mentorship.
+4. BLANK LINE
 
-• Embrace different viewpoints to expand your understanding and challenge your assumptions
-• Seek out diverse teams and environments that push you beyond your comfort zone
-• Practice active listening to truly understand perspectives different from your own
-• Share your own experiences while remaining open to learning from others
+5. CLOSING PARAGRAPH (2-3 sentences, 50-60 words)
+   - Strong conclusion that ties everything together
+   - Call to action or inspirational message
+   - Reference to personal growth or future vision
 
-Remember, growth happens when we step outside our echo chambers and engage with ideas that challenge us. The most meaningful connections and learning opportunities often come from those who see the world differently than we do.
+6. BLANK LINE
 
-#DiversityAndInclusion #PersonalGrowth #Collaboration #Learning #Mentorship
+7. HASHTAGS (4-5 relevant hashtags ONLY at the end)
 
-MANDATORY: Follow this exact structure. Do not deviate from this format.
-</output_deliverable>
+EXAMPLE STRUCTURE:
+[Opening paragraph with personal story hook and topic introduction]
+
+• [Specific insight from early life/education with concrete details]
+• [Career journey lesson with specific example or situation]
+• [Personal side insight with authentic personal touch]
+• [Future aspirations or broader life lesson]
+
+[Strong closing paragraph that ties everything together with inspiration or call to action]
+
+#RelevantHashtag1 #RelevantHashtag2 #RelevantHashtag3 #RelevantHashtag4 #RelevantHashtag5
+
+CRITICAL: NO hashtags should appear anywhere except at the very end of the content. NO hashtags within bullet points or paragraphs.
+</mandatory_formatting_structure>
+
+<content_depth_requirements>
+- Use SPECIFIC DETAILS from the personal story, not generic advice
+- Include CONCRETE EXAMPLES and SITUATIONS from the user's life
+- Reference SPECIFIC EXPERIENCES, CHALLENGES, or ACHIEVEMENTS
+- Create RICH, DETAILED narratives that feel authentic
+- Avoid superficial or generic content that could apply to anyone
+- Make each bullet point SUBSTANTIAL and MEANINGFUL
+- Ensure the content provides REAL VALUE and ACTIONABLE INSIGHTS
+- Connect personal experiences to PROFESSIONAL LESSONS and GROWTH
+</content_depth_requirements>
+
+<output_requirements>
+Generate exactly 1 comprehensive, detailed content piece focused on "${topicText}"
+- Transform personal story elements into original, engaging narratives
+- Create content that is SUBSTANTIAL, DETAILED, and MEANINGFUL
+- Ensure content is ready to publish and provides real value
+- Follow the mandatory formatting structure exactly
+- Make content feel authentic and unique to this person's journey
+- Include specific details and examples from their personal story
+- Create content that sparks engagement and provides actionable insights
+
+CRITICAL: The content must be SUBSTANTIAL and DETAILED, not short or superficial. Each section should provide meaningful value and specific insights based on the personal story data.
+</output_requirements>
 </personal_story_topic_content_creation>`
 
-    // Generate content using the centralized AI service with personal story integration
+    // Generate content using the centralized AI service with enhanced parameters for better content
     const response = await aiService.generateContent(
       contentType,
       enhancedPrompt,
       "openai",
       {
-        model: "gpt-3.5-turbo", // Use free model
+        model: "gpt-4", // Use GPT-4 for better content quality
         tone: "professional",
         targetAudience: "LinkedIn professionals",
         mainGoal: "engagement",
         includeHashtags: true,
-        includeEmojis: true,
+        includeEmojis: false, // Disable emojis for cleaner content
         callToAction: true,
-        wordCount: 250,
-        temperature: 0.85, // Higher temperature for more creativity
-        maxTokens: 1000,
+        wordCount: 300, // Increased word count for more detailed content
+        temperature: 0.8, // Balanced creativity and consistency
+        maxTokens: 1500, // Increased token limit for longer content
         personalTouch: true,
         storytelling: true,
         humanLike: true,
-        randomness: 80,
-        ambiguity: 70,
-        emotionalDepth: 75,
-        conversationalStyle: true
+        randomness: 75,
+        ambiguity: 60,
+        emotionalDepth: 85, // Higher emotional depth for better engagement
+        conversationalStyle: true,
+        detailedContent: true, // Flag for detailed content generation
+        specificExamples: true, // Ensure specific examples are included
+        actionableInsights: true // Ensure actionable insights are provided
       },
       session.user.id,
       session.user.email
@@ -364,11 +367,29 @@ MANDATORY: Follow this exact structure. Do not deviate from this format.
       .replace(/\s+/g, ' ')
       .trim()
 
-    // Apply enhanced formatting for better structure
-    content = enhanceContentFormatting(content)
+    // Check if content already has proper structure before applying formatting
+    const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+    const hasBulletPoints = lines.some(line => line.startsWith('•'))
+    const hasHashtags = lines.some(line => line.startsWith('#'))
+    const bulletCount = lines.filter(line => line.startsWith('•')).length
+    const hasOpeningParagraph = lines.length > 0 && !lines[0].startsWith('•') && !lines[0].startsWith('#')
     
-    // Ensure proper structure with post-processing
-    content = ensureProperStructure(content)
+    // Check for double bullet points - if found, always reformat
+    const hasDoubleBullets = content.includes('• •') || content.includes('•\n•')
+    
+    // Check if content already has proper structure before applying formatting
+    const isContentComplete = hasOpeningParagraph && hasBulletPoints && hasHashtags && bulletCount >= 4 && content.length > 200 && !hasDoubleBullets
+    
+    if (!isContentComplete) {
+      console.log("Content needs formatting - applying enhanced formatting")
+      console.log("Content analysis:", { hasOpeningParagraph, hasBulletPoints, hasHashtags, bulletCount, hasDoubleBullets, contentLength: content.length })
+      content = enhanceContentFormatting(content, topicText)
+    } else {
+      console.log("Content already has proper structure - skipping formatting completely")
+      console.log("Content analysis:", { hasOpeningParagraph, hasBulletPoints, hasHashtags, bulletCount, hasDoubleBullets, contentLength: content.length })
+      // Just clean up any extra whitespace and return as-is
+      content = content.replace(/\n\s*\n/g, '\n\n').trim()
+    }
 
     return NextResponse.json({ 
       success: true,

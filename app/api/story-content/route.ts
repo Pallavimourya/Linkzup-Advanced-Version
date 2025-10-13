@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+// @ts-ignore
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectDB } from "@/lib/mongodb"
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
     // Create unique ChatGPT prompt for content generation with enhanced randomization
     const timestamp = Date.now()
     const randomSeed = Math.floor(Math.random() * 1000)
-    const topicHash = topic.topicText.split('').reduce((a, b) => {
+    const topicHash = topic.topicText.split('').reduce((a: number, b: string) => {
       a = ((a << 5) - a) + b.charCodeAt(0)
       return a & a
     }, 0)
@@ -91,51 +92,112 @@ export async function POST(request: NextRequest) {
     
     const contentPrompt = `${storyContext}
 
-Write a well-structured LinkedIn post about the topic: "${topic.topicText}", using only the relevant information and experiences described in the story below. Avoid adding details that are not present in the story.
+<enhanced_content_creation_instructions>
+You are an expert personal branding content creator specializing in transforming personal life experiences into compelling, professional LinkedIn content. Your task is to create authentic, engaging content that showcases unique life experiences based on the user's personal story data.
 
-SPECIAL INSTRUCTION: ${randomVariation}
+TOPIC TO ADDRESS: "${topic.topicText}"
+SPECIAL FOCUS: ${randomVariation}
 
-Content Structure Requirements:
-1. Opening Line: Start with a compelling, attention-grabbing opening that relates to the topic
-2. Main Content: Use bullet points (•) to organize key insights and experiences from the story
-3. Closing: End with a thoughtful conclusion and call-to-action
-4. Hashtags: Include 3-5 relevant hashtags at the end
+<content_creation_strategy>
+- DEEP DIVE into personal story elements that directly relate to "${topic.topicText}"
+- Create SPECIFIC, DETAILED examples from the user's life experiences
+- Weave together MULTIPLE life phases into a cohesive narrative
+- Use CONCRETE DETAILS and SPECIFIC SITUATIONS from the personal story
+- Transform raw personal story data into ENGAGING, STORYTELLING content
+- NEVER copy user answers word-for-word - instead, create original narratives inspired by them
+- Add EMOTIONAL DEPTH and PERSONAL INSIGHTS that only this person could share
+- Make the content feel AUTHENTIC and UNIQUE to this individual's journey
+- Ensure the content is SUBSTANTIAL and MEANINGFUL, not superficial
+</content_creation_strategy>
 
-Format Requirements:
-- Write in a professional, engaging tone
-- Use specific details and experiences from the personal story
-- Make the content authentic and relatable
-- Structure with clear opening, bullet points, and closing
-- Include actionable insights where relevant
-- Keep the content focused on the topic while drawing from the story
-- Write approximately 200-300 words
-- Make it suitable for LinkedIn posting
-- Use the personal story as the foundation, not as additional context
-- Be creative and explore DIFFERENT angles than typical career content
-- Use different vocabulary and phrasing to ensure uniqueness
-- This is generation #${Math.floor(timestamp / 1000) % 1000} for topic "${topic.topicText}" at ${new Date().toISOString()}
-- Topic hash: ${topicHash} - ensure this content is UNIQUE and DIFFERENT from any previous generations
-- Use a ${randomVariation.toLowerCase()} approach to make this content stand out
-- Include personal anecdotes and specific examples from the story
-- Make it conversational yet professional
-- Include a call-to-action that encourages engagement
-- NO bold formatting (**text**) or markdown formatting
-- Use plain text only, no special formatting
-- Create completely unique content based on the user's specific topic
-- Avoid repetitive or generic content patterns
+<content_quality_requirements>
+- MINIMUM 250 words total content
+- Opening paragraph: 3-4 sentences (60-80 words) with compelling hook
+- Exactly 4 bullet points: Each 40-50 words with specific, actionable insights
+- Closing paragraph: 2-3 sentences (50-60 words) with strong conclusion
+- Include 4-5 relevant hashtags ONLY at the end
+- Professional yet personal tone
+- Specific examples and details from personal story
+- Actionable insights that provide real value
+- Emotional resonance that connects with readers
+- Unique perspective that only this person could offer
+</content_quality_requirements>
 
-Example Format:
-[Compelling opening line that hooks the reader]
+<mandatory_formatting_structure>
+You MUST follow this EXACT structure. No deviations allowed:
 
-• [First key insight or experience from your story]
-• [Second key insight or experience from your story]
-• [Third key insight or experience from your story]
+STRUCTURE:
+1. OPENING PARAGRAPH (3-4 sentences, 60-80 words)
+   - Start with a compelling hook related to the topic
+   - Reference specific personal story elements
+   - Set up the main theme/lesson
 
-[Thoughtful conclusion that ties everything together and includes a call-to-action]
+2. BLANK LINE
 
-#RelevantHashtag1 #RelevantHashtag2 #RelevantHashtag3
+3. BULLET POINTS (exactly 4, each 40-50 words)
+   • First bullet: Specific insight from early life/education
+   • Second bullet: Career journey lesson or experience
+   • Third bullet: Personal side or current identity insight
+   • Fourth bullet: Future aspirations or broader lesson
+   - NO hashtags within bullet points
+   - NO hashtags anywhere except at the very end
 
-Generate the content now following this exact structure:`
+4. BLANK LINE
+
+5. CLOSING PARAGRAPH (2-3 sentences, 50-60 words)
+   - Strong conclusion that ties everything together
+   - Call to action or inspirational message
+   - Reference to personal growth or future vision
+
+6. BLANK LINE
+
+7. HASHTAGS (4-5 relevant hashtags ONLY at the end)
+
+EXAMPLE STRUCTURE:
+[Opening paragraph with personal story hook and topic introduction]
+
+• [Specific insight from early life/education with concrete details]
+• [Career journey lesson with specific example or situation]
+• [Personal side insight with authentic personal touch]
+• [Future aspirations or broader life lesson]
+
+[Strong closing paragraph that ties everything together with inspiration or call to action]
+
+#RelevantHashtag1 #RelevantHashtag2 #RelevantHashtag3 #RelevantHashtag4 #RelevantHashtag5
+
+CRITICAL: NO hashtags should appear anywhere except at the very end of the content. NO hashtags within bullet points or paragraphs.
+</mandatory_formatting_structure>
+
+<content_depth_requirements>
+- Use SPECIFIC DETAILS from the personal story, not generic advice
+- Include CONCRETE EXAMPLES and SITUATIONS from the user's life
+- Reference SPECIFIC EXPERIENCES, CHALLENGES, or ACHIEVEMENTS
+- Create RICH, DETAILED narratives that feel authentic
+- Avoid superficial or generic content that could apply to anyone
+- Make each bullet point SUBSTANTIAL and MEANINGFUL
+- Ensure the content provides REAL VALUE and ACTIONABLE INSIGHTS
+- Connect personal experiences to PROFESSIONAL LESSONS and GROWTH
+</content_depth_requirements>
+
+<output_requirements>
+Generate exactly 1 comprehensive, detailed content piece focused on "${topic.topicText}"
+- Transform personal story elements into original, engaging narratives
+- Create content that is SUBSTANTIAL, DETAILED, and MEANINGFUL
+- Ensure content is ready to publish and provides real value
+- Follow the mandatory formatting structure exactly
+- Make content feel authentic and unique to this person's journey
+- Include specific details and examples from their personal story
+- Create content that sparks engagement and provides actionable insights
+
+CRITICAL: The content must be SUBSTANTIAL and DETAILED, not short or superficial. Each section should provide meaningful value and specific insights based on the personal story data.
+
+GENERATION METADATA:
+- Generation #${Math.floor(timestamp / 1000) % 1000} for topic "${topic.topicText}"
+- Topic hash: ${topicHash} - ensure this content is UNIQUE and DIFFERENT
+- Special focus: ${randomVariation.toLowerCase()}
+- Timestamp: ${new Date().toISOString()}
+</output_requirements>
+</enhanced_content_creation_instructions>`
 
     // Generate content using AI service with enhanced randomization
     const aiService = new AIService()
@@ -153,25 +215,28 @@ Generate the content now following this exact structure:`
       response = await aiService.generateContent(
         contentType,
         contentPrompt,
-        randomProvider as "openai" | "perplexity",
+        "openai", // Use OpenAI for better content quality
         {
-          model: "gpt-3.5-turbo", // Use free model
+          model: "gpt-4", // Use GPT-4 for better content quality
           tone: "professional",
           targetAudience: "LinkedIn professionals",
           mainGoal: "engagement",
           includeHashtags: true,
-          includeEmojis: true,
+          includeEmojis: false, // Disable emojis for cleaner content
           callToAction: true,
-          wordCount: 400,
-          temperature: 0.85 + (Math.abs(topicHash) % 15) / 100, // 0.85-0.99 based on topic hash
-          maxTokens: 800, // Allow more tokens for variety
+          wordCount: 300, // Increased word count for more detailed content
+          temperature: 0.8, // Balanced creativity and consistency
+          maxTokens: 1500, // Increased token limit for longer content
           personalTouch: true,
           storytelling: true,
           humanLike: true,
-          randomness: 75 + (Math.abs(topicHash) % 20), // 75-95 based on topic hash
-          ambiguity: 65 + (Math.abs(topicHash) % 25), // 65-90 based on topic hash
-          emotionalDepth: 70 + (Math.abs(topicHash) % 25), // 70-95 based on topic hash
-          conversationalStyle: true
+          randomness: 75,
+          ambiguity: 60,
+          emotionalDepth: 85, // Higher emotional depth for better engagement
+          conversationalStyle: true,
+          // detailedContent: true, // Flag for detailed content generation
+          // specificExamples: true, // Ensure specific examples are included
+          // actionableInsights: true // Ensure actionable insights are provided
         },
         undefined,
         userEmail
@@ -187,18 +252,26 @@ Generate the content now following this exact structure:`
         contentPrompt,
         "openai",
         {
-          model: "gpt-3.5-turbo", // Use free model
+          model: "gpt-4", // Use GPT-4 for better content quality
           tone: "professional",
           targetAudience: "LinkedIn professionals",
           mainGoal: "engagement",
           includeHashtags: true,
-          includeEmojis: true,
+          includeEmojis: false, // Disable emojis for cleaner content
           callToAction: true,
-          wordCount: 400,
-          temperature: 0.8,
-          maxTokens: 600,
+          wordCount: 300, // Increased word count for more detailed content
+          temperature: 0.8, // Balanced creativity and consistency
+          maxTokens: 1500, // Increased token limit for longer content
           personalTouch: true,
-          storytelling: true
+          storytelling: true,
+          humanLike: true,
+          randomness: 75,
+          ambiguity: 60,
+          emotionalDepth: 85, // Higher emotional depth for better engagement
+          conversationalStyle: true,
+          // detailedContent: true, // Flag for detailed content generation
+          // specificExamples: true, // Ensure specific examples are included
+          // actionableInsights: true // Ensure actionable insights are provided
         },
         undefined,
         userEmail
@@ -234,8 +307,29 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
 #PersonalStory #ProfessionalGrowth #Authenticity #LinkedIn #CareerJourney`
     }
     
-    // Post-process content to ensure proper formatting
-    content = formatContentForLinkedIn(content, topic.topicText)
+    // Check if content already has proper structure before applying formatting
+    const lines = content.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+    const hasBulletPoints = lines.some(line => line.startsWith('•'))
+    const hasHashtags = lines.some(line => line.startsWith('#'))
+    const bulletCount = lines.filter(line => line.startsWith('•')).length
+    const hasOpeningParagraph = lines.length > 0 && !lines[0].startsWith('•') && !lines[0].startsWith('#')
+    
+    // Check for double bullet points - if found, always reformat
+    const hasDoubleBullets = content.includes('• •') || content.includes('•\n•')
+    
+    // Check if content already has proper structure before applying formatting
+    const isContentComplete = hasOpeningParagraph && hasBulletPoints && hasHashtags && bulletCount >= 4 && content.length > 200 && !hasDoubleBullets
+    
+    if (!isContentComplete) {
+      console.log("Content needs formatting - applying LinkedIn formatting")
+      console.log("Content analysis:", { hasOpeningParagraph, hasBulletPoints, hasHashtags, bulletCount, hasDoubleBullets, contentLength: content.length })
+      content = formatContentForLinkedIn(content, topic.topicText)
+    } else {
+      console.log("Content already has proper structure - skipping formatting completely")
+      console.log("Content analysis:", { hasOpeningParagraph, hasBulletPoints, hasHashtags, bulletCount, hasDoubleBullets, contentLength: content.length })
+      // Just clean up any extra whitespace and return as-is
+      content = content.replace(/\n\s*\n/g, '\n\n').trim()
+    }
     
     console.log("Generated content length:", content.length)
 
@@ -263,7 +357,7 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
     return NextResponse.json({
       success: true,
       content: {
-        id: contentDocument._id || `temp-${Date.now()}`,
+        id: (contentDocument as any)._id || `temp-${Date.now()}`,
         topicText: topic.topicText,
         content,
         contentType,
@@ -278,7 +372,7 @@ What aspects of this topic resonate with your own experiences? I'd love to hear 
       { 
         error: "Failed to generate content",
         details: error instanceof Error ? error.message : "Unknown error",
-        topic: topic?.topicText || "Unknown topic"
+        topic: "Unknown topic"
       },
       { status: 500 }
     )
@@ -325,91 +419,45 @@ export async function GET(request: NextRequest) {
 // Helper function to format content for LinkedIn with proper structure
 function formatContentForLinkedIn(content: string, topicText: string): string {
   if (!content || content.trim().length === 0) {
-    return content
+    return ""
   }
 
-  // Clean up the content
-  let formattedContent = content.trim()
+  // First, extract and remove all hashtags from the content
+  const hashtagRegex = /#\w+/g
+  const hashtags = content.match(hashtagRegex) || []
+  let contentWithoutHashtags = content.replace(hashtagRegex, '').trim()
+
+  // Clean up content and normalize spacing
+  contentWithoutHashtags = contentWithoutHashtags.replace(/\s+/g, " ").trim()
+
+  // Remove any existing bullet points to prevent double bullets
+  contentWithoutHashtags = contentWithoutHashtags.replace(/•\s*/g, "").trim()
+
+  // Extract sentences for better structuring
+  const sentences = contentWithoutHashtags.split(/(?<=[.?!])\s+/).filter(s => s.length > 0)
+
+  // Use first 3–4 sentences as opening paragraph
+  const opening = sentences.slice(0, 3).join(" ")
   
-  // Remove any existing parentheses at the start and end
-  formattedContent = formattedContent.replace(/^\(/, '').replace(/\)$/, '')
-  
-  // Split content into lines
-  const lines = formattedContent.split('\n').map(line => line.trim()).filter(line => line.length > 0)
-  
-  // Check if content already has proper structure
-  const hasOpeningLine = lines.length > 0 && !lines[0].startsWith('•')
-  const hasBulletPoints = lines.some(line => line.startsWith('•'))
-  const hasHashtags = lines.some(line => line.startsWith('#'))
-  
-  // If content is already well-formatted, return as is
-  if (hasOpeningLine && hasBulletPoints && hasHashtags) {
-    return formattedContent
+  // Extract potential key ideas for bullet points
+  const remaining = sentences.slice(3)
+
+  // Generate 4 bullet points (auto-fill if fewer sentences exist)
+  const bulletPoints = []
+  for (let i = 0; i < 4; i++) {
+    const sentence = remaining[i] || remaining[i % remaining.length] || `Insight ${i + 1} about "${topicText}".`
+    // Clean any remaining hashtags from bullet points
+    const cleanSentence = sentence.replace(/#\w+/g, '').trim()
+    bulletPoints.push(`• ${cleanSentence}`)
   }
-  
-  // Reformat content if needed
-  const result: string[] = []
-  
-  // Add opening line if missing
-  if (!hasOpeningLine) {
-    result.push(`Reflecting on my journey, I've learned that "${topicText}" isn't just a concept—it's a lived experience that shapes who we become.`)
-    result.push('')
-  }
-  
-  // Process bullet points
-  const bulletPoints: string[] = []
-  const otherLines: string[] = []
-  const hashtags: string[] = []
-  
-  lines.forEach(line => {
-    if (line.startsWith('•')) {
-      bulletPoints.push(line)
-    } else if (line.startsWith('#')) {
-      hashtags.push(line)
-    } else if (line.length > 0) {
-      otherLines.push(line)
-    }
-  })
-  
-  // Add opening line if we have other content but no proper opening
-  if (otherLines.length > 0 && !hasOpeningLine) {
-    result.push(otherLines[0])
-    result.push('')
-    otherLines.shift() // Remove the first line as it's now the opening
-  }
-  
-  // Add bullet points
-  if (bulletPoints.length > 0) {
-    result.push(...bulletPoints)
-    result.push('')
-  } else if (otherLines.length > 0) {
-    // Convert other lines to bullet points if no bullets exist
-    otherLines.slice(0, 3).forEach(line => {
-      if (!line.startsWith('•')) {
-        result.push(`• ${line}`)
-      }
-    })
-    result.push('')
-  }
-  
-  // Add conclusion
-  if (otherLines.length > 1) {
-    result.push(otherLines.slice(1).join(' '))
-  } else {
-    result.push('These experiences have taught me valuable lessons that I continue to apply in my professional journey.')
-  }
-  
-  result.push('')
-  result.push('What aspects of this topic resonate with your own experiences? I\'d love to hear your thoughts in the comments below.')
-  result.push('')
-  
-  // Add hashtags
-  if (hashtags.length > 0) {
-    result.push(hashtags.join(' '))
-  } else {
-    result.push('#PersonalStory #ProfessionalGrowth #LinkedIn #CareerJourney')
-  }
-  
-  return result.join('\n')
+
+  // Closing paragraph with inspirational wrap-up
+  const closing = `Ultimately, my experiences around "${topicText}" have shaped who I am today — reminding me that growth often begins where comfort ends. Embrace your own journey, and you'll uncover new paths to success.`
+
+  // Use extracted hashtags or default ones
+  const finalHashtags = hashtags.length > 0 ? hashtags.join(' ') : "#PersonalGrowth #CareerJourney #Inspiration #ProfessionalDevelopment #Motivation"
+
+  // Combine all formatted parts
+  return `${opening}\n\n${bulletPoints.join("\n\n")}\n\n${closing}\n\n${finalHashtags}`
 }
 

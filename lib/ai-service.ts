@@ -1747,10 +1747,15 @@ ${closing}
 
 // Enhanced formatting function for better content structure
 function enhanceContentFormatting(content: string): string {
-  // First, clean up the content by removing extra spaces and fixing bullet points
+  // First, extract all hashtags from the content
+  const hashtagRegex = /#\w+/g
+  const hashtags = content.match(hashtagRegex) || []
+  
+  // Clean up the content by removing extra spaces, fixing bullet points, and removing hashtags
   let cleaned = content
     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
     .replace(/•\s*•/g, '•') // Fix double bullet points
+    .replace(hashtagRegex, '') // Remove all hashtags from content body
     .trim()
   
   // Remove duplicate sentences by splitting into sentences and deduplicating
@@ -1774,7 +1779,9 @@ function enhanceContentFormatting(content: string): string {
   if (bulletMatches && bulletMatches.length > 0) {
     const uniqueBullets = [...new Set(bulletMatches.map(bullet => {
       const cleanBullet = bullet.replace(/^•\s*/, '').trim()
-      return cleanBullet.length > 0 ? cleanBullet : null
+      // Remove any remaining hashtags from bullet points
+      const finalBullet = cleanBullet.replace(hashtagRegex, '').trim()
+      return finalBullet.length > 0 ? finalBullet : null
     }).filter(Boolean))]
     
     // Take up to 4 unique bullet points
@@ -1805,12 +1812,11 @@ function enhanceContentFormatting(content: string): string {
     formattedLines.push('') // Add blank line
   }
   
-  // Extract and clean hashtags
-  const hashtagMatches = cleaned.match(/#\w+/g)
-  if (hashtagMatches && hashtagMatches.length > 0) {
-    const uniqueHashtags = [...new Set(hashtagMatches)]
-    const hashtags = uniqueHashtags.slice(0, 5).join(' ') // Limit to 5 hashtags
-    formattedLines.push(hashtags)
+  // Add hashtags only at the end if they exist
+  if (hashtags.length > 0) {
+    const uniqueHashtags = [...new Set(hashtags)]
+    const hashtagString = uniqueHashtags.slice(0, 5).join(' ') // Limit to 5 hashtags
+    formattedLines.push(hashtagString)
   }
   
   return formattedLines.join('\n')
@@ -1861,6 +1867,10 @@ ${closing}
 
 // Clean and format content for LinkedIn posts
 function cleanAndFormatContent(content: string): string {
+  // First, extract all hashtags from the content
+  const hashtagRegex = /#\w+/g
+  const hashtags = content.match(hashtagRegex) || []
+  
   // Remove unwanted formatting and clean up
   let cleanedContent = content
     .replace(/^(Post\s*\d*:?\s*)/i, '')
@@ -1898,11 +1908,20 @@ function cleanAndFormatContent(content: string): string {
     .replace(/\n*Your thoughts\?.*$/gi, "")
     .trim()
 
+  // Remove all hashtags from the content body
+  cleanedContent = cleanedContent.replace(hashtagRegex, '').trim()
+
   // Apply enhanced formatting for better structure
   cleanedContent = enhanceContentFormatting(cleanedContent)
   
   // Ensure proper structure with post-processing
   cleanedContent = ensureProperStructure(cleanedContent)
+
+  // Add hashtags only at the end if they exist
+  if (hashtags.length > 0) {
+    const uniqueHashtags = [...new Set(hashtags)]
+    cleanedContent = cleanedContent + '\n\n' + uniqueHashtags.join(' ')
+  }
 
   return cleanedContent
 }

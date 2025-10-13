@@ -134,7 +134,7 @@ export class PersonalStoryService {
 
   /**
    * Build contextual personal story context based on topic
-   * Includes ALL personal story sections with emphasis on relevant ones
+   * Includes ALL personal story sections with emphasis on relevant ones and detailed analysis
    */
   static buildContextualStoryContext(storyData: PersonalStoryData, topic: string): string {
     const { answers, customization } = storyData
@@ -142,14 +142,15 @@ export class PersonalStoryService {
     // Extract relevant story elements based on topic keywords
     const relevantElements = this.extractRelevantStoryElements(answers, topic)
     
-    let context = "<contextual_story_analysis>\n"
-    context += `Topic Focus: "${topic}"\n`
-    context += "Create authentic content by connecting this topic to the person's unique life experiences.\n"
-    context += "</contextual_story_analysis>\n\n"
+    let context = "<detailed_personal_story_context>\n"
+    context += `TOPIC TO ADDRESS: "${topic}"\n`
+    context += "Create authentic, detailed content by deeply connecting this topic to the person's unique life experiences.\n"
+    context += "Use specific details, concrete examples, and personal insights from their journey.\n"
+    context += "</detailed_personal_story_context>\n\n"
     
-    context += "<life_journey_sections>\n"
+    context += "<comprehensive_life_journey_analysis>\n"
     
-    // Include ALL personal story sections with emphasis on relevant ones
+    // Include ALL personal story sections with detailed analysis and emphasis on relevant ones
     const allSections = [
       { key: 'early_life', label: 'Early Life & Roots', content: answers.early_life },
       { key: 'education', label: 'Education & Learning Phase', content: answers.education },
@@ -167,31 +168,53 @@ export class PersonalStoryService {
         )
         
         if (isHighlyRelevant) {
-          context += `<priority_section name="${section.label}">${section.content}</priority_section>\n\n`
+          context += `<high_priority_section name="${section.label}">\n`
+          context += `RELEVANCE: This section is highly relevant to "${topic}"\n`
+          context += `CONTENT: ${section.content}\n`
+          context += `USAGE: Use specific details from this section to create authentic, detailed content\n`
+          context += `</high_priority_section>\n\n`
         } else {
-          context += `<section name="${section.label}">${section.content}</section>\n\n`
+          context += `<supporting_section name="${section.label}">\n`
+          context += `CONTENT: ${section.content}\n`
+          context += `USAGE: Reference elements from this section to add depth and authenticity\n`
+          context += `</supporting_section>\n\n`
         }
       }
     })
 
-    context += "</life_journey_sections>\n\n"
+    context += "</comprehensive_life_journey_analysis>\n\n"
     
-    context += "<content_parameters>\n"
+    context += "<content_creation_guidelines>\n"
     context += `Tone: ${customization.tone}\n`
-    context += `Audience: ${customization.targetAudience}\n`
-    context += `Goal: ${customization.mainGoal}\n`
+    context += `Target Audience: ${customization.targetAudience}\n`
+    context += `Main Goal: ${customization.mainGoal}\n`
     context += `Emotional Style: ${customization.emotionalTone}\n`
     context += `Personal Touch: ${customization.personalTouch ? 'Yes' : 'No'}\n`
-    context += "</content_parameters>\n\n"
+    context += `Content Length: Minimum 250 words for substantial, detailed content\n`
+    context += "</content_creation_guidelines>\n\n"
 
-    context += "<content_creation_strategy>\n"
-    context += "1. Analyze topic relevance to each life section\n"
-    context += "2. Prioritize high-relevance sections while maintaining narrative flow\n"
-    context += "3. Create natural connections between topic and personal experiences\n"
-    context += "4. Weave multiple life phases into a cohesive story\n"
-    context += "5. Use specific details to create authenticity\n"
-    context += "6. Ensure content reflects the complete personal journey\n"
-    context += "</content_creation_strategy>"
+    context += "<detailed_content_creation_strategy>\n"
+    context += "1. DEEP ANALYSIS: Examine how each life section connects to the topic\n"
+    context += "2. SPECIFIC EXAMPLES: Extract concrete details, situations, and experiences\n"
+    context += "3. EMOTIONAL DEPTH: Identify feelings, challenges, and growth moments\n"
+    context += "4. NARRATIVE WEAVING: Connect multiple life phases into a cohesive story\n"
+    context += "5. AUTHENTIC DETAILS: Use specific names, places, situations, and outcomes\n"
+    context += "6. ACTIONABLE INSIGHTS: Transform personal experiences into valuable lessons\n"
+    context += "7. PROFESSIONAL RELEVANCE: Connect personal journey to professional growth\n"
+    context += "8. UNIQUE PERSPECTIVE: Highlight what only this person could share\n"
+    context += "</detailed_content_creation_strategy>\n\n"
+
+    context += "<content_quality_requirements>\n"
+    context += "- MINIMUM 250 words total content\n"
+    context += "- Opening paragraph: 3-4 sentences with compelling hook and specific personal details\n"
+    context += "- Exactly 4 bullet points: Each 40-50 words with concrete examples from personal story\n"
+    context += "- Closing paragraph: 2-3 sentences with strong conclusion and actionable insights\n"
+    context += "- Include 4-5 relevant hashtags\n"
+    context += "- Use specific details, not generic advice\n"
+    context += "- Reference actual experiences, challenges, and achievements\n"
+    context += "- Create content that provides real value and actionable insights\n"
+    context += "- Make it feel authentic and unique to this person's journey\n"
+    context += "</content_quality_requirements>"
 
     return context
   }
