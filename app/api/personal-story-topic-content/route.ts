@@ -40,8 +40,21 @@ function enhanceContentFormatting(content: string, topicText: string = "this top
     bulletPoints.push(`• ${cleanSentence}`)
   }
 
-  // Closing paragraph with inspirational wrap-up
-  const closing = `Ultimately, my experiences around "${topicText}" have shaped who I am today — reminding me that growth often begins where comfort ends. Embrace your own journey, and you'll uncover new paths to success.`
+  // Create unique closing paragraphs without topic references
+  const closingVariations = [
+    `These experiences have taught me that success isn't just about achieving goals—it's about the journey, the lessons learned, and the person you become along the way. What aspects of your own journey resonate with these insights? I'd love to hear your thoughts and stories in the comments below.`,
+    `Looking back on my path, I realize that the most valuable lessons often come from unexpected places. Every challenge has been a stepping stone to something greater, and every setback has taught me something new. What has your experience taught you about growth and resilience?`,
+    `My journey continues to evolve, and I'm grateful for every lesson learned along the way. These experiences have shaped not just my professional path, but my entire worldview. I'd love to learn from your perspective—what insights can you share about your own journey?`,
+    `As I continue to grow and evolve, I remain excited about what the future holds. The journey is far from over, and I believe the best is yet to come. What does growth and development mean to you, and how has it influenced your path?`,
+    `These experiences have shown me that true success is about more than just achievements—it's about growth, connection, and making a meaningful impact. Every challenge has been a teacher, and every victory has been a stepping stone. What's your take on building a meaningful career and life?`,
+    `Reflecting on these moments, I'm reminded that the most profound growth happens when we step outside our comfort zones. Each experience has contributed to who I am today and who I'm becoming tomorrow. What moments in your journey have shaped you the most?`,
+    `The beauty of life's journey is that it's never linear—it's filled with twists, turns, and unexpected discoveries. These experiences have fundamentally changed how I view success, relationships, and personal fulfillment. What unexpected turns have shaped your perspective?`,
+    `Every experience has been a teacher, every challenge a lesson, and every success a stepping stone to something greater. I'm constantly amazed by how much we can learn when we remain open to growth. What's the most valuable lesson you've learned recently?`,
+    `As I look forward to the next chapter, I'm excited about the possibilities that lie ahead. These experiences have given me the confidence to embrace new challenges and opportunities. What are you most excited about in your own journey?`,
+    `The journey of growth and development is ongoing, and I'm grateful for every step along the way. These experiences have taught me that the best stories are still being written. What chapter are you most excited to write in your own story?`
+  ]
+  const randomClosingIndex = Math.floor(Math.random() * closingVariations.length)
+  const closing = closingVariations[randomClosingIndex]
 
   // Use extracted hashtags or default ones
   const finalHashtags = hashtags.length > 0 ? hashtags.join(' ') : "#PersonalGrowth #CareerJourney #Inspiration #ProfessionalDevelopment #Motivation"
